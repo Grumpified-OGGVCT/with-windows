@@ -7,6 +7,7 @@
 // ── libm function declarations (non-variadic, extern fn is correct) ──
 
 extern fn sqrt(x: f64) -> f64
+extern fn sqrtf(x: f32) -> f32
 extern fn pow(base: f64, exp: f64) -> f64
 extern fn floor(x: f64) -> f64
 extern fn ceil(x: f64) -> f64
@@ -58,7 +59,11 @@ pub fn clamp[T](x: T, lo: T, hi: T) -> T:
 
 // ── Wrappers (stable public API) ────────────────────────────────
 
-/// Square root.
+/// Square root for f32.
+pub fn sqrt_f32(x: f32) -> f32:
+    sqrtf(x)
+
+/// Square root for f64.
 pub fn sqrt_f64(x: f64) -> f64:
     sqrt(x)
 
