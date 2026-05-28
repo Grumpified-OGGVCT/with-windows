@@ -38,6 +38,7 @@ extern fn FindFirstFileA(lpFileName: *const u8, lpFindFileData: *mut u8) -> i64
 extern fn FindNextFileA(hFindFile: i64, lpFindFileData: *mut u8) -> i32
 extern fn FindClose(hFindFile: i64) -> i32
 extern fn GetSystemInfo(lpSystemInfo: *mut u8)
+extern fn GlobalMemoryStatusEx(lpBuffer: *mut u8) -> i32
 extern fn GetCommandLineA() -> *const u8
 extern fn GetLastError() -> u32
 extern fn BCryptGenRandom(hAlgorithm: i64, pbBuffer: *mut u8, cbBuffer: u32, dwFlags: u32) -> i32
@@ -76,12 +77,15 @@ let FILE_CURRENT: u32 = 1
 let FILE_END: u32 = 2
 let INFINITE: u32 = 0xFFFFFFFF
 let WAIT_OBJECT_0: u32 = 0
+let WAIT_TIMEOUT: u32 = 0x102
+let WAIT_FAILED: u32 = 0xFFFFFFFF
 let ERROR_FILE_NOT_FOUND: u32 = 2
 let ERROR_PATH_NOT_FOUND: u32 = 3
 let ERROR_ACCESS_DENIED: u32 = 5
 let ERROR_ALREADY_EXISTS: u32 = 183
 let ERROR_FILE_EXISTS: u32 = 80
 let ERROR_INVALID_PARAMETER: u32 = 87
+let FILE_ATTRIBUTE_READONLY: u32 = 0x1
 let BCRYPT_USE_SYSTEM_PREFERRED_RNG: u32 = 0x00000002
 let F_OK: i32 = 0
 let R_OK: i32 = 4
@@ -148,6 +152,10 @@ type RtSysInfo:
 // FD-to-HANDLE mapping table.
 let FD_TABLE_SIZE: i32 = 64
 var fd_table: [64]i64 = [0 as i64; 64]
+
+// Static buffer for GetEnvironmentVariableA fallback.
+var env_buf: [8192]u8 = [0 as u8; 8192]
+var env_buf_initialized: i32 = 0
 
 @[c_export("rt_store_args")]
 pub fn store_args(argc_val: i32, argv_val: *const *const u8):
@@ -527,8 +535,8 @@ pub fn rt_remove_tree_impl(path: *const u8) -> i32:
         unsafe: *((&pattern as i64 + i) as *mut u8) = unsafe: *((path as i64 + i) as *const u8)
         i = i + 1
     // Add backslash wildcard
-    unsafe: *((&pattern as i64 + plen) as *mut u8) = 92 /* backslash */
-    unsafe: *((&pattern as i64 + plen + 1) as *mut u8) = 42 /* asterisk */
+    unsafe: *((&pattern as i64 + plen) as *mut u8) = 92 // backslash
+    unsafe: *((&pattern as i64 + plen + 1) as *mut u8) = 42 // asterisk
     unsafe: *((&pattern as i64 + plen + 2) as *mut u8) = 0
 
     let hFind = FindFirstFileA(&pattern as *const [4096]u8 as *const u8, (&pattern as i64 + 256) as *mut u8)
@@ -542,6 +550,7 @@ pub fn rt_remove_tree_impl(path: *const u8) -> i32:
             let second = unsafe: *((name_ptr as i64 + 1) as *const u8)
             if second == 0 or second == 46:
                 // Skip . and ..
+                let _ = 0
             else:
                 rc = rt_remove_subtree(path, name_ptr)
                 if rc != 0:
@@ -814,10 +823,8 @@ pub fn rt_sysinfo_arch_impl() -> str:
 @[c_export("rt_getenv")]
 pub fn rt_getenv_impl(name: *const u8) -> *const u8:
     // We cannot return directly because GetEnvironmentVariableA needs a buffer.
-    // Use a TLS-style static buffer. Limit: 8KB per call, overwrites previous.
+    // Use a static buffer. Limit: 8KB per call, overwrites previous.
     // This is acceptable for bootstrap.
-    static var env_buf: [8192]u8 = [0 as u8; 8192]
-    static var env_buf_initialized: i32 = 0
     if env_buf_initialized == 0:
         env_buf_initialized = 1
         win32_init_fd_table()

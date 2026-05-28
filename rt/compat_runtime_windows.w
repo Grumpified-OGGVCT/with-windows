@@ -82,6 +82,8 @@ let PI_DWPROCESSID: i64 = 16
 let PI_SIZE: i64 = 24
 
 var interrupt_flag: i32 = 0
+var last_spawned_handle: i64 = 0
+var cmd_buf: [32768]u8 = [0 as u8; 32768]
 
 fn make_str(ptr: *const u8, len: i64) -> str:
     var raw: [2]i64 = [ptr as i64, len]
@@ -129,7 +131,6 @@ fn store_i32(base: i64, offset: i64, value: i32):
 // Result is a single C string with spaces separating args.
 // Uses static buffer; max 32768 bytes (Win32 limit).
 fn build_command_line_from_blob(blob: *const u8, len: i64) -> *mut u8:
-    static var cmd_buf: [32768]u8 = [0 as u8; 32768]
     if len <= 0:
         var single: [1]u8 = [0 as u8; 1]
         return &single as *mut [1]u8 as *mut u8
@@ -216,8 +217,8 @@ fn run_binary_direct(path: *const u8) -> i32:
                             &si as *mut [104]u8 as *mut u8, &pi as *mut [24]u8 as *mut u8)
     if ok == 0:
         return -win_last_error()
-    let hProcess = load_i64((&pi as i64) + PI_HPROCESS)
-    let hThread = load_i64((&pi as i64) + PI_HTHREAD)
+    let hProcess = load_i64(&pi as i64, PI_HPROCESS)
+    let hThread = load_i64(&pi as i64, PI_HTHREAD)
     wait_for_process_timeout(hProcess, hThread, -1)
 
 fn run_argv_direct_cwd(blob: *const u8, len: i64, cwd: *const u8) -> i32:
@@ -230,8 +231,8 @@ fn run_argv_direct_cwd(blob: *const u8, len: i64, cwd: *const u8) -> i32:
                             &si as *mut [104]u8 as *mut u8, &pi as *mut [24]u8 as *mut u8)
     if ok == 0:
         return -win_last_error()
-    let hProcess = load_i64((&pi as i64) + PI_HPROCESS)
-    let hThread = load_i64((&pi as i64) + PI_HTHREAD)
+    let hProcess = load_i64(&pi as i64, PI_HPROCESS)
+    let hThread = load_i64(&pi as i64, PI_HTHREAD)
     wait_for_process_timeout(hProcess, hThread, -1)
 
 fn run_argv_direct(blob: *const u8, len: i64) -> i32:
@@ -269,8 +270,8 @@ fn run_argv_capture_cwd(blob: *const u8, len: i64, stdout_path: *const u8, stder
         win32_close(err_h)
         win32_close(in_h)
         return -win_last_error()
-    let hProcess = load_i64((&pi as i64) + PI_HPROCESS)
-    let hThread = load_i64((&pi as i64) + PI_HTHREAD)
+    let hProcess = load_i64(&pi as i64, PI_HPROCESS)
+    let hThread = load_i64(&pi as i64, PI_HTHREAD)
     let rc = wait_for_process_timeout(hProcess, hThread, timeout_ms)
     win32_close(out_h)
     win32_close(err_h)
@@ -301,19 +302,18 @@ fn spawn_argv_capture(blob: *const u8, len: i64, stdout_path: *const u8, stderr_
         win32_close(out_h)
         win32_close(err_h)
         return -win_last_error()
-    let hProcess = load_i64((&pi as i64) + PI_HPROCESS)
-    let hThread = load_i64((&pi as i64) + PI_HTHREAD)
+    let hProcess = load_i64(&pi as i64, PI_HPROCESS)
+    let hThread = load_i64(&pi as i64, PI_HTHREAD)
     // Don't wait. Return pid. Close thread handle; keep process handle for wait.
     win32_close(hThread)
     // We need to return pid. PROCESS_INFORMATION has dwProcessId at offset 16.
-    let pid = load_u32((&pi as i64) + PI_DWPROCESSID) as i32
+    let pid = load_u32(&pi as i64, PI_DWPROCESSID) as i32
     // We leak the process handle here; it will be closed when exec_wait is called.
     // Store handle somewhere? No, Windows only needs the HANDLE for wait.
     // The caller gets a pid (process ID), and exec_wait will need a handle.
     // Simplification: return negative handle to encode it?
     // Actually, let's store the handle in a static and return the pid.
     // For bootstrap, assume single outstanding spawn at a time.
-    static var last_spawned_handle: i64 = 0
     last_spawned_handle = hProcess
     pid
 
@@ -345,11 +345,13 @@ pub fn setenv_str(name: str, value: str) -> i32:
 pub fn install_interrupt_handlers():
     // Windows uses Ctrl+C handlers, not POSIX signals.
     // Bootstrap: no-op. Real handler can be added later.
+    let _ = 0
 
 @[c_export("with_raise_stack_limit")]
 pub fn raise_stack_limit():
     // Windows stack is committed by the linker/PE header.
     // Bootstrap: no-op. A real implementation could use VirtualAlloc to grow the stack.
+    let _ = 0
 
 @[c_export("with_interrupt_requested")]
 pub fn interrupt_requested() -> i32:
@@ -519,7 +521,6 @@ pub fn exec_wait(pid: i32, timeout_ms: i32) -> i32:
         return -1
     // For bootstrap, open a handle from pid using OpenProcess.
     // We need to keep track of handles. Use the last_spawned_handle static from spawn.
-    static var last_spawned_handle: i64 = 0
     let hProcess = last_spawned_handle
     if hProcess == 0 or hProcess == INVALID_HANDLE_VALUE:
         return -1
