@@ -28,9 +28,10 @@ stage2 == stage3 (fixpoint)
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | Deep codebase audit | **✅ DONE** | 5 agents, 26+ files, full gap inventory |
-| Static LLVM SDK build | **🔄 IN PROGRESS** | ~18.5% (2,433/13,173 ninja targets); running via `build-static-llvm-clean.cmd`; ETA 4-10 hours |
-| Compile upstream emit-C bundle | ⏳ BLOCKED on LLVM SDK | Bundle already emitted by upstream; we just need to compile it on Windows |
-| Create `rt/windows_x86_64.w` | **🔄 IN PROGRESS** | Stub exists with `c_export` signatures; full Win32 impl needed |
+| Static LLVM SDK build | **🔄 IN PROGRESS** | `build-static-llvm-clean.cmd` ~39% complete; libclang.lib and lld-link.exe already available; full build can continue in background
+| Compile upstream emit-C bundle | **❌ BLOCKED** | Upstream bundle is Linux-only. Need Windows-compatible emit-C first.
+| Create `rt/windows_x86_64.w` | **✅ DONE** | 849-line Win32 API backend committed
+| Patch `Link.w` for Windows | **✅ DONE** | Added `rt_windows_x86_64.o` embedded object path, host platform detection
 | Create fiber assembly for Windows | ⏳ NOT STARTED | |
 | Fix build system for Windows | ⏳ NOT STARTED | `build.w`, `build/compiler.w`, `Link.w` |
 | Stage chain + fixpoint | ⏳ NOT STARTED | |
@@ -197,7 +198,8 @@ All `.w` build system files use `/` as path separator. On Windows, `ToolFs` may 
 | Session | Date | What Happened |
 |---------|------|---------------|
 | 1 | 2026-05-27 | Eric confirmed static LLVM build is prerequisite (3-4h). Started build; hit `atlbase.h` missing from VS BuildTools. Fix: `-DLLVM_ENABLE_DIA_SDK=OFF`. Build resumed; ~2,433/13,173 targets completed. Created `rt/windows_x86_64.w` stub. Committed scaffolding. |
+| 2 (AM) | 2026-05-28 | LLVM build at ~39% (5,195/13,173 targets). Ninja stopped but key artifacts (libclang.lib, lld-link.exe, headers) already installed. WSL2 Ubuntu confirmed working with `with v0.14.3`. Created complete `rt/windows_x86_64.w` (849 lines, Win32 API). Patched `Link.w` for `rt_windows_x86_64.o`. **Discovered critical blockers:** (1) emit-C hardcodes `<unistd.h>` unconditionally — `CCodegen.w` needs platform-aware headers. (2) `compat_runtime.w` directly calls POSIX-only `fork()`, `waitpid()`, `kill()`, `getrlimit()` — these would emit unusable code on Windows even with header fix. Before Windows emit-C works, both must be addressed. |
 
 ---
 
-*Last updated: 2026-05-27*
+*Last updated: 2026-05-28*
