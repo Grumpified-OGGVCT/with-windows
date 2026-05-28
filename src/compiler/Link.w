@@ -259,6 +259,23 @@ fn link_stage_make_linux_llvm_link_command(llvm_ld: str, obj_path: str, bin_path
     inputs.push(crtn)
     LinkStageCommand { llvm_ld, args, cwd: "", env, inputs, outputs }
 
+fn link_stage_make_windows_llvm_link_command(llvm_ld: str, obj_path: str, bin_path: str, extras: Vec[str], link_libs: Vec[str]) -> LinkStageCommand:
+    let args: Vec[str] = Vec.new()
+    let env: Vec[LinkStageEnvVar] = Vec.new()
+    let inputs: Vec[str] = Vec.new()
+    let outputs: Vec[str] = Vec.new()
+    args.push("/OUT:" ++ bin_path)
+    outputs.push(bin_path)
+    args.push(obj_path)
+    inputs.push(obj_path)
+    for i in 0..extras.len() as i32:
+        let extra = extras.get(i as i64)
+        args.push(extra)
+        inputs.push(extra)
+    for i in 0..link_libs.len() as i32:
+        args.push(link_libs.get(i as i64))
+    LinkStageCommand { llvm_ld, args, cwd: "", env, inputs, outputs }
+
 fn link_stage_make_llvm_link_command(llvm_ld: str, obj_path: str, bin_path: str, extras: Vec[str], link_libs: Vec[str]) -> LinkStageCommand:
     let os = runtime_sysinfo_os()
     let arch = runtime_sysinfo_arch()
@@ -266,6 +283,8 @@ fn link_stage_make_llvm_link_command(llvm_ld: str, obj_path: str, bin_path: str,
         return link_stage_make_linux_llvm_link_command(llvm_ld, obj_path, bin_path, extras, link_libs)
     if os == "Macos" and (arch == "armv8" or arch == "aarch64"):
         return link_stage_make_darwin_llvm_link_command(llvm_ld, obj_path, bin_path, extras, link_libs)
+    if os == "Windows" and arch == "x86_64":
+        return link_stage_make_windows_llvm_link_command(llvm_ld, obj_path, bin_path, extras, link_libs)
     with_eprint("error: unsupported host LLVM linker platform: " ++ os ++ "/" ++ arch)
     LinkStageCommand { linker: "", args: Vec.new(), cwd: "", env: Vec.new(), inputs: Vec.new(), outputs: Vec.new() }
 
