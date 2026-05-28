@@ -295,20 +295,20 @@ __declspec(dllexport) int32_t rt_access(const uint8_t *path, int32_t mode) {
 
 // ── Recursive tree ops ─────────────────────────────────────────────
 
-#define PATH_JOIN(dest, parent, name) do { \
-    int64_t plen = cstr_len(parent); \
-    int64_t nlen = cstr_len(name); \
-    for (int64_t _i = 0; _i < plen; _i++) dest[_i] = parent[_i]; \
-    dest[plen] = '\\\\'; \
-    for (int64_t _j = 0; _j < nlen; _j++) dest[plen + 1 + _j] = name[_j]; \
-    dest[plen + 1 + nlen] = 0; \
-} while(0)
+static void path_join(uint8_t *dest, const uint8_t *parent, const uint8_t *name) {
+    int64_t plen = cstr_len(parent);
+    int64_t nlen = cstr_len(name);
+    for (int64_t i = 0; i < plen; i++) dest[i] = parent[i];
+    dest[plen] = (uint8_t)'\\';
+    for (int64_t i = 0; i < nlen; i++) dest[plen + 1 + i] = name[i];
+    dest[plen + 1 + nlen] = 0;
+}
 
 static int32_t rt_remove_tree_impl(const uint8_t *path);
 
 static int32_t rt_remove_subtree(const uint8_t *parent, const uint8_t *name) {
     uint8_t child[4096];
-    PATH_JOIN(child, parent, name);
+    path_join(child, parent, name);
     return rt_remove_tree_impl(child);
 }
 
@@ -380,8 +380,8 @@ static int32_t rt_copy_tree_impl(const uint8_t *src, const uint8_t *dst);
 static int32_t rt_copy_subtree(const uint8_t *parent_src, const uint8_t *parent_dst,
                                 const uint8_t *name) {
     uint8_t sbuf[4096], dbuf[4096];
-    PATH_JOIN(sbuf, parent_src, name);
-    PATH_JOIN(dbuf, parent_dst, name);
+    path_join(sbuf, parent_src, name);
+    path_join(dbuf, parent_dst, name);
     return rt_copy_tree_impl(sbuf, dbuf);
 }
 
@@ -439,7 +439,7 @@ static int32_t rt_list_files_walk(const uint8_t *path, char **buf, size_t *len, 
         if (fd.cFileName[0] == '.' && (fd.cFileName[1] == 0 ||
              (fd.cFileName[1] == '.' && fd.cFileName[2] == 0))) continue;
         uint8_t child[4096];
-        PATH_JOIN(child, path, (const uint8_t *)fd.cFileName);
+        path_join(child, path, (const uint8_t *)fd.cFileName);
         rc = rt_list_files_walk(child, buf, len, cap);
     } while (rc == 0 && FindNextFileA(hFind, &fd));
     FindClose(hFind);
