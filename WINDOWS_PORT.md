@@ -29,7 +29,7 @@ stage2 == stage3 (fixpoint)
 |-----------|--------|-------|
 | Deep codebase audit | **✅ DONE** | 5 agents, 26+ files, full gap inventory |
 | Static LLVM SDK build | **🔄 IN PROGRESS** | ~18.5% (2,433/13,173 ninja targets); running via `build-static-llvm-clean.cmd`; ETA 4-10 hours |
-| Compile bootstrap C bundle | ⏳ BLOCKED on LLVM SDK | |
+| Compile upstream emit-C bundle | ⏳ BLOCKED on LLVM SDK | Bundle already emitted by upstream; we just need to compile it on Windows |
 | Create `rt/windows_x86_64.w` | **🔄 IN PROGRESS** | Stub exists with `c_export` signatures; full Win32 impl needed |
 | Create fiber assembly for Windows | ⏳ NOT STARTED | |
 | Fix build system for Windows | ⏳ NOT STARTED | `build.w`, `build/compiler.w`, `Link.w` |
@@ -165,7 +165,7 @@ All `.w` build system files use `/` as path separator. On Windows, `ToolFs` may 
 
 1. **Wait for static LLVM build** — `tools/build-static-llvm-clean.cmd` running
 2. **Verify LLVM SDK** — `llvm-nm -g libclang.lib | findstr clang_createIndex`
-3. **Compile bootstrap C bundle** — use `cl.exe` to compile emitted C + static LLVM SDK
+3. **Compile upstream emit-C bundle** — use `cl.exe` to compile emitted C (already emitted by upstream) + static LLVM SDK
 4. **Bootstrap `with.exe`** — first working Windows binary
 5. **Bootstrap stage chain** — verify `with.exe check hello.w`, `with.exe run hello.w`
 6. **Create `rt/windows_x86_64.w`** — Win32 API platform backend
