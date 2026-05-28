@@ -8,6 +8,9 @@
 src/main
 
 # Build artifacts
+*.obj
+*.exe
+*.pdb
 zig-out/
 zig-cache/
 .zig-cache/

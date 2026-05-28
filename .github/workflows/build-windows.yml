@@ -1,0 +1,137 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ main, windows-port ]
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'bootstrap/**'
+      - 'rt/windows_x86_64.w'
+      - 'rt/compat_runtime_windows.w'
+      - 'src/**'
+      - 'lib/std/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  # MSVC compiler flags
+  CL: /W3 /Zc:__cplusplus /EHsc /nologo
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────
+  # Job 1: Verify bootstrap C shim compiles with MSVC
+  # ──────────────────────────────────────────────────────────────────
+  bootstrap-shim:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify MSVC environment
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl /? >nul 2>&1
+          if errorlevel 1 exit /b 1
+          echo [bootstrap-shim] MSVC x64 ready
+
+      - name: Compile windows_platform.c
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl /W3 /O2 /c /Fo"windows_platform.obj" bootstrap\windows_platform.c
+          if errorlevel 1 exit /b 1
+          echo [bootstrap-shim] Compiled windows_platform.obj
+
+      - name: Show object exports
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          dumpbin /SYMBOLS "windows_platform.obj" | findstr /I "rt_" | head -n 40
+
+  # ──────────────────────────────────────────────────────────────────
+  # Job 2: Build static LLVM SDK on Windows (reusable)
+  # ──────────────────────────────────────────────────────────────────
+  build-llvm-windows:
+    runs-on: windows-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ninja
+        run: choco install ninja --yes
+
+      - name: Configure MSVC + Build static LLVM
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          if not exist .deps mkdir .deps
+          if not exist .deps\build mkdir .deps\build
+          cmake -S .deps\src\llvm-22.1.6 -B .deps\build\llvm-22.1.6-windows-x86_64-msvc ^
+            -G "Ninja Multi-Config" ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DLLVM_ENABLE_PROJECTS="clang;lld" ^
+            -DLLVM_TARGETS_TO_BUILD="AArch64;X86" ^
+            -DBUILD_SHARED_LIBS=OFF ^
+            -DLLVM_ENABLE_DIA_SDK=OFF ^
+            -DLLVM_ENABLE_ZLIB=OFF ^
+            -DLLVM_ENABLE_ZSTD=OFF ^
+            -DLLVM_ENABLE_TERMINFO=OFF ^
+            -DCLANG_DEFAULT_CXX_STDLIB=libc++ ^
+            -DCLANG_ENABLE_LIBXML2=OFF ^
+            -DCLANG_ENABLE_STATIC_ANALYZER=OFF ^
+            -DCMAKE_INSTALL_PREFIX="%CD%\.deps\llvm-22.1.6-windows-x86_64-msvc"
+          if errorlevel 1 exit /b 1
+          cmake --build .deps\build\llvm-22.1.6-windows-x86_64-msvc --target install --parallel
+
+      - name: Upload LLVM SDK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm-22.1.6-windows-x86_64-msvc
+          path: .deps/llvm-22.1.6-windows-x86_64-msvc/
+          retention-days: 1
+
+  # ──────────────────────────────────────────────────────────────────
+  # Job 3: Full Windows bootstrap (depends on build-llvm-windows)
+  # ──────────────────────────────────────────────────────────────────
+  bootstrap-full:
+    runs-on: windows-latest
+    needs: build-llvm-windows
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download LLVM SDK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: llvm-22.1.6-windows-x86_64-msvc
+          path: .deps/llvm-22.1.6-windows-x86_64-msvc/
+
+      - name: Verify LLVM SDK
+        shell: cmd
+        run: |
+          if not exist ".deps\llvm-22.1.6-windows-x86_64-msvc\lib\libclang.lib" (
+            echo ERROR: libclang.lib not found in artifact
+            exit /b 1
+          )
+          echo [bootstrap] LLVM SDK verified
+
+      - name: Build With from emitted C bundle
+        # TODO: replace with actual emitted C bundle from WSL2 bootstrap
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          compile-bootstrap.cmd .\with-emit-c-windows .\out
+          if errorlevel 1 exit /b 1
+          echo [bootstrap] with.exe built successfully
+
+      - name: Upload with.exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: with-windows-x86_64
+          path: out/with.exe
+          retention-days: 7
