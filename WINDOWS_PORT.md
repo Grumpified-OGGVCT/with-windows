@@ -28,9 +28,9 @@ stage2 == stage3 (fixpoint)
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | Deep codebase audit | **✅ DONE** | 5 agents, 26+ files, full gap inventory |
-| Static LLVM SDK build | **🔄 IN PROGRESS** | `build-static-llvm-clean.cmd` running; ETA 2-4 hours |
+| Static LLVM SDK build | **🔄 IN PROGRESS** | ~18.5% (2,433/13,173 ninja targets); running via `build-static-llvm-clean.cmd`; ETA 4-10 hours |
 | Compile bootstrap C bundle | ⏳ BLOCKED on LLVM SDK | |
-| Create `rt/windows_x86_64.w` | ⏳ NOT STARTED | |
+| Create `rt/windows_x86_64.w` | **🔄 IN PROGRESS** | Stub exists with `c_export` signatures; full Win32 impl needed |
 | Create fiber assembly for Windows | ⏳ NOT STARTED | |
 | Fix build system for Windows | ⏳ NOT STARTED | `build.w`, `build/compiler.w`, `Link.w` |
 | Stage chain + fixpoint | ⏳ NOT STARTED | |
@@ -192,9 +192,11 @@ All `.w` build system files use `/` as path separator. On Windows, `ToolFs` may 
 
 ---
 
-## Communication Log
+## Session Log
 
-- **2026-05-27:** Eric (With lead dev) confirmed static LLVM build is prerequisite. Estimated 3-4 hours first time. Offered call support if blocked. Target: any Windows edition (Home, Pro, etc.). No WSL required.
+| Session | Date | What Happened |
+|---------|------|---------------|
+| 1 | 2026-05-27 | Eric confirmed static LLVM build is prerequisite (3-4h). Started build; hit `atlbase.h` missing from VS BuildTools. Fix: `-DLLVM_ENABLE_DIA_SDK=OFF`. Build resumed; ~2,433/13,173 targets completed. Created `rt/windows_x86_64.w` stub. Committed scaffolding. |
 
 ---
 
