@@ -61,6 +61,7 @@ extern void with_fiber_await(int32_t);
 #endif
 extern void with_fiber_panic_capture(uint8_t*, int32_t);
 
+typedef struct CStr CStr;
 typedef struct RegexFlags RegexFlags;
 typedef struct RegexError RegexError;
 typedef struct Regex Regex;
@@ -112,15 +113,20 @@ typedef struct pcre2_real_general_context_8 pcre2_real_general_context_8;
 typedef struct compile_block_8 compile_block_8;
 typedef struct recurse_arguments recurse_arguments;
 
-typedef with_str (*with_fn_306)(const Captures*);
-typedef c_void* (*with_fn_97)(uint64_t, c_void*);
-typedef void (*with_fn_99)(c_void*, c_void*);
-typedef int32_t (*with_fn_107)(uint32_t, c_void*);
-typedef int32_t (*with_fn_111)(pcre2_callout_block_8*, c_void*);
-typedef int32_t (*with_fn_114)(pcre2_substitute_callout_block_8*, c_void*);
-typedef uint64_t (*with_fn_116)(uint8_t*, uint64_t, uint8_t*, uint64_t, int32_t, c_void*);
-typedef pcre2_real_jit_stack_8* (*with_fn_198)(c_void*);
-typedef int32_t (*with_fn_836)(pcre2_callout_enumerate_block_8*, c_void*);
+typedef with_str (*with_fn_309)(const Captures*);
+typedef c_void* (*with_fn_99)(uint64_t, c_void*);
+typedef void (*with_fn_101)(c_void*, c_void*);
+typedef int32_t (*with_fn_109)(uint32_t, c_void*);
+typedef int32_t (*with_fn_113)(pcre2_callout_block_8*, c_void*);
+typedef int32_t (*with_fn_116)(pcre2_substitute_callout_block_8*, c_void*);
+typedef uint64_t (*with_fn_118)(uint8_t*, uint64_t, uint8_t*, uint64_t, int32_t, c_void*);
+typedef pcre2_real_jit_stack_8* (*with_fn_200)(c_void*);
+typedef int32_t (*with_fn_839)(pcre2_callout_enumerate_block_8*, c_void*);
+
+struct CStr {
+    int8_t* ptr;
+    int64_t len;
+};
 
 struct RegexFlags {
     int32_t options;
@@ -174,14 +180,14 @@ struct Match {
 };
 
 struct pcre2_memctl {
-    with_fn_97 malloc;
-    with_fn_99 free;
+    with_fn_99 malloc;
+    with_fn_101 free;
     c_void* memory_data;
 };
 
 struct pcre2_real_compile_context_8 {
     pcre2_memctl memctl;
-    with_fn_107 stack_guard;
+    with_fn_109 stack_guard;
     c_void* stack_guard_data;
     uint8_t* tables;
     uint64_t max_pattern_length;
@@ -202,11 +208,11 @@ struct pcre2_real_convert_context_8 {
 
 struct pcre2_real_match_context_8 {
     pcre2_memctl memctl;
-    with_fn_111 callout;
+    with_fn_113 callout;
     c_void* callout_data;
-    with_fn_114 substitute_callout;
+    with_fn_116 substitute_callout;
     c_void* substitute_callout_data;
-    with_fn_116 substitute_case_callout;
+    with_fn_118 substitute_case_callout;
     c_void* substitute_case_callout_data;
     uint64_t offset_limit;
     uint32_t heap_limit;
@@ -437,7 +443,7 @@ struct match_block_8 {
     uint8_t nl[4];
     pcre2_callout_block_8* cb;
     c_void* callout_data;
-    with_fn_111 callout;
+    with_fn_113 callout;
 };
 
 struct heapframe {
@@ -486,7 +492,7 @@ struct dfa_match_block_8 {
     uint16_t bsr_convention;
     pcre2_callout_block_8* cb;
     c_void* callout_data;
-    with_fn_111 callout;
+    with_fn_113 callout;
     dfa_recursion_info* recursive;
 };
 
@@ -694,83 +700,84 @@ extern c_void* rt_libc_stdin(void);
 extern c_void* rt_libc_stdout(void);
 extern c_void* rt_libc_stderr(void);
 
-int32_t fence__13557(int32_t _1);
+int32_t fence__13559(int32_t _1);
 int64_t view_len__13491(const with_str* _1);
 bool view_is_empty__13492(const with_str* _1);
 bool view_eq__13493(const with_str* _1, const with_str* _2);
-bool string_eq__13494(with_str _1, with_str _2);
-int64_t string_to_int__13499(with_str _1);
-with_vec lines__13500(with_str _1);
-int32_t parse__13504(with_str _1);
-void print__13518(with_str _1);
-void eprint__13519(with_str _1);
-void write__13520(with_str _1);
-void ewrite__13521(with_str _1);
-void print_i32__13522(int32_t _1);
-void print_i64__13523(int64_t _1);
-void print_bool__13524(bool _1);
-void assert__13525(bool _1, with_str _2, with_str _3);
-void require__13529(bool _1, with_str _2, with_str _3);
-void check__13530(bool _1, with_str _2, with_str _3);
-with_str i32_to_string__13535(const int32_t* _1);
-with_str i64_to_string__13536(const int64_t* _1);
-with_str u32_to_string__13537(const uint32_t* _1);
-with_str u64_to_string__13538(const uint64_t* _1);
-with_str bool_to_string__13539(const bool* _1);
-with_str int_to_string__13540(int64_t _1);
-RegexFlags regex_make_flags__13608(int32_t _1, int32_t _2);
-with_str regex_error_message__13609(int32_t _1);
-Result_RegexFlags__RegexError_ regex_compile_flags__13610(with_str _1);
-Regex Regex_clone__13617(const Regex* _1);
-void Regex_drop__13621(Regex* _1);
-bool Regex_is_global__13623(const Regex* _1);
-Result_Regex__RegexError_ Regex_compile__13625(with_str _1);
-Result_Regex__RegexError_ Regex_compile_flags__13627(with_str _1, with_str _2);
-int8_t* Regex___literal_code__13631(int8_t** _1, with_str _2, int32_t _3);
-with_str Regex_pattern__13635(const Regex* _1);
-int32_t Regex_num_captures__13637(const Regex* _1);
-Option_i32_ Regex_capture_index__13639(const Regex* _1, with_str _2);
-with_vec Regex_capture_names__13643(const Regex* _1);
-Option_Captures_ Regex_captures__13645(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_at__13647(const Regex* _1, with_str _2, int32_t _3);
-bool Regex_is_match__13650(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_match_op__13653(const Regex* _1, with_str _2);
-Option_Match_ Regex_find__13659(const Regex* _1, with_str _2);
-Option_Match_ Regex_find_at__13661(const Regex* _1, with_str _2, int32_t _3);
-with_vec Regex_find_all__13663(const Regex* _1, with_str _2);
-with_vec Regex_captures_all__13666(const Regex* _1, with_str _2);
-with_str regex_expand_numbered_capture__13667(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
-bool regex_is_name_start__13668(int32_t _1);
-bool regex_is_name_continue__13669(int32_t _1);
-with_str regex_expand_replacement__13670(const Captures* _1, with_str _2);
-with_str Regex_replace_impl__13677(const Regex* _1, with_str _2, with_str _3, bool _4);
-with_str Regex_replace__13679(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_all__13680(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_fn__13682(const Regex* _1, with_str _2, with_fn_306 _3);
-with_str Regex_replace_all_fn__13685(const Regex* _1, with_str _2, with_fn_306 _3);
-with_vec Regex_split__13687(const Regex* _1, with_str _2);
-with_vec Regex_splitn__13689(const Regex* _1, with_str _2, int32_t _3);
-Option_Match_ Captures_get__13690(const Captures* _1, int32_t _2);
-int32_t Captures_len__13691(const Captures* _1);
-Option_Match_ Captures_by_name__13693(const Captures* _1, with_str _2);
-Option_Match_ Captures_name__13694(const Captures* _1, with_str _2);
-with_str Captures_text__13695(const Captures* _1, int32_t _2);
-with_str Captures_name_text__13697(const Captures* _1, with_str _2);
-with_str Regex_capture_text__13700(const Regex* _1, with_str _2, int32_t _3);
-with_str Regex_capture_name_text__13702(const Regex* _1, with_str _2, with_str _3);
-bool i32_eq__13723(int32_t _1, int32_t _2);
-bool bool_eq__13724(bool _1, bool _2);
-int32_t i32_default__13725();
-bool bool_default__13726();
-bool str_eq__13727(with_str _1, with_str _2);
-bool i64_eq__13728(int64_t _1, int64_t _2);
-with_str i32_debug_str__13729(int32_t _1);
-with_str bool_debug_str__13730(bool _1);
-with_str str_debug_str__13733(with_str _1);
-int64_t i32_hash_value__13735(int32_t _1);
-int64_t i64_hash_value__13736(int64_t _1);
-int64_t bool_hash_value__13737(bool _1);
-int64_t str_hash_value__13738(with_str _1);
+int64_t CStr_len__13495(const CStr* _1);
+bool string_eq__13498(with_str _1, with_str _2);
+int64_t string_to_int__13503(with_str _1);
+with_vec lines__13504(with_str _1);
+int32_t parse__13508(with_str _1);
+void print__13522(with_str _1);
+void eprint__13523(with_str _1);
+void write__13524(with_str _1);
+void ewrite__13525(with_str _1);
+void print_i32__13526(int32_t _1);
+void print_i64__13527(int64_t _1);
+void print_bool__13528(bool _1);
+void assert__13529(bool _1, with_str _2, with_str _3);
+void require__13533(bool _1, with_str _2, with_str _3);
+void check__13534(bool _1, with_str _2, with_str _3);
+with_str i32_to_string__13537(const int32_t* _1);
+with_str i64_to_string__13538(const int64_t* _1);
+with_str u32_to_string__13539(const uint32_t* _1);
+with_str u64_to_string__13540(const uint64_t* _1);
+with_str bool_to_string__13541(const bool* _1);
+with_str int_to_string__13542(int64_t _1);
+RegexFlags regex_make_flags__13610(int32_t _1, int32_t _2);
+with_str regex_error_message__13611(int32_t _1);
+Result_RegexFlags__RegexError_ regex_compile_flags__13612(with_str _1);
+Regex Regex_clone__13619(const Regex* _1);
+void Regex_drop__13623(Regex* _1);
+bool Regex_is_global__13625(const Regex* _1);
+Result_Regex__RegexError_ Regex_compile__13627(with_str _1);
+Result_Regex__RegexError_ Regex_compile_flags__13629(with_str _1, with_str _2);
+int8_t* Regex___literal_code__13633(int8_t** _1, with_str _2, int32_t _3);
+with_str Regex_pattern__13637(const Regex* _1);
+int32_t Regex_num_captures__13639(const Regex* _1);
+Option_i32_ Regex_capture_index__13641(const Regex* _1, with_str _2);
+with_vec Regex_capture_names__13645(const Regex* _1);
+Option_Captures_ Regex_captures__13647(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_at__13649(const Regex* _1, with_str _2, int32_t _3);
+bool Regex_is_match__13652(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_match_op__13655(const Regex* _1, with_str _2);
+Option_Match_ Regex_find__13661(const Regex* _1, with_str _2);
+Option_Match_ Regex_find_at__13663(const Regex* _1, with_str _2, int32_t _3);
+with_vec Regex_find_all__13665(const Regex* _1, with_str _2);
+with_vec Regex_captures_all__13668(const Regex* _1, with_str _2);
+with_str regex_expand_numbered_capture__13669(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
+bool regex_is_name_start__13670(int32_t _1);
+bool regex_is_name_continue__13671(int32_t _1);
+with_str regex_expand_replacement__13672(const Captures* _1, with_str _2);
+with_str Regex_replace_impl__13679(const Regex* _1, with_str _2, with_str _3, bool _4);
+with_str Regex_replace__13681(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_all__13682(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_fn__13684(const Regex* _1, with_str _2, with_fn_309 _3);
+with_str Regex_replace_all_fn__13687(const Regex* _1, with_str _2, with_fn_309 _3);
+with_vec Regex_split__13689(const Regex* _1, with_str _2);
+with_vec Regex_splitn__13691(const Regex* _1, with_str _2, int32_t _3);
+Option_Match_ Captures_get__13692(const Captures* _1, int32_t _2);
+int32_t Captures_len__13693(const Captures* _1);
+Option_Match_ Captures_by_name__13695(const Captures* _1, with_str _2);
+Option_Match_ Captures_name__13696(const Captures* _1, with_str _2);
+with_str Captures_text__13697(const Captures* _1, int32_t _2);
+with_str Captures_name_text__13699(const Captures* _1, with_str _2);
+with_str Regex_capture_text__13702(const Regex* _1, with_str _2, int32_t _3);
+with_str Regex_capture_name_text__13704(const Regex* _1, with_str _2, with_str _3);
+bool i32_eq__13725(int32_t _1, int32_t _2);
+bool bool_eq__13726(bool _1, bool _2);
+int32_t i32_default__13727();
+bool bool_default__13728();
+bool str_eq__13729(with_str _1, with_str _2);
+bool i64_eq__13730(int64_t _1, int64_t _2);
+with_str i32_debug_str__13731(int32_t _1);
+with_str bool_debug_str__13732(bool _1);
+with_str str_debug_str__13735(with_str _1);
+int64_t i32_hash_value__13737(int32_t _1);
+int64_t i64_hash_value__13738(int64_t _1);
+int64_t bool_hash_value__13739(bool _1);
+int64_t str_hash_value__13740(with_str _1);
 bool is_alpha__180(int32_t _1);
 bool is_digit__183(int32_t _1);
 bool is_space__184(int32_t _1);
@@ -944,7 +951,7 @@ int32_t _pcre2_was_newline_8__1103(uint8_t* _1, uint32_t _2, uint8_t* _3, uint32
 int32_t _pcre2_valid_utf_8__1102(uint8_t* _1, uint64_t _2, uint64_t* _3);
 uint32_t _pcre2_ord2utf_8__1093(uint32_t _1, uint8_t* _2);
 pcre2_real_general_context_8* pcre2_general_context_copy_8__321(pcre2_real_general_context_8* _1);
-pcre2_real_general_context_8* pcre2_general_context_create_8__80(with_fn_97 _1, with_fn_99 _2, c_void* _3);
+pcre2_real_general_context_8* pcre2_general_context_create_8__80(with_fn_99 _1, with_fn_101 _2, c_void* _3);
 void pcre2_general_context_free_8__102(pcre2_real_general_context_8* _1);
 pcre2_real_compile_context_8* pcre2_compile_context_copy_8__323(pcre2_real_compile_context_8* _1);
 pcre2_real_compile_context_8* pcre2_compile_context_create_8__324(pcre2_real_general_context_8* _1);
@@ -957,7 +964,7 @@ int32_t pcre2_set_max_pattern_compiled_length_8__330(pcre2_real_compile_context_
 int32_t pcre2_set_max_varlookbehind_8__331(pcre2_real_compile_context_8* _1, uint32_t _2);
 int32_t pcre2_set_newline_8__332(pcre2_real_compile_context_8* _1, uint32_t _2);
 int32_t pcre2_set_parens_nest_limit_8__333(pcre2_real_compile_context_8* _1, uint32_t _2);
-int32_t pcre2_set_compile_recursion_guard_8__334(pcre2_real_compile_context_8* _1, with_fn_107 _2, c_void* _3);
+int32_t pcre2_set_compile_recursion_guard_8__334(pcre2_real_compile_context_8* _1, with_fn_109 _2, c_void* _3);
 int32_t pcre2_set_optimize_8__335(pcre2_real_compile_context_8* _1, uint32_t _2);
 pcre2_real_convert_context_8* pcre2_convert_context_copy_8__336(pcre2_real_convert_context_8* _1);
 pcre2_real_convert_context_8* pcre2_convert_context_create_8__337(pcre2_real_general_context_8* _1);
@@ -967,15 +974,15 @@ int32_t pcre2_set_glob_separator_8__340(pcre2_real_convert_context_8* _1, uint32
 pcre2_real_match_context_8* pcre2_match_context_copy_8__346(pcre2_real_match_context_8* _1);
 pcre2_real_match_context_8* pcre2_match_context_create_8__347(pcre2_real_general_context_8* _1);
 void pcre2_match_context_free_8__348(pcre2_real_match_context_8* _1);
-int32_t pcre2_set_callout_8__349(pcre2_real_match_context_8* _1, with_fn_111 _2, c_void* _3);
-int32_t pcre2_set_substitute_callout_8__350(pcre2_real_match_context_8* _1, with_fn_114 _2, c_void* _3);
-int32_t pcre2_set_substitute_case_callout_8__351(pcre2_real_match_context_8* _1, with_fn_116 _2, c_void* _3);
+int32_t pcre2_set_callout_8__349(pcre2_real_match_context_8* _1, with_fn_113 _2, c_void* _3);
+int32_t pcre2_set_substitute_callout_8__350(pcre2_real_match_context_8* _1, with_fn_116 _2, c_void* _3);
+int32_t pcre2_set_substitute_case_callout_8__351(pcre2_real_match_context_8* _1, with_fn_118 _2, c_void* _3);
 int32_t pcre2_set_depth_limit_8__352(pcre2_real_match_context_8* _1, uint32_t _2);
 int32_t pcre2_set_heap_limit_8__353(pcre2_real_match_context_8* _1, uint32_t _2);
 int32_t pcre2_set_match_limit_8__354(pcre2_real_match_context_8* _1, uint32_t _2);
 int32_t pcre2_set_offset_limit_8__355(pcre2_real_match_context_8* _1, uint64_t _2);
 int32_t pcre2_set_recursion_limit_8__356(pcre2_real_match_context_8* _1, uint32_t _2);
-int32_t pcre2_set_recursion_memory_management_8__357(pcre2_real_match_context_8* _1, with_fn_97 _2, with_fn_99 _3, c_void* _4);
+int32_t pcre2_set_recursion_memory_management_8__357(pcre2_real_match_context_8* _1, with_fn_99 _2, with_fn_101 _3, c_void* _4);
 c_void* _pcre2_memctl_malloc_8__1092(uint64_t _1, pcre2_memctl* _2);
 c_void* default_malloc__2618(uint64_t _1, c_void* _2);
 void default_free__2619(c_void* _1, c_void* _2);
@@ -1061,15 +1068,15 @@ int32_t pcre2_jit_compile_8__386(pcre2_real_code_8* _1, uint32_t _2);
 int32_t pcre2_jit_match_8__387(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3, uint64_t _4, uint32_t _5, pcre2_real_match_data_8* _6, pcre2_real_match_context_8* _7);
 pcre2_real_general_context_8* pcre2_jit_free_unused_memory_8__388(pcre2_real_general_context_8* _1);
 pcre2_real_jit_stack_8* pcre2_jit_stack_create_8__389(uint64_t _1, uint64_t _2, pcre2_real_general_context_8* _3);
-c_void* pcre2_jit_stack_assign_8__390(pcre2_real_match_context_8* _1, with_fn_198 _2, c_void* _3);
+c_void* pcre2_jit_stack_assign_8__390(pcre2_real_match_context_8* _1, with_fn_200 _2, c_void* _3);
 pcre2_real_jit_stack_8* pcre2_jit_stack_free_8__391(pcre2_real_jit_stack_8* _1);
 c_void* _pcre2_jit_free_rodata_8__1088(c_void* _1, c_void* _2);
 pcre2_memctl* _pcre2_jit_free_8__1089(c_void* _1, pcre2_memctl* _2);
 uint64_t _pcre2_jit_get_size_8__1090(c_void* _1);
 int8_t* _pcre2_jit_get_target_8__1091();
-c_void* libc_stdin__13780();
-c_void* libc_stdout__13781();
-c_void* libc_stderr__13782();
+c_void* libc_stdin__13782();
+c_void* libc_stdout__13783();
+c_void* libc_stderr__13784();
 uint8_t* pcre2_maketables_8__94(pcre2_real_general_context_8* _1);
 void pcre2_maketables_free_8__392(pcre2_real_general_context_8* _1, uint8_t* _2);
 int32_t pcre2_match_8__126(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3, uint64_t _4, uint32_t _5, pcre2_real_match_data_8* _6, pcre2_real_match_context_8* _7);
@@ -1097,7 +1104,7 @@ int32_t find_text_end__13304(pcre2_real_code_8* _1, uint8_t** _2, uint8_t* _3, i
 int32_t read_name_subst__13303(uint8_t** _1, uint8_t* _2, int32_t _3, uint8_t* _4);
 uint64_t pessimistic_case_inflation__13307(uint64_t _1);
 uint64_t default_substitute_case_callout__13306(uint8_t* _1, uint64_t _2, uint8_t* _3, uint64_t _4, case_state* _5, pcre2_real_code_8* _6);
-uint64_t do_case_copy__13308(uint8_t* _1, uint64_t _2, uint64_t _3, case_state* _4, int32_t _5, with_fn_116 _6, c_void* _7);
+uint64_t do_case_copy__13308(uint8_t* _1, uint64_t _2, uint64_t _3, case_state* _4, int32_t _5, with_fn_118 _6, c_void* _7);
 int32_t pcre2_substring_copy_byname_8__370(pcre2_real_match_data_8* _1, uint8_t* _2, uint8_t* _3, uint64_t* _4);
 int32_t pcre2_substring_copy_bynumber_8__371(pcre2_real_match_data_8* _1, uint32_t _2, uint8_t* _3, uint64_t* _4);
 void pcre2_substring_free_8__372(uint8_t* _1);
@@ -1110,7 +1117,7 @@ int32_t pcre2_substring_number_from_name_8__156(pcre2_real_code_8* _1, uint8_t* 
 void pcre2_substring_list_free_8__378(uint8_t** _1);
 int32_t pcre2_substring_list_get_8__379(pcre2_real_match_data_8* _1, uint8_t*** _2, uint64_t** _3);
 int32_t pcre2_pattern_info_8__113(pcre2_real_code_8* _1, uint32_t _2, c_void* _3);
-int32_t pcre2_callout_enumerate_8__359(pcre2_real_code_8* _1, with_fn_836 _2, c_void* _3);
+int32_t pcre2_callout_enumerate_8__359(pcre2_real_code_8* _1, with_fn_839 _2, c_void* _3);
 int32_t pcre2_serialize_encode_8__380(pcre2_real_code_8** _1, int32_t _2, uint8_t** _3, uint64_t* _4, pcre2_real_general_context_8* _5);
 int32_t pcre2_serialize_decode_8__381(pcre2_real_code_8** _1, int32_t _2, uint8_t* _3, pcre2_real_general_context_8* _4);
 int32_t pcre2_serialize_get_number_of_codes_8__382(uint8_t* _1);
@@ -1144,13 +1151,13 @@ int32_t with_regex_group_name_to_index(int8_t* _1, with_str _2);
 with_str with_regex_substitute(int8_t* _1, with_str _2, with_str _3, int32_t _4);
 
 
-int32_t fence__13557(int32_t _1) {
+int32_t fence__13559(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 45 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _0 = 0;
     /* drop(_1); */
     return _0;
@@ -1161,8 +1168,9 @@ int64_t view_len__13491(const with_str* _1) {
     int64_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 47 "rt/regex_runtime.w"
+#line 45 "rt/regex_runtime.w"
     /* StorageLive(_1); */
+#line 47 "rt/regex_runtime.w"
     _0 = (*_1).len;
     return _0;
 }
@@ -1172,7 +1180,7 @@ bool view_is_empty__13492(const with_str* _1) {
     bool _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 51 "rt/regex_runtime.w"
     _2 = ((*_1).len == 0);
@@ -1188,47 +1196,59 @@ bb0:
 #line 52 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 54 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     { __typeof__((_1 == _2)) __tmp = (_1 == _2); memcpy(&(_3), &__tmp, sizeof(_3) < sizeof(__tmp) ? sizeof(_3) : sizeof(__tmp)); }
+#line 54 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 }
 
-bool string_eq__13494(with_str _1, with_str _2) {
+int64_t CStr_len__13495(const CStr* _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 55 "rt/regex_runtime.w"
+    /* StorageLive(_1); */
+#line 57 "rt/regex_runtime.w"
+    _0 = (*_1).len;
+    return _0;
+}
+
+bool string_eq__13498(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 55 "rt/regex_runtime.w"
+#line 58 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     _3 = with_str_eq(_1, _2);
     goto bb1;
 bb1:
-#line 57 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _4 = (_3 != 0);
     _0 = _4;
     return _0;
 bb2: ;
 }
 
-int64_t string_to_int__13499(with_str _1) {
+int64_t string_to_int__13503(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 109 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     _2 = with_parse_i64(_1);
     goto bb1;
 bb1:
-#line 111 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_vec lines__13500(with_str _1) {
+with_vec lines__13504(with_str _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -1236,21 +1256,19 @@ with_vec lines__13500(with_str _1) {
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 113 "rt/regex_runtime.w"
-    /* StorageLive(_1); */
-#line 114 "rt/regex_runtime.w"
-    /* StorageLive(_2); */
-#line 115 "rt/regex_runtime.w"
-    _3 = (with_vec){0, 0, 0, 0};
-#line 114 "rt/regex_runtime.w"
-    _2 = _3;
 #line 116 "rt/regex_runtime.w"
+    /* StorageLive(_1); */
+#line 118 "rt/regex_runtime.w"
+    /* StorageLive(_2); */
+    _3 = (with_vec){0, 0, 0, 0};
+    _2 = _3;
+#line 119 "rt/regex_runtime.w"
     _4 = (void*)(&_2);
     with_lines_out(_4, _1);
     goto bb1;
 bb1:
     /* drop(_2); */
-#line 118 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb2: ;
@@ -1259,33 +1277,34 @@ bb4: ;
 bb5: ;
 }
 
-int32_t parse__13504(with_str _1) {
+int32_t parse__13508(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 119 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     /* StorageLive(_1); */
+#line 123 "rt/regex_runtime.w"
     /* StorageLive(_2); */
-    _3 = string_to_int__13499(_1);
+    _3 = string_to_int__13503(_1);
     goto bb1;
 bb1:
     _2 = _3;
-#line 120 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _4 = ((int32_t)(_2));
     _0 = _4;
     return _0;
 bb2: ;
 }
 
-void print__13518(with_str _1) {
+void print__13522(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 40 "rt/regex_runtime.w"
+#line 39 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_println_str(_1);
     goto bb1;
@@ -1293,12 +1312,12 @@ bb1:
     return;
 }
 
-void eprint__13519(with_str _1) {
+void eprint__13523(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 43 "rt/regex_runtime.w"
+#line 41 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_eprint(_1);
     goto bb1;
@@ -1306,12 +1325,12 @@ bb1:
     return;
 }
 
-void write__13520(with_str _1) {
+void write__13524(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 45 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_write(_1);
     goto bb1;
@@ -1319,12 +1338,12 @@ bb1:
     return;
 }
 
-void ewrite__13521(with_str _1) {
+void ewrite__13525(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 49 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_ewrite(_1);
     goto bb1;
@@ -1332,12 +1351,12 @@ bb1:
     return;
 }
 
-void print_i32__13522(int32_t _1) {
+void print_i32__13526(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 53 "rt/regex_runtime.w"
+#line 51 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_println_i32(_1);
     goto bb1;
@@ -1345,12 +1364,12 @@ bb1:
     return;
 }
 
-void print_i64__13523(int64_t _1) {
+void print_i64__13527(int64_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_println_i64(_1);
     goto bb1;
@@ -1358,12 +1377,12 @@ bb1:
     return;
 }
 
-void print_bool__13524(bool _1) {
+void print_bool__13528(bool _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 60 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     with_println_bool(_1);
     goto bb1;
@@ -1371,17 +1390,17 @@ bb1:
     return;
 }
 
-void assert__13525(bool _1, with_str _2, with_str _3) {
+void assert__13529(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 61 "rt/regex_runtime.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
 #line 63 "rt/regex_runtime.w"
-    /* StorageLive(_1); */
-    /* StorageLive(_2); */
-    /* StorageLive(_3); */
-#line 66 "rt/regex_runtime.w"
     _4 = (!(_1));
     if (_4 == 1) {
         goto bb1;
@@ -1400,46 +1419,46 @@ bb4:
     goto bb3;
 }
 
-void require__13529(bool _1, with_str _2, with_str _3) {
+void require__13533(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 69 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
+#line 70 "rt/regex_runtime.w"
+    _4 = (!(_1));
+    if (_4 == 1) {
+        goto bb1;
+    }
+    else {
+        goto bb2;
+    }
+bb1:
+    with_panic(_2, _3, 0);
+    goto bb4;
+bb2:
+    goto bb3;
+bb3:
+    return;
+bb4:
+    goto bb3;
+}
+
+void check__13534(bool _1, with_str _2, with_str _3) {
+    int32_t _0 __attribute__((unused)) = {0};
+    bool _4 __attribute__((unused)) = {0};
+    int32_t _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
 #line 72 "rt/regex_runtime.w"
-    _4 = (!(_1));
-    if (_4 == 1) {
-        goto bb1;
-    }
-    else {
-        goto bb2;
-    }
-bb1:
-    with_panic(_2, _3, 0);
-    goto bb4;
-bb2:
-    goto bb3;
-bb3:
-    return;
-bb4:
-    goto bb3;
-}
-
-void check__13530(bool _1, with_str _2, with_str _3) {
-    int32_t _0 __attribute__((unused)) = {0};
-    bool _4 __attribute__((unused)) = {0};
-    int32_t _5 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 73 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 74 "rt/regex_runtime.w"
+#line 73 "rt/regex_runtime.w"
     _4 = (!(_1));
     if (_4 == 1) {
         goto bb1;
@@ -1458,7 +1477,7 @@ bb4:
     goto bb3;
 }
 
-with_str i32_to_string__13535(const int32_t* _1) {
+with_str i32_to_string__13537(const int32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
@@ -1466,41 +1485,54 @@ with_str i32_to_string__13535(const int32_t* _1) {
 bb0:
 #line 78 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 79 "rt/regex_runtime.w"
     _2 = ((int64_t)((*_1)));
     _3 = with_i64_to_str(_2);
     goto bb1;
 bb1:
-#line 80 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 bb2: ;
 bb3: ;
 }
 
-with_str i64_to_string__13536(const int64_t* _1) {
+with_str i64_to_string__13538(const int64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 79 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i64_to_str((*_1));
     goto bb1;
 bb1:
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb2: ;
 }
 
-with_str u32_to_string__13537(const uint32_t* _1) {
+with_str u32_to_string__13539(const uint32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 82 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     _2 = with_fmt_u32((*_1));
+    goto bb1;
+bb1:
+#line 82 "rt/regex_runtime.w"
+    _0 = _2;
+    return _0;
+bb2: ;
+}
+
+with_str u64_to_string__13540(const uint64_t* _1) {
+    with_str _0 __attribute__((unused)) = {0};
+    with_str _2 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+    /* StorageLive(_1); */
+    _2 = with_fmt_u64((*_1));
     goto bb1;
 bb1:
 #line 84 "rt/regex_runtime.w"
@@ -1509,14 +1541,14 @@ bb1:
 bb2: ;
 }
 
-with_str u64_to_string__13538(const uint64_t* _1) {
+with_str bool_to_string__13541(const bool* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
 #line 85 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-    _2 = with_fmt_u64((*_1));
+    _2 = with_bool_to_str((*_1));
     goto bb1;
 bb1:
 #line 86 "rt/regex_runtime.w"
@@ -1525,38 +1557,22 @@ bb1:
 bb2: ;
 }
 
-with_str bool_to_string__13539(const bool* _1) {
+with_str int_to_string__13542(int64_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 87 "rt/regex_runtime.w"
-    /* StorageLive(_1); */
-    _2 = with_bool_to_str((*_1));
-    goto bb1;
-bb1:
 #line 88 "rt/regex_runtime.w"
-    _0 = _2;
-    return _0;
-bb2: ;
-}
-
-with_str int_to_string__13540(int64_t _1) {
-    with_str _0 __attribute__((unused)) = {0};
-    with_str _2 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 91 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i64_to_str(_1);
     goto bb1;
 bb1:
-#line 93 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-RegexFlags regex_make_flags__13608(int32_t _1, int32_t _2) {
+RegexFlags regex_make_flags__13610(int32_t _1, int32_t _2) {
     RegexFlags _0 __attribute__((unused)) = {0};
     RegexFlags _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -1570,7 +1586,7 @@ bb0:
     return _0;
 }
 
-with_str regex_error_message__13609(int32_t _1) {
+with_str regex_error_message__13611(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1584,7 +1600,7 @@ bb1:
     return _0;
 }
 
-Result_RegexFlags__RegexError_ regex_compile_flags__13610(with_str _1) {
+Result_RegexFlags__RegexError_ regex_compile_flags__13612(with_str _1) {
     Result_RegexFlags__RegexError_ _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -1616,6 +1632,7 @@ Result_RegexFlags__RegexError_ regex_compile_flags__13610(with_str _1) {
     Result_RegexFlags__RegexError_ _29 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 67 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 68 "rt/regex_runtime.w"
     /* StorageLive(_2); */
@@ -1635,7 +1652,7 @@ bb2:
     _8 = with_str_byte_at(_1, (int64_t)(_4));
     goto bb5;
 bb3:
-    _28 = regex_make_flags__13608(_2, _3);
+    _28 = regex_make_flags__13610(_2, _3);
     goto bb28;
 bb4:
     _6 = (_4 < _5);
@@ -1709,6 +1726,7 @@ bb15:
     _2 = _16;
     goto bb17;
 bb16:
+#line 78 "rt/regex_runtime.w"
     _17 = (_7 == 120);
     if (_17 == 1) {
         goto bb18;
@@ -1719,7 +1737,6 @@ bb16:
 bb17:
     goto bb14;
 bb18:
-#line 78 "rt/regex_runtime.w"
     _18 = (_2 | 128);
     _2 = _18;
     goto bb20;
@@ -1736,11 +1753,9 @@ bb20:
 bb21:
 #line 79 "rt/regex_runtime.w"
     _20 = (_2 | 262144);
-#line 78 "rt/regex_runtime.w"
     _2 = _20;
     goto bb23;
 bb22:
-#line 79 "rt/regex_runtime.w"
     _21 = (_7 == 117);
     if (_21 == 1) {
         goto bb24;
@@ -1805,7 +1820,7 @@ bb56: ;
 bb57: ;
 }
 
-Regex Regex_clone__13617(const Regex* _1) {
+Regex Regex_clone__13619(const Regex* _1) {
     Regex _0 __attribute__((unused)) = {0};
     int8_t* _2 __attribute__((unused)) = {0};
     int8_t* _3 __attribute__((unused)) = {0};
@@ -1816,7 +1831,7 @@ Regex Regex_clone__13617(const Regex* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 87 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     /* StorageLive(_2); */
     _3 = with_regex_code_copy((*_1).ptr);
     goto bb1;
@@ -1837,9 +1852,9 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _7 = (Regex){.ptr = _2, .pattern_text = (*_1).pattern_text, .flags_text = (*_1).flags_text, .options = (*_1).options, .flags = (*_1).flags, .capture_count = (*_1).capture_count, .owned = 1, .global_pos = 0, .global_subject_ptr = 0, .global_subject_len = 0};
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _0 = _7;
     return _0;
 bb5:
@@ -1849,7 +1864,7 @@ bb7: ;
 bb8: ;
 }
 
-void Regex_drop__13621(Regex* _1) {
+void Regex_drop__13623(Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1898,7 +1913,7 @@ bb11: ;
 bb12: ;
 }
 
-bool Regex_is_global__13623(const Regex* _1) {
+bool Regex_is_global__13625(const Regex* _1) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1909,26 +1924,26 @@ bb0:
 #line 108 "rt/regex_runtime.w"
     _2 = ((*_1).flags & 1);
     _3 = (_2 != 0);
+#line 109 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile__13625(with_str _1) {
+Result_Regex__RegexError_ Regex_compile__13627(with_str _1) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_Regex__RegexError_ _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 109 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-    _2 = Regex_compile_flags__13627(_1, WITH_STR_LIT(""));
+    _2 = Regex_compile_flags__13629(_1, WITH_STR_LIT(""));
     goto bb1;
 bb1:
-#line 111 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile_flags__13627(with_str _1, with_str _2) {
+Result_Regex__RegexError_ Regex_compile_flags__13629(with_str _1, with_str _2) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _3 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _4 __attribute__((unused)) = {0};
@@ -1956,7 +1971,7 @@ Result_Regex__RegexError_ Regex_compile_flags__13627(with_str _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = regex_compile_flags__13610(_2);
+    _3 = regex_compile_flags__13612(_2);
     goto bb1;
 bb1:
 #line 115 "rt/regex_runtime.w"
@@ -1969,7 +1984,7 @@ bb1:
         goto bb4;
     }
 bb2:
-#line 139 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _0 = _5;
     /* drop(_23); */
     return _0;
@@ -1977,14 +1992,14 @@ bb3:
 #line 116 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _7 = _4.payload0;
+#line 118 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = 0;
-#line 118 "rt/regex_runtime.w"
     /* StorageLive(_9); */
     _9 = 0;
 #line 119 "rt/regex_runtime.w"
     /* StorageLive(_10); */
-#line 120 "rt/regex_runtime.w"
+#line 121 "rt/regex_runtime.w"
     _11 = (int32_t*)(&_8);
 #line 122 "rt/regex_runtime.w"
     _12 = (int32_t*)(&_9);
@@ -2011,7 +2026,7 @@ bb5:
         goto bb7;
     }
 bb6:
-    _16 = regex_error_message__13609(_8);
+    _16 = regex_error_message__13611(_8);
     goto bb9;
 bb7:
     goto bb8;
@@ -2030,7 +2045,7 @@ bb11:
 #line 129 "rt/regex_runtime.w"
     _20 = (Regex){.ptr = _10, .pattern_text = _1, .flags_text = _2, .options = _7.options, .flags = _7.flags, .capture_count = _19, .owned = 1, .global_pos = 0, .global_subject_ptr = 0, .global_subject_len = 0};
     _21 = (Result_Regex__RegexError_){.tag = 0, .payload0 = _20};
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _5 = _21;
     goto bb2;
 bb12:
@@ -2068,7 +2083,7 @@ bb37: ;
 bb38: ;
 }
 
-int8_t* Regex___literal_code__13631(int8_t** _1, with_str _2, int32_t _3) {
+int8_t* Regex___literal_code__13633(int8_t** _1, with_str _2, int32_t _3) {
     int8_t* _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2088,6 +2103,7 @@ int8_t* Regex___literal_code__13631(int8_t** _1, with_str _2, int32_t _3) {
     int32_t _19 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 140 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
@@ -2101,7 +2117,7 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 142 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb2:
@@ -2109,7 +2125,6 @@ bb2:
 bb3:
     /* StorageLive(_6); */
     _6 = (*_1);
-#line 143 "rt/regex_runtime.w"
     _7 = ((int64_t)(_6));
     _8 = (_7 != 0);
     if (_8 == 1) {
@@ -2126,22 +2141,24 @@ bb5:
 bb6:
     goto bb7;
 bb7:
+#line 144 "rt/regex_runtime.w"
     /* StorageLive(_9); */
     _9 = 0;
-#line 144 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     /* StorageLive(_10); */
     _10 = 0;
-#line 145 "rt/regex_runtime.w"
     /* StorageLive(_11); */
     _12 = (int32_t*)(&_9);
+#line 146 "rt/regex_runtime.w"
     _13 = (int32_t*)(&_10);
     _14 = with_regex_compile(_2, _3, _12, _13);
     goto bb9;
 bb8:
     goto bb7;
 bb9:
+#line 145 "rt/regex_runtime.w"
     _11 = _14;
-#line 146 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _15 = ((int64_t)(_11));
     _16 = (_15 == 0);
     if (_16 == 1) {
@@ -2151,14 +2168,14 @@ bb9:
         goto bb11;
     }
 bb10:
-    _17 = regex_error_message__13609(_9);
+    _17 = regex_error_message__13611(_9);
     goto bb13;
 bb11:
     goto bb12;
 bb12:
-#line 148 "rt/regex_runtime.w"
-    (*_1) = _11;
 #line 149 "rt/regex_runtime.w"
+    (*_1) = _11;
+#line 150 "rt/regex_runtime.w"
     _0 = _11;
     return _0;
 bb13:
@@ -2187,28 +2204,27 @@ bb27: ;
 bb28: ;
 }
 
-with_str Regex_pattern__13635(const Regex* _1) {
+with_str Regex_pattern__13637(const Regex* _1) {
     with_str _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 149 "rt/regex_runtime.w"
-    /* StorageLive(_1); */
 #line 150 "rt/regex_runtime.w"
+    /* StorageLive(_1); */
     _0 = (*_1).pattern_text;
     return _0;
 }
 
-int32_t Regex_num_captures__13637(const Regex* _1) {
+int32_t Regex_num_captures__13639(const Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 152 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _0 = (*_1).capture_count;
     return _0;
 }
 
-Option_i32_ Regex_capture_index__13639(const Regex* _1, with_str _2) {
+Option_i32_ Regex_capture_index__13641(const Regex* _1, with_str _2) {
     Option_i32_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2222,7 +2238,7 @@ Option_i32_ Regex_capture_index__13639(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 154 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _3 = ((int64_t)((*_1).ptr));
     _4 = (_3 == 0);
     if (_4 == 1) {
@@ -2233,13 +2249,12 @@ bb0:
     }
 bb1:
     _5 = (Option_i32_){.tag = 1};
-#line 155 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _0 = _5;
     return _0;
 bb2:
     goto bb3;
 bb3:
-#line 156 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _7 = with_regex_group_name_to_index((*_1).ptr, _2);
     goto bb5;
@@ -2247,7 +2262,7 @@ bb4:
     goto bb3;
 bb5:
     _6 = _7;
-#line 159 "rt/regex_runtime.w"
+#line 161 "rt/regex_runtime.w"
     _8 = (_6 < 0);
     if (_8 == 1) {
         goto bb6;
@@ -2257,13 +2272,12 @@ bb5:
     }
 bb6:
     _9 = (Option_i32_){.tag = 1};
-#line 161 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb7:
     goto bb8;
 bb8:
-#line 162 "rt/regex_runtime.w"
     _10 = (Option_i32_){.tag = 0, .payload0 = _6};
     _0 = _10;
     return _0;
@@ -2274,7 +2288,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_capture_names__13643(const Regex* _1) {
+with_vec Regex_capture_names__13645(const Regex* _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -2290,7 +2304,7 @@ with_vec Regex_capture_names__13643(const Regex* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 163 "rt/regex_runtime.w"
+#line 164 "rt/regex_runtime.w"
     /* StorageLive(_2); */
     _3 = (with_vec){ .ptr = NULL, .len = 0, .cap = 0, .elem_size = sizeof(with_str) };
     goto bb1;
@@ -2312,6 +2326,7 @@ bb2:
 bb3:
     goto bb4;
 bb4:
+#line 166 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _7 = with_regex_capture_name_count((*_1).ptr);
     goto bb6;
@@ -2319,12 +2334,12 @@ bb5:
     goto bb4;
 bb6:
     _6 = _7;
-#line 166 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = 0;
     goto bb7;
 bb7:
-#line 167 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _9 = (_8 < _6);
     if (_9 == 1) {
         goto bb8;
@@ -2337,14 +2352,14 @@ bb8:
     goto bb10;
 bb9:
     /* drop(_2); */
-#line 169 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb10:
     { with_str __with_tmp = _10; with_vec_push(&(_2), &__with_tmp); }
     goto bb11;
 bb11:
-#line 168 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _12 = (_8 + 1);
     _8 = _12;
     goto bb7;
@@ -2364,24 +2379,24 @@ bb24: ;
 bb25: ;
 }
 
-Option_Captures_ Regex_captures__13645(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures__13647(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 169 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures_at__13647(_1, _2, 0);
+    _3 = Regex_captures_at__13649(_1, _2, 0);
     goto bb1;
 bb1:
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 bb2: ;
 }
 
-Option_Captures_ Regex_captures_at__13647(const Regex* _1, with_str _2, int32_t _3) {
+Option_Captures_ Regex_captures_at__13649(const Regex* _1, with_str _2, int32_t _3) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2416,7 +2431,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 173 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _4 = ((int64_t)((*_1).ptr));
     _5 = (_4 == 0);
     if (_5 == 1) {
@@ -2427,16 +2442,14 @@ bb0:
     }
 bb1:
     _6 = (Option_Captures_){.tag = 1};
-#line 174 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _0 = _6;
     return _0;
 bb2:
     goto bb3;
 bb3:
-#line 175 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _7 = 0;
-#line 176 "rt/regex_runtime.w"
     /* StorageLive(_8); */
 #line 177 "rt/regex_runtime.w"
     _9 = (int32_t*)(&_7);
@@ -2470,12 +2483,12 @@ bb7:
     }
 bb8:
     _15 = (Option_Captures_){.tag = 1};
+#line 178 "rt/regex_runtime.w"
     _0 = _15;
     return _0;
 bb9:
     goto bb10;
 bb10:
-#line 178 "rt/regex_runtime.w"
     /* StorageLive(_16); */
     _17 = (with_vec){ .ptr = NULL, .len = 0, .cap = 0, .elem_size = sizeof(int32_t) };
     goto bb12;
@@ -2483,6 +2496,7 @@ bb11:
     goto bb10;
 bb12:
     _16 = _17;
+#line 179 "rt/regex_runtime.w"
     /* StorageLive(_18); */
     _18 = 0;
     goto bb13;
@@ -2495,7 +2509,7 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 179 "rt/regex_runtime.w"
+#line 180 "rt/regex_runtime.w"
     _20 = ((int64_t)(_8));
     _21 = ((int64_t)(_18));
     _22 = (_21 * 4);
@@ -2505,17 +2519,19 @@ bb14:
     { int32_t __with_tmp = (*_25); with_vec_push(&(_16), &__with_tmp); }
     goto bb16;
 bb15:
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _28 = (uint8_t*)((uint8_t*)(_8));
     with_free(_28);
     goto bb17;
 bb16:
     _27 = (_18 + 1);
+#line 181 "rt/regex_runtime.w"
     _18 = _27;
     goto bb13;
 bb17:
-#line 182 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _30 = (Captures){.regex_ptr = (*_1).ptr, .subject = _2, .spans = _16};
+#line 182 "rt/regex_runtime.w"
     _31 = (Option_Captures_){.tag = 0, .payload0 = _30};
     /* drop(_16); */
 #line 184 "rt/regex_runtime.w"
@@ -2555,27 +2571,30 @@ bb48: ;
 bb49: ;
 }
 
-bool Regex_is_match__13650(const Regex* _1, with_str _2) {
+bool Regex_is_match__13652(const Regex* _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
-    bool _4 __attribute__((unused)) = {0};
+    Option_Captures_ _4 __attribute__((unused)) = {0};
+    int32_t _5 __attribute__((unused)) = {0};
+    bool _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures__13645(_1, _2);
+    _3 = Regex_captures__13647(_1, _2);
     goto bb1;
 bb1:
-    _4 = ((_3).tag == 0);
-    goto bb2;
-bb2:
 #line 187 "rt/regex_runtime.w"
-    _0 = _4;
+    _4 = _3;
+    _5 = (_4).tag;
+    _6 = (_5 == 0);
+#line 188 "rt/regex_runtime.w"
+    _0 = _6;
     return _0;
-bb3: ;
+bb2: ;
 }
 
-Option_Captures_ Regex_captures_match_op__13653(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures_match_op__13655(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2627,10 +2646,10 @@ Option_Captures_ Regex_captures_match_op__13653(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _6 = Regex_is_global__13623(_1);
+    _6 = Regex_is_global__13625(_1);
     goto bb1;
 bb1:
-#line 189 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _7 = (!(_6));
     _5 = _7;
     if (_5 == 1) {
@@ -2640,10 +2659,10 @@ bb1:
         goto bb2;
     }
 bb2:
-#line 190 "rt/regex_runtime.w"
+#line 191 "rt/regex_runtime.w"
     _8 = ((int64_t)((*_1).global_pos));
     _9 = (_8 == 0);
-#line 189 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _5 = _9;
     goto bb3;
 bb3:
@@ -2655,10 +2674,10 @@ bb3:
         goto bb4;
     }
 bb4:
-#line 191 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _10 = ((int64_t)((*_1).global_subject_ptr));
     _11 = (_10 == 0);
-#line 189 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _4 = _11;
     goto bb5;
 bb5:
@@ -2670,10 +2689,10 @@ bb5:
         goto bb6;
     }
 bb6:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _12 = ((int64_t)((*_1).global_subject_len));
     _13 = (_12 == 0);
-#line 189 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _3 = _13;
     goto bb7;
 bb7:
@@ -2684,34 +2703,31 @@ bb7:
         goto bb9;
     }
 bb8:
-    _14 = Regex_captures__13645(_1, _2);
+    _14 = Regex_captures__13647(_1, _2);
     goto bb11;
 bb9:
     goto bb10;
 bb10:
-#line 194 "rt/regex_runtime.w"
-    /* StorageLive(_15); */
 #line 195 "rt/regex_runtime.w"
+    /* StorageLive(_15); */
     _16 = (&_2);
     _17 = (uint8_t**)((uint8_t**)(_16));
     _18 = _17;
     _19 = ((int64_t)((*_18)));
-#line 194 "rt/regex_runtime.w"
     _15 = _19;
-#line 197 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     /* StorageLive(_20); */
     _21 = ((_2).len);
     goto bb13;
 bb11:
-#line 193 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _0 = _14;
     return _0;
 bb12:
     goto bb10;
 bb13:
-#line 197 "rt/regex_runtime.w"
-    _20 = _21;
 #line 198 "rt/regex_runtime.w"
+    _20 = _21;
     _23 = ((*(*_1).global_subject_ptr) != _15);
     _22 = _23;
     if (_22 == 1) {
@@ -2721,7 +2737,7 @@ bb13:
         goto bb14;
     }
 bb14:
-#line 199 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _24 = ((*(*_1).global_subject_len) != _20);
 #line 198 "rt/regex_runtime.w"
     _22 = _24;
@@ -2744,10 +2760,10 @@ bb16:
 bb17:
     goto bb18;
 bb18:
-#line 205 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     /* StorageLive(_25); */
     _25 = (*(*_1).global_pos);
-    _26 = Regex_captures_at__13647(_1, _2, _25);
+    _26 = Regex_captures_at__13649(_1, _2, _25);
     goto bb19;
 bb19:
 #line 207 "rt/regex_runtime.w"
@@ -2765,10 +2781,10 @@ bb20:
     _0 = _28;
     return _0;
 bb21:
-#line 208 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     /* StorageLive(_30); */
     _30 = _27.payload0;
-    _31 = Captures_get__13690(&(_30), 0);
+    _31 = Captures_get__13692(&(_30), 0);
     goto bb23;
 bb22:
     _47 = (_27).tag;
@@ -2779,7 +2795,7 @@ bb22:
         goto bb20;
     }
 bb23:
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _32 = _31;
     _34 = (_32).tag;
     if (_34 == 0) {
@@ -2792,10 +2808,10 @@ bb24:
     _28 = _33;
     goto bb20;
 bb25:
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     /* StorageLive(_35); */
     _35 = _32.payload0;
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _36 = (_35.end == _35.start);
     if (_36 == 1) {
         goto bb27;
@@ -2825,9 +2841,8 @@ bb29:
     _33 = _44;
     goto bb24;
 bb30:
-#line 213 "rt/regex_runtime.w"
+#line 214 "rt/regex_runtime.w"
     _38 = ((int32_t)(_37));
-#line 212 "rt/regex_runtime.w"
     _39 = (_35.end >= _38);
     if (_39 == 1) {
         goto bb31;
@@ -2937,7 +2952,7 @@ bb106: ;
 bb107: ;
 }
 
-Option_Match_ Regex_find__13659(const Regex* _1, with_str _2) {
+Option_Match_ Regex_find__13661(const Regex* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -2945,7 +2960,7 @@ bb0:
 #line 229 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_find_at__13661(_1, _2, 0);
+    _3 = Regex_find_at__13663(_1, _2, 0);
     goto bb1;
 bb1:
 #line 233 "rt/regex_runtime.w"
@@ -2954,7 +2969,7 @@ bb1:
 bb2: ;
 }
 
-Option_Match_ Regex_find_at__13661(const Regex* _1, with_str _2, int32_t _3) {
+Option_Match_ Regex_find_at__13663(const Regex* _1, with_str _2, int32_t _3) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -2969,10 +2984,10 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures_at__13647(_1, _2, _3);
+    _4 = Regex_captures_at__13649(_1, _2, _3);
     goto bb1;
 bb1:
-#line 234 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _5 = _4;
     _7 = (_5).tag;
     if (_7 == 0) {
@@ -2990,7 +3005,7 @@ bb3:
 #line 235 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__13690(&(_8), 0);
+    _9 = Captures_get__13692(&(_8), 0);
     goto bb5;
 bb4:
     _10 = (_5).tag;
@@ -3016,7 +3031,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_find_all__13663(const Regex* _1, with_str _2) {
+with_vec Regex_find_all__13665(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -3041,13 +3056,12 @@ with_vec Regex_find_all__13663(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     /* StorageLive(_3); */
     _4 = (with_vec){ .ptr = NULL, .len = 0, .cap = 0, .elem_size = sizeof(Match) };
     goto bb1;
 bb1:
     _3 = _4;
-#line 239 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = 0;
     goto bb2;
@@ -3055,16 +3069,17 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_find_at__13661(_1, _2, _5);
+    _9 = Regex_find_at__13663(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_3); */
-#line 251 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 bb5:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _7 = ((int32_t)(_6));
+#line 239 "rt/regex_runtime.w"
     _8 = (_5 <= _7);
     if (_8 == 1) {
         goto bb3;
@@ -3073,7 +3088,7 @@ bb5:
         goto bb4;
     }
 bb6:
-#line 240 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _10 = _9;
     _12 = (_10).tag;
     if (_12 == 0) {
@@ -3085,7 +3100,7 @@ bb6:
 bb7:
     goto bb2;
 bb8:
-#line 242 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     _13 = _10.payload0;
     { Match __with_tmp = _13; with_vec_push(&(_3), &__with_tmp); }
@@ -3099,7 +3114,6 @@ bb9:
         goto bb7;
     }
 bb10:
-#line 243 "rt/regex_runtime.w"
     _15 = (_13.end == _13.start);
     if (_15 == 1) {
         goto bb11;
@@ -3120,8 +3134,9 @@ bb13:
     _11 = _16;
     goto bb7;
 bb14:
-#line 244 "rt/regex_runtime.w"
+#line 245 "rt/regex_runtime.w"
     _18 = ((int32_t)(_17));
+#line 244 "rt/regex_runtime.w"
     _19 = (_13.end >= _18);
     if (_19 == 1) {
         goto bb15;
@@ -3134,8 +3149,9 @@ bb15:
 bb16:
     goto bb17;
 bb17:
-#line 249 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _20 = (_13.end + 1);
+#line 249 "rt/regex_runtime.w"
     _5 = _20;
 #line 244 "rt/regex_runtime.w"
     _16 = _20;
@@ -3161,7 +3177,7 @@ bb30: ;
 bb31: ;
 }
 
-with_vec Regex_captures_all__13666(const Regex* _1, with_str _2) {
+with_vec Regex_captures_all__13668(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -3190,6 +3206,7 @@ with_vec Regex_captures_all__13666(const Regex* _1, with_str _2) {
     int32_t _27 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 252 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 253 "rt/regex_runtime.w"
@@ -3198,6 +3215,7 @@ bb0:
     goto bb1;
 bb1:
     _3 = _4;
+#line 254 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = 0;
     goto bb2;
@@ -3205,7 +3223,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_captures_at__13647(_1, _2, _5);
+    _9 = Regex_captures_at__13649(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_13); */
@@ -3216,7 +3234,6 @@ bb4:
 bb5:
 #line 255 "rt/regex_runtime.w"
     _7 = ((int32_t)(_6));
-#line 254 "rt/regex_runtime.w"
     _8 = (_5 <= _7);
     if (_8 == 1) {
         goto bb3;
@@ -3225,7 +3242,6 @@ bb5:
         goto bb4;
     }
 bb6:
-#line 255 "rt/regex_runtime.w"
     _10 = _9;
     _12 = (_10).tag;
     if (_12 == 0) {
@@ -3237,9 +3253,10 @@ bb6:
 bb7:
     goto bb2;
 bb8:
+#line 256 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__13690(&(_13), 0);
+    _14 = Captures_get__13692(&(_13), 0);
     goto bb10;
 bb9:
     _27 = (_10).tag;
@@ -3294,7 +3311,7 @@ bb16:
     _21 = _18.end;
     goto bb17;
 bb17:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _16 = _21;
     goto bb11;
 bb18:
@@ -3313,8 +3330,9 @@ bb19:
 bb20:
     goto bb21;
 bb21:
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _25 = (_18.end + 1);
+#line 262 "rt/regex_runtime.w"
     _5 = _25;
 #line 260 "rt/regex_runtime.w"
     _21 = _25;
@@ -3332,6 +3350,7 @@ bb25:
     /* drop(_13); */
     goto bb4;
 bb26:
+#line 266 "rt/regex_runtime.w"
     _11 = (__typeof__(_11)){0};
     goto bb7;
 bb27: ;
@@ -3350,7 +3369,7 @@ bb39: ;
 bb40: ;
 }
 
-with_str regex_expand_numbered_capture__13667(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
+with_str regex_expand_numbered_capture__13669(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
     with_str _0 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     int64_t _6 __attribute__((unused)) = {0};
@@ -3368,15 +3387,13 @@ with_str regex_expand_numbered_capture__13667(const Captures* _1, with_str _2, i
     int32_t _18 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 266 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 269 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = _3;
     goto bb1;
@@ -3389,16 +3406,17 @@ bb1:
         goto bb3;
     }
 bb2:
+#line 270 "rt/regex_runtime.w"
     _8 = (_5 * 10);
     _9 = with_str_byte_at(_2, (int64_t)(_6));
     goto bb4;
 bb3:
-    _13 = Captures_get__13690(_1, _5);
+    _13 = Captures_get__13692(_1, _5);
     goto bb5;
 bb4:
-#line 270 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _10 = (_9 - 48);
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _11 = (_8 + _10);
     _5 = _11;
 #line 271 "rt/regex_runtime.w"
@@ -3406,6 +3424,7 @@ bb4:
     _6 = _12;
     goto bb1;
 bb5:
+#line 272 "rt/regex_runtime.w"
     _14 = _13;
     _16 = (_14).tag;
     if (_16 == 0) {
@@ -3415,14 +3434,13 @@ bb5:
         goto bb8;
     }
 bb6:
-#line 274 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _0 = _15;
     return _0;
 bb7:
-#line 272 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     _17 = _14.payload0;
-#line 273 "rt/regex_runtime.w"
     _15 = _17.text;
     goto bb6;
 bb8:
@@ -3434,7 +3452,7 @@ bb8:
         goto bb6;
     }
 bb9:
-#line 274 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _15 = WITH_STR_LIT("");
     goto bb6;
 bb10: ;
@@ -3449,7 +3467,7 @@ bb18: ;
 bb19: ;
 }
 
-bool regex_is_name_start__13668(int32_t _1) {
+bool regex_is_name_start__13670(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3463,7 +3481,7 @@ bool regex_is_name_start__13668(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 277 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _5 = (_1 >= 65);
     _4 = _5;
     if (_4 == 1) {
@@ -3473,9 +3491,9 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 278 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _6 = (_1 <= 90);
-#line 277 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _4 = _6;
     goto bb2;
 bb2:
@@ -3487,7 +3505,7 @@ bb2:
         goto bb3;
     }
 bb3:
-#line 278 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _8 = (_1 >= 97);
     _7 = _8;
     if (_7 == 1) {
@@ -3497,7 +3515,7 @@ bb3:
         goto bb6;
     }
 bb4:
-#line 277 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _2 = _3;
     if (_2 == 1) {
         goto bb8;
@@ -3506,28 +3524,28 @@ bb4:
         goto bb7;
     }
 bb5:
-#line 279 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _9 = (_1 <= 122);
-#line 278 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _7 = _9;
     goto bb6;
 bb6:
-#line 277 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _3 = _7;
     goto bb4;
 bb7:
-#line 279 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _10 = (_1 == 95);
-#line 277 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _2 = _10;
     goto bb8;
 bb8:
-#line 280 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-bool regex_is_name_continue__13669(int32_t _1) {
+bool regex_is_name_continue__13671(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3537,7 +3555,7 @@ bool regex_is_name_continue__13669(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _3 = regex_is_name_start__13668(_1);
+    _3 = regex_is_name_start__13670(_1);
     goto bb1;
 bb1:
 #line 283 "rt/regex_runtime.w"
@@ -3549,6 +3567,7 @@ bb1:
         goto bb2;
     }
 bb2:
+#line 284 "rt/regex_runtime.w"
     _5 = (_1 >= 48);
     _4 = _5;
     if (_4 == 1) {
@@ -3558,20 +3577,19 @@ bb2:
         goto bb5;
     }
 bb3:
-#line 284 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb4:
     _6 = (_1 <= 57);
-#line 283 "rt/regex_runtime.w"
     _4 = _6;
     goto bb5;
 bb5:
+#line 283 "rt/regex_runtime.w"
     _2 = _4;
     goto bb3;
 }
 
-with_str regex_expand_replacement__13670(const Captures* _1, with_str _2) {
+with_str regex_expand_replacement__13672(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -3656,13 +3674,12 @@ with_str regex_expand_replacement__13670(const Captures* _1, with_str _2) {
     int64_t _83 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     /* StorageLive(_3); */
     _3 = WITH_STR_LIT("");
-#line 286 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = 0;
     goto bb1;
@@ -3670,7 +3687,7 @@ bb1:
     _5 = ((_2).len);
     goto bb4;
 bb2:
-#line 287 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _8 = with_str_byte_at(_2, (int64_t)(_4));
     goto bb5;
@@ -3688,8 +3705,9 @@ bb4:
         goto bb3;
     }
 bb5:
-    _7 = _8;
 #line 288 "rt/regex_runtime.w"
+    _7 = _8;
+#line 289 "rt/regex_runtime.w"
     _9 = (_7 != 36);
     if (_9 == 1) {
         goto bb6;
@@ -3703,7 +3721,7 @@ bb6:
 bb7:
     goto bb8;
 bb8:
-#line 292 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _13 = (_4 + 1);
     _14 = ((_2).len);
     goto bb11;
@@ -3711,14 +3729,15 @@ bb9:
 #line 289 "rt/regex_runtime.w"
     _11 = with_str_concat(_3, _10);
     _3 = _11;
-#line 291 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _12 = (_4 + 1);
+#line 291 "rt/regex_runtime.w"
     _4 = _12;
     goto bb1;
 bb10:
     goto bb8;
 bb11:
-#line 292 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _15 = (_13 >= _14);
     if (_15 == 1) {
         goto bb12;
@@ -3727,10 +3746,10 @@ bb11:
         goto bb13;
     }
 bb12:
-#line 294 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _16 = with_str_concat(_3, WITH_STR_LIT("$"));
     _3 = _16;
-#line 295 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     _17 = (_4 + 1);
     _4 = _17;
     goto bb1;
@@ -3739,14 +3758,16 @@ bb13:
 bb14:
 #line 297 "rt/regex_runtime.w"
     /* StorageLive(_18); */
+#line 299 "rt/regex_runtime.w"
     _19 = (_4 + 1);
     _20 = with_str_byte_at(_2, (int64_t)(_19));
     goto bb16;
 bb15:
     goto bb14;
 bb16:
+#line 297 "rt/regex_runtime.w"
     _18 = _20;
-#line 299 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _21 = (_18 == 36);
     if (_21 == 1) {
         goto bb17;
@@ -3755,7 +3776,6 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 300 "rt/regex_runtime.w"
     _22 = with_str_concat(_3, WITH_STR_LIT("$"));
     _3 = _22;
     _23 = (_4 + 2);
@@ -3776,7 +3796,9 @@ bb19:
 bb20:
     goto bb19;
 bb21:
+#line 302 "rt/regex_runtime.w"
     _26 = (_18 <= 57);
+#line 301 "rt/regex_runtime.w"
     _24 = _26;
     goto bb22;
 bb22:
@@ -3789,7 +3811,9 @@ bb22:
 bb23:
 #line 302 "rt/regex_runtime.w"
     /* StorageLive(_27); */
+#line 303 "rt/regex_runtime.w"
     _28 = (_4 + 1);
+#line 302 "rt/regex_runtime.w"
     _27 = _28;
 #line 303 "rt/regex_runtime.w"
     /* StorageLive(_29); */
@@ -3798,7 +3822,7 @@ bb23:
 bb24:
     goto bb25;
 bb25:
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _41 = (_18 == 123);
     if (_41 == 1) {
         goto bb38;
@@ -3815,7 +3839,7 @@ bb27:
     _29 = _38;
     goto bb26;
 bb28:
-    _39 = regex_expand_numbered_capture__13667(_1, _2, _27, _29);
+    _39 = regex_expand_numbered_capture__13669(_1, _2, _27, _29);
     goto bb36;
 bb29:
 #line 304 "rt/regex_runtime.w"
@@ -3839,7 +3863,9 @@ bb31:
         goto bb34;
     }
 bb32:
+#line 305 "rt/regex_runtime.w"
     _35 = (_34 >= 48);
+#line 304 "rt/regex_runtime.w"
     _31 = _35;
     goto bb31;
 bb33:
@@ -3853,16 +3879,16 @@ bb34:
         goto bb28;
     }
 bb35:
-#line 305 "rt/regex_runtime.w"
+#line 306 "rt/regex_runtime.w"
     _37 = (_36 <= 57);
 #line 304 "rt/regex_runtime.w"
     _30 = _37;
     goto bb34;
 bb36:
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _40 = with_str_concat(_3, _39);
     _3 = _40;
-#line 309 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     _4 = _29;
     goto bb1;
 bb37:
@@ -3870,13 +3896,15 @@ bb37:
 bb38:
 #line 311 "rt/regex_runtime.w"
     /* StorageLive(_42); */
+#line 312 "rt/regex_runtime.w"
     _43 = (_4 + 2);
+#line 311 "rt/regex_runtime.w"
     _42 = _43;
     goto bb41;
 bb39:
     goto bb40;
 bb40:
-    _63 = regex_is_name_start__13668(_18);
+    _63 = regex_is_name_start__13670(_18);
     goto bb59;
 bb41:
     _45 = ((_2).len);
@@ -3910,7 +3938,7 @@ bb46:
         goto bb43;
     }
 bb47:
-#line 313 "rt/regex_runtime.w"
+#line 314 "rt/regex_runtime.w"
     _48 = (_47 != 125);
 #line 312 "rt/regex_runtime.w"
     _44 = _48;
@@ -3935,7 +3963,7 @@ bb51:
     goto bb40;
 bb52:
     _52 = _54;
-    _55 = Captures_name__13694(_1, _52);
+    _55 = Captures_name__13696(_1, _52);
     goto bb53;
 bb53:
     _56 = _55;
@@ -4023,14 +4051,14 @@ bb68:
         goto bb65;
     }
 bb69:
-    _71 = regex_is_name_continue__13669(_70);
+    _71 = regex_is_name_continue__13671(_70);
     goto bb70;
 bb70:
     _67 = _71;
     goto bb68;
 bb71:
     _73 = _74;
-    _75 = Captures_name__13694(_1, _73);
+    _75 = Captures_name__13696(_1, _73);
     goto bb72;
 bb72:
     _76 = _75;
@@ -4154,7 +4182,7 @@ bb164: ;
 bb165: ;
 }
 
-with_str Regex_replace_impl__13677(const Regex* _1, with_str _2, with_str _3, bool _4) {
+with_str Regex_replace_impl__13679(const Regex* _1, with_str _2, with_str _3, bool _4) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _5 __attribute__((unused)) = {0};
     int32_t _6 __attribute__((unused)) = {0};
@@ -4223,7 +4251,7 @@ bb1:
     _7 = ((_2).len);
     goto bb4;
 bb2:
-    _10 = Regex_captures_at__13647(_1, _2, _6);
+    _10 = Regex_captures_at__13649(_1, _2, _6);
     goto bb5;
 bb3:
     /* drop(_14); */
@@ -4252,7 +4280,7 @@ bb6:
 bb7:
     /* StorageLive(_14); */
     _14 = _11.payload0;
-    _15 = Captures_get__13690(&(_14), 0);
+    _15 = Captures_get__13692(&(_14), 0);
     goto bb9;
 bb8:
     _52 = (_11).tag;
@@ -4292,7 +4320,7 @@ bb12:
 bb13:
     _23 = with_str_concat(_5, _22);
     _24 = (const Captures*)(&_14);
-    _25 = regex_expand_replacement__13670(_24, _3);
+    _25 = regex_expand_replacement__13672(_24, _3);
     goto bb14;
 bb14:
     _26 = with_str_concat(_23, _25);
@@ -4482,7 +4510,7 @@ bb114: ;
 bb115: ;
 }
 
-with_str Regex_replace__13679(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace__13681(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4492,7 +4520,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_is_global__13623(_1);
+    _4 = Regex_is_global__13625(_1);
     goto bb1;
 bb1:
     if (_4 == 1) {
@@ -4518,7 +4546,7 @@ bb7: ;
 bb8: ;
 }
 
-with_str Regex_replace_all__13680(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace_all__13682(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
@@ -4537,7 +4565,7 @@ bb4: ;
 bb5: ;
 }
 
-with_str Regex_replace_fn__13682(const Regex* _1, with_str _2, with_fn_306 _3) {
+with_str Regex_replace_fn__13684(const Regex* _1, with_str _2, with_fn_309 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4581,7 +4609,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__13647(_1, _2, _5);
+    _9 = Regex_captures_at__13649(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4610,7 +4638,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__13690(&(_13), 0);
+    _14 = Captures_get__13692(&(_13), 0);
     goto bb9;
 bb8:
     _31 = (_10).tag;
@@ -4713,7 +4741,7 @@ bb49: ;
 bb50: ;
 }
 
-with_str Regex_replace_all_fn__13685(const Regex* _1, with_str _2, with_fn_306 _3) {
+with_str Regex_replace_all_fn__13687(const Regex* _1, with_str _2, with_fn_309 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4776,7 +4804,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__13647(_1, _2, _5);
+    _9 = Regex_captures_at__13649(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4805,7 +4833,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__13690(&(_13), 0);
+    _14 = Captures_get__13692(&(_13), 0);
     goto bb9;
 bb8:
     _46 = (_10).tag;
@@ -5008,14 +5036,14 @@ bb103: ;
 bb104: ;
 }
 
-with_vec Regex_split__13687(const Regex* _1, with_str _2) {
+with_vec Regex_split__13689(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_splitn__13689(_1, _2, 0);
+    _3 = Regex_splitn__13691(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -5023,7 +5051,7 @@ bb1:
 bb2: ;
 }
 
-with_vec Regex_splitn__13689(const Regex* _1, with_str _2, int32_t _3) {
+with_vec Regex_splitn__13691(const Regex* _1, with_str _2, int32_t _3) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
     with_vec _5 __attribute__((unused)) = {0};
@@ -5126,7 +5154,7 @@ bb9:
 bb10:
     goto bb11;
 bb11:
-    _20 = Regex_find_at__13661(_1, _2, _6);
+    _20 = Regex_find_at__13663(_1, _2, _6);
     goto bb16;
 bb12:
     _18 = with_str_slice(_2, _16, _17);
@@ -5281,7 +5309,7 @@ bb84: ;
 bb85: ;
 }
 
-Option_Match_ Captures_get__13690(const Captures* _1, int32_t _2) {
+Option_Match_ Captures_get__13692(const Captures* _1, int32_t _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
@@ -5435,7 +5463,7 @@ bb48: ;
 bb49: ;
 }
 
-int32_t Captures_len__13691(const Captures* _1) {
+int32_t Captures_len__13693(const Captures* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -5454,7 +5482,7 @@ bb2: ;
 bb3: ;
 }
 
-Option_Match_ Captures_by_name__13693(const Captures* _1, with_str _2) {
+Option_Match_ Captures_by_name__13695(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5504,7 +5532,7 @@ bb6:
 bb7:
     goto bb8;
 bb8:
-    _10 = Captures_get__13690(_1, _6);
+    _10 = Captures_get__13692(_1, _6);
     goto bb10;
 bb9:
     goto bb8;
@@ -5522,14 +5550,14 @@ bb18: ;
 bb19: ;
 }
 
-Option_Match_ Captures_name__13694(const Captures* _1, with_str _2) {
+Option_Match_ Captures_name__13696(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_by_name__13693(_1, _2);
+    _3 = Captures_by_name__13695(_1, _2);
     goto bb1;
 bb1:
     _0 = _3;
@@ -5537,7 +5565,7 @@ bb1:
 bb2: ;
 }
 
-with_str Captures_text__13695(const Captures* _1, int32_t _2) {
+with_str Captures_text__13697(const Captures* _1, int32_t _2) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     Option_Match_ _4 __attribute__((unused)) = {0};
@@ -5549,7 +5577,7 @@ with_str Captures_text__13695(const Captures* _1, int32_t _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_get__13690(_1, _2);
+    _3 = Captures_get__13692(_1, _2);
     goto bb1;
 bb1:
     _4 = _3;
@@ -5581,7 +5609,7 @@ bb5:
     goto bb2;
 }
 
-with_str Captures_name_text__13697(const Captures* _1, with_str _2) {
+with_str Captures_name_text__13699(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5636,7 +5664,7 @@ bb6:
     goto bb7;
 bb7:
     _3 = _9;
-    _12 = Captures_name__13694(_1, _3);
+    _12 = Captures_name__13696(_1, _3);
     goto bb10;
 bb8:
     _11 = with_str_slice(_2, 1, _10);
@@ -5678,7 +5706,7 @@ bb17: ;
 bb18: ;
 }
 
-with_str Regex_capture_text__13700(const Regex* _1, with_str _2, int32_t _3) {
+with_str Regex_capture_text__13702(const Regex* _1, with_str _2, int32_t _3) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -5697,7 +5725,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures__13645(_1, _2);
+    _4 = Regex_captures__13647(_1, _2);
     goto bb1;
 bb1:
     _5 = _4;
@@ -5715,7 +5743,7 @@ bb2:
 bb3:
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__13690(&(_8), _3);
+    _9 = Captures_get__13692(&(_8), _3);
     goto bb5;
 bb4:
     _15 = (_5).tag;
@@ -5760,7 +5788,7 @@ bb11: ;
 bb12: ;
 }
 
-with_str Regex_capture_name_text__13702(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_capture_name_text__13704(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -5822,7 +5850,7 @@ bb6:
     goto bb7;
 bb7:
     _4 = _10;
-    _13 = Regex_captures__13645(_1, _2);
+    _13 = Regex_captures__13647(_1, _2);
     goto bb10;
 bb8:
     _12 = with_str_slice(_3, 1, _11);
@@ -5846,7 +5874,7 @@ bb11:
 bb12:
     /* StorageLive(_17); */
     _17 = _14.payload0;
-    _18 = Captures_name__13694(&(_17), _4);
+    _18 = Captures_name__13696(&(_17), _4);
     goto bb14;
 bb13:
     _24 = (_14).tag;
@@ -5899,52 +5927,66 @@ bb28: ;
 }
 
 
-bool i32_eq__13723(int32_t _1, int32_t _2) {
+bool i32_eq__13725(int32_t _1, int32_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 75 "rt/regex_runtime.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
 #line 77 "rt/regex_runtime.w"
-    /* StorageLive(_1); */
-    /* StorageLive(_2); */
-#line 78 "rt/regex_runtime.w"
     _3 = (_1 == _2);
     _0 = _3;
     return _0;
 }
 
-bool bool_eq__13724(bool _1, bool _2) {
+bool bool_eq__13726(bool _1, bool _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 78 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 79 "rt/regex_runtime.w"
     _3 = (_1 == _2);
     _0 = _3;
     return _0;
 }
 
-int32_t i32_default__13725() {
+int32_t i32_default__13727() {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 80 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 }
 
-bool bool_default__13726() {
+bool bool_default__13728() {
     bool _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 82 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _0 = false;
     return _0;
 }
 
-bool str_eq__13727(with_str _1, with_str _2) {
+bool str_eq__13729(with_str _1, with_str _2) {
+    bool _0 __attribute__((unused)) = {0};
+    bool _3 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 81 "rt/regex_runtime.w"
+    { __typeof__(with_str_eq(_1, _2)) __tmp = with_str_eq(_1, _2); memcpy(&(_3), &__tmp, sizeof(_3) < sizeof(__tmp) ? sizeof(_3) : sizeof(__tmp)); }
+#line 82 "rt/regex_runtime.w"
+    _0 = _3;
+    return _0;
+}
+
+bool i64_eq__13730(int64_t _1, int64_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5952,46 +5994,32 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 83 "rt/regex_runtime.w"
-    { __typeof__(with_str_eq(_1, _2)) __tmp = with_str_eq(_1, _2); memcpy(&(_3), &__tmp, sizeof(_3) < sizeof(__tmp) ? sizeof(_3) : sizeof(__tmp)); }
+    _3 = (_1 == _2);
 #line 84 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 }
 
-bool i64_eq__13728(int64_t _1, int64_t _2) {
-    bool _0 __attribute__((unused)) = {0};
-    bool _3 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-    /* StorageLive(_1); */
-    /* StorageLive(_2); */
-#line 85 "rt/regex_runtime.w"
-    _3 = (_1 == _2);
-#line 86 "rt/regex_runtime.w"
-    _0 = _3;
-    return _0;
-}
-
-with_str i32_debug_str__13729(int32_t _1) {
+with_str i32_debug_str__13731(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 85 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i32_to_str(_1);
     goto bb1;
 bb1:
-#line 88 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_str bool_debug_str__13730(bool _1) {
+with_str bool_debug_str__13732(bool _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 89 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     if (_1 == 1) {
         goto bb1;
@@ -6000,74 +6028,76 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 90 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _2 = WITH_STR_LIT("true");
     goto bb3;
 bb2:
     _2 = WITH_STR_LIT("false");
     goto bb3;
 bb3:
-#line 92 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_str str_debug_str__13733(with_str _1) {
+with_str str_debug_str__13735(with_str _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 93 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 94 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _2 = with_str_concat(WITH_STR_LIT("\""), _1);
     _3 = with_str_concat(_2, WITH_STR_LIT("\""));
-#line 95 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 }
 
-int64_t i32_hash_value__13735(int32_t _1) {
+int64_t i32_hash_value__13737(int32_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 96 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 97 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _2 = (1469598103934665603 * 1099511628211);
-#line 99 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _3 = ((int64_t)(_1));
-#line 97 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _4 = (_2 ^ _3);
-#line 100 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _0 = _4;
     return _0;
 }
 
-int64_t i64_hash_value__13736(int64_t _1) {
+int64_t i64_hash_value__13738(int64_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 97 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 101 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     _2 = (1469598103934665603 * 1099511628211);
     _3 = (_2 ^ _1);
-#line 103 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 }
 
-int64_t bool_hash_value__13737(bool _1) {
+int64_t bool_hash_value__13739(bool _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 101 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     if (_1 == 1) {
         goto bb1;
@@ -6076,20 +6106,19 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 105 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _2 = 1;
     goto bb3;
 bb2:
-#line 104 "rt/regex_runtime.w"
     _2 = 0;
     goto bb3;
 bb3:
-#line 107 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 }
 
-int64_t str_hash_value__13738(with_str _1) {
+int64_t str_hash_value__13740(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -6101,11 +6130,12 @@ int64_t str_hash_value__13738(with_str _1) {
     int64_t _9 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 108 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     /* StorageLive(_1); */
+#line 105 "rt/regex_runtime.w"
     /* StorageLive(_2); */
     _2 = 1469598103934665603;
-#line 109 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     /* StorageLive(_3); */
     _3 = 0;
     goto bb1;
@@ -6113,12 +6143,14 @@ bb1:
     _4 = ((_1).len);
     goto bb4;
 bb2:
-#line 111 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _6 = (_2 * 1099511628211);
+#line 109 "rt/regex_runtime.w"
     _7 = _3;
+#line 108 "rt/regex_runtime.w"
     _8 = (_6 ^ _1.ptr[_7]);
     _2 = _8;
-#line 113 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _9 = (_3 + 1);
     _3 = _9;
     goto bb1;
@@ -6126,7 +6158,7 @@ bb3:
     _0 = _2;
     return _0;
 bb4:
-#line 111 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _5 = (_3 < _4);
     if (_5 == 1) {
         goto bb2;
@@ -6415,6 +6447,7 @@ bool is_xdigit__188(int32_t _1) {
     bool _12 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 18 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 19 "rt/regex_runtime.w"
     _5 = (_1 >= 48);
@@ -6572,6 +6605,7 @@ int32_t to_upper__191(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 27 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 28 "rt/regex_runtime.w"
     _3 = (_1 >= 97);
@@ -6627,6 +6661,7 @@ int32_t string_cmp__234(int8_t* _1, int8_t* _2) {
     int32_t _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 68 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     _3 = strcmp(_1, _2);
@@ -8219,7 +8254,7 @@ bb2:
         goto bb5;
     }
 bb3:
-#line 40 "rt/regex_runtime.w"
+#line 39 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb4:
@@ -8246,7 +8281,7 @@ bb7:
         goto bb11;
     }
 bb8:
-#line 18 "rt/regex_runtime.w"
+#line 17 "rt/regex_runtime.w"
     _12 = ((*_4) != 0);
     if (_12 == 1) {
         goto bb13;
@@ -8276,7 +8311,7 @@ bb12:
     _7 = _11;
     goto bb9;
 bb13:
-#line 19 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     _13 = 1;
     goto bb15;
 bb14:
@@ -8437,9 +8472,8 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 45 "rt/regex_runtime.w"
-    /* StorageLive(_7); */
 #line 47 "rt/regex_runtime.w"
+    /* StorageLive(_7); */
     _8 = ((*_3) != 0);
     if (_8 == 1) {
         goto bb4;
@@ -8501,7 +8535,6 @@ bb11:
     _11 = 0;
     goto bb12;
 bb12:
-#line 50 "rt/regex_runtime.w"
     _7 = _11;
     goto bb9;
 bb13:
@@ -8513,7 +8546,6 @@ bb14:
     _13 = 0;
     goto bb15;
 bb15:
-#line 53 "rt/regex_runtime.w"
     _14 = (_13 != 0);
     if (_14 == 1) {
         goto bb16;
@@ -8538,7 +8570,7 @@ bb19:
 bb20:
     goto bb21;
 bb21:
-#line 57 "rt/regex_runtime.w"
+#line 58 "rt/regex_runtime.w"
     /* StorageLive(_18); */
     _18 = _3;
 #line 61 "rt/regex_runtime.w"
@@ -8550,9 +8582,9 @@ bb21:
 #line 63 "rt/regex_runtime.w"
     /* StorageLive(_20); */
     _20 = _4;
-#line 64 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _21 = (_4 + 1);
-#line 63 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _4 = _21;
 #line 66 "rt/regex_runtime.w"
     _6 = (*_20);
@@ -8594,9 +8626,11 @@ bb27:
 bb28:
     goto bb1;
 bb29:
+#line 72 "rt/regex_runtime.w"
     _26 = 1;
     goto bb31;
 bb30:
+#line 71 "rt/regex_runtime.w"
     _26 = 0;
     goto bb31;
 bb31:
@@ -8640,6 +8674,7 @@ bb0:
 #line 73 "rt/regex_runtime.w"
     /* StorageLive(_3); */
     _3 = _2;
+#line 74 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = _1;
     goto bb1;
@@ -8653,6 +8688,7 @@ bb1:
         goto bb5;
     }
 bb2:
+#line 76 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = _4;
 #line 77 "rt/regex_runtime.w"
@@ -8669,10 +8705,9 @@ bb2:
 bb3:
 #line 80 "rt/regex_runtime.w"
     (*_4) = 0;
-    _12 = ((uint64_t)(_4));
 #line 81 "rt/regex_runtime.w"
+    _12 = ((uint64_t)(_4));
     _13 = ((uint64_t)(_1));
-#line 80 "rt/regex_runtime.w"
     _14 = (_12 - _13);
     /* generic_call: should be resolved before C backend */ abort();
     goto bb7;
@@ -8692,7 +8727,7 @@ bb6:
         goto bb3;
     }
 bb7:
-#line 80 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _16 = (_14 / _15);
     _0 = _16;
     return _0;
@@ -8737,6 +8772,7 @@ uint64_t _pcre2_strlen_8__1098(uint8_t* _1) {
     uint64_t _10 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 83 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 84 "rt/regex_runtime.w"
     /* StorageLive(_2); */
@@ -8758,7 +8794,6 @@ bb2:
     _4 = _2;
 #line 88 "rt/regex_runtime.w"
     _5 = (_2 + 1);
-#line 87 "rt/regex_runtime.w"
     _2 = _5;
 #line 89 "rt/regex_runtime.w"
     _6 = ((*_4) != 0);
@@ -8769,7 +8804,7 @@ bb2:
         goto bb5;
     }
 bb3:
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _0 = _3;
     return _0;
 bb4:
@@ -8777,7 +8812,7 @@ bb4:
     _7 = 1;
     goto bb6;
 bb5:
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _7 = 0;
     goto bb6;
 bb6:
@@ -8794,15 +8829,15 @@ bb7:
 bb8:
     goto bb9;
 bb9:
-#line 92 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _10 = (_3 + 1);
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _3 = _10;
     goto bb1;
 bb10:
     goto bb9;
 bb11:
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -8836,22 +8871,21 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 97 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = _1;
-#line 99 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = _2;
-#line 100 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = _3;
-#line 101 "rt/regex_runtime.w"
-    /* StorageLive(_7); */
 #line 102 "rt/regex_runtime.w"
+    /* StorageLive(_7); */
     /* StorageLive(_8); */
     goto bb1;
 bb1:
-#line 103 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _9 = (_6 > 0);
     if (_9 == 1) {
         goto bb4;
@@ -8860,23 +8894,23 @@ bb1:
         goto bb5;
     }
 bb2:
-#line 104 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     _12 = _4;
-#line 107 "rt/regex_runtime.w"
-    _13 = (_4 + 1);
-#line 105 "rt/regex_runtime.w"
-    _4 = _13;
-#line 107 "rt/regex_runtime.w"
-    _7 = (*_12);
 #line 108 "rt/regex_runtime.w"
+    _13 = (_4 + 1);
+#line 107 "rt/regex_runtime.w"
+    _4 = _13;
+#line 108 "rt/regex_runtime.w"
+    _7 = (*_12);
+#line 109 "rt/regex_runtime.w"
     /* StorageLive(_14); */
     _14 = _5;
 #line 111 "rt/regex_runtime.w"
     _15 = (_5 + 1);
     _5 = _15;
-    _8 = (*_14);
 #line 113 "rt/regex_runtime.w"
+    _8 = (*_14);
+#line 114 "rt/regex_runtime.w"
     _16 = (_7 != _8);
     if (_16 == 1) {
         goto bb7;
@@ -8885,15 +8919,15 @@ bb2:
         goto bb8;
     }
 bb3:
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb4:
-#line 103 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _10 = 1;
     goto bb6;
 bb5:
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _10 = 0;
     goto bb6;
 bb6:
@@ -8905,11 +8939,11 @@ bb6:
         goto bb3;
     }
 bb7:
-#line 114 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     _17 = 1;
     goto bb9;
 bb8:
-#line 113 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _17 = 0;
     goto bb9;
 bb9:
@@ -8921,7 +8955,7 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _19 = (_7 > _8);
     if (_19 == 1) {
         goto bb13;
@@ -8934,7 +8968,6 @@ bb11:
 bb12:
 #line 119 "rt/regex_runtime.w"
     _25 = (_6 - 1);
-#line 118 "rt/regex_runtime.w"
     _6 = _25;
     goto bb1;
 bb13:
@@ -8942,14 +8975,13 @@ bb13:
     _20 = 1;
     goto bb15;
 bb14:
-#line 115 "rt/regex_runtime.w"
     _20 = 0;
     goto bb15;
 bb15:
     _21 = ((int32_t)(_20));
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _22 = ((uint32_t)(1));
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _23 = (_21 << _22);
     _24 = (_23 - 1);
     _0 = _24;
@@ -8957,7 +8989,7 @@ bb15:
 bb16:
     goto bb12;
 bb17:
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -8988,24 +9020,24 @@ int32_t _pcre2_strncmp_c8_8__1100(uint8_t* _1, int8_t* _2, uint64_t _3) {
     uint64_t _25 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 121 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 123 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = _1;
-#line 124 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = _2;
-#line 125 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = _3;
-#line 126 "rt/regex_runtime.w"
     /* StorageLive(_7); */
+#line 129 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     goto bb1;
 bb1:
-#line 128 "rt/regex_runtime.w"
     _9 = (_6 > 0);
     if (_9 == 1) {
         goto bb4;
@@ -9014,24 +9046,22 @@ bb1:
         goto bb5;
     }
 bb2:
-#line 129 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     _12 = _4;
-#line 131 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _13 = (_4 + 1);
     _4 = _13;
-#line 133 "rt/regex_runtime.w"
-    _7 = (*_12);
 #line 134 "rt/regex_runtime.w"
+    _7 = (*_12);
     /* StorageLive(_14); */
     _14 = _5;
 #line 135 "rt/regex_runtime.w"
     _15 = (_5 + 1);
-#line 134 "rt/regex_runtime.w"
     _5 = _15;
-#line 135 "rt/regex_runtime.w"
-    _8 = (*_14);
 #line 137 "rt/regex_runtime.w"
+    _8 = (*_14);
+#line 138 "rt/regex_runtime.w"
     _16 = (_7 != _8);
     if (_16 == 1) {
         goto bb7;
@@ -9048,7 +9078,6 @@ bb4:
     _10 = 1;
     goto bb6;
 bb5:
-#line 128 "rt/regex_runtime.w"
     _10 = 0;
     goto bb6;
 bb6:
@@ -9064,7 +9093,6 @@ bb7:
     _17 = 1;
     goto bb9;
 bb8:
-#line 137 "rt/regex_runtime.w"
     _17 = 0;
     goto bb9;
 bb9:
@@ -9076,7 +9104,6 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 138 "rt/regex_runtime.w"
     _19 = (_7 > _8);
     if (_19 == 1) {
         goto bb13;
@@ -9087,9 +9114,8 @@ bb10:
 bb11:
     goto bb12;
 bb12:
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _25 = (_6 - 1);
-#line 139 "rt/regex_runtime.w"
     _6 = _25;
     goto bb1;
 bb13:
@@ -9101,7 +9127,9 @@ bb14:
     goto bb15;
 bb15:
     _21 = ((int32_t)(_20));
+#line 139 "rt/regex_runtime.w"
     _22 = ((uint32_t)(1));
+#line 138 "rt/regex_runtime.w"
     _23 = (_21 << _22);
     _24 = (_23 - 1);
     _0 = _24;
@@ -9402,11 +9430,11 @@ bb1:
         goto bb5;
     }
 bb2:
-#line 94 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _6 = (*_1);
     goto bb3;
 bb3:
-#line 96 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _215 = (_2 == 2);
     if (_215 == 1) {
         goto bb34;
@@ -9431,13 +9459,12 @@ bb6:
         goto bb8;
     }
 bb7:
-#line 14 "rt/regex_runtime.w"
-    _11 = ((uint32_t)(_6));
-#line 15 "rt/regex_runtime.w"
-    _12 = ((uint32_t)(32));
-#line 14 "rt/regex_runtime.w"
-    _13 = (_11 & _12);
 #line 13 "rt/regex_runtime.w"
+    _11 = ((uint32_t)(_6));
+#line 14 "rt/regex_runtime.w"
+    _12 = ((uint32_t)(32));
+#line 13 "rt/regex_runtime.w"
+    _13 = (_11 & _12);
     _14 = (_13 == 0);
     if (_14 == 1) {
         goto bb10;
@@ -9478,14 +9505,14 @@ bb13:
 #line 17 "rt/regex_runtime.w"
     _22 = (_20 << _21);
     _23 = ((uint32_t)(_22));
-#line 22 "rt/regex_runtime.w"
-    _24 = 1;
 #line 21 "rt/regex_runtime.w"
+    _24 = 1;
+#line 20 "rt/regex_runtime.w"
     _25 = ((int32_t)(_1[_24]));
     _26 = ((uint32_t)(_25));
 #line 22 "rt/regex_runtime.w"
     _27 = ((uint32_t)(63));
-#line 21 "rt/regex_runtime.w"
+#line 20 "rt/regex_runtime.w"
     _28 = (_26 & _27);
     _29 = ((uint32_t)(_28));
 #line 17 "rt/regex_runtime.w"
@@ -9495,9 +9522,7 @@ bb13:
 bb14:
 #line 25 "rt/regex_runtime.w"
     _31 = ((uint32_t)(_6));
-#line 26 "rt/regex_runtime.w"
     _32 = ((uint32_t)(16));
-#line 25 "rt/regex_runtime.w"
     _33 = (_31 & _32);
     _34 = (_33 == 0);
     if (_34 == 1) {
@@ -9509,11 +9534,11 @@ bb14:
 bb15:
     goto bb9;
 bb16:
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _35 = 1;
     goto bb18;
 bb17:
-#line 25 "rt/regex_runtime.w"
+#line 24 "rt/regex_runtime.w"
     _35 = 0;
     goto bb18;
 bb18:
@@ -9525,56 +9550,53 @@ bb18:
         goto bb20;
     }
 bb19:
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _37 = ((uint32_t)(_6));
-#line 30 "rt/regex_runtime.w"
-    _38 = ((uint32_t)(15));
 #line 29 "rt/regex_runtime.w"
+    _38 = ((uint32_t)(15));
+#line 28 "rt/regex_runtime.w"
     _39 = (_37 & _38);
     _40 = ((uint32_t)(_39));
-#line 31 "rt/regex_runtime.w"
+#line 30 "rt/regex_runtime.w"
     _41 = ((uint32_t)(12));
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _42 = (_40 << _41);
     _43 = ((uint32_t)(_42));
-#line 33 "rt/regex_runtime.w"
-    _44 = 1;
 #line 32 "rt/regex_runtime.w"
+    _44 = 1;
+#line 31 "rt/regex_runtime.w"
     _45 = ((int32_t)(_1[_44]));
     _46 = ((uint32_t)(_45));
-#line 34 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     _47 = ((uint32_t)(63));
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _48 = (_46 & _47);
     _49 = ((uint32_t)(_48));
-#line 35 "rt/regex_runtime.w"
+#line 34 "rt/regex_runtime.w"
     _50 = ((uint32_t)(6));
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _51 = (_49 << _50);
     _52 = ((uint32_t)(_51));
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _53 = (_43 | _52);
     _54 = ((uint32_t)(_53));
-#line 38 "rt/regex_runtime.w"
+#line 36 "rt/regex_runtime.w"
     _55 = 2;
     _56 = ((int32_t)(_1[_55]));
     _57 = ((uint32_t)(_56));
+#line 38 "rt/regex_runtime.w"
     _58 = ((uint32_t)(63));
-#line 37 "rt/regex_runtime.w"
-    _59 = (_57 & _58);
 #line 36 "rt/regex_runtime.w"
+    _59 = (_57 & _58);
     _60 = ((uint32_t)(_59));
-#line 29 "rt/regex_runtime.w"
-    _61 = (_54 | _60);
 #line 28 "rt/regex_runtime.w"
+    _61 = (_54 | _60);
     _6 = _61;
     goto bb21;
 bb20:
 #line 40 "rt/regex_runtime.w"
     _62 = ((uint32_t)(_6));
-#line 41 "rt/regex_runtime.w"
     _63 = ((uint32_t)(8));
-#line 40 "rt/regex_runtime.w"
     _64 = (_62 & _63);
     _65 = (_64 == 0);
     if (_65 == 1) {
@@ -9586,11 +9608,10 @@ bb20:
 bb21:
     goto bb15;
 bb22:
-#line 41 "rt/regex_runtime.w"
     _66 = 1;
     goto bb24;
 bb23:
-#line 40 "rt/regex_runtime.w"
+#line 39 "rt/regex_runtime.w"
     _66 = 0;
     goto bb24;
 bb24:
@@ -9602,69 +9623,73 @@ bb24:
         goto bb26;
     }
 bb25:
-#line 43 "rt/regex_runtime.w"
+#line 42 "rt/regex_runtime.w"
     _68 = ((uint32_t)(_6));
-    _69 = ((uint32_t)(7));
-    _70 = (_68 & _69);
-    _71 = ((uint32_t)(_70));
-#line 44 "rt/regex_runtime.w"
-    _72 = ((uint32_t)(18));
 #line 43 "rt/regex_runtime.w"
+    _69 = ((uint32_t)(7));
+#line 42 "rt/regex_runtime.w"
+    _70 = (_68 & _69);
+#line 41 "rt/regex_runtime.w"
+    _71 = ((uint32_t)(_70));
+#line 43 "rt/regex_runtime.w"
+    _72 = ((uint32_t)(18));
+#line 41 "rt/regex_runtime.w"
     _73 = (_71 << _72);
     _74 = ((uint32_t)(_73));
-#line 47 "rt/regex_runtime.w"
-    _75 = 1;
 #line 45 "rt/regex_runtime.w"
+    _75 = 1;
+#line 44 "rt/regex_runtime.w"
     _76 = ((int32_t)(_1[_75]));
     _77 = ((uint32_t)(_76));
-#line 47 "rt/regex_runtime.w"
-    _78 = ((uint32_t)(63));
 #line 45 "rt/regex_runtime.w"
+    _78 = ((uint32_t)(63));
+#line 44 "rt/regex_runtime.w"
     _79 = (_77 & _78);
     _80 = ((uint32_t)(_79));
 #line 47 "rt/regex_runtime.w"
     _81 = ((uint32_t)(12));
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _82 = (_80 << _81);
     _83 = ((uint32_t)(_82));
-#line 43 "rt/regex_runtime.w"
+#line 41 "rt/regex_runtime.w"
     _84 = (_74 | _83);
     _85 = ((uint32_t)(_84));
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _86 = 2;
+#line 48 "rt/regex_runtime.w"
     _87 = ((int32_t)(_1[_86]));
     _88 = ((uint32_t)(_87));
-#line 52 "rt/regex_runtime.w"
+#line 51 "rt/regex_runtime.w"
     _89 = ((uint32_t)(63));
-#line 50 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _90 = (_88 & _89);
-#line 49 "rt/regex_runtime.w"
     _91 = ((uint32_t)(_90));
-#line 53 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _92 = ((uint32_t)(6));
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _93 = (_91 << _92);
     _94 = ((uint32_t)(_93));
-#line 43 "rt/regex_runtime.w"
+#line 41 "rt/regex_runtime.w"
     _95 = (_85 | _94);
     _96 = ((uint32_t)(_95));
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _97 = 3;
+#line 53 "rt/regex_runtime.w"
     _98 = ((int32_t)(_1[_97]));
     _99 = ((uint32_t)(_98));
+#line 55 "rt/regex_runtime.w"
     _100 = ((uint32_t)(63));
+#line 53 "rt/regex_runtime.w"
     _101 = (_99 & _100);
     _102 = ((uint32_t)(_101));
-#line 43 "rt/regex_runtime.w"
+#line 41 "rt/regex_runtime.w"
     _103 = (_96 | _102);
     _6 = _103;
     goto bb27;
 bb26:
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _104 = ((uint32_t)(_6));
-#line 60 "rt/regex_runtime.w"
     _105 = ((uint32_t)(4));
-#line 58 "rt/regex_runtime.w"
     _106 = (_104 & _105);
     _107 = (_106 == 0);
     if (_107 == 1) {
@@ -9676,11 +9701,11 @@ bb26:
 bb27:
     goto bb21;
 bb28:
-#line 60 "rt/regex_runtime.w"
+#line 58 "rt/regex_runtime.w"
     _108 = 1;
     goto bb30;
 bb29:
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _108 = 0;
     goto bb30;
 bb30:
@@ -9692,185 +9717,181 @@ bb30:
         goto bb32;
     }
 bb31:
-#line 62 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _110 = ((uint32_t)(_6));
-#line 63 "rt/regex_runtime.w"
     _111 = ((uint32_t)(3));
-#line 62 "rt/regex_runtime.w"
     _112 = (_110 & _111);
     _113 = ((uint32_t)(_112));
-#line 63 "rt/regex_runtime.w"
-    _114 = ((uint32_t)(24));
 #line 62 "rt/regex_runtime.w"
+    _114 = ((uint32_t)(24));
+#line 61 "rt/regex_runtime.w"
     _115 = (_113 << _114);
     _116 = ((uint32_t)(_115));
-#line 65 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _117 = 1;
-#line 64 "rt/regex_runtime.w"
     _118 = ((int32_t)(_1[_117]));
     _119 = ((uint32_t)(_118));
-#line 66 "rt/regex_runtime.w"
-    _120 = ((uint32_t)(63));
 #line 64 "rt/regex_runtime.w"
+    _120 = ((uint32_t)(63));
+#line 63 "rt/regex_runtime.w"
     _121 = (_119 & _120);
     _122 = ((uint32_t)(_121));
-#line 67 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _123 = ((uint32_t)(18));
 #line 63 "rt/regex_runtime.w"
     _124 = (_122 << _123);
     _125 = ((uint32_t)(_124));
-#line 62 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _126 = (_116 | _125);
     _127 = ((uint32_t)(_126));
-#line 68 "rt/regex_runtime.w"
-    _128 = 2;
 #line 67 "rt/regex_runtime.w"
+    _128 = 2;
     _129 = ((int32_t)(_1[_128]));
     _130 = ((uint32_t)(_129));
-#line 71 "rt/regex_runtime.w"
     _131 = ((uint32_t)(63));
-#line 67 "rt/regex_runtime.w"
     _132 = (_130 & _131);
     _133 = ((uint32_t)(_132));
-#line 72 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _134 = ((uint32_t)(12));
 #line 67 "rt/regex_runtime.w"
     _135 = (_133 << _134);
     _136 = ((uint32_t)(_135));
-#line 62 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _137 = (_127 | _136);
     _138 = ((uint32_t)(_137));
 #line 72 "rt/regex_runtime.w"
     _139 = 3;
+#line 71 "rt/regex_runtime.w"
     _140 = ((int32_t)(_1[_139]));
     _141 = ((uint32_t)(_140));
+#line 72 "rt/regex_runtime.w"
     _142 = ((uint32_t)(63));
+#line 71 "rt/regex_runtime.w"
     _143 = (_141 & _142);
     _144 = ((uint32_t)(_143));
-#line 73 "rt/regex_runtime.w"
-    _145 = ((uint32_t)(6));
 #line 72 "rt/regex_runtime.w"
+    _145 = ((uint32_t)(6));
+#line 71 "rt/regex_runtime.w"
     _146 = (_144 << _145);
     _147 = ((uint32_t)(_146));
-#line 62 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _148 = (_138 | _147);
     _149 = ((uint32_t)(_148));
 #line 73 "rt/regex_runtime.w"
     _150 = 4;
     _151 = ((int32_t)(_1[_150]));
     _152 = ((uint32_t)(_151));
-#line 74 "rt/regex_runtime.w"
     _153 = ((uint32_t)(63));
-#line 73 "rt/regex_runtime.w"
     _154 = (_152 & _153);
     _155 = ((uint32_t)(_154));
-#line 62 "rt/regex_runtime.w"
-    _156 = (_149 | _155);
 #line 61 "rt/regex_runtime.w"
+    _156 = (_149 | _155);
+#line 60 "rt/regex_runtime.w"
     _6 = _156;
     goto bb33;
 bb32:
-#line 77 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _157 = ((uint32_t)(_6));
     _158 = ((uint32_t)(1));
-#line 76 "rt/regex_runtime.w"
     _159 = (_157 & _158);
     _160 = ((uint32_t)(_159));
-#line 78 "rt/regex_runtime.w"
-    _161 = ((uint32_t)(30));
 #line 76 "rt/regex_runtime.w"
+    _161 = ((uint32_t)(30));
+#line 75 "rt/regex_runtime.w"
     _162 = (_160 << _161);
     _163 = ((uint32_t)(_162));
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _164 = 1;
     _165 = ((int32_t)(_1[_164]));
     _166 = ((uint32_t)(_165));
+#line 78 "rt/regex_runtime.w"
     _167 = ((uint32_t)(63));
+#line 77 "rt/regex_runtime.w"
     _168 = (_166 & _167);
     _169 = ((uint32_t)(_168));
-#line 79 "rt/regex_runtime.w"
-    _170 = ((uint32_t)(24));
 #line 78 "rt/regex_runtime.w"
+    _170 = ((uint32_t)(24));
+#line 77 "rt/regex_runtime.w"
     _171 = (_169 << _170);
     _172 = ((uint32_t)(_171));
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _173 = (_163 | _172);
     _174 = ((uint32_t)(_173));
-#line 80 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     _175 = 2;
+#line 78 "rt/regex_runtime.w"
     _176 = ((int32_t)(_1[_175]));
     _177 = ((uint32_t)(_176));
-    _178 = ((uint32_t)(63));
 #line 79 "rt/regex_runtime.w"
+    _178 = ((uint32_t)(63));
+#line 78 "rt/regex_runtime.w"
     _179 = (_177 & _178);
     _180 = ((uint32_t)(_179));
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _181 = ((uint32_t)(18));
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _182 = (_180 << _181);
     _183 = ((uint32_t)(_182));
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _184 = (_174 | _183);
     _185 = ((uint32_t)(_184));
-#line 83 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _186 = 3;
-#line 82 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _187 = ((int32_t)(_1[_186]));
     _188 = ((uint32_t)(_187));
-#line 83 "rt/regex_runtime.w"
-    _189 = ((uint32_t)(63));
 #line 82 "rt/regex_runtime.w"
+    _189 = ((uint32_t)(63));
+#line 80 "rt/regex_runtime.w"
     _190 = (_188 & _189);
     _191 = ((uint32_t)(_190));
-#line 84 "rt/regex_runtime.w"
-    _192 = ((uint32_t)(12));
 #line 82 "rt/regex_runtime.w"
+    _192 = ((uint32_t)(12));
+#line 80 "rt/regex_runtime.w"
     _193 = (_191 << _192);
     _194 = ((uint32_t)(_193));
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _195 = (_185 | _194);
     _196 = ((uint32_t)(_195));
-#line 86 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _197 = 4;
-#line 85 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _198 = ((int32_t)(_1[_197]));
     _199 = ((uint32_t)(_198));
-#line 86 "rt/regex_runtime.w"
-    _200 = ((uint32_t)(63));
 #line 85 "rt/regex_runtime.w"
+    _200 = ((uint32_t)(63));
+#line 83 "rt/regex_runtime.w"
     _201 = (_199 & _200);
     _202 = ((uint32_t)(_201));
-#line 87 "rt/regex_runtime.w"
-    _203 = ((uint32_t)(6));
 #line 85 "rt/regex_runtime.w"
+    _203 = ((uint32_t)(6));
+#line 83 "rt/regex_runtime.w"
     _204 = (_202 << _203);
     _205 = ((uint32_t)(_204));
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _206 = (_196 | _205);
     _207 = ((uint32_t)(_206));
-#line 89 "rt/regex_runtime.w"
+#line 87 "rt/regex_runtime.w"
     _208 = 5;
-#line 88 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _209 = ((int32_t)(_1[_208]));
     _210 = ((uint32_t)(_209));
-#line 90 "rt/regex_runtime.w"
-    _211 = ((uint32_t)(63));
 #line 88 "rt/regex_runtime.w"
+    _211 = ((uint32_t)(63));
+#line 86 "rt/regex_runtime.w"
     _212 = (_210 & _211);
     _213 = ((uint32_t)(_212));
-#line 76 "rt/regex_runtime.w"
-    _214 = (_207 | _213);
 #line 75 "rt/regex_runtime.w"
+    _214 = (_207 | _213);
     _6 = _214;
     goto bb33;
 bb33:
     goto bb27;
 bb34:
-#line 97 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _216 = 1;
     goto bb36;
 bb35:
-#line 96 "rt/regex_runtime.w"
     _216 = 0;
     goto bb36;
 bb36:
@@ -9882,9 +9903,8 @@ bb36:
         goto bb38;
     }
 bb37:
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _219 = _6;
-#line 100 "rt/regex_runtime.w"
     _221 = (_219 == 10);
     if (_221 == 1) {
         goto bb41;
@@ -9893,9 +9913,9 @@ bb37:
         goto bb42;
     }
 bb38:
-#line 124 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     _237 = _6;
-#line 125 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     _239 = (_237 == 10);
     if (_239 == 1) {
         goto bb65;
@@ -9904,17 +9924,17 @@ bb38:
         goto bb66;
     }
 bb39:
-#line 164 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     { __typeof__(_218) __tmp = _218; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb40:
-#line 99 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _218 = _220;
     goto bb39;
 bb41:
-#line 100 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 102 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb42:
@@ -9926,21 +9946,21 @@ bb42:
         goto bb45;
     }
 bb43:
-#line 100 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     _220 = (__typeof__(_220)){0};
     goto bb40;
 bb44:
-#line 103 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     /* StorageLive(_223); */
     _223 = 0;
-#line 104 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     /* StorageLive(_224); */
     _224 = 0;
-#line 108 "rt/regex_runtime.w"
+#line 105 "rt/regex_runtime.w"
     _225 = ((int64_t)(1));
     _226 = ((uint64_t)(_225));
+#line 104 "rt/regex_runtime.w"
     _227 = (_3 - _226);
-#line 107 "rt/regex_runtime.w"
     { __typeof__((_1 < _227)) __tmp = (_1 < _227); memcpy(&(_228), &__tmp, sizeof(_228) < sizeof(__tmp) ? sizeof(_228) : sizeof(__tmp)); }
     if (_228 == 1) {
         goto bb46;
@@ -9951,11 +9971,11 @@ bb44:
 bb45:
     goto bb62;
 bb46:
-#line 108 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _229 = 1;
     goto bb48;
 bb47:
-#line 107 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _229 = 0;
     goto bb48;
 bb48:
@@ -9967,8 +9987,9 @@ bb48:
         goto bb50;
     }
 bb49:
-#line 111 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _231 = 1;
+#line 108 "rt/regex_runtime.w"
     _232 = (_1[_231] == 10);
     if (_232 == 1) {
         goto bb52;
@@ -9979,7 +10000,7 @@ bb49:
 bb50:
     goto bb51;
 bb51:
-#line 114 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _236 = (_224 != 0);
     if (_236 == 1) {
         goto bb58;
@@ -9988,10 +10009,11 @@ bb51:
         goto bb59;
     }
 bb52:
-#line 111 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _233 = 1;
     goto bb54;
 bb53:
+#line 108 "rt/regex_runtime.w"
     _233 = 0;
     goto bb54;
 bb54:
@@ -10003,52 +10025,53 @@ bb54:
         goto bb56;
     }
 bb55:
+#line 110 "rt/regex_runtime.w"
     _235 = 1;
     goto bb57;
 bb56:
+#line 108 "rt/regex_runtime.w"
     _235 = 0;
     goto bb57;
 bb57:
-#line 110 "rt/regex_runtime.w"
     _224 = _235;
     goto bb51;
 bb58:
-#line 115 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _223 = 2;
     goto bb60;
 bb59:
-#line 116 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     _223 = 1;
     goto bb60;
 bb60:
-#line 119 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     (*_4) = _223;
-#line 120 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb61:
-#line 103 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _220 = (__typeof__(_220)){0};
     goto bb40;
 bb62:
-#line 123 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb63:
     _220 = (__typeof__(_220)){0};
     goto bb40;
 bb64:
-#line 96 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _218 = _238;
     goto bb39;
 bb65:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 126 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb66:
-#line 129 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _240 = (_237 == 11);
     if (_240 == 1) {
         goto bb68;
@@ -10057,17 +10080,16 @@ bb66:
         goto bb69;
     }
 bb67:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb68:
-#line 129 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 130 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb69:
-#line 133 "rt/regex_runtime.w"
     _241 = (_237 == 12);
     if (_241 == 1) {
         goto bb71;
@@ -10076,16 +10098,17 @@ bb69:
         goto bb72;
     }
 bb70:
-#line 129 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb71:
-#line 133 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb72:
+#line 134 "rt/regex_runtime.w"
     _242 = (_237 == 13);
     if (_242 == 1) {
         goto bb74;
@@ -10094,21 +10117,20 @@ bb72:
         goto bb75;
     }
 bb73:
-#line 133 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb74:
 #line 134 "rt/regex_runtime.w"
     /* StorageLive(_243); */
     _243 = 0;
-#line 135 "rt/regex_runtime.w"
     /* StorageLive(_244); */
     _244 = 0;
-#line 138 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     _245 = ((int64_t)(1));
     _246 = ((uint64_t)(_245));
+#line 135 "rt/regex_runtime.w"
     _247 = (_3 - _246);
-#line 137 "rt/regex_runtime.w"
     { __typeof__((_1 < _247)) __tmp = (_1 < _247); memcpy(&(_248), &__tmp, sizeof(_248) < sizeof(__tmp) ? sizeof(_248) : sizeof(__tmp)); }
     if (_248 == 1) {
         goto bb76;
@@ -10126,11 +10148,11 @@ bb75:
         goto bb93;
     }
 bb76:
-#line 138 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     _249 = 1;
     goto bb78;
 bb77:
-#line 137 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _249 = 0;
     goto bb78;
 bb78:
@@ -10142,9 +10164,8 @@ bb78:
         goto bb80;
     }
 bb79:
-#line 139 "rt/regex_runtime.w"
-    _251 = 1;
 #line 138 "rt/regex_runtime.w"
+    _251 = 1;
     _252 = (_1[_251] == 10);
     if (_252 == 1) {
         goto bb82;
@@ -10155,7 +10176,7 @@ bb79:
 bb80:
     goto bb81;
 bb81:
-#line 141 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _256 = (_244 != 0);
     if (_256 == 1) {
         goto bb88;
@@ -10164,11 +10185,10 @@ bb81:
         goto bb89;
     }
 bb82:
-#line 139 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     _253 = 1;
     goto bb84;
 bb83:
-#line 138 "rt/regex_runtime.w"
     _253 = 0;
     goto bb84;
 bb84:
@@ -10180,28 +10200,26 @@ bb84:
         goto bb86;
     }
 bb85:
-#line 140 "rt/regex_runtime.w"
     _255 = 1;
     goto bb87;
 bb86:
-#line 138 "rt/regex_runtime.w"
     _255 = 0;
     goto bb87;
 bb87:
     _244 = _255;
     goto bb81;
 bb88:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _243 = 2;
     goto bb90;
 bb89:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _243 = 1;
     goto bb90;
 bb90:
-#line 144 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     (*_4) = _243;
-#line 145 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb91:
@@ -10209,7 +10227,7 @@ bb91:
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb92:
-#line 146 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     /* StorageLive(_258); */
     _258 = 0;
 #line 147 "rt/regex_runtime.w"
@@ -10221,7 +10239,7 @@ bb92:
         goto bb95;
     }
 bb93:
-#line 153 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _260 = (_237 == 8232);
     if (_260 == 1) {
         goto bb98;
@@ -10234,27 +10252,27 @@ bb94:
     _258 = 2;
     goto bb96;
 bb95:
-#line 149 "rt/regex_runtime.w"
+#line 148 "rt/regex_runtime.w"
     _258 = 1;
     goto bb96;
 bb96:
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     (*_4) = _258;
-#line 152 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb97:
-#line 146 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb98:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     (*_4) = 3;
-#line 155 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb99:
-#line 156 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _261 = (_237 == 8233);
     if (_261 == 1) {
         goto bb101;
@@ -10263,23 +10281,23 @@ bb99:
         goto bb102;
     }
 bb100:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb101:
-#line 158 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     (*_4) = 3;
-#line 161 "rt/regex_runtime.w"
+#line 158 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb102:
     goto bb104;
 bb103:
-#line 158 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb64;
 bb104:
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb105:
@@ -10551,20 +10569,21 @@ int32_t _pcre2_was_newline_8__1103(uint8_t* _1, uint32_t _2, uint8_t* _3, uint32
     bool _265 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 164 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
     /* StorageLive(_5); */
-#line 168 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = _1;
+#line 167 "rt/regex_runtime.w"
     /* StorageLive(_7); */
-#line 169 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _8 = (_6 - 1);
     _6 = _8;
-#line 170 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _9 = (_5 != 0);
     if (_9 == 1) {
         goto bb1;
@@ -10575,11 +10594,10 @@ bb0:
 bb1:
     goto bb4;
 bb2:
-#line 254 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _7 = (*_6);
     goto bb3;
 bb3:
-#line 255 "rt/regex_runtime.w"
     _225 = (_2 == 2);
     if (_225 == 1) {
         goto bb40;
@@ -10588,12 +10606,12 @@ bb3:
         goto bb41;
     }
 bb4:
-#line 171 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _10 = ((int32_t)((*_6)));
     _11 = ((uint32_t)(_10));
-#line 172 "rt/regex_runtime.w"
-    _12 = ((uint32_t)(192));
 #line 171 "rt/regex_runtime.w"
+    _12 = ((uint32_t)(192));
+#line 170 "rt/regex_runtime.w"
     _13 = (_11 & _12);
     _14 = (_13 == 128);
     if (_14 == 1) {
@@ -10603,15 +10621,14 @@ bb4:
         goto bb8;
     }
 bb5:
-#line 173 "rt/regex_runtime.w"
-    _17 = (_6 - 1);
 #line 172 "rt/regex_runtime.w"
+    _17 = (_6 - 1);
     _6 = _17;
     goto bb4;
 bb6:
-#line 175 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _7 = (*_6);
-#line 176 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _18 = (_7 >= 192);
     if (_18 == 1) {
         goto bb10;
@@ -10624,7 +10641,7 @@ bb7:
     _15 = 1;
     goto bb9;
 bb8:
-#line 171 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _15 = 0;
     goto bb9;
 bb9:
@@ -10640,6 +10657,7 @@ bb10:
     _19 = 1;
     goto bb12;
 bb11:
+#line 175 "rt/regex_runtime.w"
     _19 = 0;
     goto bb12;
 bb12:
@@ -10651,7 +10669,7 @@ bb12:
         goto bb14;
     }
 bb13:
-#line 177 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _21 = ((uint32_t)(_7));
     _22 = ((uint32_t)(32));
     _23 = (_21 & _22);
@@ -10667,13 +10685,14 @@ bb14:
 bb15:
     goto bb3;
 bb16:
+#line 177 "rt/regex_runtime.w"
     _25 = 1;
     goto bb18;
 bb17:
+#line 176 "rt/regex_runtime.w"
     _25 = 0;
     goto bb18;
 bb18:
-#line 176 "rt/regex_runtime.w"
     _26 = (_25 != 0);
     if (_26 == 1) {
         goto bb19;
@@ -10682,34 +10701,36 @@ bb18:
         goto bb20;
     }
 bb19:
-#line 178 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _27 = ((uint32_t)(_7));
     _28 = ((uint32_t)(31));
     _29 = (_27 & _28);
     _30 = ((uint32_t)(_29));
+#line 178 "rt/regex_runtime.w"
     _31 = ((uint32_t)(6));
+#line 177 "rt/regex_runtime.w"
     _32 = (_30 << _31);
     _33 = ((uint32_t)(_32));
 #line 179 "rt/regex_runtime.w"
     _34 = 1;
+#line 178 "rt/regex_runtime.w"
     _35 = ((int32_t)(_6[_34]));
     _36 = ((uint32_t)(_35));
-#line 180 "rt/regex_runtime.w"
-    _37 = ((uint32_t)(63));
 #line 179 "rt/regex_runtime.w"
+    _37 = ((uint32_t)(63));
+#line 178 "rt/regex_runtime.w"
     _38 = (_36 & _37);
     _39 = ((uint32_t)(_38));
-#line 178 "rt/regex_runtime.w"
-    _40 = (_33 | _39);
 #line 177 "rt/regex_runtime.w"
+    _40 = (_33 | _39);
     _7 = _40;
     goto bb21;
 bb20:
-#line 182 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _41 = ((uint32_t)(_7));
-#line 183 "rt/regex_runtime.w"
-    _42 = ((uint32_t)(16));
 #line 182 "rt/regex_runtime.w"
+    _42 = ((uint32_t)(16));
+#line 181 "rt/regex_runtime.w"
     _43 = (_41 & _42);
     _44 = (_43 == 0);
     if (_44 == 1) {
@@ -10721,11 +10742,11 @@ bb20:
 bb21:
     goto bb15;
 bb22:
-#line 183 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _45 = 1;
     goto bb24;
 bb23:
-#line 182 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _45 = 0;
     goto bb24;
 bb24:
@@ -10737,56 +10758,54 @@ bb24:
         goto bb26;
     }
 bb25:
-#line 185 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _47 = ((uint32_t)(_7));
-#line 187 "rt/regex_runtime.w"
     _48 = ((uint32_t)(15));
-#line 185 "rt/regex_runtime.w"
     _49 = (_47 & _48);
     _50 = ((uint32_t)(_49));
-#line 188 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _51 = ((uint32_t)(12));
-#line 185 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _52 = (_50 << _51);
     _53 = ((uint32_t)(_52));
 #line 188 "rt/regex_runtime.w"
     _54 = 1;
+#line 187 "rt/regex_runtime.w"
     _55 = ((int32_t)(_6[_54]));
     _56 = ((uint32_t)(_55));
-#line 189 "rt/regex_runtime.w"
-    _57 = ((uint32_t)(63));
 #line 188 "rt/regex_runtime.w"
+    _57 = ((uint32_t)(63));
+#line 187 "rt/regex_runtime.w"
     _58 = (_56 & _57);
     _59 = ((uint32_t)(_58));
-#line 191 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _60 = ((uint32_t)(6));
-#line 188 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _61 = (_59 << _60);
     _62 = ((uint32_t)(_61));
-#line 185 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _63 = (_53 | _62);
     _64 = ((uint32_t)(_63));
-#line 193 "rt/regex_runtime.w"
+#line 191 "rt/regex_runtime.w"
     _65 = 2;
-#line 192 "rt/regex_runtime.w"
     _66 = ((int32_t)(_6[_65]));
     _67 = ((uint32_t)(_66));
-#line 193 "rt/regex_runtime.w"
-    _68 = ((uint32_t)(63));
 #line 192 "rt/regex_runtime.w"
+    _68 = ((uint32_t)(63));
+#line 191 "rt/regex_runtime.w"
     _69 = (_67 & _68);
     _70 = ((uint32_t)(_69));
-#line 185 "rt/regex_runtime.w"
-    _71 = (_64 | _70);
 #line 184 "rt/regex_runtime.w"
+    _71 = (_64 | _70);
+#line 183 "rt/regex_runtime.w"
     _7 = _71;
     goto bb27;
 bb26:
-#line 195 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _72 = ((uint32_t)(_7));
-#line 197 "rt/regex_runtime.w"
-    _73 = ((uint32_t)(8));
 #line 195 "rt/regex_runtime.w"
+    _73 = ((uint32_t)(8));
+#line 194 "rt/regex_runtime.w"
     _74 = (_72 & _73);
     _75 = (_74 == 0);
     if (_75 == 1) {
@@ -10798,11 +10817,11 @@ bb26:
 bb27:
     goto bb21;
 bb28:
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _76 = 1;
     goto bb30;
 bb29:
-#line 195 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _76 = 0;
     goto bb30;
 bb30:
@@ -10816,58 +10835,56 @@ bb30:
 bb31:
 #line 198 "rt/regex_runtime.w"
     _78 = ((uint32_t)(_7));
-#line 200 "rt/regex_runtime.w"
     _79 = ((uint32_t)(7));
-#line 198 "rt/regex_runtime.w"
     _80 = (_78 & _79);
     _81 = ((uint32_t)(_80));
-#line 202 "rt/regex_runtime.w"
     _82 = ((uint32_t)(18));
-#line 198 "rt/regex_runtime.w"
     _83 = (_81 << _82);
     _84 = ((uint32_t)(_83));
-#line 203 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _85 = 1;
+#line 200 "rt/regex_runtime.w"
     _86 = ((int32_t)(_6[_85]));
     _87 = ((uint32_t)(_86));
+#line 202 "rt/regex_runtime.w"
     _88 = ((uint32_t)(63));
+#line 200 "rt/regex_runtime.w"
     _89 = (_87 & _88);
     _90 = ((uint32_t)(_89));
-#line 204 "rt/regex_runtime.w"
-    _91 = ((uint32_t)(12));
 #line 203 "rt/regex_runtime.w"
+    _91 = ((uint32_t)(12));
+#line 200 "rt/regex_runtime.w"
     _92 = (_90 << _91);
-#line 202 "rt/regex_runtime.w"
     _93 = ((uint32_t)(_92));
 #line 198 "rt/regex_runtime.w"
     _94 = (_84 | _93);
     _95 = ((uint32_t)(_94));
-#line 206 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _96 = 2;
+#line 203 "rt/regex_runtime.w"
     _97 = ((int32_t)(_6[_96]));
     _98 = ((uint32_t)(_97));
-#line 207 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _99 = ((uint32_t)(63));
-#line 206 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _100 = (_98 & _99);
-#line 205 "rt/regex_runtime.w"
     _101 = ((uint32_t)(_100));
-#line 208 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _102 = ((uint32_t)(6));
-#line 205 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _103 = (_101 << _102);
     _104 = ((uint32_t)(_103));
 #line 198 "rt/regex_runtime.w"
     _105 = (_95 | _104);
     _106 = ((uint32_t)(_105));
-#line 210 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _107 = 3;
-#line 209 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _108 = ((int32_t)(_6[_107]));
     _109 = ((uint32_t)(_108));
-#line 211 "rt/regex_runtime.w"
-    _110 = ((uint32_t)(63));
 #line 209 "rt/regex_runtime.w"
+    _110 = ((uint32_t)(63));
+#line 207 "rt/regex_runtime.w"
     _111 = (_109 & _110);
     _112 = ((uint32_t)(_111));
 #line 198 "rt/regex_runtime.w"
@@ -10875,13 +10892,12 @@ bb31:
     _7 = _113;
     goto bb33;
 bb32:
-#line 214 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _114 = ((uint32_t)(_7));
-#line 215 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _115 = ((uint32_t)(4));
-#line 214 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _116 = (_114 & _115);
-#line 213 "rt/regex_runtime.w"
     _117 = (_116 == 0);
     if (_117 == 1) {
         goto bb34;
@@ -10892,11 +10908,11 @@ bb32:
 bb33:
     goto bb27;
 bb34:
-#line 215 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _118 = 1;
     goto bb36;
 bb35:
-#line 213 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _118 = 0;
     goto bb36;
 bb36:
@@ -10908,88 +10924,79 @@ bb36:
         goto bb38;
     }
 bb37:
-#line 216 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _120 = ((uint32_t)(_7));
-#line 217 "rt/regex_runtime.w"
     _121 = ((uint32_t)(3));
-#line 216 "rt/regex_runtime.w"
     _122 = (_120 & _121);
     _123 = ((uint32_t)(_122));
-#line 218 "rt/regex_runtime.w"
     _124 = ((uint32_t)(24));
-#line 216 "rt/regex_runtime.w"
     _125 = (_123 << _124);
     _126 = ((uint32_t)(_125));
-#line 220 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _127 = 1;
     _128 = ((int32_t)(_6[_127]));
     _129 = ((uint32_t)(_128));
-#line 221 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _130 = ((uint32_t)(63));
-#line 220 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _131 = (_129 & _130);
-#line 219 "rt/regex_runtime.w"
     _132 = ((uint32_t)(_131));
-#line 221 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _133 = ((uint32_t)(18));
-#line 219 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _134 = (_132 << _133);
     _135 = ((uint32_t)(_134));
-#line 216 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _136 = (_126 | _135);
     _137 = ((uint32_t)(_136));
-#line 224 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _138 = 2;
-#line 222 "rt/regex_runtime.w"
     _139 = ((int32_t)(_6[_138]));
     _140 = ((uint32_t)(_139));
-#line 225 "rt/regex_runtime.w"
-    _141 = ((uint32_t)(63));
 #line 222 "rt/regex_runtime.w"
+    _141 = ((uint32_t)(63));
+#line 221 "rt/regex_runtime.w"
     _142 = (_140 & _141);
     _143 = ((uint32_t)(_142));
-#line 225 "rt/regex_runtime.w"
-    _144 = ((uint32_t)(12));
 #line 222 "rt/regex_runtime.w"
+    _144 = ((uint32_t)(12));
+#line 221 "rt/regex_runtime.w"
     _145 = (_143 << _144);
     _146 = ((uint32_t)(_145));
-#line 216 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _147 = (_137 | _146);
     _148 = ((uint32_t)(_147));
-#line 227 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _149 = 3;
-#line 226 "rt/regex_runtime.w"
     _150 = ((int32_t)(_6[_149]));
     _151 = ((uint32_t)(_150));
-#line 228 "rt/regex_runtime.w"
     _152 = ((uint32_t)(63));
-#line 226 "rt/regex_runtime.w"
     _153 = (_151 & _152);
     _154 = ((uint32_t)(_153));
-#line 229 "rt/regex_runtime.w"
-    _155 = ((uint32_t)(6));
 #line 226 "rt/regex_runtime.w"
+    _155 = ((uint32_t)(6));
+#line 225 "rt/regex_runtime.w"
     _156 = (_154 << _155);
     _157 = ((uint32_t)(_156));
-#line 216 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _158 = (_148 | _157);
     _159 = ((uint32_t)(_158));
-#line 230 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _160 = 4;
     _161 = ((int32_t)(_6[_160]));
     _162 = ((uint32_t)(_161));
-#line 232 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _163 = ((uint32_t)(63));
-#line 230 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _164 = (_162 & _163);
+#line 227 "rt/regex_runtime.w"
     _165 = ((uint32_t)(_164));
-#line 216 "rt/regex_runtime.w"
-    _166 = (_159 | _165);
 #line 215 "rt/regex_runtime.w"
+    _166 = (_159 | _165);
     _7 = _166;
     goto bb39;
 bb38:
-#line 235 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _167 = ((uint32_t)(_7));
     _168 = ((uint32_t)(1));
     _169 = (_167 & _168);
@@ -10997,91 +11004,92 @@ bb38:
     _171 = ((uint32_t)(30));
     _172 = (_170 << _171);
     _173 = ((uint32_t)(_172));
-#line 236 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _174 = 1;
     _175 = ((int32_t)(_6[_174]));
     _176 = ((uint32_t)(_175));
-#line 238 "rt/regex_runtime.w"
     _177 = ((uint32_t)(63));
-#line 236 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _178 = (_176 & _177);
     _179 = ((uint32_t)(_178));
-#line 238 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _180 = ((uint32_t)(24));
-#line 236 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _181 = (_179 << _180);
     _182 = ((uint32_t)(_181));
-#line 235 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _183 = (_173 | _182);
     _184 = ((uint32_t)(_183));
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _185 = 2;
+#line 236 "rt/regex_runtime.w"
     _186 = ((int32_t)(_6[_185]));
     _187 = ((uint32_t)(_186));
-#line 240 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _188 = ((uint32_t)(63));
-#line 239 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _189 = (_187 & _188);
     _190 = ((uint32_t)(_189));
-#line 242 "rt/regex_runtime.w"
-    _191 = ((uint32_t)(18));
 #line 239 "rt/regex_runtime.w"
+    _191 = ((uint32_t)(18));
+#line 236 "rt/regex_runtime.w"
     _192 = (_190 << _191);
     _193 = ((uint32_t)(_192));
-#line 235 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _194 = (_184 | _193);
-#line 234 "rt/regex_runtime.w"
     _195 = ((uint32_t)(_194));
-#line 243 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _196 = 3;
+#line 239 "rt/regex_runtime.w"
     _197 = ((int32_t)(_6[_196]));
     _198 = ((uint32_t)(_197));
+#line 241 "rt/regex_runtime.w"
     _199 = ((uint32_t)(63));
+#line 239 "rt/regex_runtime.w"
     _200 = (_198 & _199);
     _201 = ((uint32_t)(_200));
-#line 244 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _202 = ((uint32_t)(12));
-#line 243 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _203 = (_201 << _202);
     _204 = ((uint32_t)(_203));
-#line 234 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _205 = (_195 | _204);
     _206 = ((uint32_t)(_205));
-#line 249 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _207 = 4;
-#line 246 "rt/regex_runtime.w"
     _208 = ((int32_t)(_6[_207]));
     _209 = ((uint32_t)(_208));
-#line 249 "rt/regex_runtime.w"
     _210 = ((uint32_t)(63));
-#line 246 "rt/regex_runtime.w"
     _211 = (_209 & _210);
     _212 = ((uint32_t)(_211));
-#line 250 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _213 = ((uint32_t)(6));
-#line 246 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _214 = (_212 << _213);
     _215 = ((uint32_t)(_214));
-#line 234 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _216 = (_206 | _215);
     _217 = ((uint32_t)(_216));
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _218 = 5;
+#line 247 "rt/regex_runtime.w"
     _219 = ((int32_t)(_6[_218]));
     _220 = ((uint32_t)(_219));
-#line 251 "rt/regex_runtime.w"
-    _221 = ((uint32_t)(63));
 #line 250 "rt/regex_runtime.w"
+    _221 = ((uint32_t)(63));
+#line 246 "rt/regex_runtime.w"
     _222 = (_220 & _221);
     _223 = ((uint32_t)(_222));
-#line 234 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _224 = (_217 | _223);
+#line 232 "rt/regex_runtime.w"
     _7 = _224;
     goto bb39;
 bb39:
     goto bb33;
 bb40:
-#line 255 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _226 = 1;
     goto bb42;
 bb41:
@@ -11096,9 +11104,9 @@ bb42:
         goto bb44;
     }
 bb43:
-#line 256 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _229 = _7;
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _231 = (_229 == 10);
     if (_231 == 1) {
         goto bb47;
@@ -11107,9 +11115,9 @@ bb43:
         goto bb48;
     }
 bb44:
-#line 275 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _244 = _7;
-#line 276 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _246 = (_244 == 10);
     if (_246 == 1) {
         goto bb71;
@@ -11122,16 +11130,17 @@ bb45:
     { __typeof__(_228) __tmp = _228; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb46:
-#line 256 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _228 = _230;
     goto bb45;
 bb47:
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     /* StorageLive(_232); */
     _232 = 0;
+#line 256 "rt/regex_runtime.w"
     /* StorageLive(_233); */
     _233 = 0;
-#line 259 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     { __typeof__((_6 > _3)) __tmp = (_6 > _3); memcpy(&(_234), &__tmp, sizeof(_234) < sizeof(__tmp) ? sizeof(_234) : sizeof(__tmp)); }
     if (_234 == 1) {
         goto bb49;
@@ -11140,7 +11149,7 @@ bb47:
         goto bb50;
     }
 bb48:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _243 = (_229 == 13);
     if (_243 == 1) {
         goto bb65;
@@ -11149,11 +11158,10 @@ bb48:
         goto bb66;
     }
 bb49:
-#line 260 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _235 = 1;
     goto bb51;
 bb50:
-#line 259 "rt/regex_runtime.w"
     _235 = 0;
     goto bb51;
 bb51:
@@ -11165,9 +11173,8 @@ bb51:
         goto bb53;
     }
 bb52:
-#line 261 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _237 = -1;
-#line 260 "rt/regex_runtime.w"
     _238 = (_6[_237] == 13);
     if (_238 == 1) {
         goto bb55;
@@ -11178,7 +11185,7 @@ bb52:
 bb53:
     goto bb54;
 bb54:
-#line 263 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _242 = (_233 != 0);
     if (_242 == 1) {
         goto bb61;
@@ -11187,11 +11194,10 @@ bb54:
         goto bb62;
     }
 bb55:
-#line 262 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _239 = 1;
     goto bb57;
 bb56:
-#line 260 "rt/regex_runtime.w"
     _239 = 0;
     goto bb57;
 bb57:
@@ -11203,65 +11209,66 @@ bb57:
         goto bb59;
     }
 bb58:
-#line 262 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _241 = 1;
     goto bb60;
 bb59:
-#line 260 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _241 = 0;
     goto bb60;
 bb60:
+#line 258 "rt/regex_runtime.w"
     _233 = _241;
     goto bb54;
 bb61:
-#line 263 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _232 = 2;
     goto bb63;
 bb62:
-#line 265 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _232 = 1;
     goto bb63;
 bb63:
-#line 266 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     (*_4) = _232;
-#line 268 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb64:
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _230 = (__typeof__(_230)){0};
     goto bb46;
 bb65:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 270 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb66:
     goto bb68;
 bb67:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _230 = (__typeof__(_230)){0};
     goto bb46;
 bb68:
-#line 272 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb69:
     _230 = (__typeof__(_230)){0};
     goto bb46;
 bb70:
-#line 255 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _228 = _245;
     goto bb45;
 bb71:
-#line 278 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     /* StorageLive(_247); */
     _247 = 0;
-#line 280 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     /* StorageLive(_248); */
     _248 = 0;
-#line 283 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     { __typeof__((_6 > _3)) __tmp = (_6 > _3); memcpy(&(_249), &__tmp, sizeof(_249) < sizeof(__tmp) ? sizeof(_249) : sizeof(__tmp)); }
     if (_249 == 1) {
         goto bb73;
@@ -11270,7 +11277,7 @@ bb71:
         goto bb74;
     }
 bb72:
-#line 300 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _258 = (_244 == 11);
     if (_258 == 1) {
         goto bb89;
@@ -11279,11 +11286,11 @@ bb72:
         goto bb90;
     }
 bb73:
-#line 284 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _250 = 1;
     goto bb75;
 bb74:
-#line 283 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _250 = 0;
     goto bb75;
 bb75:
@@ -11295,9 +11302,9 @@ bb75:
         goto bb77;
     }
 bb76:
-#line 286 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _252 = -1;
-#line 285 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _253 = (_6[_252] == 13);
     if (_253 == 1) {
         goto bb79;
@@ -11308,7 +11315,7 @@ bb76:
 bb77:
     goto bb78;
 bb78:
-#line 288 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _257 = (_248 != 0);
     if (_257 == 1) {
         goto bb85;
@@ -11317,11 +11324,11 @@ bb78:
         goto bb86;
     }
 bb79:
-#line 286 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _254 = 1;
     goto bb81;
 bb80:
-#line 285 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _254 = 0;
     goto bb81;
 bb81:
@@ -11333,41 +11340,43 @@ bb81:
         goto bb83;
     }
 bb82:
-#line 286 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _256 = 1;
     goto bb84;
 bb83:
-#line 285 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _256 = 0;
     goto bb84;
 bb84:
+#line 281 "rt/regex_runtime.w"
     _248 = _256;
     goto bb78;
 bb85:
-#line 289 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _247 = 2;
     goto bb87;
 bb86:
-#line 292 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _247 = 1;
     goto bb87;
 bb87:
-#line 295 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     (*_4) = _247;
-#line 297 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb88:
-#line 278 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb70;
 bb89:
-#line 300 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     (*_4) = 1;
+#line 299 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb90:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _259 = (_244 == 12);
     if (_259 == 1) {
         goto bb92;
@@ -11376,17 +11385,17 @@ bb90:
         goto bb93;
     }
 bb91:
-#line 300 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb70;
 bb92:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 303 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb93:
-#line 304 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _260 = (_244 == 13);
     if (_260 == 1) {
         goto bb95;
@@ -11395,16 +11404,17 @@ bb93:
         goto bb96;
     }
 bb94:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb70;
 bb95:
-#line 305 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     (*_4) = 1;
-#line 307 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb96:
+#line 305 "rt/regex_runtime.w"
     _261 = (_244 == 133);
     if (_261 == 1) {
         goto bb98;
@@ -11413,13 +11423,14 @@ bb96:
         goto bb99;
     }
 bb97:
-#line 305 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb70;
 bb98:
-#line 308 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     /* StorageLive(_262); */
     _262 = 0;
+#line 307 "rt/regex_runtime.w"
     _263 = (_5 != 0);
     if (_263 == 1) {
         goto bb100;
@@ -11437,20 +11448,21 @@ bb99:
         goto bb105;
     }
 bb100:
-#line 309 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _262 = 2;
     goto bb102;
 bb101:
-#line 311 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _262 = 1;
     goto bb102;
 bb102:
-#line 314 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     (*_4) = _262;
+#line 312 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb103:
-#line 308 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb70;
 bb104:
@@ -11910,7 +11922,7 @@ bb2:
     /* StorageLive(_10); */
 #line 14 "rt/regex_runtime.w"
     /* StorageLive(_11); */
-#line 15 "rt/regex_runtime.w"
+#line 16 "rt/regex_runtime.w"
     _6 = (*_5);
 #line 18 "rt/regex_runtime.w"
     _12 = (_4 - 1);
@@ -11986,7 +11998,6 @@ bb15:
     _18 = 0;
     goto bb16;
 bb16:
-#line 23 "rt/regex_runtime.w"
     _19 = (_18 != 0);
     if (_19 == 1) {
         goto bb17;
@@ -12018,7 +12029,7 @@ bb20:
 #line 27 "rt/regex_runtime.w"
     _24 = (_22 / _23);
     _25 = ((uint64_t)(_24));
-#line 25 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     (*_3) = _25;
 #line 30 "rt/regex_runtime.w"
     _0 = -22;
@@ -12294,9 +12305,8 @@ bb62:
 bb63:
     goto bb62;
 bb64:
-#line 74 "rt/regex_runtime.w"
-    _79 = ((uint32_t)(_6));
 #line 75 "rt/regex_runtime.w"
+    _79 = ((uint32_t)(_6));
     _80 = ((uint32_t)(62));
 #line 74 "rt/regex_runtime.w"
     _81 = (_79 & _80);
@@ -12357,18 +12367,18 @@ bb72:
     _94 = (_92 - _93);
 #line 76 "rt/regex_runtime.w"
     (*_3) = _94;
-#line 78 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     _0 = -17;
     return _0;
 bb73:
-#line 75 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _85 = (__typeof__(_85)){0};
     goto bb71;
 bb74:
 #line 80 "rt/regex_runtime.w"
     _96 = (_5 + 1);
     _5 = _96;
-#line 81 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     _97 = ((int32_t)((*_5)));
     _98 = (_97 & 192);
     _99 = (_98 != 128);
@@ -12416,7 +12426,7 @@ bb81:
 #line 90 "rt/regex_runtime.w"
     /* StorageLive(_111); */
     _111 = 0;
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _112 = (_6 == 224);
     if (_112 == 1) {
         goto bb84;
@@ -12459,7 +12469,9 @@ bb86:
 bb87:
 #line 95 "rt/regex_runtime.w"
     _115 = ((uint32_t)(_11));
+#line 96 "rt/regex_runtime.w"
     _116 = ((uint32_t)(32));
+#line 95 "rt/regex_runtime.w"
     _117 = (_115 & _116);
     _118 = (_117 == 0);
     if (_118 == 1) {
@@ -12471,7 +12483,7 @@ bb87:
 bb88:
     goto bb89;
 bb89:
-#line 99 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _122 = (_111 != 0);
     if (_122 == 1) {
         goto bb96;
@@ -12488,7 +12500,6 @@ bb91:
     _119 = 0;
     goto bb92;
 bb92:
-#line 94 "rt/regex_runtime.w"
     _120 = (_119 != 0);
     if (_120 == 1) {
         goto bb93;
@@ -12501,16 +12512,19 @@ bb93:
     _121 = 1;
     goto bb95;
 bb94:
-#line 94 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _121 = 0;
     goto bb95;
 bb95:
+#line 94 "rt/regex_runtime.w"
     _111 = _121;
     goto bb89;
 bb96:
 #line 102 "rt/regex_runtime.w"
     _123 = ((uint64_t)(_5));
+#line 103 "rt/regex_runtime.w"
     _124 = ((uint64_t)(_1));
+#line 102 "rt/regex_runtime.w"
     _125 = (_123 - _124);
     /* generic_call: should be resolved before C backend */ abort();
     goto bb99;
@@ -12520,7 +12534,7 @@ bb98:
 #line 108 "rt/regex_runtime.w"
     /* StorageLive(_132); */
     _132 = 0;
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _133 = (_6 == 237);
     if (_133 == 1) {
         goto bb101;
@@ -12545,14 +12559,15 @@ bb99:
 bb100:
     goto bb98;
 bb101:
-#line 110 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _134 = 1;
     goto bb103;
 bb102:
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _134 = 0;
     goto bb103;
 bb103:
+#line 109 "rt/regex_runtime.w"
     _135 = (_134 != 0);
     if (_135 == 1) {
         goto bb104;
@@ -12561,7 +12576,7 @@ bb103:
         goto bb105;
     }
 bb104:
-#line 111 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _136 = (_11 >= 160);
     if (_136 == 1) {
         goto bb107;
@@ -12585,10 +12600,11 @@ bb107:
     _137 = 1;
     goto bb109;
 bb108:
-#line 111 "rt/regex_runtime.w"
+#line 112 "rt/regex_runtime.w"
     _137 = 0;
     goto bb109;
 bb109:
+#line 111 "rt/regex_runtime.w"
     _138 = (_137 != 0);
     if (_138 == 1) {
         goto bb110;
@@ -12696,7 +12712,9 @@ bb125:
 #line 135 "rt/regex_runtime.w"
     _167 = (_5 + 1);
     _5 = _167;
+#line 136 "rt/regex_runtime.w"
     _168 = ((int32_t)((*_5)));
+#line 135 "rt/regex_runtime.w"
     _169 = (_168 & 192);
     _170 = (_169 != 128);
     if (_170 == 1) {
@@ -12847,7 +12865,7 @@ bb149:
 bb150:
 #line 152 "rt/regex_runtime.w"
     /* StorageLive(_203); */
-#line 153 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     _204 = (_6 > 244);
     if (_204 == 1) {
         goto bb153;
@@ -12862,8 +12880,9 @@ bb151:
     _200 = ((uint64_t)(_199));
 #line 150 "rt/regex_runtime.w"
     _201 = ((uint64_t)(3));
-#line 147 "rt/regex_runtime.w"
+#line 148 "rt/regex_runtime.w"
     _202 = (_200 - _201);
+#line 147 "rt/regex_runtime.w"
     (*_3) = _202;
 #line 150 "rt/regex_runtime.w"
     _0 = -19;
@@ -12922,7 +12941,6 @@ bb160:
     _207 = 0;
     goto bb161;
 bb161:
-#line 155 "rt/regex_runtime.w"
     _203 = _207;
     goto bb158;
 bb162:
@@ -13010,7 +13028,7 @@ bb178:
     _219 = (__typeof__(_219)){0};
     goto bb179;
 bb179:
-#line 124 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     { __typeof__(_219) __tmp = _219; memcpy(&(_77), &__tmp, sizeof(_77) < sizeof(__tmp) ? sizeof(_77) : sizeof(__tmp)); }
     goto bb63;
 bb180:
@@ -13072,7 +13090,9 @@ bb186:
 bb187:
 #line 179 "rt/regex_runtime.w"
     _236 = ((uint64_t)(_5));
+#line 180 "rt/regex_runtime.w"
     _237 = ((uint64_t)(_1));
+#line 179 "rt/regex_runtime.w"
     _238 = (_236 - _237);
     /* generic_call: should be resolved before C backend */ abort();
     goto bb190;
@@ -13081,7 +13101,6 @@ bb188:
 bb189:
 #line 185 "rt/regex_runtime.w"
     _245 = (_5 + 1);
-#line 184 "rt/regex_runtime.w"
     _5 = _245;
 #line 187 "rt/regex_runtime.w"
     _246 = ((int32_t)((*_5)));
@@ -13136,8 +13155,9 @@ bb195:
 bb196:
     goto bb197;
 bb197:
-#line 197 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _260 = (_5 + 1);
+#line 197 "rt/regex_runtime.w"
     _5 = _260;
 #line 198 "rt/regex_runtime.w"
     _261 = ((int32_t)((*_5)));
@@ -13303,10 +13323,11 @@ bb223:
 #line 219 "rt/regex_runtime.w"
     _292 = (_290 / _291);
     _293 = ((uint64_t)(_292));
+#line 218 "rt/regex_runtime.w"
     _294 = ((uint64_t)(_293));
 #line 221 "rt/regex_runtime.w"
     _295 = ((uint64_t)(4));
-#line 219 "rt/regex_runtime.w"
+#line 218 "rt/regex_runtime.w"
     _296 = (_294 - _295);
 #line 217 "rt/regex_runtime.w"
     (*_3) = _296;
@@ -13383,7 +13404,7 @@ bb232:
     _312 = (_310 - _311);
 #line 229 "rt/regex_runtime.w"
     (*_3) = _312;
-#line 235 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _0 = -9;
     return _0;
 bb233:
@@ -13416,12 +13437,12 @@ bb237:
 bb238:
     goto bb239;
 bb239:
-#line 245 "rt/regex_runtime.w"
-    _328 = (_5 + 1);
 #line 244 "rt/regex_runtime.w"
+    _328 = (_5 + 1);
     _5 = _328;
-#line 249 "rt/regex_runtime.w"
+#line 248 "rt/regex_runtime.w"
     _329 = ((int32_t)((*_5)));
+#line 247 "rt/regex_runtime.w"
     _330 = (_329 & 192);
     _331 = (_330 != 128);
     if (_331 == 1) {
@@ -13462,11 +13483,11 @@ bb244:
         goto bb246;
     }
 bb245:
-#line 251 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _334 = ((uint64_t)(_5));
-#line 252 "rt/regex_runtime.w"
-    _335 = ((uint64_t)(_1));
 #line 251 "rt/regex_runtime.w"
+    _335 = ((uint64_t)(_1));
+#line 250 "rt/regex_runtime.w"
     _336 = (_334 - _335);
     /* generic_call: should be resolved before C backend */ abort();
     goto bb248;
@@ -13517,8 +13538,9 @@ bb252:
         goto bb254;
     }
 bb253:
-#line 258 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _349 = ((uint64_t)(_5));
+#line 258 "rt/regex_runtime.w"
     _350 = ((uint64_t)(_1));
 #line 257 "rt/regex_runtime.w"
     _351 = (_349 - _350);
@@ -13572,6 +13594,7 @@ bb261:
 #line 265 "rt/regex_runtime.w"
     _362 = ((uint32_t)(_11));
     _363 = ((uint32_t)(60));
+#line 264 "rt/regex_runtime.w"
     _364 = (_362 & _363);
     _365 = (_364 == 0);
     if (_365 == 1) {
@@ -13583,7 +13606,7 @@ bb261:
 bb262:
     goto bb263;
 bb263:
-#line 267 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _369 = (_358 != 0);
     if (_369 == 1) {
         goto bb270;
@@ -13622,9 +13645,7 @@ bb269:
 bb270:
 #line 269 "rt/regex_runtime.w"
     _371 = ((uint64_t)(_5));
-#line 270 "rt/regex_runtime.w"
     _372 = ((uint64_t)(_1));
-#line 269 "rt/regex_runtime.w"
     _373 = (_371 - _372);
     /* generic_call: should be resolved before C backend */ abort();
     goto bb273;
@@ -13641,7 +13662,7 @@ bb273:
     _375 = (_373 / _374);
     _376 = ((uint64_t)(_375));
     _377 = ((uint64_t)(_376));
-#line 272 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _378 = ((uint64_t)(5));
 #line 269 "rt/regex_runtime.w"
     _379 = (_377 - _378);
@@ -13650,7 +13671,7 @@ bb273:
     _0 = -21;
     return _0;
 bb274:
-#line 269 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _370 = (__typeof__(_370)){0};
     goto bb272;
 bb275:
@@ -13701,7 +13722,7 @@ bb282:
 #line 286 "rt/regex_runtime.w"
     /* StorageLive(_392); */
     _392 = 0;
-#line 288 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _393 = (_10 == 4);
     if (_393 == 1) {
         goto bb283;
@@ -13710,6 +13731,7 @@ bb282:
         goto bb284;
     }
 bb283:
+#line 288 "rt/regex_runtime.w"
     _394 = 1;
     goto bb285;
 bb284:
@@ -14147,7 +14169,7 @@ bb6:
         goto bb3;
     }
 bb7:
-#line 15 "rt/regex_runtime.w"
+#line 14 "rt/regex_runtime.w"
     _13 = 1;
     goto bb9;
 bb8:
@@ -14284,7 +14306,7 @@ bb0:
     /* generic_call: should be resolved before C backend */ abort();
     goto bb1;
 bb1:
-#line 13 "rt/regex_runtime.w"
+#line 12 "rt/regex_runtime.w"
     _7 = (&(*_1).memctl);
     _8 = (pcre2_memctl*)((pcre2_memctl*)(_7));
     _9 = _8;
@@ -14295,7 +14317,7 @@ bb2:
     _11 = (pcre2_real_general_context_8*)((pcre2_real_general_context_8*)(_10));
 #line 6 "rt/regex_runtime.w"
     _2 = _11;
-#line 18 "rt/regex_runtime.w"
+#line 17 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_12), &__tmp, sizeof(_12) < sizeof(__tmp) ? sizeof(_12) : sizeof(__tmp)); }
     if (_12 == 1) {
         goto bb3;
@@ -14304,11 +14326,11 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 19 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     _13 = 1;
     goto bb5;
 bb4:
-#line 18 "rt/regex_runtime.w"
+#line 17 "rt/regex_runtime.w"
     _13 = 0;
     goto bb5;
 bb5:
@@ -14320,7 +14342,7 @@ bb5:
         goto bb7;
     }
 bb6:
-#line 20 "rt/regex_runtime.w"
+#line 19 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb7:
@@ -14368,39 +14390,38 @@ bb30: ;
 bb31: ;
 }
 
-pcre2_real_general_context_8* pcre2_general_context_create_8__80(with_fn_97 _1, with_fn_99 _2, c_void* _3) {
+pcre2_real_general_context_8* pcre2_general_context_create_8__80(with_fn_99 _1, with_fn_101 _2, c_void* _3) {
     pcre2_real_general_context_8* _0 __attribute__((unused)) = {0};
-    with_fn_97 _4 __attribute__((unused)) = {0};
-    with_fn_99 _5 __attribute__((unused)) = {0};
+    with_fn_99 _4 __attribute__((unused)) = {0};
+    with_fn_101 _5 __attribute__((unused)) = {0};
     pcre2_real_general_context_8* _6 __attribute__((unused)) = {0};
     bool _7 __attribute__((unused)) = {0};
     int32_t _8 __attribute__((unused)) = {0};
     bool _9 __attribute__((unused)) = {0};
-    with_fn_97 _10 __attribute__((unused)) = {0};
+    with_fn_99 _10 __attribute__((unused)) = {0};
     bool _11 __attribute__((unused)) = {0};
     int32_t _12 __attribute__((unused)) = {0};
     bool _13 __attribute__((unused)) = {0};
-    with_fn_99 _14 __attribute__((unused)) = {0};
+    with_fn_101 _14 __attribute__((unused)) = {0};
     int32_t _15 __attribute__((unused)) = {0};
     c_void* _16 __attribute__((unused)) = {0};
     pcre2_real_general_context_8* _17 __attribute__((unused)) = {0};
     bool _18 __attribute__((unused)) = {0};
     int32_t _19 __attribute__((unused)) = {0};
     bool _20 __attribute__((unused)) = {0};
-    with_fn_97 _21 __attribute__((unused)) = {0};
-    with_fn_99 _22 __attribute__((unused)) = {0};
+    with_fn_99 _21 __attribute__((unused)) = {0};
+    with_fn_101 _22 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = _1;
 #line 38 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = _2;
-#line 39 "rt/regex_runtime.w"
     /* StorageLive(_6); */
 #line 40 "rt/regex_runtime.w"
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_7), &__tmp, sizeof(_7) < sizeof(__tmp) ? sizeof(_7) : sizeof(__tmp)); }
@@ -14428,14 +14449,14 @@ bb3:
     }
 bb4:
 #line 43 "rt/regex_runtime.w"
-    _10 = ((with_fn_97)(default_malloc__2618));
+    _10 = ((with_fn_99)(default_malloc__2618));
 #line 41 "rt/regex_runtime.w"
     _4 = _10;
     goto bb6;
 bb5:
     goto bb6;
 bb6:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     { __typeof__((_5 == 0)) __tmp = (_5 == 0); memcpy(&(_11), &__tmp, sizeof(_11) < sizeof(__tmp) ? sizeof(_11) : sizeof(__tmp)); }
     if (_11 == 1) {
         goto bb7;
@@ -14444,11 +14465,11 @@ bb6:
         goto bb8;
     }
 bb7:
-#line 47 "rt/regex_runtime.w"
+#line 45 "rt/regex_runtime.w"
     _12 = 1;
     goto bb9;
 bb8:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _12 = 0;
     goto bb9;
 bb9:
@@ -14461,7 +14482,7 @@ bb9:
     }
 bb10:
 #line 47 "rt/regex_runtime.w"
-    _14 = ((with_fn_99)(default_free__2619));
+    _14 = ((with_fn_101)(default_free__2619));
     _5 = _14;
     goto bb12;
 bb11:
@@ -14473,11 +14494,10 @@ bb13:
     _16 = _4(_15, _3);
     goto bb14;
 bb14:
-#line 52 "rt/regex_runtime.w"
-    _17 = (pcre2_real_general_context_8*)((pcre2_real_general_context_8*)(_16));
 #line 51 "rt/regex_runtime.w"
+    _17 = (pcre2_real_general_context_8*)((pcre2_real_general_context_8*)(_16));
     _6 = _17;
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     { __typeof__((_6 == 0)) __tmp = (_6 == 0); memcpy(&(_18), &__tmp, sizeof(_18) < sizeof(__tmp) ? sizeof(_18) : sizeof(__tmp)); }
     if (_18 == 1) {
         goto bb15;
@@ -14486,7 +14506,7 @@ bb14:
         goto bb16;
     }
 bb15:
-#line 57 "rt/regex_runtime.w"
+#line 56 "rt/regex_runtime.w"
     _19 = 1;
     goto bb17;
 bb16:
@@ -14509,14 +14529,14 @@ bb19:
     goto bb20;
 bb20:
 #line 60 "rt/regex_runtime.w"
-    _21 = ((with_fn_97)(_4));
-#line 58 "rt/regex_runtime.w"
+    _21 = ((with_fn_99)(_4));
+#line 57 "rt/regex_runtime.w"
     (*_6).memctl.malloc = _21;
 #line 63 "rt/regex_runtime.w"
-    _22 = ((with_fn_99)(_5));
-#line 62 "rt/regex_runtime.w"
+    _22 = ((with_fn_101)(_5));
+#line 61 "rt/regex_runtime.w"
     (*_6).memctl.free = _22;
-#line 66 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     (*_6).memctl.memory_data = _3;
 #line 67 "rt/regex_runtime.w"
     _0 = _6;
@@ -14524,7 +14544,6 @@ bb20:
 bb21:
     goto bb20;
 bb22:
-#line 68 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -14622,8 +14641,9 @@ pcre2_real_compile_context_8* pcre2_compile_context_copy_8__323(pcre2_real_compi
 bb0:
 #line 75 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     /* StorageLive(_2); */
+#line 78 "rt/regex_runtime.w"
     _3 = (&(*_1).memctl);
     _4 = (pcre2_memctl*)((pcre2_memctl*)(_3));
     _5 = _4;
@@ -14639,8 +14659,9 @@ bb1:
 bb2:
 #line 78 "rt/regex_runtime.w"
     _11 = (pcre2_real_compile_context_8*)((pcre2_real_compile_context_8*)(_10));
+#line 77 "rt/regex_runtime.w"
     _2 = _11;
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_12), &__tmp, sizeof(_12) < sizeof(__tmp) ? sizeof(_12) : sizeof(__tmp)); }
     if (_12 == 1) {
         goto bb3;
@@ -14652,7 +14673,6 @@ bb3:
     _13 = 1;
     goto bb5;
 bb4:
-#line 83 "rt/regex_runtime.w"
     _13 = 0;
     goto bb5;
 bb5:
@@ -14664,26 +14684,26 @@ bb5:
         goto bb7;
     }
 bb6:
-#line 85 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb7:
     goto bb8;
 bb8:
-#line 86 "rt/regex_runtime.w"
+#line 85 "rt/regex_runtime.w"
     _15 = (int8_t*)((int8_t*)(_2));
+#line 86 "rt/regex_runtime.w"
     _16 = (int8_t*)((int8_t*)(_1));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb10;
 bb9:
     goto bb8;
 bb10:
-#line 87 "rt/regex_runtime.w"
     _18 = ((int64_t)(_17));
     _19 = with_memcpy(_15, _16, _18);
     goto bb11;
 bb11:
-#line 89 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb12:
@@ -14741,22 +14761,23 @@ pcre2_real_compile_context_8* pcre2_compile_context_create_8__324(pcre2_real_gen
     int8_t* _29 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 89 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     /* StorageLive(_2); */
     /* generic_call: should be resolved before C backend */ abort();
     goto bb1;
 bb1:
-#line 99 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     _4 = (pcre2_memctl*)((pcre2_memctl*)(_1));
     _5 = _pcre2_memctl_malloc_8__1092(_3, _4);
     goto bb2;
 bb2:
-#line 96 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _6 = (pcre2_real_compile_context_8*)((pcre2_real_compile_context_8*)(_5));
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _2 = _6;
-#line 101 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_7), &__tmp, sizeof(_7) < sizeof(__tmp) ? sizeof(_7) : sizeof(__tmp)); }
     if (_7 == 1) {
         goto bb3;
@@ -14765,11 +14786,11 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 102 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _8 = 1;
     goto bb5;
 bb4:
-#line 101 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _8 = 0;
     goto bb5;
 bb5:
@@ -14781,16 +14802,16 @@ bb5:
         goto bb7;
     }
 bb6:
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb7:
     goto bb8;
 bb8:
-#line 104 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _10 = (&(*_2));
     _11 = (int8_t*)((int8_t*)(_10));
-#line 105 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _13 = (&__with_global__pcre2_default_compile_context_8__84);
     _14 = (int8_t*)((int8_t*)(_13));
     /* generic_call: should be resolved before C backend */ abort();
@@ -14810,11 +14831,9 @@ bb11:
         goto bb13;
     }
 bb12:
-#line 109 "rt/regex_runtime.w"
     _18 = 1;
     goto bb14;
 bb13:
-#line 108 "rt/regex_runtime.w"
     _18 = 0;
     goto bb14;
 bb14:
@@ -14826,12 +14845,13 @@ bb14:
         goto bb16;
     }
 bb15:
-#line 111 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _20 = (pcre2_memctl*)((pcre2_memctl*)(_2));
     _21 = _20;
+#line 109 "rt/regex_runtime.w"
     _22 = (&(*_21));
     _23 = (int8_t*)((int8_t*)(_22));
-#line 113 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _24 = (pcre2_memctl*)((pcre2_memctl*)(_1));
     _25 = _24;
     _26 = (&(*_25));
@@ -14841,7 +14861,7 @@ bb15:
 bb16:
     goto bb17;
 bb17:
-#line 116 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb18:
@@ -14850,6 +14870,7 @@ bb18:
 bb19:
     goto bb17;
 bb20:
+#line 115 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb21: ;
@@ -14886,7 +14907,7 @@ void pcre2_compile_context_free_8__325(pcre2_real_compile_context_8* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 119 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     { __typeof__((_1 != 0)) __tmp = (_1 != 0); memcpy(&(_2), &__tmp, sizeof(_2) < sizeof(__tmp) ? sizeof(_2) : sizeof(__tmp)); }
     if (_2 == 1) {
         goto bb1;
@@ -14895,11 +14916,11 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 120 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _3 = 1;
     goto bb3;
 bb2:
-#line 119 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _3 = 0;
     goto bb3;
 bb3:
@@ -14911,11 +14932,11 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 121 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _5 = (&(*_1).memctl);
     _6 = (pcre2_memctl*)((pcre2_memctl*)(_5));
     _7 = _6;
-#line 124 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     _8 = (&(*_1).memctl);
     _9 = (pcre2_memctl*)((pcre2_memctl*)(_8));
     _10 = _9;
@@ -14951,12 +14972,11 @@ int32_t pcre2_set_bsr_8__326(pcre2_real_compile_context_8* _1, uint32_t _2) {
     bool _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 126 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 129 "rt/regex_runtime.w"
     _3 = _2;
-#line 131 "rt/regex_runtime.w"
     _5 = (_3 == 2);
     if (_5 == 1) {
         goto bb2;
@@ -14965,16 +14985,17 @@ bb0:
         goto bb3;
     }
 bb1:
-#line 138 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     { __typeof__(_4) __tmp = _4; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb2:
-#line 131 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     (*_1).bsr_convention = _2;
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb3:
+#line 134 "rt/regex_runtime.w"
     _6 = (_3 == 1);
     if (_6 == 1) {
         goto bb5;
@@ -14983,7 +15004,7 @@ bb3:
         goto bb6;
     }
 bb4:
-#line 131 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb5:
@@ -14999,7 +15020,7 @@ bb7:
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb8:
-#line 137 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _0 = -29;
     return _0;
 bb9:
@@ -15011,12 +15032,12 @@ int32_t pcre2_set_character_tables_8__327(pcre2_real_compile_context_8* _1, uint
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 138 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 139 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     (*_1).tables = _2;
-#line 141 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb1:
@@ -15032,10 +15053,10 @@ bb0:
     /* StorageLive(_2); */
 #line 143 "rt/regex_runtime.w"
     (*_1).extra_options = _2;
-#line 145 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb1:
+#line 144 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -15046,12 +15067,12 @@ int32_t pcre2_set_max_pattern_length_8__329(pcre2_real_compile_context_8* _1, ui
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 147 "rt/regex_runtime.w"
+#line 146 "rt/regex_runtime.w"
     (*_1).max_pattern_length = _2;
+#line 147 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb1:
-#line 148 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -15064,7 +15085,7 @@ bb0:
     /* StorageLive(_2); */
 #line 150 "rt/regex_runtime.w"
     (*_1).max_pattern_compiled_length = _2;
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb1:
@@ -15078,12 +15099,13 @@ int32_t pcre2_set_max_varlookbehind_8__331(pcre2_real_compile_context_8* _1, uin
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 157 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     (*_1).max_varlookbehind = _2;
-#line 162 "rt/regex_runtime.w"
+#line 160 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb1:
+#line 161 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -15104,7 +15126,6 @@ bb0:
     /* StorageLive(_2); */
 #line 165 "rt/regex_runtime.w"
     _3 = _2;
-#line 166 "rt/regex_runtime.w"
     _5 = (_3 == 1);
     if (_5 == 1) {
         goto bb2;
@@ -15117,12 +15138,13 @@ bb1:
     { __typeof__(_4) __tmp = _4; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb2:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     (*_1).newline_convention = _2;
-#line 168 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb3:
+#line 168 "rt/regex_runtime.w"
     _6 = (_3 == 2);
     if (_6 == 1) {
         goto bb5;
@@ -15131,16 +15153,17 @@ bb3:
         goto bb6;
     }
 bb4:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb5:
-#line 169 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     (*_1).newline_convention = _2;
-#line 171 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb6:
+#line 171 "rt/regex_runtime.w"
     _7 = (_3 == 3);
     if (_7 == 1) {
         goto bb8;
@@ -15153,13 +15176,13 @@ bb7:
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb8:
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     (*_1).newline_convention = _2;
-#line 173 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb9:
-#line 174 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _8 = (_3 == 4);
     if (_8 == 1) {
         goto bb11;
@@ -15168,17 +15191,16 @@ bb9:
         goto bb12;
     }
 bb10:
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb11:
-#line 175 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     (*_1).newline_convention = _2;
 #line 176 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb12:
-#line 177 "rt/regex_runtime.w"
     _9 = (_3 == 5);
     if (_9 == 1) {
         goto bb14;
@@ -15187,7 +15209,7 @@ bb12:
         goto bb15;
     }
 bb13:
-#line 175 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb14:
@@ -15209,19 +15231,19 @@ bb16:
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb17:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     (*_1).newline_convention = _2;
-#line 180 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb18:
     goto bb20;
 bb19:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _4 = (__typeof__(_4)){0};
     goto bb1;
 bb20:
-#line 182 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _0 = -29;
     return _0;
 bb21:
@@ -15233,6 +15255,7 @@ int32_t pcre2_set_parens_nest_limit_8__333(pcre2_real_compile_context_8* _1, uin
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 182 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 187 "rt/regex_runtime.w"
@@ -15245,17 +15268,17 @@ bb1:
     return _0;
 }
 
-int32_t pcre2_set_compile_recursion_guard_8__334(pcre2_real_compile_context_8* _1, with_fn_107 _2, c_void* _3) {
+int32_t pcre2_set_compile_recursion_guard_8__334(pcre2_real_compile_context_8* _1, with_fn_109 _2, c_void* _3) {
     int32_t _0 __attribute__((unused)) = {0};
-    with_fn_107 _4 __attribute__((unused)) = {0};
+    with_fn_109 _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 196 "rt/regex_runtime.w"
-    _4 = ((with_fn_107)(_2));
 #line 195 "rt/regex_runtime.w"
+    _4 = ((with_fn_109)(_2));
+#line 194 "rt/regex_runtime.w"
     (*_1).stack_guard = _4;
 #line 198 "rt/regex_runtime.w"
     (*_1).stack_guard_data = _3;
@@ -15263,7 +15286,6 @@ bb0:
     _0 = 0;
     return _0;
 bb1:
-#line 202 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -15326,11 +15348,9 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 205 "rt/regex_runtime.w"
     _4 = 1;
     goto bb3;
 bb2:
-#line 204 "rt/regex_runtime.w"
     _4 = 0;
     goto bb3;
 bb3:
@@ -15359,9 +15379,9 @@ bb8:
         goto bb10;
     }
 bb9:
-#line 208 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _6 = _2;
-#line 209 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _8 = (_6 == 0);
     if (_8 == 1) {
         goto bb12;
@@ -15370,7 +15390,7 @@ bb9:
         goto bb13;
     }
 bb10:
-#line 243 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb11:
@@ -15400,7 +15420,7 @@ bb16:
 #line 215 "rt/regex_runtime.w"
     /* StorageLive(_10); */
     _10 = 0;
-#line 217 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _11 = (_2 >= 64);
     if (_11 == 1) {
         goto bb17;
@@ -15409,9 +15429,11 @@ bb16:
         goto bb18;
     }
 bb17:
+#line 217 "rt/regex_runtime.w"
     _12 = 1;
     goto bb19;
 bb18:
+#line 216 "rt/regex_runtime.w"
     _12 = 0;
     goto bb19;
 bb19:
@@ -15443,11 +15465,11 @@ bb22:
         goto bb30;
     }
 bb23:
-#line 221 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _15 = 1;
     goto bb25;
 bb24:
-#line 220 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _15 = 0;
     goto bb25;
 bb25:
@@ -15463,17 +15485,18 @@ bb26:
     _17 = 1;
     goto bb28;
 bb27:
-#line 220 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _17 = 0;
     goto bb28;
 bb28:
-#line 219 "rt/regex_runtime.w"
     _10 = _17;
     goto bb22;
 bb29:
-#line 225 "rt/regex_runtime.w"
+#line 224 "rt/regex_runtime.w"
     _19 = ((uint32_t)(_2));
+#line 225 "rt/regex_runtime.w"
     _20 = ((uint32_t)(1));
+#line 224 "rt/regex_runtime.w"
     _21 = (_19 & _20);
     _22 = (_21 != 0);
     if (_22 == 1) {
@@ -15485,7 +15508,7 @@ bb29:
 bb30:
     goto bb31;
 bb31:
-#line 241 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _0 = -34;
     return _0;
 bb32:
@@ -15493,6 +15516,7 @@ bb32:
     _23 = 1;
     goto bb34;
 bb33:
+#line 224 "rt/regex_runtime.w"
     _23 = 0;
     goto bb34;
 bb34:
@@ -15506,45 +15530,41 @@ bb34:
 bb35:
 #line 229 "rt/regex_runtime.w"
     _25 = ((uint32_t)(1));
-#line 230 "rt/regex_runtime.w"
     _26 = ((uint32_t)(_2));
-#line 231 "rt/regex_runtime.w"
-    _27 = ((uint32_t)(1));
 #line 230 "rt/regex_runtime.w"
+    _27 = ((uint32_t)(1));
+#line 229 "rt/regex_runtime.w"
     _28 = (_26 >> _27);
     _29 = ((uint32_t)(_28));
-#line 233 "rt/regex_runtime.w"
+#line 231 "rt/regex_runtime.w"
     _30 = ((uint32_t)(32));
-#line 230 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _31 = (_29 - _30);
     _32 = ((uint32_t)(_31));
-#line 229 "rt/regex_runtime.w"
     _33 = (_25 << _32);
     _34 = (~(_33));
 #line 228 "rt/regex_runtime.w"
     _35 = ((*_1).optimization_flags & _34);
-#line 227 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     (*_1).optimization_flags = _35;
     goto bb37;
 bb36:
 #line 235 "rt/regex_runtime.w"
     _36 = ((uint32_t)(1));
-#line 236 "rt/regex_runtime.w"
     _37 = ((uint32_t)(_2));
-#line 238 "rt/regex_runtime.w"
-    _38 = ((uint32_t)(1));
 #line 236 "rt/regex_runtime.w"
+    _38 = ((uint32_t)(1));
+#line 235 "rt/regex_runtime.w"
     _39 = (_37 >> _38);
     _40 = ((uint32_t)(_39));
 #line 238 "rt/regex_runtime.w"
     _41 = ((uint32_t)(32));
-#line 236 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _42 = (_40 - _41);
     _43 = ((uint32_t)(_42));
-#line 235 "rt/regex_runtime.w"
     _44 = (_36 << _43);
     _45 = ((*_1).optimization_flags | _44);
-#line 234 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     (*_1).optimization_flags = _45;
     goto bb37;
 bb37:
@@ -15588,7 +15608,7 @@ pcre2_real_convert_context_8* pcre2_convert_context_copy_8__336(pcre2_real_conve
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 247 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     /* StorageLive(_2); */
 #line 250 "rt/regex_runtime.w"
     _3 = (&(*_1).memctl);
@@ -15597,18 +15617,18 @@ bb0:
     /* generic_call: should be resolved before C backend */ abort();
     goto bb1;
 bb1:
-#line 252 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _7 = (&(*_1).memctl);
     _8 = (pcre2_memctl*)((pcre2_memctl*)(_7));
     _9 = _8;
     _10 = (*_5).malloc(_6, (*_9).memory_data);
     goto bb2;
 bb2:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _11 = (pcre2_real_convert_context_8*)((pcre2_real_convert_context_8*)(_10));
-#line 247 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     _2 = _11;
-#line 255 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_12), &__tmp, sizeof(_12) < sizeof(__tmp) ? sizeof(_12) : sizeof(__tmp)); }
     if (_12 == 1) {
         goto bb3;
@@ -15617,9 +15637,11 @@ bb2:
         goto bb4;
     }
 bb3:
+#line 255 "rt/regex_runtime.w"
     _13 = 1;
     goto bb5;
 bb4:
+#line 254 "rt/regex_runtime.w"
     _13 = 0;
     goto bb5;
 bb5:
@@ -15631,12 +15653,12 @@ bb5:
         goto bb7;
     }
 bb6:
+#line 255 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb7:
     goto bb8;
 bb8:
-#line 256 "rt/regex_runtime.w"
     _15 = (int8_t*)((int8_t*)(_2));
 #line 257 "rt/regex_runtime.w"
     _16 = (int8_t*)((int8_t*)(_1));
@@ -15718,6 +15740,7 @@ bb1:
     _5 = _pcre2_memctl_malloc_8__1092(_3, _4);
     goto bb2;
 bb2:
+#line 262 "rt/regex_runtime.w"
     _6 = (pcre2_real_convert_context_8*)((pcre2_real_convert_context_8*)(_5));
 #line 260 "rt/regex_runtime.w"
     _2 = _6;
@@ -15730,11 +15753,9 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 266 "rt/regex_runtime.w"
     _8 = 1;
     goto bb5;
 bb4:
-#line 265 "rt/regex_runtime.w"
     _8 = 0;
     goto bb5;
 bb5:
@@ -15765,7 +15786,7 @@ bb10:
     _16 = with_memcpy(_11, _14, _15);
     goto bb11;
 bb11:
-#line 271 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     { __typeof__((_1 != 0)) __tmp = (_1 != 0); memcpy(&(_17), &__tmp, sizeof(_17) < sizeof(__tmp) ? sizeof(_17) : sizeof(__tmp)); }
     if (_17 == 1) {
         goto bb12;
@@ -15774,9 +15795,11 @@ bb11:
         goto bb13;
     }
 bb12:
+#line 271 "rt/regex_runtime.w"
     _18 = 1;
     goto bb14;
 bb13:
+#line 270 "rt/regex_runtime.w"
     _18 = 0;
     goto bb14;
 bb14:
@@ -15791,12 +15814,13 @@ bb15:
 #line 273 "rt/regex_runtime.w"
     _20 = (pcre2_memctl*)((pcre2_memctl*)(_2));
     _21 = _20;
+#line 272 "rt/regex_runtime.w"
     _22 = (&(*_21));
     _23 = (int8_t*)((int8_t*)(_22));
-#line 278 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _24 = (pcre2_memctl*)((pcre2_memctl*)(_1));
     _25 = _24;
-#line 276 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _26 = (&(*_25));
     _27 = (int8_t*)((int8_t*)(_26));
     /* generic_call: should be resolved before C backend */ abort();
@@ -15804,7 +15828,7 @@ bb15:
 bb16:
     goto bb17;
 bb17:
-#line 281 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _0 = _2;
     return _0;
 bb18:
@@ -15813,7 +15837,7 @@ bb18:
 bb19:
     goto bb17;
 bb20:
-#line 283 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb21: ;
@@ -15859,11 +15883,9 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 286 "rt/regex_runtime.w"
     _3 = 1;
     goto bb3;
 bb2:
-#line 285 "rt/regex_runtime.w"
     _3 = 0;
     goto bb3;
 bb3:
@@ -15875,11 +15897,11 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 287 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _5 = (&(*_1).memctl);
     _6 = (pcre2_memctl*)((pcre2_memctl*)(_5));
     _7 = _6;
-#line 289 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _8 = (&(*_1).memctl);
     _9 = (pcre2_memctl*)((pcre2_memctl*)(_8));
     _10 = _9;
@@ -15928,12 +15950,12 @@ int32_t pcre2_set_glob_escape_8__339(pcre2_real_convert_context_8* _1, uint32_t 
     bool _20 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 294 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 299 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     /* StorageLive(_3); */
-#line 300 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _4 = (_2 > 255);
     if (_4 == 1) {
         goto bb1;
@@ -15942,9 +15964,11 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 300 "rt/regex_runtime.w"
     _5 = 1;
     goto bb3;
 bb2:
+#line 299 "rt/regex_runtime.w"
     _5 = 0;
     goto bb3;
 bb3:
@@ -15963,7 +15987,7 @@ bb4:
         goto bb8;
     }
 bb5:
-#line 302 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = 0;
 #line 303 "rt/regex_runtime.w"
@@ -15975,7 +15999,7 @@ bb5:
         goto bb11;
     }
 bb6:
-#line 309 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _20 = (_3 != 0);
     if (_20 == 1) {
         goto bb26;
@@ -15984,22 +16008,20 @@ bb6:
         goto bb27;
     }
 bb7:
-#line 301 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _7 = 1;
     goto bb9;
 bb8:
     _7 = 0;
     goto bb9;
 bb9:
-#line 300 "rt/regex_runtime.w"
     _3 = _7;
     goto bb6;
 bb10:
-#line 304 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _10 = 1;
     goto bb12;
 bb11:
-#line 303 "rt/regex_runtime.w"
     _10 = 0;
     goto bb12;
 bb12:
@@ -16025,7 +16047,7 @@ bb15:
         goto bb24;
     }
 bb16:
-#line 305 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     { __typeof__((_13 == 0)) __tmp = (_13 == 0); memcpy(&(_14), &__tmp, sizeof(_14) < sizeof(__tmp) ? sizeof(_14) : sizeof(__tmp)); }
     if (_14 == 1) {
         goto bb17;
@@ -16034,11 +16056,11 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 307 "rt/regex_runtime.w"
+#line 306 "rt/regex_runtime.w"
     _15 = 1;
     goto bb19;
 bb18:
-#line 305 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _15 = 0;
     goto bb19;
 bb19:
@@ -16054,7 +16076,7 @@ bb20:
     _17 = 1;
     goto bb22;
 bb21:
-#line 305 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _17 = 0;
     goto bb22;
 bb22:
@@ -16068,16 +16090,17 @@ bb24:
     _19 = 0;
     goto bb25;
 bb25:
+#line 307 "rt/regex_runtime.w"
     _3 = _19;
     goto bb6;
 bb26:
-#line 310 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _0 = -29;
     return _0;
 bb27:
     goto bb28;
 bb28:
-#line 311 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     (*_1).glob_escape = _2;
 #line 312 "rt/regex_runtime.w"
     _0 = 0;
@@ -16108,7 +16131,6 @@ int32_t pcre2_set_glob_separator_8__340(pcre2_real_convert_context_8* _1, uint32
     bool _17 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 313 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 314 "rt/regex_runtime.w"
@@ -16549,15 +16571,15 @@ bb20: ;
 bb21: ;
 }
 
-int32_t pcre2_set_callout_8__349(pcre2_real_match_context_8* _1, with_fn_111 _2, c_void* _3) {
+int32_t pcre2_set_callout_8__349(pcre2_real_match_context_8* _1, with_fn_113 _2, c_void* _3) {
     int32_t _0 __attribute__((unused)) = {0};
-    with_fn_111 _4 __attribute__((unused)) = {0};
+    with_fn_113 _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = ((with_fn_111)(_2));
+    _4 = ((with_fn_113)(_2));
     (*_1).callout = _4;
     (*_1).callout_data = _3;
     _0 = 0;
@@ -16567,15 +16589,15 @@ bb1:
     return _0;
 }
 
-int32_t pcre2_set_substitute_callout_8__350(pcre2_real_match_context_8* _1, with_fn_114 _2, c_void* _3) {
+int32_t pcre2_set_substitute_callout_8__350(pcre2_real_match_context_8* _1, with_fn_116 _2, c_void* _3) {
     int32_t _0 __attribute__((unused)) = {0};
-    with_fn_114 _4 __attribute__((unused)) = {0};
+    with_fn_116 _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = ((with_fn_114)(_2));
+    _4 = ((with_fn_116)(_2));
     (*_1).substitute_callout = _4;
     (*_1).substitute_callout_data = _3;
     _0 = 0;
@@ -16585,15 +16607,15 @@ bb1:
     return _0;
 }
 
-int32_t pcre2_set_substitute_case_callout_8__351(pcre2_real_match_context_8* _1, with_fn_116 _2, c_void* _3) {
+int32_t pcre2_set_substitute_case_callout_8__351(pcre2_real_match_context_8* _1, with_fn_118 _2, c_void* _3) {
     int32_t _0 __attribute__((unused)) = {0};
-    with_fn_116 _4 __attribute__((unused)) = {0};
+    with_fn_118 _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = ((with_fn_116)(_2));
+    _4 = ((with_fn_118)(_2));
     (*_1).substitute_case_callout = _4;
     (*_1).substitute_case_callout_data = _3;
     _0 = 0;
@@ -16676,7 +16698,7 @@ bb2:
     return _0;
 }
 
-int32_t pcre2_set_recursion_memory_management_8__357(pcre2_real_match_context_8* _1, with_fn_97 _2, with_fn_99 _3, c_void* _4) {
+int32_t pcre2_set_recursion_memory_management_8__357(pcre2_real_match_context_8* _1, with_fn_99 _2, with_fn_101 _3, c_void* _4) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -16711,8 +16733,8 @@ c_void* _pcre2_memctl_malloc_8__1092(uint64_t _1, pcre2_memctl* _2) {
     bool _18 __attribute__((unused)) = {0};
     int32_t _19 __attribute__((unused)) = {0};
     bool _20 __attribute__((unused)) = {0};
-    with_fn_97 _21 __attribute__((unused)) = {0};
-    with_fn_99 _22 __attribute__((unused)) = {0};
+    with_fn_99 _21 __attribute__((unused)) = {0};
+    with_fn_101 _22 __attribute__((unused)) = {0};
     pcre2_memctl* _23 __attribute__((unused)) = {0};
     int8_t* _24 __attribute__((unused)) = {0};
     pcre2_memctl* _25 __attribute__((unused)) = {0};
@@ -16819,9 +16841,9 @@ bb18:
         goto bb20;
     }
 bb19:
-    _21 = ((with_fn_97)(default_malloc__2618));
+    _21 = ((with_fn_99)(default_malloc__2618));
     (*_3).malloc = _21;
-    _22 = ((with_fn_99)(default_free__2619));
+    _22 = ((with_fn_101)(default_free__2619));
     (*_3).free = _22;
     { __typeof__(0) __tmp = 0; memcpy(&((*_3).memory_data), &__tmp, sizeof((*_3).memory_data) < sizeof(__tmp) ? sizeof((*_3).memory_data) : sizeof(__tmp)); }
     goto bb21;
@@ -18407,8 +18429,9 @@ bb3:
 #line 24 "rt/regex_runtime.w"
     _20 = (_6 + 1);
     _6 = _20;
-#line 25 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _21 = ((int32_t)((*_19)));
+#line 25 "rt/regex_runtime.w"
     _22 = (_21 & 2);
     _23 = (_22 != 0);
     if (_23 == 1) {
@@ -18445,8 +18468,9 @@ bb7:
 bb8:
     goto bb9;
 bb9:
-#line 41 "rt/regex_runtime.w"
+#line 40 "rt/regex_runtime.w"
     /* StorageLive(_51); */
+#line 41 "rt/regex_runtime.w"
     _52 = ((*_6) == 3);
     if (_52 == 1) {
         goto bb21;
@@ -18473,24 +18497,20 @@ bb12:
 bb13:
 #line 32 "rt/regex_runtime.w"
     _29 = ((uint32_t)(_5));
-#line 33 "rt/regex_runtime.w"
     _30 = ((uint32_t)(8));
-#line 32 "rt/regex_runtime.w"
     _31 = (_29 / _30);
-    _32 = _31;
 #line 31 "rt/regex_runtime.w"
+    _32 = _31;
     _33 = ((int32_t)(_6[_32]));
     _34 = ((uint32_t)(_33));
 #line 34 "rt/regex_runtime.w"
     _35 = ((uint32_t)(1));
-#line 35 "rt/regex_runtime.w"
     _36 = ((uint32_t)(_5));
-#line 36 "rt/regex_runtime.w"
-    _37 = ((uint32_t)(7));
 #line 35 "rt/regex_runtime.w"
+    _37 = ((uint32_t)(7));
+#line 34 "rt/regex_runtime.w"
     _38 = (_36 & _37);
     _39 = ((uint32_t)(_38));
-#line 34 "rt/regex_runtime.w"
     _40 = (_35 << _39);
     _41 = ((uint32_t)(_40));
 #line 31 "rt/regex_runtime.w"
@@ -18524,13 +18544,12 @@ bb18:
 bb19:
     goto bb15;
 bb20:
-#line 40 "rt/regex_runtime.w"
-    _47 = ((uint64_t)(_46));
 #line 39 "rt/regex_runtime.w"
+    _47 = ((uint64_t)(_46));
     _48 = (_45 / _47);
     _49 = ((uint64_t)(_48));
-    _50 = (_6 + _49);
 #line 38 "rt/regex_runtime.w"
+    _50 = (_6 + _49);
     _6 = _50;
     goto bb9;
 bb21:
@@ -18612,30 +18631,32 @@ bb35:
     _51 = _59;
     goto bb26;
 bb36:
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     /* StorageLive(_61); */
 #line 52 "rt/regex_runtime.w"
     _63 = 0;
+#line 51 "rt/regex_runtime.w"
     _64 = (&__with_global__pcre2_ucd_records_8__2612[_63]);
     _65 = (ucd_record*)((ucd_record*)(_64));
 #line 55 "rt/regex_runtime.w"
     _68 = ((int32_t)(_5));
     _69 = (_68 / 128);
     _70 = _69;
+#line 54 "rt/regex_runtime.w"
     _71 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_70]));
     _72 = (_71 * 128);
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     _73 = ((int32_t)(_5));
     _74 = (_73 % 128);
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _75 = (_72 + _74);
     _76 = _75;
-#line 54 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     _77 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_76]));
     _78 = ((uint64_t)(_77));
-#line 52 "rt/regex_runtime.w"
-    _79 = (_65 + _78);
 #line 51 "rt/regex_runtime.w"
+    _79 = (_65 + _78);
+#line 49 "rt/regex_runtime.w"
     _61 = _79;
     goto bb39;
 bb37:
@@ -18662,11 +18683,10 @@ bb39:
 #line 62 "rt/regex_runtime.w"
     /* StorageLive(_83); */
     _83 = _6;
-#line 64 "rt/regex_runtime.w"
-    _84 = (_6 + 1);
 #line 63 "rt/regex_runtime.w"
+    _84 = (_6 + 1);
     _6 = _84;
-#line 66 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _85 = ((*_83) == 3);
     if (_85 == 1) {
         goto bb42;
@@ -18687,11 +18707,11 @@ bb40:
 bb41:
     goto bb38;
 bb42:
-#line 67 "rt/regex_runtime.w"
+#line 66 "rt/regex_runtime.w"
     _86 = 1;
     goto bb44;
 bb43:
-#line 66 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _86 = 0;
     goto bb44;
 bb44:
@@ -18708,7 +18728,7 @@ bb45:
         goto bb47;
     }
 bb46:
-#line 71 "rt/regex_runtime.w"
+#line 69 "rt/regex_runtime.w"
     _88 = (*_6);
 #line 72 "rt/regex_runtime.w"
     _90 = (_88 == 0);
@@ -18730,10 +18750,10 @@ bb48:
 bb49:
 #line 72 "rt/regex_runtime.w"
     _80 = (*_61).chartype;
-#line 73 "rt/regex_runtime.w"
     /* StorageLive(_91); */
+#line 73 "rt/regex_runtime.w"
     /* StorageLive(_92); */
-#line 75 "rt/regex_runtime.w"
+#line 74 "rt/regex_runtime.w"
     _93 = (_80 == 9);
     if (_93 == 1) {
         goto bb51;
@@ -18742,7 +18762,7 @@ bb49:
         goto bb52;
     }
 bb50:
-#line 92 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _111 = (_88 == 1);
     if (_111 == 1) {
         goto bb85;
@@ -18755,6 +18775,7 @@ bb51:
     _94 = 1;
     goto bb53;
 bb52:
+#line 74 "rt/regex_runtime.w"
     _94 = 0;
     goto bb53;
 bb53:
@@ -18782,7 +18803,7 @@ bb55:
         goto bb61;
     }
 bb56:
-#line 80 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     _101 = (_92 != 0);
     if (_101 == 1) {
         goto bb66;
@@ -18791,14 +18812,14 @@ bb56:
         goto bb67;
     }
 bb57:
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _96 = 1;
     goto bb59;
 bb58:
     _96 = 0;
     goto bb59;
 bb59:
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _92 = _96;
     goto bb56;
 bb60:
@@ -18817,11 +18838,9 @@ bb62:
         goto bb64;
     }
 bb63:
-#line 79 "rt/regex_runtime.w"
     _100 = 1;
     goto bb65;
 bb64:
-#line 78 "rt/regex_runtime.w"
     _100 = 0;
     goto bb65;
 bb65:
@@ -18844,7 +18863,7 @@ bb67:
         goto bb73;
     }
 bb68:
-#line 87 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _107 = (_91 == _81);
     if (_107 == 1) {
         goto bb78;
@@ -18860,14 +18879,15 @@ bb70:
     _102 = 0;
     goto bb71;
 bb71:
+#line 80 "rt/regex_runtime.w"
     _91 = _102;
     goto bb68;
 bb72:
-#line 85 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _104 = 1;
     goto bb74;
 bb73:
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _104 = 0;
     goto bb74;
 bb74:
@@ -18883,19 +18903,18 @@ bb75:
     _106 = 1;
     goto bb77;
 bb76:
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _106 = 0;
     goto bb77;
 bb77:
-#line 83 "rt/regex_runtime.w"
     _91 = _106;
     goto bb68;
 bb78:
-#line 88 "rt/regex_runtime.w"
+#line 87 "rt/regex_runtime.w"
     _108 = 1;
     goto bb80;
 bb79:
-#line 87 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _108 = 0;
     goto bb80;
 bb80:
@@ -18911,7 +18930,7 @@ bb81:
     _0 = _9;
     return _0;
 bb82:
-#line 87 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _110 = (__typeof__(_110)){0};
     goto bb83;
 bb83:
@@ -18927,7 +18946,7 @@ bb85:
     _112 = 1;
 #line 95 "rt/regex_runtime.w"
     _114 = (*_61).chartype;
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _115 = (_6[_112] == __with_global__pcre2_ucp_gentype_8__2596[_114]);
     if (_115 == 1) {
         goto bb87;
@@ -18945,15 +18964,14 @@ bb86:
         goto bb98;
     }
 bb87:
-#line 96 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _116 = 1;
     goto bb89;
 bb88:
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _116 = 0;
     goto bb89;
 bb89:
-#line 93 "rt/regex_runtime.w"
     _117 = (_116 == _81);
     if (_117 == 1) {
         goto bb90;
@@ -18962,7 +18980,7 @@ bb89:
         goto bb91;
     }
 bb90:
-#line 97 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _118 = 1;
     goto bb92;
 bb91:
@@ -18993,9 +19011,8 @@ bb96:
     _120 = (__typeof__(_120)){0};
     goto bb95;
 bb97:
-#line 104 "rt/regex_runtime.w"
-    _122 = 1;
 #line 103 "rt/regex_runtime.w"
+    _122 = 1;
     _123 = (_6[_122] == (*_61).chartype);
     if (_123 == 1) {
         goto bb99;
@@ -19004,7 +19021,7 @@ bb97:
         goto bb100;
     }
 bb98:
-#line 111 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _129 = (_88 == 3);
     if (_129 == 1) {
         goto bb109;
@@ -19021,6 +19038,7 @@ bb100:
     _124 = 0;
     goto bb101;
 bb101:
+#line 102 "rt/regex_runtime.w"
     _125 = (_124 == _81);
     if (_125 == 1) {
         goto bb102;
@@ -19033,7 +19051,7 @@ bb102:
     _126 = 1;
     goto bb104;
 bb103:
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _126 = 0;
     goto bb104;
 bb104:
@@ -19045,18 +19063,18 @@ bb104:
         goto bb106;
     }
 bb105:
-#line 108 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb106:
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _128 = (__typeof__(_128)){0};
     goto bb107;
 bb107:
     _89 = _128;
     goto bb48;
 bb108:
-#line 108 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _128 = (__typeof__(_128)){0};
     goto bb107;
 bb109:
@@ -19079,11 +19097,10 @@ bb110:
         goto bb122;
     }
 bb111:
-#line 113 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _132 = 1;
     goto bb113;
 bb112:
-#line 111 "rt/regex_runtime.w"
     _132 = 0;
     goto bb113;
 bb113:
@@ -19095,7 +19112,7 @@ bb113:
         goto bb115;
     }
 bb114:
-#line 114 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _134 = 1;
     goto bb116;
 bb115:
@@ -19111,7 +19128,7 @@ bb116:
         goto bb118;
     }
 bb117:
-#line 115 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb118:
@@ -19122,15 +19139,15 @@ bb119:
     _89 = _136;
     goto bb48;
 bb120:
-#line 115 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _136 = (__typeof__(_136)){0};
     goto bb119;
 bb121:
-#line 119 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     /* StorageLive(_138); */
-#line 122 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _139 = 1;
-#line 121 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _140 = (_6[_139] == (*_61).script);
     if (_140 == 1) {
         goto bb123;
@@ -19148,11 +19165,11 @@ bb122:
         goto bb146;
     }
 bb123:
-#line 123 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     _141 = 1;
     goto bb125;
 bb124:
-#line 120 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _141 = 0;
     goto bb125;
 bb125:
@@ -19171,32 +19188,38 @@ bb126:
         goto bb130;
     }
 bb127:
-#line 129 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _145 = 0;
+#line 126 "rt/regex_runtime.w"
     _146 = (&__with_global__pcre2_ucd_script_sets_8__2610[_145]);
     _147 = (uint32_t*)((uint32_t*)(_146));
+#line 129 "rt/regex_runtime.w"
     _148 = ((int32_t)((*_61).scriptx_bidiclass));
     _149 = (_148 & 1023);
     _150 = ((int64_t)(_149));
     _151 = ((uint64_t)(_150));
+#line 126 "rt/regex_runtime.w"
     _152 = (_147 + _151);
     _153 = _152;
-#line 133 "rt/regex_runtime.w"
+#line 131 "rt/regex_runtime.w"
     _154 = 1;
+#line 130 "rt/regex_runtime.w"
     _155 = ((int32_t)(_6[_154]));
     _156 = (_155 / 32);
     _157 = _156;
-#line 128 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _158 = ((uint32_t)(_153[_157]));
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _159 = ((uint32_t)(1));
+#line 134 "rt/regex_runtime.w"
     _160 = 1;
     _161 = ((int32_t)(_6[_160]));
     _162 = (_161 % 32);
     _163 = ((uint32_t)(_162));
+#line 133 "rt/regex_runtime.w"
     _164 = (_159 << _163);
     _165 = ((uint32_t)(_164));
-#line 128 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _166 = (_158 & _165);
     _167 = (_166 != 0);
     if (_167 == 1) {
@@ -19206,7 +19229,7 @@ bb127:
         goto bb133;
     }
 bb128:
-#line 137 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _87 = _138;
 #line 138 "rt/regex_runtime.w"
     _171 = (_87 == _81);
@@ -19217,22 +19240,22 @@ bb128:
         goto bb139;
     }
 bb129:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _143 = 1;
     goto bb131;
 bb130:
-#line 124 "rt/regex_runtime.w"
     _143 = 0;
     goto bb131;
 bb131:
+#line 123 "rt/regex_runtime.w"
     _138 = _143;
     goto bb128;
 bb132:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _168 = 1;
     goto bb134;
 bb133:
-#line 128 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _168 = 0;
     goto bb134;
 bb134:
@@ -19244,15 +19267,14 @@ bb134:
         goto bb136;
     }
 bb135:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _170 = 1;
     goto bb137;
 bb136:
-#line 127 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _170 = 0;
     goto bb137;
 bb137:
-#line 126 "rt/regex_runtime.w"
     _138 = _170;
     goto bb128;
 bb138:
@@ -19271,29 +19293,25 @@ bb140:
         goto bb142;
     }
 bb141:
-#line 139 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb142:
-#line 138 "rt/regex_runtime.w"
     _174 = (__typeof__(_174)){0};
     goto bb143;
 bb143:
-#line 119 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _89 = _174;
     goto bb48;
 bb144:
-#line 139 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     _174 = (__typeof__(_174)){0};
     goto bb143;
 bb145:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _80 = (*_61).chartype;
 #line 143 "rt/regex_runtime.w"
     /* StorageLive(_176); */
-#line 145 "rt/regex_runtime.w"
     _177 = _80;
-#line 144 "rt/regex_runtime.w"
     _178 = (__with_global__pcre2_ucp_gentype_8__2596[_177] == 1);
     if (_178 == 1) {
         goto bb147;
@@ -19302,7 +19320,7 @@ bb145:
         goto bb148;
     }
 bb146:
-#line 155 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     _191 = (_88 == 6);
     if (_191 == 1) {
         goto bb169;
@@ -19311,11 +19329,11 @@ bb146:
         goto bb170;
     }
 bb147:
-#line 145 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _179 = 1;
     goto bb149;
 bb148:
-#line 144 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     _179 = 0;
     goto bb149;
 bb149:
@@ -19334,9 +19352,8 @@ bb150:
         goto bb154;
     }
 bb151:
-#line 148 "rt/regex_runtime.w"
-    _182 = _80;
 #line 147 "rt/regex_runtime.w"
+    _182 = _80;
     _183 = (__with_global__pcre2_ucp_gentype_8__2596[_182] == 3);
     if (_183 == 1) {
         goto bb156;
@@ -19354,22 +19371,20 @@ bb152:
         goto bb163;
     }
 bb153:
-#line 146 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _181 = 1;
     goto bb155;
 bb154:
     _181 = 0;
     goto bb155;
 bb155:
-#line 145 "rt/regex_runtime.w"
     _176 = _181;
     goto bb152;
 bb156:
-#line 149 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _184 = 1;
     goto bb158;
 bb157:
-#line 147 "rt/regex_runtime.w"
     _184 = 0;
     goto bb158;
 bb158:
@@ -19381,7 +19396,7 @@ bb158:
         goto bb160;
     }
 bb159:
-#line 149 "rt/regex_runtime.w"
+#line 148 "rt/regex_runtime.w"
     _186 = 1;
     goto bb161;
 bb160:
@@ -19396,6 +19411,7 @@ bb162:
     _188 = 1;
     goto bb164;
 bb163:
+#line 149 "rt/regex_runtime.w"
     _188 = 0;
     goto bb164;
 bb164:
@@ -19407,19 +19423,19 @@ bb164:
         goto bb166;
     }
 bb165:
-#line 152 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb166:
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _190 = (__typeof__(_190)){0};
     goto bb167;
 bb167:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _89 = _190;
     goto bb48;
 bb168:
-#line 152 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _190 = (__typeof__(_190)){0};
     goto bb167;
 bb169:
@@ -19441,9 +19457,9 @@ bb171:
         goto bb173;
     }
 bb172:
-#line 159 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _192 = _5;
-#line 162 "rt/regex_runtime.w"
+#line 159 "rt/regex_runtime.w"
     _194 = (_192 == 9);
     if (_194 == 1) {
         goto bb175;
@@ -19452,13 +19468,13 @@ bb172:
         goto bb176;
     }
 bb173:
-#line 156 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _89 = (__typeof__(_89)){0};
     goto bb48;
 bb174:
     goto bb173;
 bb175:
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _195 = (_81 != 0);
     if (_195 == 1) {
         goto bb177;
@@ -19467,7 +19483,7 @@ bb175:
         goto bb178;
     }
 bb176:
-#line 167 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _197 = (_192 == 32);
     if (_197 == 1) {
         goto bb181;
@@ -19476,22 +19492,22 @@ bb176:
         goto bb182;
     }
 bb177:
-#line 165 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb178:
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _196 = (__typeof__(_196)){0};
     goto bb179;
 bb179:
     _193 = _196;
     goto bb174;
 bb180:
-#line 165 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _196 = (__typeof__(_196)){0};
     goto bb179;
 bb181:
-#line 168 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _198 = (_81 != 0);
     if (_198 == 1) {
         goto bb183;
@@ -19509,22 +19525,22 @@ bb182:
         goto bb188;
     }
 bb183:
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb184:
-#line 168 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _199 = (__typeof__(_199)){0};
     goto bb185;
 bb185:
     _193 = _199;
     goto bb174;
 bb186:
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _199 = (__typeof__(_199)){0};
     goto bb185;
 bb187:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _201 = (_81 != 0);
     if (_201 == 1) {
         goto bb189;
@@ -19542,22 +19558,22 @@ bb188:
         goto bb194;
     }
 bb189:
-#line 176 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb190:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _202 = (__typeof__(_202)){0};
     goto bb191;
 bb191:
     _193 = _202;
     goto bb174;
 bb192:
-#line 176 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _202 = (__typeof__(_202)){0};
     goto bb191;
 bb193:
-#line 178 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _204 = (_81 != 0);
     if (_204 == 1) {
         goto bb195;
@@ -19566,7 +19582,7 @@ bb193:
         goto bb196;
     }
 bb194:
-#line 182 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _206 = (_192 == 6158);
     if (_206 == 1) {
         goto bb199;
@@ -19575,22 +19591,22 @@ bb194:
         goto bb200;
     }
 bb195:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb196:
-#line 178 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _205 = (__typeof__(_205)){0};
     goto bb197;
 bb197:
     _193 = _205;
     goto bb174;
 bb198:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _205 = (__typeof__(_205)){0};
     goto bb197;
 bb199:
-#line 184 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _207 = (_81 != 0);
     if (_207 == 1) {
         goto bb201;
@@ -19599,7 +19615,7 @@ bb199:
         goto bb202;
     }
 bb200:
-#line 190 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _209 = (_192 == 8192);
     if (_209 == 1) {
         goto bb205;
@@ -19608,22 +19624,22 @@ bb200:
         goto bb206;
     }
 bb201:
-#line 187 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb202:
-#line 184 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _208 = (__typeof__(_208)){0};
     goto bb203;
 bb203:
     _193 = _208;
     goto bb174;
 bb204:
-#line 187 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _208 = (__typeof__(_208)){0};
     goto bb203;
 bb205:
-#line 192 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _210 = (_81 != 0);
     if (_210 == 1) {
         goto bb207;
@@ -19632,7 +19648,7 @@ bb205:
         goto bb208;
     }
 bb206:
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _212 = (_192 == 8193);
     if (_212 == 1) {
         goto bb211;
@@ -19641,18 +19657,18 @@ bb206:
         goto bb212;
     }
 bb207:
-#line 193 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb208:
-#line 192 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _211 = (__typeof__(_211)){0};
     goto bb209;
 bb209:
     _193 = _211;
     goto bb174;
 bb210:
-#line 193 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _211 = (__typeof__(_211)){0};
     goto bb209;
 bb211:
@@ -19665,7 +19681,7 @@ bb211:
         goto bb214;
     }
 bb212:
-#line 204 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _215 = (_192 == 8194);
     if (_215 == 1) {
         goto bb217;
@@ -19674,7 +19690,7 @@ bb212:
         goto bb218;
     }
 bb213:
-#line 202 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb214:
@@ -19685,11 +19701,11 @@ bb215:
     _193 = _214;
     goto bb174;
 bb216:
-#line 202 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     _214 = (__typeof__(_214)){0};
     goto bb215;
 bb217:
-#line 206 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _216 = (_81 != 0);
     if (_216 == 1) {
         goto bb219;
@@ -19698,7 +19714,7 @@ bb217:
         goto bb220;
     }
 bb218:
-#line 212 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _218 = (_192 == 8195);
     if (_218 == 1) {
         goto bb223;
@@ -19707,22 +19723,22 @@ bb218:
         goto bb224;
     }
 bb219:
-#line 208 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb220:
-#line 206 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _217 = (__typeof__(_217)){0};
     goto bb221;
 bb221:
     _193 = _217;
     goto bb174;
 bb222:
-#line 208 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _217 = (__typeof__(_217)){0};
     goto bb221;
 bb223:
-#line 214 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _219 = (_81 != 0);
     if (_219 == 1) {
         goto bb225;
@@ -19731,7 +19747,7 @@ bb223:
         goto bb226;
     }
 bb224:
-#line 220 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _221 = (_192 == 8196);
     if (_221 == 1) {
         goto bb229;
@@ -19744,7 +19760,7 @@ bb225:
     _0 = _9;
     return _0;
 bb226:
-#line 214 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _220 = (__typeof__(_220)){0};
     goto bb227;
 bb227:
@@ -19755,7 +19771,7 @@ bb228:
     _220 = (__typeof__(_220)){0};
     goto bb227;
 bb229:
-#line 221 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _222 = (_81 != 0);
     if (_222 == 1) {
         goto bb231;
@@ -19764,7 +19780,7 @@ bb229:
         goto bb232;
     }
 bb230:
-#line 226 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _224 = (_192 == 8197);
     if (_224 == 1) {
         goto bb235;
@@ -19773,22 +19789,22 @@ bb230:
         goto bb236;
     }
 bb231:
-#line 222 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb232:
-#line 221 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _223 = (__typeof__(_223)){0};
     goto bb233;
 bb233:
     _193 = _223;
     goto bb174;
 bb234:
-#line 222 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _223 = (__typeof__(_223)){0};
     goto bb233;
 bb235:
-#line 228 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _225 = (_81 != 0);
     if (_225 == 1) {
         goto bb237;
@@ -19806,22 +19822,22 @@ bb236:
         goto bb242;
     }
 bb237:
-#line 229 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb238:
-#line 228 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _226 = (__typeof__(_226)){0};
     goto bb239;
 bb239:
     _193 = _226;
     goto bb174;
 bb240:
-#line 229 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _226 = (__typeof__(_226)){0};
     goto bb239;
 bb241:
-#line 235 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _228 = (_81 != 0);
     if (_228 == 1) {
         goto bb243;
@@ -19830,7 +19846,7 @@ bb241:
         goto bb244;
     }
 bb242:
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _230 = (_192 == 8199);
     if (_230 == 1) {
         goto bb247;
@@ -19843,16 +19859,18 @@ bb243:
     _0 = _9;
     return _0;
 bb244:
+#line 233 "rt/regex_runtime.w"
     _229 = (__typeof__(_229)){0};
     goto bb245;
 bb245:
     _193 = _229;
     goto bb174;
 bb246:
+#line 235 "rt/regex_runtime.w"
     _229 = (__typeof__(_229)){0};
     goto bb245;
 bb247:
-#line 240 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _231 = (_81 != 0);
     if (_231 == 1) {
         goto bb249;
@@ -19861,7 +19879,7 @@ bb247:
         goto bb250;
     }
 bb248:
-#line 245 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _233 = (_192 == 8200);
     if (_233 == 1) {
         goto bb253;
@@ -19870,22 +19888,22 @@ bb248:
         goto bb254;
     }
 bb249:
-#line 242 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb250:
-#line 240 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _232 = (__typeof__(_232)){0};
     goto bb251;
 bb251:
     _193 = _232;
     goto bb174;
 bb252:
-#line 242 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _232 = (__typeof__(_232)){0};
     goto bb251;
 bb253:
-#line 249 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _234 = (_81 != 0);
     if (_234 == 1) {
         goto bb255;
@@ -19894,7 +19912,7 @@ bb253:
         goto bb256;
     }
 bb254:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _236 = (_192 == 8201);
     if (_236 == 1) {
         goto bb259;
@@ -19903,18 +19921,18 @@ bb254:
         goto bb260;
     }
 bb255:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb256:
-#line 249 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _235 = (__typeof__(_235)){0};
     goto bb257;
 bb257:
     _193 = _235;
     goto bb174;
 bb258:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _235 = (__typeof__(_235)){0};
     goto bb257;
 bb259:
@@ -19927,7 +19945,7 @@ bb259:
         goto bb262;
     }
 bb260:
-#line 257 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _239 = (_192 == 8202);
     if (_239 == 1) {
         goto bb265;
@@ -19936,18 +19954,16 @@ bb260:
         goto bb266;
     }
 bb261:
-#line 255 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb262:
-#line 253 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb263;
 bb263:
     _193 = _238;
     goto bb174;
 bb264:
-#line 255 "rt/regex_runtime.w"
     _238 = (__typeof__(_238)){0};
     goto bb263;
 bb265:
@@ -19960,7 +19976,7 @@ bb265:
         goto bb268;
     }
 bb266:
-#line 262 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _242 = (_192 == 8239);
     if (_242 == 1) {
         goto bb271;
@@ -19969,22 +19985,20 @@ bb266:
         goto bb272;
     }
 bb267:
-#line 259 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb268:
-#line 257 "rt/regex_runtime.w"
     _241 = (__typeof__(_241)){0};
     goto bb269;
 bb269:
     _193 = _241;
     goto bb174;
 bb270:
-#line 259 "rt/regex_runtime.w"
     _241 = (__typeof__(_241)){0};
     goto bb269;
 bb271:
-#line 263 "rt/regex_runtime.w"
+#line 261 "rt/regex_runtime.w"
     _243 = (_81 != 0);
     if (_243 == 1) {
         goto bb273;
@@ -19993,7 +20007,7 @@ bb271:
         goto bb274;
     }
 bb272:
-#line 266 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _245 = (_192 == 8287);
     if (_245 == 1) {
         goto bb277;
@@ -20006,16 +20020,18 @@ bb273:
     _0 = _9;
     return _0;
 bb274:
+#line 261 "rt/regex_runtime.w"
     _244 = (__typeof__(_244)){0};
     goto bb275;
 bb275:
     _193 = _244;
     goto bb174;
 bb276:
+#line 263 "rt/regex_runtime.w"
     _244 = (__typeof__(_244)){0};
     goto bb275;
 bb277:
-#line 267 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _246 = (_81 != 0);
     if (_246 == 1) {
         goto bb279;
@@ -20024,7 +20040,7 @@ bb277:
         goto bb280;
     }
 bb278:
-#line 273 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _248 = (_192 == 12288);
     if (_248 == 1) {
         goto bb283;
@@ -20033,22 +20049,22 @@ bb278:
         goto bb284;
     }
 bb279:
-#line 269 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb280:
-#line 267 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _247 = (__typeof__(_247)){0};
     goto bb281;
 bb281:
     _193 = _247;
     goto bb174;
 bb282:
-#line 269 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _247 = (__typeof__(_247)){0};
     goto bb281;
 bb283:
-#line 275 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _249 = (_81 != 0);
     if (_249 == 1) {
         goto bb285;
@@ -20057,7 +20073,7 @@ bb283:
         goto bb286;
     }
 bb284:
-#line 284 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _251 = (_192 == 10);
     if (_251 == 1) {
         goto bb289;
@@ -20066,22 +20082,22 @@ bb284:
         goto bb290;
     }
 bb285:
-#line 279 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb286:
-#line 275 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _250 = (__typeof__(_250)){0};
     goto bb287;
 bb287:
     _193 = _250;
     goto bb174;
 bb288:
-#line 279 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _250 = (__typeof__(_250)){0};
     goto bb287;
 bb289:
-#line 285 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _252 = (_81 != 0);
     if (_252 == 1) {
         goto bb291;
@@ -20090,7 +20106,7 @@ bb289:
         goto bb292;
     }
 bb290:
-#line 291 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _254 = (_192 == 11);
     if (_254 == 1) {
         goto bb295;
@@ -20099,22 +20115,22 @@ bb290:
         goto bb296;
     }
 bb291:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb292:
-#line 285 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _253 = (__typeof__(_253)){0};
     goto bb293;
 bb293:
     _193 = _253;
     goto bb174;
 bb294:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _253 = (__typeof__(_253)){0};
     goto bb293;
 bb295:
-#line 293 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _255 = (_81 != 0);
     if (_255 == 1) {
         goto bb297;
@@ -20123,7 +20139,7 @@ bb295:
         goto bb298;
     }
 bb296:
-#line 300 "rt/regex_runtime.w"
+#line 298 "rt/regex_runtime.w"
     _257 = (_192 == 12);
     if (_257 == 1) {
         goto bb301;
@@ -20132,22 +20148,22 @@ bb296:
         goto bb302;
     }
 bb297:
-#line 295 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb298:
-#line 293 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _256 = (__typeof__(_256)){0};
     goto bb299;
 bb299:
     _193 = _256;
     goto bb174;
 bb300:
-#line 295 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _256 = (__typeof__(_256)){0};
     goto bb299;
 bb301:
-#line 301 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _258 = (_81 != 0);
     if (_258 == 1) {
         goto bb303;
@@ -20156,7 +20172,7 @@ bb301:
         goto bb304;
     }
 bb302:
-#line 307 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _260 = (_192 == 13);
     if (_260 == 1) {
         goto bb307;
@@ -20165,22 +20181,22 @@ bb302:
         goto bb308;
     }
 bb303:
-#line 303 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb304:
-#line 301 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _259 = (__typeof__(_259)){0};
     goto bb305;
 bb305:
     _193 = _259;
     goto bb174;
 bb306:
-#line 303 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _259 = (__typeof__(_259)){0};
     goto bb305;
 bb307:
-#line 307 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _261 = (_81 != 0);
     if (_261 == 1) {
         goto bb309;
@@ -20189,7 +20205,7 @@ bb307:
         goto bb310;
     }
 bb308:
-#line 311 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _263 = (_192 == 133);
     if (_263 == 1) {
         goto bb313;
@@ -20198,22 +20214,22 @@ bb308:
         goto bb314;
     }
 bb309:
-#line 308 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb310:
-#line 307 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _262 = (__typeof__(_262)){0};
     goto bb311;
 bb311:
     _193 = _262;
     goto bb174;
 bb312:
-#line 308 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _262 = (__typeof__(_262)){0};
     goto bb311;
 bb313:
-#line 313 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _264 = (_81 != 0);
     if (_264 == 1) {
         goto bb315;
@@ -20231,20 +20247,22 @@ bb314:
         goto bb320;
     }
 bb315:
+#line 312 "rt/regex_runtime.w"
     _0 = _9;
     return _0;
 bb316:
-#line 313 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _265 = (__typeof__(_265)){0};
     goto bb317;
 bb317:
     _193 = _265;
     goto bb174;
 bb318:
-#line 314 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _265 = (__typeof__(_265)){0};
     goto bb317;
 bb319:
+#line 314 "rt/regex_runtime.w"
     _267 = (_81 != 0);
     if (_267 == 1) {
         goto bb321;
@@ -27499,7 +27517,7 @@ bb0:
 #line 12 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = 1000;
-#line 13 "rt/regex_runtime.w"
+#line 14 "rt/regex_runtime.w"
     /* StorageLive(_9); */
 #line 15 "rt/regex_runtime.w"
     _10 = ((uint32_t)((*_2).external_options));
@@ -27523,7 +27541,7 @@ bb2:
     _14 = 0;
     goto bb3;
 bb3:
-#line 13 "rt/regex_runtime.w"
+#line 14 "rt/regex_runtime.w"
     _9 = _14;
 #line 18 "rt/regex_runtime.w"
     /* StorageLive(_15); */
@@ -27640,7 +27658,7 @@ bb22:
         goto bb24;
     }
 bb23:
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _29 = (_4 <= 97);
     if (_29 == 1) {
         goto bb26;
@@ -27660,6 +27678,7 @@ bb25:
         goto bb33;
     }
 bb26:
+#line 36 "rt/regex_runtime.w"
     _30 = 1;
     goto bb28;
 bb27:
@@ -27690,12 +27709,13 @@ bb32:
     _34 = get_repeat_base__5775(_4);
     goto bb35;
 bb33:
-#line 131 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     /* StorageLive(_109); */
-#line 133 "rt/regex_runtime.w"
+#line 131 "rt/regex_runtime.w"
     /* StorageLive(_110); */
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     /* StorageLive(_111); */
+#line 134 "rt/regex_runtime.w"
     _112 = (_4 == 110);
     if (_112 == 1) {
         goto bb115;
@@ -27738,7 +27758,7 @@ bb38:
         goto bb40;
     }
 bb39:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _42 = 0;
 #line 47 "rt/regex_runtime.w"
     _43 = (&_7[_42]);
@@ -27754,11 +27774,10 @@ bb41:
     _5 = _38;
 #line 55 "rt/regex_runtime.w"
     /* StorageLive(_46); */
-#line 56 "rt/regex_runtime.w"
     /* StorageLive(_47); */
 #line 57 "rt/regex_runtime.w"
     /* StorageLive(_48); */
-#line 60 "rt/regex_runtime.w"
+#line 58 "rt/regex_runtime.w"
     _49 = (_4 == 33);
     if (_49 == 1) {
         goto bb43;
@@ -27822,11 +27841,10 @@ bb51:
     _48 = _52;
     goto bb48;
 bb52:
-#line 64 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _54 = 1;
     goto bb54;
 bb53:
-#line 63 "rt/regex_runtime.w"
     _54 = 0;
     goto bb54;
 bb54:
@@ -27838,7 +27856,7 @@ bb54:
         goto bb56;
     }
 bb55:
-#line 65 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _56 = 1;
     goto bb57;
 bb56:
@@ -27887,6 +27905,7 @@ bb64:
     _60 = 1;
     goto bb66;
 bb65:
+#line 71 "rt/regex_runtime.w"
     _60 = 0;
     goto bb66;
 bb66:
@@ -27898,13 +27917,14 @@ bb66:
         goto bb68;
     }
 bb67:
+#line 72 "rt/regex_runtime.w"
     _62 = 1;
     goto bb69;
 bb68:
+#line 71 "rt/regex_runtime.w"
     _62 = 0;
     goto bb69;
 bb69:
-#line 71 "rt/regex_runtime.w"
     _47 = _62;
     goto bb60;
 bb70:
@@ -27924,9 +27944,9 @@ bb71:
         goto bb77;
     }
 bb72:
-#line 77 "rt/regex_runtime.w"
-    _69 = 1;
 #line 76 "rt/regex_runtime.w"
+    _69 = 1;
+#line 75 "rt/regex_runtime.w"
     _7[_69] = _46;
 #line 77 "rt/regex_runtime.w"
     /* StorageLive(_70); */
@@ -27954,6 +27974,7 @@ bb76:
     _66 = 1;
     goto bb78;
 bb77:
+#line 74 "rt/regex_runtime.w"
     _66 = 0;
     goto bb78;
 bb78:
@@ -27965,13 +27986,14 @@ bb78:
         goto bb80;
     }
 bb79:
+#line 75 "rt/regex_runtime.w"
     _68 = 1;
     goto bb81;
 bb80:
+#line 74 "rt/regex_runtime.w"
     _68 = 0;
     goto bb81;
 bb81:
-#line 74 "rt/regex_runtime.w"
     _46 = _68;
     goto bb72;
 bb82:
@@ -28062,16 +28084,15 @@ bb97:
 bb98:
     goto bb97;
 bb99:
-#line 89 "rt/regex_runtime.w"
-    _86 = (42 - 33);
 #line 88 "rt/regex_runtime.w"
+    _86 = (42 - 33);
     _87 = ((*_3) + _86);
 #line 87 "rt/regex_runtime.w"
     (*_3) = _87;
     _84 = _87;
     goto bb98;
 bb100:
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _88 = (_83 == 34);
     if (_88 == 1) {
         goto bb101;
@@ -28080,11 +28101,11 @@ bb100:
         goto bb102;
     }
 bb101:
-#line 94 "rt/regex_runtime.w"
-    _89 = (42 - 34);
 #line 93 "rt/regex_runtime.w"
-    _90 = ((*_3) + _89);
+    _89 = (42 - 34);
 #line 92 "rt/regex_runtime.w"
+    _90 = ((*_3) + _89);
+#line 91 "rt/regex_runtime.w"
     (*_3) = _90;
     _84 = _90;
     goto bb98;
@@ -28098,15 +28119,15 @@ bb102:
         goto bb104;
     }
 bb103:
-#line 100 "rt/regex_runtime.w"
-    _92 = (43 - 35);
 #line 99 "rt/regex_runtime.w"
+    _92 = (43 - 35);
     _93 = ((*_3) + _92);
+#line 97 "rt/regex_runtime.w"
     (*_3) = _93;
     _84 = _93;
     goto bb98;
 bb104:
-#line 102 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _94 = (_83 == 36);
     if (_94 == 1) {
         goto bb105;
@@ -28117,13 +28138,14 @@ bb104:
 bb105:
 #line 104 "rt/regex_runtime.w"
     _95 = (43 - 36);
-    _96 = ((*_3) + _95);
 #line 103 "rt/regex_runtime.w"
+    _96 = ((*_3) + _95);
+#line 102 "rt/regex_runtime.w"
     (*_3) = _96;
     _84 = _96;
     goto bb98;
 bb106:
-#line 108 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _97 = (_83 == 37);
     if (_97 == 1) {
         goto bb107;
@@ -28132,11 +28154,10 @@ bb106:
         goto bb108;
     }
 bb107:
-#line 110 "rt/regex_runtime.w"
-    _98 = (44 - 37);
 #line 109 "rt/regex_runtime.w"
-    _99 = ((*_3) + _98);
+    _98 = (44 - 37);
 #line 108 "rt/regex_runtime.w"
+    _99 = ((*_3) + _98);
     (*_3) = _99;
     _84 = _99;
     goto bb98;
@@ -28150,16 +28171,15 @@ bb108:
         goto bb110;
     }
 bb109:
-#line 115 "rt/regex_runtime.w"
-    _101 = (44 - 38);
 #line 114 "rt/regex_runtime.w"
-    _102 = ((*_3) + _101);
+    _101 = (44 - 38);
 #line 113 "rt/regex_runtime.w"
+    _102 = ((*_3) + _101);
     (*_3) = _102;
     _84 = _102;
     goto bb98;
 bb110:
-#line 118 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _103 = (_83 == 39);
     if (_103 == 1) {
         goto bb111;
@@ -28170,13 +28190,13 @@ bb110:
 bb111:
 #line 119 "rt/regex_runtime.w"
     _104 = (45 - 39);
-    _105 = ((*_3) + _104);
 #line 118 "rt/regex_runtime.w"
+    _105 = ((*_3) + _104);
     (*_3) = _105;
     _84 = _105;
     goto bb98;
 bb112:
-#line 122 "rt/regex_runtime.w"
+#line 121 "rt/regex_runtime.w"
     _106 = (_83 == 40);
     if (_106 == 1) {
         goto bb113;
@@ -28185,22 +28205,21 @@ bb112:
         goto bb98;
     }
 bb113:
-#line 125 "rt/regex_runtime.w"
-    _107 = (45 - 40);
 #line 124 "rt/regex_runtime.w"
-    _108 = ((*_3) + _107);
+    _107 = (45 - 40);
 #line 123 "rt/regex_runtime.w"
+    _108 = ((*_3) + _107);
+#line 122 "rt/regex_runtime.w"
     (*_3) = _108;
     _84 = _108;
     goto bb98;
 bb114:
     goto bb95;
 bb115:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _113 = 1;
     goto bb117;
 bb116:
-#line 134 "rt/regex_runtime.w"
     _113 = 0;
     goto bb117;
 bb117:
@@ -28228,7 +28247,6 @@ bb119:
         goto bb125;
     }
 bb120:
-#line 139 "rt/regex_runtime.w"
     _120 = (_111 != 0);
     if (_120 == 1) {
         goto bb130;
@@ -28237,11 +28255,10 @@ bb120:
         goto bb131;
     }
 bb121:
-#line 137 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _115 = 1;
     goto bb123;
 bb122:
-#line 135 "rt/regex_runtime.w"
     _115 = 0;
     goto bb123;
 bb123:
@@ -28252,6 +28269,7 @@ bb124:
     _117 = 1;
     goto bb126;
 bb125:
+#line 137 "rt/regex_runtime.w"
     _117 = 0;
     goto bb126;
 bb126:
@@ -28263,9 +28281,11 @@ bb126:
         goto bb128;
     }
 bb127:
+#line 138 "rt/regex_runtime.w"
     _119 = 1;
     goto bb129;
 bb128:
+#line 137 "rt/regex_runtime.w"
     _119 = 0;
     goto bb129;
 bb129:
@@ -28279,7 +28299,7 @@ bb130:
         goto bb134;
     }
 bb131:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _122 = (_4 == 112);
     if (_122 == 1) {
         goto bb136;
@@ -28297,22 +28317,22 @@ bb132:
         goto bb143;
     }
 bb133:
-#line 141 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _121 = 1;
     goto bb135;
 bb134:
     _121 = 0;
     goto bb135;
 bb135:
-#line 140 "rt/regex_runtime.w"
+#line 139 "rt/regex_runtime.w"
     _110 = _121;
     goto bb132;
 bb136:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _123 = 1;
     goto bb138;
 bb137:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _123 = 0;
     goto bb138;
 bb138:
@@ -28324,15 +28344,14 @@ bb138:
         goto bb140;
     }
 bb139:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _125 = 1;
     goto bb141;
 bb140:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _125 = 0;
     goto bb141;
 bb141:
-#line 141 "rt/regex_runtime.w"
     _110 = _125;
     goto bb132;
 bb142:
@@ -28343,7 +28362,7 @@ bb142:
         goto bb146;
     }
 bb143:
-#line 146 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _128 = (_4 == 113);
     if (_128 == 1) {
         goto bb148;
@@ -28361,22 +28380,21 @@ bb144:
         goto bb155;
     }
 bb145:
-#line 145 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _127 = 1;
     goto bb147;
 bb146:
     _127 = 0;
     goto bb147;
 bb147:
-#line 144 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     _109 = _127;
     goto bb144;
 bb148:
-#line 147 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _129 = 1;
     goto bb150;
 bb149:
-#line 145 "rt/regex_runtime.w"
     _129 = 0;
     goto bb150;
 bb150:
@@ -28388,7 +28406,7 @@ bb150:
         goto bb152;
     }
 bb151:
-#line 147 "rt/regex_runtime.w"
+#line 146 "rt/regex_runtime.w"
     _131 = 1;
     goto bb153;
 bb152:
@@ -28399,9 +28417,9 @@ bb153:
     _109 = _131;
     goto bb144;
 bb154:
-#line 148 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     /* StorageLive(_133); */
-#line 149 "rt/regex_runtime.w"
+#line 148 "rt/regex_runtime.w"
     _134 = (_4 == 112);
     if (_134 == 1) {
         goto bb157;
@@ -28414,11 +28432,11 @@ bb155:
 bb156:
     goto bb34;
 bb157:
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _135 = 1;
     goto bb159;
 bb158:
-#line 149 "rt/regex_runtime.w"
+#line 148 "rt/regex_runtime.w"
     _135 = 0;
     goto bb159;
 bb159:
@@ -28437,7 +28455,7 @@ bb160:
         goto bb164;
     }
 bb161:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _138 = (_4 == 113);
     if (_138 == 1) {
         goto bb166;
@@ -28446,7 +28464,7 @@ bb161:
         goto bb167;
     }
 bb162:
-#line 156 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _142 = (_133 != 0);
     if (_142 == 1) {
         goto bb172;
@@ -28465,11 +28483,11 @@ bb165:
     _133 = _137;
     goto bb162;
 bb166:
-#line 154 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _139 = 1;
     goto bb168;
 bb167:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _139 = 0;
     goto bb168;
 bb168:
@@ -28481,54 +28499,57 @@ bb168:
         goto bb170;
     }
 bb169:
-#line 154 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _141 = 1;
     goto bb171;
 bb170:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _141 = 0;
     goto bb171;
 bb171:
-#line 152 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _133 = _141;
     goto bb162;
 bb172:
-#line 162 "rt/regex_runtime.w"
+#line 161 "rt/regex_runtime.w"
     _143 = 1;
+#line 159 "rt/regex_runtime.w"
     _144 = ((int32_t)(_3[_143]));
-#line 163 "rt/regex_runtime.w"
-    _145 = ((uint32_t)(8));
 #line 162 "rt/regex_runtime.w"
+    _145 = ((uint32_t)(8));
+#line 159 "rt/regex_runtime.w"
     _146 = (_144 << _145);
 #line 163 "rt/regex_runtime.w"
     _147 = (1 + 1);
     _148 = _147;
-    _149 = ((int32_t)(_3[_148]));
 #line 162 "rt/regex_runtime.w"
+    _149 = ((int32_t)(_3[_148]));
+#line 159 "rt/regex_runtime.w"
     _150 = (_146 | _149);
     _151 = ((uint32_t)(_150));
     _152 = ((uint64_t)(_151));
-#line 161 "rt/regex_runtime.w"
-    _153 = (_3 + _152);
 #line 158 "rt/regex_runtime.w"
+    _153 = (_3 + _152);
+#line 157 "rt/regex_runtime.w"
     _6 = _153;
     goto bb174;
 bb173:
 #line 166 "rt/regex_runtime.w"
     _154 = ((int64_t)(1));
     _155 = ((uint64_t)(_154));
+#line 165 "rt/regex_runtime.w"
     _156 = (_3 + _155);
-#line 167 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _157 = ((uint64_t)(32));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb175;
 bb174:
-#line 169 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _4 = (*_6);
-#line 171 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     /* StorageLive(_163); */
     _163 = 0;
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _164 = (_4 >= 98);
     if (_164 == 1) {
         goto bb176;
@@ -28537,12 +28558,11 @@ bb174:
         goto bb177;
     }
 bb175:
-#line 168 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _159 = ((uint64_t)(_158));
-#line 167 "rt/regex_runtime.w"
     _160 = (_157 / _159);
     _161 = ((uint64_t)(_160));
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _162 = (_156 + _161);
     _6 = _162;
     goto bb174;
@@ -28551,6 +28571,7 @@ bb176:
     _165 = 1;
     goto bb178;
 bb177:
+#line 171 "rt/regex_runtime.w"
     _165 = 0;
     goto bb178;
 bb178:
@@ -28562,7 +28583,7 @@ bb178:
         goto bb180;
     }
 bb179:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _167 = (_4 <= 105);
     if (_167 == 1) {
         goto bb182;
@@ -28582,11 +28603,11 @@ bb181:
         goto bb189;
     }
 bb182:
-#line 175 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _168 = 1;
     goto bb184;
 bb183:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _168 = 0;
     goto bb184;
 bb184:
@@ -28598,20 +28619,20 @@ bb184:
         goto bb186;
     }
 bb185:
-#line 176 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _170 = 1;
     goto bb187;
 bb186:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _170 = 0;
     goto bb187;
 bb187:
-#line 173 "rt/regex_runtime.w"
     _163 = _170;
     goto bb181;
 bb188:
 #line 178 "rt/regex_runtime.w"
     _172 = 0;
+#line 177 "rt/regex_runtime.w"
     _173 = (&_7[_172]);
     _174 = (uint32_t*)((uint32_t*)(_173));
     _175 = get_chr_property_list__5776(_3, _9, _15, (*_2).fcc, _174);
@@ -28623,7 +28644,7 @@ bb190:
     _4 = (*_3);
     goto bb156;
 bb191:
-#line 177 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _5 = _175;
 #line 179 "rt/regex_runtime.w"
     _176 = ((int32_t)(_4));
@@ -28636,20 +28657,19 @@ bb191:
         goto bb193;
     }
 bb192:
-#line 180 "rt/regex_runtime.w"
     _179 = 1;
     goto bb194;
 bb193:
-#line 179 "rt/regex_runtime.w"
     _179 = 0;
     goto bb194;
 bb194:
+#line 178 "rt/regex_runtime.w"
     _180 = 1;
     _7[_180] = _179;
-#line 181 "rt/regex_runtime.w"
+#line 180 "rt/regex_runtime.w"
     /* StorageLive(_181); */
     _181 = 0;
-#line 183 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     { __typeof__((_5 != 0)) __tmp = (_5 != 0); memcpy(&(_182), &__tmp, sizeof(_182) < sizeof(__tmp) ? sizeof(_182) : sizeof(__tmp)); }
     if (_182 == 1) {
         goto bb195;
@@ -28658,11 +28678,9 @@ bb194:
         goto bb196;
     }
 bb195:
-#line 184 "rt/regex_runtime.w"
     _183 = 1;
     goto bb197;
 bb196:
-#line 183 "rt/regex_runtime.w"
     _183 = 0;
     goto bb197;
 bb197:
@@ -28674,11 +28692,11 @@ bb197:
         goto bb199;
     }
 bb198:
-#line 188 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _185 = 0;
     _186 = (&_7[_185]);
     _187 = (uint32_t*)((uint32_t*)(_186));
-#line 190 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _188 = (&_8);
     _189 = (int32_t*)((int32_t*)(_188));
     _190 = compare_opcodes__5777(_5, _9, _15, _2, _187, _5, _189);
@@ -28686,7 +28704,7 @@ bb198:
 bb199:
     goto bb200;
 bb200:
-#line 193 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _193 = (_181 != 0);
     if (_193 == 1) {
         goto bb205;
@@ -28695,7 +28713,7 @@ bb200:
         goto bb206;
     }
 bb201:
-#line 187 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _191 = (_190 != 0);
     if (_191 == 1) {
         goto bb202;
@@ -28704,15 +28722,14 @@ bb201:
         goto bb203;
     }
 bb202:
-#line 192 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _192 = 1;
     goto bb204;
 bb203:
-#line 187 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _192 = 0;
     goto bb204;
 bb204:
-#line 185 "rt/regex_runtime.w"
     _181 = _192;
     goto bb200;
 bb205:
@@ -28729,9 +28746,9 @@ bb208:
         goto bb210;
     }
 bb209:
-#line 195 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _194 = _4;
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _196 = (_194 == 98);
     if (_196 == 1) {
         goto bb212;
@@ -28744,11 +28761,12 @@ bb210:
 bb211:
     goto bb210;
 bb212:
+#line 198 "rt/regex_runtime.w"
     (*_6) = 106;
     _195 = 106;
     goto bb211;
 bb213:
-#line 203 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _197 = (_194 == 99);
     if (_197 == 1) {
         goto bb214;
@@ -28757,11 +28775,12 @@ bb213:
         goto bb215;
     }
 bb214:
+#line 202 "rt/regex_runtime.w"
     (*_6) = 106;
     _195 = 106;
     goto bb211;
 bb215:
-#line 207 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _198 = (_194 == 100);
     if (_198 == 1) {
         goto bb216;
@@ -28770,12 +28789,12 @@ bb215:
         goto bb217;
     }
 bb216:
-#line 208 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     (*_6) = 107;
     _195 = 107;
     goto bb211;
 bb217:
-#line 211 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     _199 = (_194 == 101);
     if (_199 == 1) {
         goto bb218;
@@ -28784,12 +28803,12 @@ bb217:
         goto bb219;
     }
 bb218:
-#line 212 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     (*_6) = 107;
     _195 = 107;
     goto bb211;
 bb219:
-#line 215 "rt/regex_runtime.w"
+#line 214 "rt/regex_runtime.w"
     _200 = (_194 == 102);
     if (_200 == 1) {
         goto bb220;
@@ -28798,12 +28817,12 @@ bb219:
         goto bb221;
     }
 bb220:
-#line 217 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     (*_6) = 108;
     _195 = 108;
     goto bb211;
 bb221:
-#line 220 "rt/regex_runtime.w"
+#line 218 "rt/regex_runtime.w"
     _201 = (_194 == 103);
     if (_201 == 1) {
         goto bb222;
@@ -28812,12 +28831,12 @@ bb221:
         goto bb223;
     }
 bb222:
-#line 221 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     (*_6) = 108;
     _195 = 108;
     goto bb211;
 bb223:
-#line 225 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _202 = (_194 == 104);
     if (_202 == 1) {
         goto bb224;
@@ -28826,11 +28845,12 @@ bb223:
         goto bb225;
     }
 bb224:
+#line 225 "rt/regex_runtime.w"
     (*_6) = 109;
     _195 = 109;
     goto bb211;
 bb225:
-#line 229 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _203 = (_194 == 105);
     if (_203 == 1) {
         goto bb226;
@@ -28839,7 +28859,7 @@ bb225:
         goto bb211;
     }
 bb226:
-#line 230 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     (*_6) = 109;
     _195 = 109;
     goto bb211;
@@ -28853,8 +28873,9 @@ bb228:
         goto bb230;
     }
 bb229:
-#line 239 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _204 = _4;
+#line 238 "rt/regex_runtime.w"
     _206 = (_204 == 0);
     if (_206 == 1) {
         goto bb232;
@@ -28879,11 +28900,11 @@ bb230:
 bb231:
     goto bb230;
 bb232:
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb233:
-#line 241 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _207 = (_204 == 85);
     if (_207 == 1) {
         goto bb235;
@@ -28892,13 +28913,13 @@ bb233:
         goto bb236;
     }
 bb234:
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _205 = (__typeof__(_205)){0};
     goto bb231;
 bb235:
-#line 242 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     /* StorageLive(_208); */
-#line 243 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _209 = 1;
     _210 = (_3[_209] == 16);
     if (_210 == 1) {
@@ -28921,6 +28942,7 @@ bb237:
     _211 = 1;
     goto bb239;
 bb238:
+#line 242 "rt/regex_runtime.w"
     _211 = 0;
     goto bb239;
 bb239:
@@ -28941,6 +28963,7 @@ bb240:
 bb241:
 #line 250 "rt/regex_runtime.w"
     _214 = 1;
+#line 249 "rt/regex_runtime.w"
     _215 = (_3[_214] == 15);
     if (_215 == 1) {
         goto bb246;
@@ -28949,7 +28972,7 @@ bb241:
         goto bb247;
     }
 bb242:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _219 = (_208 != 0);
     if (_219 == 1) {
         goto bb252;
@@ -28958,15 +28981,13 @@ bb242:
         goto bb253;
     }
 bb243:
-#line 247 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _213 = 1;
     goto bb245;
 bb244:
-#line 246 "rt/regex_runtime.w"
     _213 = 0;
     goto bb245;
 bb245:
-#line 245 "rt/regex_runtime.w"
     _208 = _213;
     goto bb242;
 bb246:
@@ -28974,6 +28995,7 @@ bb246:
     _216 = 1;
     goto bb248;
 bb247:
+#line 249 "rt/regex_runtime.w"
     _216 = 0;
     goto bb248;
 bb248:
@@ -28985,37 +29007,39 @@ bb248:
         goto bb250;
     }
 bb249:
-#line 251 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _218 = 1;
     goto bb251;
 bb250:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _218 = 0;
     goto bb251;
 bb251:
+#line 247 "rt/regex_runtime.w"
     _208 = _218;
     goto bb242;
 bb252:
-#line 254 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _221 = ((int64_t)(2));
     _222 = ((uint64_t)(_221));
-#line 253 "rt/regex_runtime.w"
     _223 = (_3 + _222);
     _3 = _223;
     _220 = _223;
     goto bb254;
 bb253:
+#line 251 "rt/regex_runtime.w"
     _220 = (__typeof__(_220)){0};
     goto bb254;
 bb254:
-#line 242 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _205 = _220;
     goto bb231;
 bb255:
-#line 256 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     /* StorageLive(_225); */
 #line 257 "rt/regex_runtime.w"
     _226 = 1;
+#line 256 "rt/regex_runtime.w"
     _227 = (_3[_226] == 16);
     if (_227 == 1) {
         goto bb257;
@@ -29024,7 +29048,7 @@ bb255:
         goto bb258;
     }
 bb256:
-#line 266 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _241 = (_204 == 87);
     if (_241 == 1) {
         goto bb275;
@@ -29037,9 +29061,11 @@ bb257:
     _228 = 1;
     goto bb259;
 bb258:
+#line 256 "rt/regex_runtime.w"
     _228 = 0;
     goto bb259;
 bb259:
+#line 255 "rt/regex_runtime.w"
     _229 = (_228 != 0);
     if (_229 == 1) {
         goto bb260;
@@ -29055,9 +29081,8 @@ bb260:
         goto bb264;
     }
 bb261:
-#line 261 "rt/regex_runtime.w"
-    _231 = 1;
 #line 260 "rt/regex_runtime.w"
+    _231 = 1;
     _232 = (_3[_231] == 15);
     if (_232 == 1) {
         goto bb266;
@@ -29066,7 +29091,7 @@ bb261:
         goto bb267;
     }
 bb262:
-#line 263 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _236 = (_225 != 0);
     if (_236 == 1) {
         goto bb272;
@@ -29075,22 +29100,20 @@ bb262:
         goto bb273;
     }
 bb263:
-#line 259 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _230 = 1;
     goto bb265;
 bb264:
     _230 = 0;
     goto bb265;
 bb265:
-#line 258 "rt/regex_runtime.w"
     _225 = _230;
     goto bb262;
 bb266:
-#line 262 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _233 = 1;
     goto bb268;
 bb267:
-#line 260 "rt/regex_runtime.w"
     _233 = 0;
     goto bb268;
 bb268:
@@ -29102,38 +29125,37 @@ bb268:
         goto bb270;
     }
 bb269:
-#line 262 "rt/regex_runtime.w"
     _235 = 1;
     goto bb271;
 bb270:
-#line 260 "rt/regex_runtime.w"
     _235 = 0;
     goto bb271;
 bb271:
+#line 259 "rt/regex_runtime.w"
     _225 = _235;
     goto bb262;
 bb272:
-#line 265 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _238 = ((int64_t)(2));
     _239 = ((uint64_t)(_238));
-#line 264 "rt/regex_runtime.w"
     _240 = (_3 + _239);
     _3 = _240;
     _237 = _240;
     goto bb274;
 bb273:
-#line 263 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _237 = (__typeof__(_237)){0};
     goto bb274;
 bb274:
-#line 256 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _205 = _237;
     goto bb231;
 bb275:
 #line 266 "rt/regex_runtime.w"
     /* StorageLive(_242); */
-#line 269 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _243 = 1;
+#line 266 "rt/regex_runtime.w"
     _244 = (_3[_243] == 16);
     if (_244 == 1) {
         goto bb277;
@@ -29142,7 +29164,7 @@ bb275:
         goto bb278;
     }
 bb276:
-#line 286 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _258 = (_204 == 88);
     if (_258 == 1) {
         goto bb295;
@@ -29151,10 +29173,11 @@ bb276:
         goto bb296;
     }
 bb277:
-#line 269 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _245 = 1;
     goto bb279;
 bb278:
+#line 266 "rt/regex_runtime.w"
     _245 = 0;
     goto bb279;
 bb279:
@@ -29173,9 +29196,9 @@ bb280:
         goto bb284;
     }
 bb281:
-#line 276 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _248 = 1;
-#line 275 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _249 = (_3[_248] == 15);
     if (_249 == 1) {
         goto bb286;
@@ -29184,7 +29207,7 @@ bb281:
         goto bb287;
     }
 bb282:
-#line 281 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _253 = (_242 != 0);
     if (_253 == 1) {
         goto bb292;
@@ -29193,22 +29216,21 @@ bb282:
         goto bb293;
     }
 bb283:
-#line 271 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _247 = 1;
     goto bb285;
 bb284:
     _247 = 0;
     goto bb285;
 bb285:
-#line 270 "rt/regex_runtime.w"
     _242 = _247;
     goto bb282;
 bb286:
-#line 278 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _250 = 1;
     goto bb288;
 bb287:
-#line 275 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _250 = 0;
     goto bb288;
 bb288:
@@ -29220,28 +29242,28 @@ bb288:
         goto bb290;
     }
 bb289:
-#line 279 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _252 = 1;
     goto bb291;
 bb290:
-#line 275 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _252 = 0;
     goto bb291;
 bb291:
-#line 273 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _242 = _252;
     goto bb282;
 bb292:
-#line 284 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _255 = ((int64_t)(2));
     _256 = ((uint64_t)(_255));
     _257 = (_3 + _256);
-#line 283 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _3 = _257;
     _254 = _257;
     goto bb294;
 bb293:
-#line 281 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _254 = (__typeof__(_254)){0};
     goto bb294;
 bb294:
@@ -29249,11 +29271,11 @@ bb294:
     _205 = _254;
     goto bb231;
 bb295:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     /* StorageLive(_259); */
-#line 289 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _260 = 1;
-#line 288 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _261 = (_3[_260] == 16);
     if (_261 == 1) {
         goto bb297;
@@ -29262,7 +29284,7 @@ bb295:
         goto bb298;
     }
 bb296:
-#line 304 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _275 = (_204 == 89);
     if (_275 == 1) {
         goto bb315;
@@ -29271,11 +29293,11 @@ bb296:
         goto bb316;
     }
 bb297:
-#line 289 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _262 = 1;
     goto bb299;
 bb298:
-#line 288 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _262 = 0;
     goto bb299;
 bb299:
@@ -29294,8 +29316,9 @@ bb300:
         goto bb304;
     }
 bb301:
-#line 297 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _265 = 1;
+#line 294 "rt/regex_runtime.w"
     _266 = (_3[_265] == 15);
     if (_266 == 1) {
         goto bb306;
@@ -29304,7 +29327,7 @@ bb301:
         goto bb307;
     }
 bb302:
-#line 300 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _270 = (_259 != 0);
     if (_270 == 1) {
         goto bb312;
@@ -29313,23 +29336,22 @@ bb302:
         goto bb313;
     }
 bb303:
-#line 293 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _264 = 1;
     goto bb305;
 bb304:
-#line 292 "rt/regex_runtime.w"
     _264 = 0;
     goto bb305;
 bb305:
-#line 291 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _259 = _264;
     goto bb302;
 bb306:
-#line 299 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _267 = 1;
     goto bb308;
 bb307:
-#line 297 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _267 = 0;
     goto bb308;
 bb308:
@@ -29341,19 +29363,19 @@ bb308:
         goto bb310;
     }
 bb309:
-#line 300 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     _269 = 1;
     goto bb311;
 bb310:
-#line 297 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _269 = 0;
     goto bb311;
 bb311:
-#line 295 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _259 = _269;
     goto bb302;
 bb312:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _272 = ((int64_t)(2));
     _273 = ((uint64_t)(_272));
     _274 = (_3 + _273);
@@ -29361,18 +29383,19 @@ bb312:
     _271 = _274;
     goto bb314;
 bb313:
-#line 300 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _271 = (__typeof__(_271)){0};
     goto bb314;
 bb314:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _205 = _271;
     goto bb231;
 bb315:
-#line 305 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     /* StorageLive(_276); */
-#line 307 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _277 = 1;
+#line 304 "rt/regex_runtime.w"
     _278 = (_3[_277] == 16);
     if (_278 == 1) {
         goto bb317;
@@ -29390,10 +29413,11 @@ bb316:
         goto bb336;
     }
 bb317:
-#line 307 "rt/regex_runtime.w"
+#line 306 "rt/regex_runtime.w"
     _279 = 1;
     goto bb319;
 bb318:
+#line 304 "rt/regex_runtime.w"
     _279 = 0;
     goto bb319;
 bb319:
@@ -29412,9 +29436,9 @@ bb320:
         goto bb324;
     }
 bb321:
-#line 312 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     _282 = 1;
-#line 311 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _283 = (_3[_282] == 15);
     if (_283 == 1) {
         goto bb326;
@@ -29423,7 +29447,7 @@ bb321:
         goto bb327;
     }
 bb322:
-#line 314 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _287 = (_276 != 0);
     if (_287 == 1) {
         goto bb332;
@@ -29432,7 +29456,7 @@ bb322:
         goto bb333;
     }
 bb323:
-#line 308 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _281 = 1;
     goto bb325;
 bb324:
@@ -29442,11 +29466,11 @@ bb325:
     _276 = _281;
     goto bb322;
 bb326:
-#line 312 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     _284 = 1;
     goto bb328;
 bb327:
-#line 311 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _284 = 0;
     goto bb328;
 bb328:
@@ -29458,15 +29482,15 @@ bb328:
         goto bb330;
     }
 bb329:
-#line 313 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _286 = 1;
     goto bb331;
 bb330:
-#line 311 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _286 = 0;
     goto bb331;
 bb331:
-#line 310 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _276 = _286;
     goto bb322;
 bb332:
@@ -29478,10 +29502,11 @@ bb332:
     _288 = _291;
     goto bb334;
 bb333:
+#line 312 "rt/regex_runtime.w"
     _288 = (__typeof__(_288)){0};
     goto bb334;
 bb334:
-#line 305 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _205 = _288;
     goto bb231;
 bb335:
@@ -55649,7 +55674,6 @@ bb3:
     _7 = ((int64_t)(_3));
 #line 8 "rt/regex_runtime.w"
     _8 = (_6 * _7);
-#line 7 "rt/regex_runtime.w"
     _4 = _8;
 #line 10 "rt/regex_runtime.w"
     /* StorageLive(_9); */
@@ -55796,7 +55820,6 @@ bb2:
 bb3:
 #line 9 "rt/regex_runtime.w"
     _5 = 0;
-#line 8 "rt/regex_runtime.w"
     _6 = ((int32_t)(_1[_5]));
     _7 = (_6 & 127);
 #line 11 "rt/regex_runtime.w"
@@ -55884,14 +55907,14 @@ bb1:
     _4 = _5;
 #line 27 "rt/regex_runtime.w"
     /* StorageLive(_6); */
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     /* StorageLive(_7); */
 #line 31 "rt/regex_runtime.w"
     _8 = ((uint32_t)((*_3).names_found));
     _9 = ((uint64_t)(_8));
 #line 30 "rt/regex_runtime.w"
     _10 = ((*_3).named_groups + _9);
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _7 = _10;
 #line 33 "rt/regex_runtime.w"
     _6 = (*_3).named_groups;
@@ -55906,9 +55929,10 @@ bb2:
         goto bb6;
     }
 bb3:
-#line 38 "rt/regex_runtime.w"
+#line 37 "rt/regex_runtime.w"
     /* StorageLive(_14); */
     _14 = 0;
+#line 38 "rt/regex_runtime.w"
     /* StorageLive(_15); */
     _15 = 0;
 #line 39 "rt/regex_runtime.w"
@@ -55928,7 +55952,7 @@ bb5:
     _12 = 1;
     goto bb7;
 bb6:
-#line 35 "rt/regex_runtime.w"
+#line 34 "rt/regex_runtime.w"
     _12 = 0;
     goto bb7;
 bb7:
@@ -55956,11 +55980,12 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 43 "rt/regex_runtime.w"
-    _19 = ((int32_t)((*_6).hash_dup));
-    _20 = ((int32_t)(32767));
-    _21 = (_19 & _20);
 #line 41 "rt/regex_runtime.w"
+    _19 = ((int32_t)((*_6).hash_dup));
+#line 43 "rt/regex_runtime.w"
+    _20 = ((int32_t)(32767));
+#line 41 "rt/regex_runtime.w"
+    _21 = (_19 & _20);
     _22 = (_4 == _21);
     if (_22 == 1) {
         goto bb14;
@@ -56030,7 +56055,7 @@ bb23:
         goto bb25;
     }
 bb24:
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _29 = 1;
     goto bb26;
 bb25:
@@ -56285,11 +56310,12 @@ bb7:
 #line 73 "rt/regex_runtime.w"
     /* StorageLive(_18); */
     /* StorageLive(_19); */
-#line 74 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _20 = ((uint32_t)((*_1).names_found));
+#line 74 "rt/regex_runtime.w"
     _21 = ((uint64_t)(_20));
-#line 73 "rt/regex_runtime.w"
     _22 = ((*_1).named_groups + _21);
+#line 73 "rt/regex_runtime.w"
     _19 = _22;
 #line 76 "rt/regex_runtime.w"
     _23 = ((int64_t)(1));
@@ -56301,7 +56327,7 @@ bb7:
 bb8:
     goto bb9;
 bb9:
-#line 81 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     _6 = 0;
     goto bb22;
 bb10:
@@ -56388,14 +56414,14 @@ bb23:
     _42 = (int8_t*)((int8_t*)(_41));
 #line 87 "rt/regex_runtime.w"
     _43 = (8 / 8);
-#line 86 "rt/regex_runtime.w"
     _44 = (_8 * _43);
     _45 = ((int64_t)(_44));
     _46 = with_memcmp(_38, _42, _45);
     goto bb28;
 bb24:
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _85 = (_5 + _9);
+#line 115 "rt/regex_runtime.w"
     _5 = _85;
     goto bb52;
 bb25:
@@ -56429,9 +56455,11 @@ bb28:
         goto bb30;
     }
 bb29:
+#line 90 "rt/regex_runtime.w"
     _49 = 1;
     goto bb31;
 bb30:
+#line 89 "rt/regex_runtime.w"
     _49 = 0;
     goto bb31;
 bb31:
@@ -56490,7 +56518,6 @@ bb39:
     _56 = 0;
     goto bb40;
 bb40:
-#line 90 "rt/regex_runtime.w"
     _47 = _56;
     goto bb34;
 bb41:
@@ -56500,7 +56527,7 @@ bb41:
 bb42:
     goto bb43;
 bb43:
-#line 98 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     _58 = (_37 < 0);
     if (_58 == 1) {
         goto bb44;
@@ -56509,15 +56536,12 @@ bb43:
         goto bb45;
     }
 bb44:
-#line 99 "rt/regex_runtime.w"
     _59 = 1;
     goto bb46;
 bb45:
-#line 98 "rt/regex_runtime.w"
     _59 = 0;
     goto bb46;
 bb46:
-#line 97 "rt/regex_runtime.w"
     _60 = (_59 != 0);
     if (_60 == 1) {
         goto bb47;
@@ -56540,12 +56564,12 @@ bb47:
 #line 104 "rt/regex_runtime.w"
     _68 = (int8_t*)((int8_t*)(_10));
     _69 = ((uint32_t)(_5));
-#line 105 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _70 = ((uint32_t)(_6));
 #line 104 "rt/regex_runtime.w"
     _71 = (_69 - _70);
     _72 = ((uint32_t)(_71));
-#line 107 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _73 = ((int32_t)((*_1).name_entry_size));
     _74 = ((uint32_t)(_73));
 #line 104 "rt/regex_runtime.w"
@@ -56575,7 +56599,7 @@ bb50:
 bb51:
     goto bb49;
 bb52:
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _86 = (1 != 0);
     if (_86 == 1) {
         goto bb53;
@@ -56588,15 +56612,16 @@ bb53:
     _87 = ((uint32_t)((*_4).number));
     _88 = ((uint32_t)(8));
     _89 = (_87 >> _88);
-#line 118 "rt/regex_runtime.w"
     _90 = 0;
+#line 118 "rt/regex_runtime.w"
     _10[_90] = _89;
-#line 121 "rt/regex_runtime.w"
-    _91 = ((uint32_t)((*_4).number));
 #line 122 "rt/regex_runtime.w"
+    _91 = ((uint32_t)((*_4).number));
+#line 123 "rt/regex_runtime.w"
     _92 = ((uint32_t)(255));
-#line 121 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     _93 = (_91 & _92);
+#line 121 "rt/regex_runtime.w"
     _94 = (0 + 1);
     _95 = _94;
 #line 120 "rt/regex_runtime.w"
@@ -56620,26 +56645,24 @@ bb54:
     _0 = _5;
     return _0;
 bb55:
-#line 128 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _105 = ((int64_t)(2));
     _106 = ((uint64_t)(_105));
-#line 127 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _107 = (_10 + _106);
 #line 129 "rt/regex_runtime.w"
     _108 = ((int64_t)(_8));
     _109 = ((uint64_t)(_108));
-#line 127 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _110 = (_107 + _109);
-#line 126 "rt/regex_runtime.w"
     _111 = (int8_t*)((int8_t*)(_110));
 #line 130 "rt/regex_runtime.w"
     _112 = ((int32_t)((*_1).name_entry_size));
-#line 129 "rt/regex_runtime.w"
     _113 = (_112 - _8);
     _114 = (_113 - 2);
 #line 133 "rt/regex_runtime.w"
     _115 = (8 / 8);
-#line 129 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     _116 = (_114 * _115);
     _117 = ((int64_t)(_116));
     _118 = with_memset(_111, 0, _117);
@@ -56689,7 +56712,9 @@ bb64:
         goto bb66;
     }
 bb65:
+#line 138 "rt/regex_runtime.w"
     _124 = (_4 + 1);
+#line 137 "rt/regex_runtime.w"
     _4 = _124;
 #line 138 "rt/regex_runtime.w"
     { __typeof__(((*_4).name == _7)) __tmp = ((*_4).name == _7); memcpy(&(_125), &__tmp, sizeof(_125) < sizeof(__tmp) ? sizeof(_125) : sizeof(__tmp)); }
@@ -56700,11 +56725,11 @@ bb65:
         goto bb68;
     }
 bb66:
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _128 = ((uint32_t)((*_1).name_entry_size));
     _129 = ((uint64_t)(_128));
+#line 140 "rt/regex_runtime.w"
     _130 = (_10 + _129);
-#line 139 "rt/regex_runtime.w"
     _10 = _130;
     goto bb52;
 bb67:
@@ -56731,7 +56756,7 @@ bb72:
 bb73:
     goto bb72;
 bb74:
-#line 141 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb75: ;
@@ -56948,26 +56973,23 @@ int32_t _pcre2_compile_find_dupname_details8__2895(uint8_t* _1, uint32_t _2, int
     bool _90 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 142 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
     /* StorageLive(_5); */
     /* StorageLive(_6); */
-#line 145 "rt/regex_runtime.w"
-    /* StorageLive(_7); */
 #line 146 "rt/regex_runtime.w"
-    /* StorageLive(_8); */
+    /* StorageLive(_7); */
 #line 147 "rt/regex_runtime.w"
+    /* StorageLive(_8); */
     /* StorageLive(_9); */
     /* StorageLive(_10); */
     _10 = (*_6).name_table;
-#line 148 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _7 = 0;
     goto bb1;
 bb1:
-#line 149 "rt/regex_runtime.w"
     _11 = (_7 < (*_6).names_found);
     if (_11 == 1) {
         goto bb4;
@@ -56979,9 +57001,10 @@ bb2:
 #line 150 "rt/regex_runtime.w"
     /* StorageLive(_14); */
     _14 = 0;
-#line 152 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _15 = ((int64_t)(2));
     _16 = ((uint64_t)(_15));
+#line 152 "rt/regex_runtime.w"
     _17 = (_10 + _16);
     _18 = _pcre2_strncmp_8__1099(_1, _17, _2);
     goto bb7;
@@ -57011,7 +57034,7 @@ bb6:
         goto bb3;
     }
 bb7:
-#line 150 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _19 = (_18 == 0);
     if (_19 == 1) {
         goto bb8;
@@ -57020,11 +57043,11 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 153 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     _20 = 1;
     goto bb10;
 bb9:
-#line 150 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _20 = 0;
     goto bb10;
 bb10:
@@ -57036,14 +57059,14 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 156 "rt/regex_runtime.w"
-    _22 = ((uint32_t)(2));
 #line 157 "rt/regex_runtime.w"
+    _22 = ((uint32_t)(2));
+#line 158 "rt/regex_runtime.w"
     _23 = ((uint32_t)(_2));
-#line 156 "rt/regex_runtime.w"
+#line 157 "rt/regex_runtime.w"
     _24 = (_22 + _23);
     _25 = _24;
-#line 155 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _26 = (_10[_25] == 0);
     if (_26 == 1) {
         goto bb14;
@@ -57054,7 +57077,7 @@ bb11:
 bb12:
     goto bb13;
 bb13:
-#line 162 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _30 = (_14 != 0);
     if (_30 == 1) {
         goto bb20;
@@ -57063,11 +57086,11 @@ bb13:
         goto bb21;
     }
 bb14:
-#line 159 "rt/regex_runtime.w"
+#line 161 "rt/regex_runtime.w"
     _27 = 1;
     goto bb16;
 bb15:
-#line 155 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _27 = 0;
     goto bb16;
 bb16:
@@ -57079,14 +57102,15 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 161 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _29 = 1;
     goto bb19;
 bb18:
-#line 155 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _29 = 0;
     goto bb19;
 bb19:
+#line 155 "rt/regex_runtime.w"
     _14 = _29;
     goto bb13;
 bb20:
@@ -57097,7 +57121,6 @@ bb22:
 #line 165 "rt/regex_runtime.w"
     _31 = ((uint32_t)((*_6).name_entry_size));
     _32 = ((uint64_t)(_31));
-#line 164 "rt/regex_runtime.w"
     _33 = (_10 + _32);
     _10 = _33;
 #line 166 "rt/regex_runtime.w"
@@ -57115,7 +57138,6 @@ bb25:
     _36 = 0;
     goto bb26;
 bb26:
-#line 166 "rt/regex_runtime.w"
     _37 = (_36 != 0);
     if (_37 == 1) {
         goto bb27;
@@ -57128,7 +57150,7 @@ bb27:
 bb28:
     goto bb29;
 bb29:
-#line 174 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     (*_3) = _7;
 #line 176 "rt/regex_runtime.w"
     _9 = 0;
@@ -57136,7 +57158,7 @@ bb29:
 bb30:
     goto bb31;
 bb31:
-#line 169 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _38 = (0 != 0);
     if (_38 == 1) {
         goto bb30;
@@ -57145,7 +57167,6 @@ bb31:
         goto bb32;
     }
 bb32:
-#line 170 "rt/regex_runtime.w"
     (*_5) = 153;
 #line 172 "rt/regex_runtime.w"
     _39 = ((uint64_t)(_1));
@@ -57157,7 +57178,7 @@ bb33:
     _43 = (_41 / _42);
 #line 171 "rt/regex_runtime.w"
     (*_6).erroroffset = _43;
-#line 173 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb34:
@@ -57170,13 +57191,16 @@ bb35:
         goto bb37;
     }
 bb36:
-#line 176 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _44 = (_9 + 1);
     _9 = _44;
-#line 177 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _45 = 0;
+#line 177 "rt/regex_runtime.w"
     _46 = ((int32_t)(_10[_45]));
+#line 178 "rt/regex_runtime.w"
     _47 = ((uint32_t)(8));
+#line 177 "rt/regex_runtime.w"
     _48 = (_46 << _47);
 #line 178 "rt/regex_runtime.w"
     _49 = (0 + 1);
@@ -57189,6 +57213,7 @@ bb36:
 #line 179 "rt/regex_runtime.w"
     /* StorageLive(_54); */
     _54 = 0;
+#line 181 "rt/regex_runtime.w"
     _55 = (_8 < 32);
     if (_55 == 1) {
         goto bb38;
@@ -57199,14 +57224,14 @@ bb36:
 bb37:
 #line 215 "rt/regex_runtime.w"
     (*_4) = _9;
+#line 217 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb38:
-#line 180 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _56 = 1;
     goto bb40;
 bb39:
-#line 179 "rt/regex_runtime.w"
     _56 = 0;
     goto bb40;
 bb40:
@@ -57218,22 +57243,23 @@ bb40:
         goto bb42;
     }
 bb41:
-#line 182 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _58 = ((uint32_t)(1));
     _59 = ((uint32_t)(_8));
     _60 = (_58 << _59);
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _54 = _60;
     goto bb43;
 bb42:
-#line 184 "rt/regex_runtime.w"
+#line 185 "rt/regex_runtime.w"
     _54 = 1;
     goto bb43;
 bb43:
-#line 187 "rt/regex_runtime.w"
-    _61 = ((*_6).backref_map | _54);
-    (*_6).backref_map = _61;
 #line 188 "rt/regex_runtime.w"
+    _61 = ((*_6).backref_map | _54);
+#line 187 "rt/regex_runtime.w"
+    (*_6).backref_map = _61;
+#line 190 "rt/regex_runtime.w"
     _62 = (_8 > (*_6).top_backref);
     if (_62 == 1) {
         goto bb44;
@@ -57242,11 +57268,11 @@ bb43:
         goto bb45;
     }
 bb44:
-#line 190 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _63 = 1;
     goto bb46;
 bb45:
-#line 188 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _63 = 0;
     goto bb46;
 bb46:
@@ -57264,8 +57290,9 @@ bb47:
 bb48:
     goto bb49;
 bb49:
-#line 194 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _65 = (_7 + 1);
+#line 194 "rt/regex_runtime.w"
     _7 = _65;
 #line 195 "rt/regex_runtime.w"
     _66 = (_7 >= (*_6).names_found);
@@ -57276,9 +57303,11 @@ bb49:
         goto bb51;
     }
 bb50:
+#line 198 "rt/regex_runtime.w"
     _67 = 1;
     goto bb52;
 bb51:
+#line 195 "rt/regex_runtime.w"
     _67 = 0;
     goto bb52;
 bb52:
@@ -57294,14 +57323,16 @@ bb53:
 bb54:
     goto bb55;
 bb55:
-#line 198 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _69 = ((uint32_t)((*_6).name_entry_size));
     _70 = ((uint64_t)(_69));
+#line 199 "rt/regex_runtime.w"
     _71 = (_10 + _70);
+#line 198 "rt/regex_runtime.w"
     _10 = _71;
 #line 202 "rt/regex_runtime.w"
     /* StorageLive(_72); */
-#line 203 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _73 = ((int64_t)(2));
     _74 = ((uint64_t)(_73));
     _75 = (_10 + _74);
@@ -57310,6 +57341,7 @@ bb55:
 bb56:
     goto bb55;
 bb57:
+#line 203 "rt/regex_runtime.w"
     _77 = (_76 != 0);
     if (_77 == 1) {
         goto bb58;
@@ -57318,7 +57350,7 @@ bb57:
         goto bb59;
     }
 bb58:
-#line 204 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _78 = 1;
     goto bb60;
 bb59:
@@ -57344,12 +57376,11 @@ bb62:
 #line 210 "rt/regex_runtime.w"
     _81 = ((int64_t)(2));
     _82 = ((uint64_t)(_81));
-#line 209 "rt/regex_runtime.w"
     _83 = (_10 + _82);
     _84 = _83;
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _85 = _2;
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _86 = (_84[_85] != 0);
     if (_86 == 1) {
         goto bb67;
@@ -57358,7 +57389,7 @@ bb62:
         goto bb68;
     }
 bb63:
-#line 212 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _90 = (_72 != 0);
     if (_90 == 1) {
         goto bb73;
@@ -57367,11 +57398,11 @@ bb63:
         goto bb74;
     }
 bb64:
-#line 207 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _80 = 1;
     goto bb66;
 bb65:
-#line 206 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _80 = 0;
     goto bb66;
 bb66:
@@ -57382,7 +57413,7 @@ bb67:
     _87 = 1;
     goto bb69;
 bb68:
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _87 = 0;
     goto bb69;
 bb69:
@@ -57394,15 +57425,15 @@ bb69:
         goto bb71;
     }
 bb70:
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _89 = 1;
     goto bb72;
 bb71:
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _89 = 0;
     goto bb72;
 bb72:
-#line 208 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     _72 = _89;
     goto bb63;
 bb73:
@@ -57414,7 +57445,7 @@ bb75:
 bb76:
     goto bb75;
 bb77:
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb78: ;
@@ -57639,7 +57670,6 @@ uint32_t* _pcre2_compile_parse_scan_substr_args8__2898(uint32_t* _1, int32_t* _2
     uint32_t* _151 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 216 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
@@ -57647,29 +57677,30 @@ bb0:
 #line 222 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = _1;
-    /* StorageLive(_6); */
 #line 225 "rt/regex_runtime.w"
+    /* StorageLive(_6); */
     /* StorageLive(_7); */
     /* StorageLive(_8); */
-    /* StorageLive(_9); */
 #line 227 "rt/regex_runtime.w"
-    /* StorageLive(_10); */
+    /* StorageLive(_9); */
 #line 228 "rt/regex_runtime.w"
-    /* StorageLive(_11); */
+    /* StorageLive(_10); */
 #line 229 "rt/regex_runtime.w"
+    /* StorageLive(_11); */
+#line 230 "rt/regex_runtime.w"
     _12 = ((uint32_t)((*_3).names_found));
     _13 = ((uint64_t)(_12));
     _14 = ((*_3).named_groups + _13);
-#line 228 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _11 = _14;
-#line 232 "rt/regex_runtime.w"
-    /* StorageLive(_15); */
 #line 233 "rt/regex_runtime.w"
+    /* StorageLive(_15); */
     /* StorageLive(_16); */
     goto bb1;
 bb1:
     goto bb2;
 bb2:
+#line 235 "rt/regex_runtime.w"
     _17 = (0 != 0);
     if (_17 == 1) {
         goto bb1;
@@ -57678,14 +57709,14 @@ bb2:
         goto bb3;
     }
 bb3:
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _18 = ((int64_t)(1));
     _19 = ((uint64_t)(_18));
+#line 235 "rt/regex_runtime.w"
     _20 = (_5 - _19);
     _21 = _pcre2_compile_process_capture_list__6110(_20, 0, _2, _3);
     goto bb4;
 bb4:
-#line 234 "rt/regex_runtime.w"
     _22 = (_21 == 0);
     if (_22 == 1) {
         goto bb5;
@@ -57694,11 +57725,11 @@ bb4:
         goto bb6;
     }
 bb5:
-#line 236 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _23 = 1;
     goto bb7;
 bb6:
-#line 234 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _23 = 0;
     goto bb7;
 bb7:
@@ -57710,33 +57741,33 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb9:
     goto bb10;
 bb10:
-#line 239 "rt/regex_runtime.w"
     _25 = ((uint32_t)((*_3).bracount));
+#line 240 "rt/regex_runtime.w"
     _26 = ((uint32_t)(1));
+#line 239 "rt/regex_runtime.w"
     _27 = (_25 + _26);
     _28 = ((uint32_t)(_27));
-#line 240 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _29 = ((uint32_t)(7));
 #line 239 "rt/regex_runtime.w"
     _30 = (_28 + _29);
     _31 = ((uint32_t)(_30));
-#line 241 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _32 = ((uint32_t)(3));
 #line 239 "rt/regex_runtime.w"
     _33 = (_31 >> _32);
-#line 238 "rt/regex_runtime.w"
     _16 = _33;
-#line 242 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _34 = (&(*(*_3).cx).memctl);
     _35 = (pcre2_memctl*)((pcre2_memctl*)(_34));
     _36 = _35;
-#line 243 "rt/regex_runtime.w"
+#line 245 "rt/regex_runtime.w"
     _37 = (&(*(*_3).cx).memctl);
     _38 = (pcre2_memctl*)((pcre2_memctl*)(_37));
     _39 = _38;
@@ -57745,10 +57776,10 @@ bb10:
 bb11:
     goto bb10;
 bb12:
-#line 242 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _41 = (uint8_t*)((uint8_t*)(_40));
     _6 = _41;
-#line 249 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     { __typeof__((_6 == 0)) __tmp = (_6 == 0); memcpy(&(_42), &__tmp, sizeof(_42) < sizeof(__tmp) ? sizeof(_42) : sizeof(__tmp)); }
     if (_42 == 1) {
         goto bb13;
@@ -57757,11 +57788,9 @@ bb12:
         goto bb14;
     }
 bb13:
-#line 250 "rt/regex_runtime.w"
     _43 = 1;
     goto bb15;
 bb14:
-#line 249 "rt/regex_runtime.w"
     _43 = 0;
     goto bb15;
 bb15:
@@ -57773,26 +57802,22 @@ bb15:
         goto bb17;
     }
 bb16:
-#line 250 "rt/regex_runtime.w"
     (*_2) = 121;
 #line 253 "rt/regex_runtime.w"
     _45 = 1;
-#line 252 "rt/regex_runtime.w"
     _46 = ((uint64_t)(_5[_45]));
     _47 = ((uint64_t)(_46));
-#line 253 "rt/regex_runtime.w"
     _48 = ((uint32_t)(32));
-#line 252 "rt/regex_runtime.w"
     _49 = (_47 << _48);
     _50 = ((uint64_t)(_49));
-#line 254 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _51 = 2;
-#line 253 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _52 = ((uint64_t)(_5[_51]));
     _53 = ((uint64_t)(_52));
-#line 252 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _54 = (_50 | _53);
-#line 251 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     (*_3).erroroffset = _54;
 #line 255 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
@@ -57800,7 +57825,9 @@ bb16:
 bb17:
     goto bb18;
 bb18:
+#line 256 "rt/regex_runtime.w"
     _55 = (int8_t*)((int8_t*)(_6));
+#line 257 "rt/regex_runtime.w"
     _56 = ((int64_t)(_16));
     _57 = with_memset(_55, 0, _56);
     goto bb20;
@@ -57809,7 +57836,6 @@ bb19:
 bb20:
     goto bb21;
 bb21:
-#line 257 "rt/regex_runtime.w"
     _58 = (1 != 0);
     if (_58 == 1) {
         goto bb22;
@@ -57839,12 +57865,12 @@ bb24:
         goto bb26;
     }
 bb25:
-#line 258 "rt/regex_runtime.w"
-    _60 = ((uint32_t)((*_5)));
 #line 259 "rt/regex_runtime.w"
+    _60 = ((uint32_t)((*_5)));
+#line 260 "rt/regex_runtime.w"
     _61 = ((uint32_t)(4294901760));
     _62 = ((uint32_t)(_61));
-#line 258 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _63 = (_60 & _62);
     _64 = _63;
 #line 260 "rt/regex_runtime.w"
@@ -57867,20 +57893,19 @@ bb26:
 bb27:
     goto bb26;
 bb28:
-#line 260 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _67 = (_5 + 1);
+#line 261 "rt/regex_runtime.w"
     _5 = _67;
 #line 263 "rt/regex_runtime.w"
     _68 = ((int64_t)(2));
     _69 = ((uint64_t)(_68));
-#line 262 "rt/regex_runtime.w"
     _70 = (_5 + _69);
     _5 = _70;
-#line 263 "rt/regex_runtime.w"
     _59 = 1;
     goto bb26;
 bb29:
-#line 265 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _71 = (_64 == 2149056512);
     if (_71 == 1) {
         goto bb31;
@@ -57889,14 +57914,15 @@ bb29:
         goto bb32;
     }
 bb30:
-#line 260 "rt/regex_runtime.w"
+#line 261 "rt/regex_runtime.w"
     _65 = (__typeof__(_65)){0};
     goto bb27;
 bb31:
-#line 267 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _72 = 1;
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _73 = ((uint64_t)(_5[_72]));
+#line 266 "rt/regex_runtime.w"
     _74 = ((*_3).named_groups + _73);
     _10 = _74;
     goto bb33;
@@ -57912,7 +57938,7 @@ bb32:
 bb33:
     goto bb34;
 bb34:
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _75 = (0 != 0);
     if (_75 == 1) {
         goto bb33;
@@ -57921,19 +57947,19 @@ bb34:
         goto bb35;
     }
 bb35:
-#line 271 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _76 = ((int64_t)(2));
     _77 = ((uint64_t)(_76));
     _78 = (_5 + _77);
-#line 270 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _5 = _78;
-#line 272 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _9 = (*_10).name;
-#line 275 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _15 = 1;
     goto bb36;
 bb36:
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     { __typeof__(((*_10).name != _9)) __tmp = ((*_10).name != _9); memcpy(&(_79), &__tmp, sizeof(_79) < sizeof(__tmp) ? sizeof(_79) : sizeof(__tmp)); }
     if (_79 == 1) {
         goto bb39;
@@ -57942,11 +57968,9 @@ bb36:
         goto bb40;
     }
 bb37:
-#line 306 "rt/regex_runtime.w"
-    _102 = (_10 + 1);
-#line 305 "rt/regex_runtime.w"
-    _10 = _102;
 #line 307 "rt/regex_runtime.w"
+    _102 = (_10 + 1);
+    _10 = _102;
     { __typeof__((_10 < _11)) __tmp = (_10 < _11); memcpy(&(_103), &__tmp, sizeof(_103) < sizeof(__tmp) ? sizeof(_103) : sizeof(__tmp)); }
     if (_103 == 1) {
         goto bb55;
@@ -57965,11 +57989,11 @@ bb38:
         goto bb59;
     }
 bb39:
-#line 281 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _80 = 1;
     goto bb41;
 bb40:
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _80 = 0;
     goto bb41;
 bb41:
@@ -57985,14 +58009,15 @@ bb42:
 bb43:
     goto bb44;
 bb44:
-#line 285 "rt/regex_runtime.w"
-    _82 = ((uint32_t)((*_10).number));
 #line 286 "rt/regex_runtime.w"
+    _82 = ((uint32_t)((*_10).number));
+#line 287 "rt/regex_runtime.w"
     _83 = ((uint32_t)(3));
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _84 = (_82 >> _83);
     _85 = ((uint64_t)(_84));
     _86 = (_6 + _85);
+#line 285 "rt/regex_runtime.w"
     _7 = _86;
     goto bb46;
 bb45:
@@ -58000,7 +58025,7 @@ bb45:
 bb46:
     goto bb47;
 bb47:
-#line 289 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     _87 = (0 != 0);
     if (_87 == 1) {
         goto bb46;
@@ -58009,25 +58034,23 @@ bb47:
         goto bb48;
     }
 bb48:
-#line 292 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _88 = ((int32_t)(1));
-#line 293 "rt/regex_runtime.w"
-    _89 = ((uint32_t)((*_10).number));
 #line 295 "rt/regex_runtime.w"
+    _89 = ((uint32_t)((*_10).number));
     _90 = ((uint32_t)(7));
-#line 293 "rt/regex_runtime.w"
     _91 = (_89 & _90);
     _92 = ((uint32_t)(_91));
-#line 292 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _93 = (_88 << _92);
     _94 = ((uint8_t)(_93));
-#line 291 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _8 = _94;
-#line 297 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _95 = ((int32_t)((*_7)));
 #line 300 "rt/regex_runtime.w"
     _96 = ((int32_t)(_8));
-#line 297 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _97 = (_95 & _96);
     _98 = (_97 == 0);
     if (_98 == 1) {
@@ -58041,7 +58064,7 @@ bb49:
     _99 = 1;
     goto bb51;
 bb50:
-#line 297 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _99 = 0;
     goto bb51;
 bb51:
@@ -58053,11 +58076,11 @@ bb51:
         goto bb53;
     }
 bb52:
-#line 301 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _101 = ((*_7) | _8);
-#line 300 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     (*_7) = _101;
-#line 303 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _15 = 0;
     goto bb54;
 bb53:
@@ -58080,10 +58103,11 @@ bb57:
         goto bb38;
     }
 bb58:
-#line 308 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _108 = 1;
     goto bb60;
 bb59:
+#line 308 "rt/regex_runtime.w"
     _108 = 0;
     goto bb60;
 bb60:
@@ -58095,9 +58119,9 @@ bb60:
         goto bb62;
     }
 bb61:
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _110 = ((*_4) + 5);
-#line 309 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     (*_4) = _110;
 #line 312 "rt/regex_runtime.w"
     _59 = 1;
@@ -60571,7 +60595,7 @@ bb4:
 bb5:
     goto bb6;
 bb6:
-#line 22 "rt/regex_runtime.w"
+#line 23 "rt/regex_runtime.w"
     _6 = 0;
     goto bb15;
 bb7:
@@ -60608,7 +60632,7 @@ bb13:
 bb14:
     goto bb6;
 bb15:
-#line 23 "rt/regex_runtime.w"
+#line 24 "rt/regex_runtime.w"
     _21 = (_6 < 256);
     if (_21 == 1) {
         goto bb18;
@@ -60622,25 +60646,24 @@ bb16:
 #line 26 "rt/regex_runtime.w"
     _26 = (&__with_global__pcre2_ucd_records_8__2612[_25]);
     _27 = (ucd_record*)((ucd_record*)(_26));
-#line 30 "rt/regex_runtime.w"
+#line 29 "rt/regex_runtime.w"
     _30 = (_6 / 128);
     _31 = _30;
-#line 29 "rt/regex_runtime.w"
     _32 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_31]));
+#line 28 "rt/regex_runtime.w"
     _33 = (_32 * 128);
 #line 31 "rt/regex_runtime.w"
     _34 = (_6 % 128);
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _35 = (_33 + _34);
     _36 = _35;
-#line 28 "rt/regex_runtime.w"
     _37 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_36]));
     _38 = ((uint64_t)(_37));
 #line 26 "rt/regex_runtime.w"
     _39 = (_27 + _38);
 #line 25 "rt/regex_runtime.w"
     _8 = _39;
-#line 33 "rt/regex_runtime.w"
+#line 32 "rt/regex_runtime.w"
     _10 = 0;
     goto bb21;
 bb17:
@@ -60693,11 +60716,11 @@ bb24:
 bb25:
 #line 38 "rt/regex_runtime.w"
     _7 = (*_8).chartype;
-#line 40 "rt/regex_runtime.w"
+#line 39 "rt/regex_runtime.w"
     /* StorageLive(_43); */
-#line 41 "rt/regex_runtime.w"
+#line 40 "rt/regex_runtime.w"
     /* StorageLive(_44); */
-#line 43 "rt/regex_runtime.w"
+#line 41 "rt/regex_runtime.w"
     _45 = (_7 == 9);
     if (_45 == 1) {
         goto bb27;
@@ -60719,10 +60742,10 @@ bb27:
     _46 = 1;
     goto bb29;
 bb28:
+#line 41 "rt/regex_runtime.w"
     _46 = 0;
     goto bb29;
 bb29:
-#line 42 "rt/regex_runtime.w"
     _47 = (_46 != 0);
     if (_47 == 1) {
         goto bb30;
@@ -60738,7 +60761,7 @@ bb30:
         goto bb34;
     }
 bb31:
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _49 = (_7 == 5);
     if (_49 == 1) {
         goto bb36;
@@ -60760,10 +60783,11 @@ bb33:
     _48 = 1;
     goto bb35;
 bb34:
+#line 44 "rt/regex_runtime.w"
     _48 = 0;
     goto bb35;
 bb35:
-#line 44 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     _44 = _48;
     goto bb32;
 bb36:
@@ -60771,7 +60795,7 @@ bb36:
     _50 = 1;
     goto bb38;
 bb37:
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _50 = 0;
     goto bb38;
 bb38:
@@ -60783,7 +60807,7 @@ bb38:
         goto bb40;
     }
 bb39:
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _52 = 1;
     goto bb41;
 bb40:
@@ -60843,7 +60867,7 @@ bb50:
         goto bb52;
     }
 bb51:
-#line 60 "rt/regex_runtime.w"
+#line 58 "rt/regex_runtime.w"
     _58 = 1;
     goto bb53;
 bb52:
@@ -60851,12 +60875,13 @@ bb52:
     _58 = 0;
     goto bb53;
 bb53:
+#line 56 "rt/regex_runtime.w"
     _43 = _58;
     goto bb44;
 bb54:
-#line 65 "rt/regex_runtime.w"
-    _61 = (*_8).chartype;
 #line 64 "rt/regex_runtime.w"
+    _61 = (*_8).chartype;
+#line 63 "rt/regex_runtime.w"
     _62 = (__with_global__pcre2_ucp_gentype_8__2596[_61] == _2);
     if (_62 == 1) {
         goto bb56;
@@ -60878,16 +60903,15 @@ bb56:
     _63 = 1;
     goto bb58;
 bb57:
-#line 64 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _63 = 0;
     goto bb58;
 bb58:
-#line 63 "rt/regex_runtime.w"
     _10 = _63;
     _41 = _63;
     goto bb24;
 bb59:
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _65 = ((*_8).chartype == _2);
     if (_65 == 1) {
         goto bb61;
@@ -60905,14 +60929,15 @@ bb60:
         goto bb65;
     }
 bb61:
+#line 71 "rt/regex_runtime.w"
     _66 = 1;
     goto bb63;
 bb62:
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _66 = 0;
     goto bb63;
 bb63:
-#line 68 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _10 = _66;
     _41 = _66;
     goto bb24;
@@ -60946,7 +60971,7 @@ bb68:
     _41 = _69;
     goto bb24;
 bb69:
-#line 74 "rt/regex_runtime.w"
+#line 73 "rt/regex_runtime.w"
     /* StorageLive(_71); */
 #line 75 "rt/regex_runtime.w"
     _72 = ((*_8).script == _2);
@@ -60993,32 +61018,31 @@ bb75:
 #line 78 "rt/regex_runtime.w"
     _78 = (&__with_global__pcre2_ucd_script_sets_8__2610[_77]);
     _79 = (uint32_t*)((uint32_t*)(_78));
-#line 80 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     _80 = ((int32_t)((*_8).scriptx_bidiclass));
     _81 = (_80 & 1023);
     _82 = ((int64_t)(_81));
-#line 79 "rt/regex_runtime.w"
     _83 = ((uint64_t)(_82));
 #line 78 "rt/regex_runtime.w"
     _84 = (_79 + _83);
     _85 = _84;
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _86 = ((uint32_t)(_2));
+#line 81 "rt/regex_runtime.w"
     _87 = ((uint32_t)(32));
+#line 80 "rt/regex_runtime.w"
     _88 = (_86 / _87);
     _89 = _88;
 #line 78 "rt/regex_runtime.w"
     _90 = ((uint32_t)(_85[_89]));
 #line 82 "rt/regex_runtime.w"
     _91 = ((uint32_t)(1));
-#line 83 "rt/regex_runtime.w"
     _92 = ((uint32_t)(_2));
-#line 84 "rt/regex_runtime.w"
-    _93 = ((uint32_t)(32));
 #line 83 "rt/regex_runtime.w"
+    _93 = ((uint32_t)(32));
+#line 82 "rt/regex_runtime.w"
     _94 = (_92 % _93);
     _95 = ((uint32_t)(_94));
-#line 82 "rt/regex_runtime.w"
     _96 = (_91 << _95);
     _97 = ((uint32_t)(_96));
 #line 78 "rt/regex_runtime.w"
@@ -61033,7 +61057,7 @@ bb75:
 bb76:
 #line 86 "rt/regex_runtime.w"
     _10 = _71;
-#line 74 "rt/regex_runtime.w"
+#line 73 "rt/regex_runtime.w"
     _41 = _71;
     goto bb24;
 bb77:
@@ -61047,7 +61071,7 @@ bb79:
     _71 = _75;
     goto bb76;
 bb80:
-#line 85 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _100 = 1;
     goto bb82;
 bb81:
@@ -61076,11 +61100,11 @@ bb85:
 bb86:
 #line 90 "rt/regex_runtime.w"
     _104 = (*_8).chartype;
-#line 89 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _9 = __with_global__pcre2_ucp_gentype_8__2596[_104];
 #line 91 "rt/regex_runtime.w"
     /* StorageLive(_105); */
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _106 = (_9 == 1);
     if (_106 == 1) {
         goto bb88;
@@ -61089,7 +61113,7 @@ bb86:
         goto bb89;
     }
 bb87:
-#line 105 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _114 = (_40 == 6);
     if (_114 == 1) {
         goto bb103;
@@ -61102,6 +61126,7 @@ bb88:
     _107 = 1;
     goto bb90;
 bb89:
+#line 93 "rt/regex_runtime.w"
     _107 = 0;
     goto bb90;
 bb90:
@@ -61129,28 +61154,27 @@ bb92:
         goto bb98;
     }
 bb93:
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _10 = _105;
-#line 89 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _41 = _105;
     goto bb24;
 bb94:
-#line 97 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _109 = 1;
     goto bb96;
 bb95:
     _109 = 0;
     goto bb96;
 bb96:
-#line 96 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     _105 = _109;
     goto bb93;
 bb97:
-#line 101 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _111 = 1;
     goto bb99;
 bb98:
-#line 100 "rt/regex_runtime.w"
     _111 = 0;
     goto bb99;
 bb99:
@@ -61162,7 +61186,7 @@ bb99:
         goto bb101;
     }
 bb100:
-#line 102 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _113 = 1;
     goto bb102;
 bb101:
@@ -61170,6 +61194,7 @@ bb101:
     _113 = 0;
     goto bb102;
 bb102:
+#line 99 "rt/regex_runtime.w"
     _105 = _113;
     goto bb93;
 bb103:
@@ -61191,9 +61216,9 @@ bb105:
         goto bb107;
     }
 bb106:
-#line 108 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _115 = _6;
-#line 109 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _117 = (_115 == 9);
     if (_117 == 1) {
         goto bb109;
@@ -61202,18 +61227,18 @@ bb106:
         goto bb110;
     }
 bb107:
-#line 107 "rt/regex_runtime.w"
+#line 105 "rt/regex_runtime.w"
     _41 = (__typeof__(_41)){0};
     goto bb24;
 bb108:
     goto bb107;
 bb109:
-#line 110 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _10 = 1;
     _116 = 1;
     goto bb108;
 bb110:
-#line 113 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _118 = (_115 == 32);
     if (_118 == 1) {
         goto bb111;
@@ -61222,12 +61247,12 @@ bb110:
         goto bb112;
     }
 bb111:
-#line 114 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _10 = 1;
     _116 = 1;
     goto bb108;
 bb112:
-#line 116 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     _119 = (_115 == 160);
     if (_119 == 1) {
         goto bb113;
@@ -61236,7 +61261,7 @@ bb112:
         goto bb114;
     }
 bb113:
-#line 118 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _10 = 1;
     _116 = 1;
     goto bb108;
@@ -61250,8 +61275,9 @@ bb114:
         goto bb116;
     }
 bb115:
-#line 121 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _10 = 1;
+#line 119 "rt/regex_runtime.w"
     _116 = 1;
     goto bb108;
 bb116:
@@ -61278,12 +61304,11 @@ bb118:
         goto bb120;
     }
 bb119:
-#line 129 "rt/regex_runtime.w"
     _10 = 1;
     _116 = 1;
     goto bb108;
 bb120:
-#line 130 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _123 = (_115 == 13);
     if (_123 == 1) {
         goto bb121;
@@ -61292,7 +61317,7 @@ bb120:
         goto bb122;
     }
 bb121:
-#line 133 "rt/regex_runtime.w"
+#line 131 "rt/regex_runtime.w"
     _10 = 1;
     _116 = 1;
     goto bb108;
@@ -61314,6 +61339,7 @@ bb124:
 bb125:
 #line 138 "rt/regex_runtime.w"
     _125 = (*_8).chartype;
+#line 137 "rt/regex_runtime.w"
     _126 = (__with_global__pcre2_ucp_gentype_8__2596[_125] == 6);
     if (_126 == 1) {
         goto bb126;
@@ -61322,13 +61348,14 @@ bb125:
         goto bb127;
     }
 bb126:
+#line 138 "rt/regex_runtime.w"
     _127 = 1;
     goto bb128;
 bb127:
+#line 137 "rt/regex_runtime.w"
     _127 = 0;
     goto bb128;
 bb128:
-#line 137 "rt/regex_runtime.w"
     _10 = _127;
     _116 = _127;
     goto bb108;
@@ -61337,7 +61364,7 @@ bb129:
 bb130:
     goto bb132;
 bb131:
-#line 173 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _142 = (_40 == 8);
     if (_142 == 1) {
         goto bb157;
@@ -61353,8 +61380,9 @@ bb132:
         goto bb134;
     }
 bb133:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _129 = _6;
+#line 143 "rt/regex_runtime.w"
     _131 = (_129 == 9);
     if (_131 == 1) {
         goto bb136;
@@ -61414,7 +61442,6 @@ bb142:
     _130 = 1;
     goto bb135;
 bb143:
-#line 151 "rt/regex_runtime.w"
     _135 = (_129 == 11);
     if (_135 == 1) {
         goto bb144;
@@ -61423,7 +61450,7 @@ bb143:
         goto bb145;
     }
 bb144:
-#line 153 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _10 = 1;
     _130 = 1;
     goto bb135;
@@ -61442,7 +61469,7 @@ bb146:
     _130 = 1;
     goto bb135;
 bb147:
-#line 162 "rt/regex_runtime.w"
+#line 161 "rt/regex_runtime.w"
     _137 = (_129 == 13);
     if (_137 == 1) {
         goto bb148;
@@ -61451,12 +61478,12 @@ bb147:
         goto bb149;
     }
 bb148:
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _10 = 1;
     _130 = 1;
     goto bb135;
 bb149:
-#line 165 "rt/regex_runtime.w"
+#line 164 "rt/regex_runtime.w"
     _138 = (_129 == 133);
     if (_138 == 1) {
         goto bb150;
@@ -61465,16 +61492,15 @@ bb149:
         goto bb151;
     }
 bb150:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _10 = 1;
     _130 = 1;
     goto bb135;
 bb151:
     goto bb152;
 bb152:
-#line 169 "rt/regex_runtime.w"
-    _139 = (*_8).chartype;
 #line 168 "rt/regex_runtime.w"
+    _139 = (*_8).chartype;
     _140 = (__with_global__pcre2_ucp_gentype_8__2596[_139] == 6);
     if (_140 == 1) {
         goto bb153;
@@ -61483,7 +61509,7 @@ bb152:
         goto bb154;
     }
 bb153:
-#line 170 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _141 = 1;
     goto bb155;
 bb154:
@@ -61497,7 +61523,7 @@ bb155:
 bb156:
     goto bb132;
 bb157:
-#line 174 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _7 = (*_8).chartype;
 #line 176 "rt/regex_runtime.w"
     _143 = _7;
@@ -61556,7 +61582,7 @@ bb163:
         goto bb169;
     }
 bb164:
-#line 188 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _155 = (_146 != 0);
     if (_155 == 1) {
         goto bb174;
@@ -61572,6 +61598,7 @@ bb166:
     _150 = 0;
     goto bb167;
 bb167:
+#line 180 "rt/regex_runtime.w"
     _146 = _150;
     goto bb164;
 bb168:
@@ -61579,6 +61606,7 @@ bb168:
     _152 = 1;
     goto bb170;
 bb169:
+#line 183 "rt/regex_runtime.w"
     _152 = 0;
     goto bb170;
 bb170:
@@ -61594,11 +61622,10 @@ bb171:
     _154 = 1;
     goto bb173;
 bb172:
-#line 184 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _154 = 0;
     goto bb173;
 bb173:
-#line 183 "rt/regex_runtime.w"
     _146 = _154;
     goto bb164;
 bb174:
@@ -61609,7 +61636,7 @@ bb174:
         goto bb178;
     }
 bb175:
-#line 193 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _157 = (_7 == 12);
     if (_157 == 1) {
         goto bb180;
@@ -61642,6 +61669,7 @@ bb180:
     _158 = 1;
     goto bb182;
 bb181:
+#line 192 "rt/regex_runtime.w"
     _158 = 0;
     goto bb182;
 bb182:
@@ -61653,15 +61681,14 @@ bb182:
         goto bb184;
     }
 bb183:
-#line 194 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _160 = 1;
     goto bb185;
 bb184:
-#line 193 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _160 = 0;
     goto bb185;
 bb185:
-#line 192 "rt/regex_runtime.w"
     _145 = _160;
     goto bb176;
 bb186:
@@ -61681,9 +61708,9 @@ bb187:
         goto bb193;
     }
 bb188:
-#line 204 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _10 = _144;
-#line 174 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _41 = _144;
     goto bb24;
 bb189:
@@ -61697,14 +61724,15 @@ bb191:
     _144 = _162;
     goto bb188;
 bb192:
-#line 203 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _164 = 1;
     goto bb194;
 bb193:
-#line 202 "rt/regex_runtime.w"
+#line 201 "rt/regex_runtime.w"
     _164 = 0;
     goto bb194;
 bb194:
+#line 200 "rt/regex_runtime.w"
     _165 = (_164 != 0);
     if (_165 == 1) {
         goto bb195;
@@ -61717,21 +61745,21 @@ bb195:
     _166 = 1;
     goto bb197;
 bb196:
-#line 202 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _166 = 0;
     goto bb197;
 bb197:
-#line 200 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     _144 = _166;
     goto bb188;
 bb198:
 #line 207 "rt/regex_runtime.w"
     /* StorageLive(_168); */
-#line 209 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     /* StorageLive(_169); */
 #line 210 "rt/regex_runtime.w"
     /* StorageLive(_170); */
-#line 212 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _171 = (_6 == 36);
     if (_171 == 1) {
         goto bb200;
@@ -61797,7 +61825,7 @@ bb207:
     _174 = 0;
     goto bb208;
 bb208:
-#line 214 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _170 = _174;
     goto bb205;
 bb209:
@@ -61805,6 +61833,7 @@ bb209:
     _176 = 1;
     goto bb211;
 bb210:
+#line 216 "rt/regex_runtime.w"
     _176 = 0;
     goto bb211;
 bb211:
@@ -61820,11 +61849,11 @@ bb212:
     _178 = 1;
     goto bb214;
 bb213:
-#line 217 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _178 = 0;
     goto bb214;
 bb214:
-#line 216 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _170 = _178;
     goto bb205;
 bb215:
@@ -61844,7 +61873,7 @@ bb216:
         goto bb222;
     }
 bb217:
-#line 228 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _185 = (_169 != 0);
     if (_185 == 1) {
         goto bb227;
@@ -61857,10 +61886,10 @@ bb218:
     _180 = 1;
     goto bb220;
 bb219:
+#line 221 "rt/regex_runtime.w"
     _180 = 0;
     goto bb220;
 bb220:
-#line 221 "rt/regex_runtime.w"
     _169 = _180;
     goto bb217;
 bb221:
@@ -61910,14 +61939,13 @@ bb229:
     _41 = _168;
     goto bb24;
 bb230:
-#line 230 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _186 = 1;
     goto bb232;
 bb231:
     _186 = 0;
     goto bb232;
 bb232:
-#line 229 "rt/regex_runtime.w"
     _168 = _186;
     goto bb229;
 bb233:
@@ -61942,6 +61970,7 @@ bb237:
     _190 = 0;
     goto bb238;
 bb238:
+#line 232 "rt/regex_runtime.w"
     _168 = _190;
     goto bb229;
 bb239:
@@ -61959,7 +61988,7 @@ bb239:
         goto bb242;
     }
 bb240:
-#line 241 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _197 = (_40 == 12);
     if (_197 == 1) {
         goto bb244;
@@ -61976,38 +62005,44 @@ bb242:
     _196 = 0;
     goto bb243;
 bb243:
+#line 236 "rt/regex_runtime.w"
     _10 = _196;
     _41 = _196;
     goto bb24;
 bb244:
 #line 243 "rt/regex_runtime.w"
     _199 = 0;
+#line 242 "rt/regex_runtime.w"
     _200 = (&__with_global__pcre2_ucd_boolprop_sets_8__2611[_199]);
     _201 = (uint32_t*)((uint32_t*)(_200));
+#line 243 "rt/regex_runtime.w"
     _202 = ((int32_t)((*_8).bprops));
     _203 = (_202 & 4095);
     _204 = ((int64_t)(_203));
     _205 = ((uint64_t)(_204));
+#line 242 "rt/regex_runtime.w"
     _206 = (_201 + _205);
     _207 = _206;
-#line 246 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _208 = ((uint32_t)(_2));
-#line 249 "rt/regex_runtime.w"
-    _209 = ((uint32_t)(32));
 #line 246 "rt/regex_runtime.w"
+    _209 = ((uint32_t)(32));
+#line 244 "rt/regex_runtime.w"
     _210 = (_208 / _209);
     _211 = _210;
-#line 243 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _212 = ((uint32_t)(_207[_211]));
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _213 = ((uint32_t)(1));
     _214 = ((uint32_t)(_2));
+#line 250 "rt/regex_runtime.w"
     _215 = ((uint32_t)(32));
+#line 249 "rt/regex_runtime.w"
     _216 = (_214 % _215);
     _217 = ((uint32_t)(_216));
     _218 = (_213 << _217);
     _219 = ((uint32_t)(_218));
-#line 243 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _220 = (_212 & _219);
     _221 = (_220 != 0);
     if (_221 == 1) {
@@ -62017,7 +62052,7 @@ bb244:
         goto bb247;
     }
 bb245:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _223 = (_40 == 14);
     if (_223 == 1) {
         goto bb249;
@@ -62026,29 +62061,27 @@ bb245:
         goto bb250;
     }
 bb246:
-#line 251 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _222 = 1;
     goto bb248;
 bb247:
-#line 243 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _222 = 0;
     goto bb248;
 bb248:
-#line 242 "rt/regex_runtime.w"
     _10 = _222;
     _41 = _222;
     goto bb24;
 bb249:
 #line 253 "rt/regex_runtime.w"
     _7 = (*_8).chartype;
-#line 255 "rt/regex_runtime.w"
-    _224 = _7;
 #line 254 "rt/regex_runtime.w"
+    _224 = _7;
+#line 253 "rt/regex_runtime.w"
     _9 = __with_global__pcre2_ucp_gentype_8__2596[_224];
 #line 255 "rt/regex_runtime.w"
     /* StorageLive(_225); */
     _225 = 0;
-#line 257 "rt/regex_runtime.w"
     _226 = (_9 != 6);
     if (_226 == 1) {
         goto bb251;
@@ -62057,7 +62090,7 @@ bb249:
         goto bb252;
     }
 bb250:
-#line 269 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _240 = (_40 == 15);
     if (_240 == 1) {
         goto bb275;
@@ -62066,10 +62099,11 @@ bb250:
         goto bb276;
     }
 bb251:
-#line 257 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _227 = 1;
     goto bb253;
 bb252:
+#line 255 "rt/regex_runtime.w"
     _227 = 0;
     goto bb253;
 bb253:
@@ -62081,8 +62115,9 @@ bb253:
         goto bb255;
     }
 bb254:
+#line 257 "rt/regex_runtime.w"
     /* StorageLive(_229); */
-#line 259 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _230 = (_9 != 0);
     if (_230 == 1) {
         goto bb257;
@@ -62095,17 +62130,18 @@ bb255:
 bb256:
 #line 266 "rt/regex_runtime.w"
     _10 = _225;
-#line 253 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _41 = _225;
     goto bb24;
 bb257:
-#line 259 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _231 = 1;
     goto bb259;
 bb258:
     _231 = 0;
     goto bb259;
 bb259:
+#line 257 "rt/regex_runtime.w"
     _232 = (_231 != 0);
     if (_232 == 1) {
         goto bb260;
@@ -62121,7 +62157,7 @@ bb260:
         goto bb264;
     }
 bb261:
-#line 263 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _234 = (_7 == 1);
     if (_234 == 1) {
         goto bb266;
@@ -62130,7 +62166,7 @@ bb261:
         goto bb267;
     }
 bb262:
-#line 265 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _238 = (_229 != 0);
     if (_238 == 1) {
         goto bb272;
@@ -62146,6 +62182,7 @@ bb264:
     _233 = 0;
     goto bb265;
 bb265:
+#line 259 "rt/regex_runtime.w"
     _229 = _233;
     goto bb262;
 bb266:
@@ -62153,6 +62190,7 @@ bb266:
     _235 = 1;
     goto bb268;
 bb267:
+#line 262 "rt/regex_runtime.w"
     _235 = 0;
     goto bb268;
 bb268:
@@ -62164,21 +62202,22 @@ bb268:
         goto bb270;
     }
 bb269:
+#line 263 "rt/regex_runtime.w"
     _237 = 1;
     goto bb271;
 bb270:
+#line 262 "rt/regex_runtime.w"
     _237 = 0;
     goto bb271;
 bb271:
-#line 262 "rt/regex_runtime.w"
     _229 = _237;
     goto bb262;
 bb272:
-#line 266 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _239 = 1;
     goto bb274;
 bb273:
-#line 265 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _239 = 0;
     goto bb274;
 bb274:
@@ -62187,13 +62226,13 @@ bb274:
 bb275:
 #line 269 "rt/regex_runtime.w"
     _7 = (*_8).chartype;
-#line 271 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     /* StorageLive(_241); */
     _241 = 0;
-#line 273 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     /* StorageLive(_242); */
     _242 = 0;
-#line 276 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _243 = (_7 != 27);
     if (_243 == 1) {
         goto bb277;
@@ -62202,7 +62241,7 @@ bb275:
         goto bb278;
     }
 bb276:
-#line 304 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _263 = (_40 == 16);
     if (_263 == 1) {
         goto bb310;
@@ -62211,11 +62250,11 @@ bb276:
         goto bb311;
     }
 bb277:
-#line 277 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _244 = 1;
     goto bb279;
 bb278:
-#line 276 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _244 = 0;
     goto bb279;
 bb279:
@@ -62227,7 +62266,7 @@ bb279:
         goto bb281;
     }
 bb280:
-#line 281 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _246 = (_7 != 28);
     if (_246 == 1) {
         goto bb283;
@@ -62238,7 +62277,7 @@ bb280:
 bb281:
     goto bb282;
 bb282:
-#line 285 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _250 = (_242 != 0);
     if (_250 == 1) {
         goto bb289;
@@ -62247,11 +62286,11 @@ bb282:
         goto bb290;
     }
 bb283:
-#line 283 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _247 = 1;
     goto bb285;
 bb284:
-#line 281 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _247 = 0;
     goto bb285;
 bb285:
@@ -62263,23 +62302,23 @@ bb285:
         goto bb287;
     }
 bb286:
-#line 283 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _249 = 1;
     goto bb288;
 bb287:
-#line 281 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _249 = 0;
     goto bb288;
 bb288:
-#line 279 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _242 = _249;
     goto bb282;
 bb289:
 #line 285 "rt/regex_runtime.w"
     /* StorageLive(_251); */
-#line 288 "rt/regex_runtime.w"
-    _252 = _7;
 #line 287 "rt/regex_runtime.w"
+    _252 = _7;
+#line 286 "rt/regex_runtime.w"
     _253 = (__with_global__pcre2_ucp_gentype_8__2596[_252] != 0);
     if (_253 == 1) {
         goto bb292;
@@ -62290,17 +62329,17 @@ bb289:
 bb290:
     goto bb291;
 bb291:
-#line 302 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _10 = _241;
 #line 269 "rt/regex_runtime.w"
     _41 = _241;
     goto bb24;
 bb292:
-#line 288 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _254 = 1;
     goto bb294;
 bb293:
-#line 287 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _254 = 0;
     goto bb294;
 bb294:
@@ -62319,7 +62358,7 @@ bb295:
         goto bb299;
     }
 bb296:
-#line 296 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _257 = (_7 == 1);
     if (_257 == 1) {
         goto bb301;
@@ -62337,23 +62376,21 @@ bb297:
         goto bb308;
     }
 bb298:
-#line 292 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _256 = 1;
     goto bb300;
 bb299:
-#line 291 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _256 = 0;
     goto bb300;
 bb300:
-#line 290 "rt/regex_runtime.w"
     _251 = _256;
     goto bb297;
 bb301:
-#line 297 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _258 = 1;
     goto bb303;
 bb302:
-#line 296 "rt/regex_runtime.w"
     _258 = 0;
     goto bb303;
 bb303:
@@ -62365,36 +62402,35 @@ bb303:
         goto bb305;
     }
 bb304:
-#line 298 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     _260 = 1;
     goto bb306;
 bb305:
-#line 296 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _260 = 0;
     goto bb306;
 bb306:
-#line 295 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _251 = _260;
     goto bb297;
 bb307:
-#line 301 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _262 = 1;
     goto bb309;
 bb308:
-#line 300 "rt/regex_runtime.w"
     _262 = 0;
     goto bb309;
 bb309:
+#line 299 "rt/regex_runtime.w"
     _241 = _262;
     goto bb291;
 bb310:
-#line 306 "rt/regex_runtime.w"
-    _264 = (*_8).chartype;
 #line 305 "rt/regex_runtime.w"
+    _264 = (*_8).chartype;
+#line 304 "rt/regex_runtime.w"
     _9 = __with_global__pcre2_ucp_gentype_8__2596[_264];
 #line 307 "rt/regex_runtime.w"
     /* StorageLive(_265); */
-#line 308 "rt/regex_runtime.w"
     _266 = (_9 == 4);
     if (_266 == 1) {
         goto bb312;
@@ -62405,9 +62441,11 @@ bb310:
 bb311:
     goto bb336;
 bb312:
+#line 308 "rt/regex_runtime.w"
     _267 = 1;
     goto bb314;
 bb313:
+#line 307 "rt/regex_runtime.w"
     _267 = 0;
     goto bb314;
 bb314:
@@ -62426,10 +62464,10 @@ bb315:
         goto bb319;
     }
 bb316:
-#line 312 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     /* StorageLive(_270); */
     _270 = 0;
-#line 314 "rt/regex_runtime.w"
+#line 313 "rt/regex_runtime.w"
     _271 = (_6 < 128);
     if (_271 == 1) {
         goto bb321;
@@ -62438,19 +62476,20 @@ bb316:
         goto bb322;
     }
 bb317:
+#line 314 "rt/regex_runtime.w"
     _10 = _265;
-#line 305 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _41 = _265;
     goto bb24;
 bb318:
-#line 310 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _269 = 1;
     goto bb320;
 bb319:
     _269 = 0;
     goto bb320;
 bb320:
-#line 309 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _265 = _269;
     goto bb317;
 bb321:
@@ -62458,6 +62497,7 @@ bb321:
     _272 = 1;
     goto bb323;
 bb322:
+#line 313 "rt/regex_runtime.w"
     _272 = 0;
     goto bb323;
 bb323:
@@ -62469,6 +62509,7 @@ bb323:
         goto bb325;
     }
 bb324:
+#line 314 "rt/regex_runtime.w"
     _274 = (_9 == 5);
     if (_274 == 1) {
         goto bb327;
@@ -85315,7 +85356,7 @@ bb2:
 #line 7 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = (*_4);
-#line 10 "rt/regex_runtime.w"
+#line 9 "rt/regex_runtime.w"
     _6 = (_5 == 0);
     if (_6 == 1) {
         goto bb4;
@@ -85344,7 +85385,7 @@ bb6:
         goto bb8;
     }
 bb7:
-#line 12 "rt/regex_runtime.w"
+#line 11 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb8:
@@ -85408,18 +85449,18 @@ bb17:
     _13 = 1;
     goto bb19;
 bb18:
+#line 17 "rt/regex_runtime.w"
     _13 = 0;
     goto bb19;
 bb19:
-#line 17 "rt/regex_runtime.w"
     _9 = _13;
     goto bb16;
 bb20:
-#line 22 "rt/regex_runtime.w"
+#line 21 "rt/regex_runtime.w"
     _15 = 1;
     goto bb22;
 bb21:
-#line 21 "rt/regex_runtime.w"
+#line 20 "rt/regex_runtime.w"
     _15 = 0;
     goto bb22;
 bb22:
@@ -85439,6 +85480,7 @@ bb24:
     _17 = 0;
     goto bb25;
 bb25:
+#line 19 "rt/regex_runtime.w"
     _9 = _17;
     goto bb16;
 bb26:
@@ -85446,7 +85488,7 @@ bb26:
     _19 = 1;
 #line 26 "rt/regex_runtime.w"
     _20 = ((int32_t)(_4[_19]));
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     _21 = ((uint32_t)(8));
 #line 26 "rt/regex_runtime.w"
     _22 = (_20 << _21);
@@ -85464,7 +85506,7 @@ bb26:
     _4 = _29;
     goto bb28;
 bb27:
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _30 = (_5 == 120);
     if (_30 == 1) {
         goto bb29;
@@ -85479,7 +85521,7 @@ bb29:
     _31 = 1;
     goto bb31;
 bb30:
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _31 = 0;
     goto bb31;
 bb31:
@@ -85491,34 +85533,34 @@ bb31:
         goto bb33;
     }
 bb32:
-#line 38 "rt/regex_runtime.w"
-    _33 = (2 * 2);
 #line 36 "rt/regex_runtime.w"
+    _33 = (2 * 2);
     _34 = (1 + _33);
     _35 = _34;
+#line 35 "rt/regex_runtime.w"
     _36 = ((int32_t)(_4[_35]));
 #line 38 "rt/regex_runtime.w"
     _37 = ((uint32_t)(8));
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _38 = (_36 << _37);
-#line 39 "rt/regex_runtime.w"
+#line 38 "rt/regex_runtime.w"
     _39 = (2 * 2);
     _40 = (1 + _39);
     _41 = (_40 + 1);
     _42 = _41;
-#line 38 "rt/regex_runtime.w"
     _43 = ((int32_t)(_4[_42]));
 #line 35 "rt/regex_runtime.w"
     _44 = (_38 | _43);
     _45 = ((uint32_t)(_44));
     _46 = ((uint64_t)(_45));
-    _47 = (_4 + _46);
 #line 34 "rt/regex_runtime.w"
+    _47 = (_4 + _46);
     _4 = _47;
     goto bb34;
 bb33:
-#line 41 "rt/regex_runtime.w"
+#line 40 "rt/regex_runtime.w"
     /* StorageLive(_48); */
+#line 41 "rt/regex_runtime.w"
     _49 = (_5 == 126);
     if (_49 == 1) {
         goto bb35;
@@ -85570,23 +85612,20 @@ bb40:
         goto bb51;
     }
 bb41:
-#line 45 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     _52 = 1;
     goto bb43;
 bb42:
-#line 44 "rt/regex_runtime.w"
     _52 = 0;
     goto bb43;
 bb43:
-#line 43 "rt/regex_runtime.w"
     _48 = _52;
     goto bb40;
 bb44:
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _54 = 1;
     goto bb46;
 bb45:
-#line 47 "rt/regex_runtime.w"
     _54 = 0;
     goto bb46;
 bb46:
@@ -85598,7 +85637,7 @@ bb46:
         goto bb48;
     }
 bb47:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _56 = 1;
     goto bb49;
 bb48:
@@ -85606,10 +85645,11 @@ bb48:
     _56 = 0;
     goto bb49;
 bb49:
+#line 45 "rt/regex_runtime.w"
     _48 = _56;
     goto bb40;
 bb50:
-#line 53 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _58 = (_3 < 0);
     if (_58 == 1) {
         goto bb53;
@@ -85624,7 +85664,7 @@ bb51:
     /* StorageLive(_67); */
 #line 63 "rt/regex_runtime.w"
     /* StorageLive(_68); */
-#line 66 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _69 = (_5 == 139);
     if (_69 == 1) {
         goto bb60;
@@ -85635,11 +85675,11 @@ bb51:
 bb52:
     goto bb34;
 bb53:
-#line 54 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     _59 = 1;
     goto bb55;
 bb54:
-#line 53 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _59 = 0;
     goto bb55;
 bb55:
@@ -85657,12 +85697,12 @@ bb56:
 bb57:
     goto bb58;
 bb58:
-#line 58 "rt/regex_runtime.w"
-    _62 = _5;
 #line 57 "rt/regex_runtime.w"
+    _62 = _5;
     _63 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_62]));
     _64 = ((uint64_t)(_63));
     _65 = (_4 + _64);
+#line 56 "rt/regex_runtime.w"
     _4 = _65;
     goto bb52;
 bb59:
@@ -85672,10 +85712,10 @@ bb60:
     _70 = 1;
     goto bb62;
 bb61:
+#line 65 "rt/regex_runtime.w"
     _70 = 0;
     goto bb62;
 bb62:
-#line 65 "rt/regex_runtime.w"
     _71 = (_70 != 0);
     if (_71 == 1) {
         goto bb63;
@@ -85709,11 +85749,10 @@ bb65:
         goto bb76;
     }
 bb66:
-#line 68 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _72 = 1;
     goto bb68;
 bb67:
-#line 67 "rt/regex_runtime.w"
     _72 = 0;
     goto bb68;
 bb68:
@@ -85741,6 +85780,7 @@ bb73:
     _76 = 0;
     goto bb74;
 bb74:
+#line 71 "rt/regex_runtime.w"
     _68 = _76;
     goto bb65;
 bb75:
@@ -85760,7 +85800,7 @@ bb76:
         goto bb82;
     }
 bb77:
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _83 = (_67 != 0);
     if (_83 == 1) {
         goto bb87;
@@ -85769,22 +85809,20 @@ bb77:
         goto bb88;
     }
 bb78:
-#line 74 "rt/regex_runtime.w"
+#line 73 "rt/regex_runtime.w"
     _78 = 1;
     goto bb80;
 bb79:
-#line 73 "rt/regex_runtime.w"
     _78 = 0;
     goto bb80;
 bb80:
     _67 = _78;
     goto bb77;
 bb81:
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _80 = 1;
     goto bb83;
 bb82:
-#line 75 "rt/regex_runtime.w"
     _80 = 0;
     goto bb83;
 bb83:
@@ -85796,7 +85834,7 @@ bb83:
         goto bb85;
     }
 bb84:
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _82 = 1;
     goto bb86;
 bb85:
@@ -85857,18 +85895,17 @@ bb95:
         goto bb97;
     }
 bb96:
-#line 81 "rt/regex_runtime.w"
     _88 = 1;
     goto bb98;
 bb97:
-#line 80 "rt/regex_runtime.w"
     _88 = 0;
     goto bb98;
 bb98:
+#line 79 "rt/regex_runtime.w"
     _66 = _88;
     goto bb89;
 bb99:
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     /* StorageLive(_90); */
 #line 85 "rt/regex_runtime.w"
     _91 = (1 + 2);
@@ -85883,11 +85920,13 @@ bb99:
     _96 = (1 + 2);
     _97 = (_96 + 1);
     _98 = _97;
+#line 85 "rt/regex_runtime.w"
     _99 = ((int32_t)(_4[_98]));
 #line 84 "rt/regex_runtime.w"
     _100 = (_95 | _99);
     _101 = ((uint32_t)(_100));
     _102 = ((int32_t)(_101));
+#line 83 "rt/regex_runtime.w"
     _90 = _102;
 #line 88 "rt/regex_runtime.w"
     _103 = (_90 == _3);
@@ -85918,19 +85957,18 @@ bb104:
         goto bb106;
     }
 bb105:
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _0 = _4;
     return _0;
 bb106:
     goto bb107;
 bb107:
-#line 95 "rt/regex_runtime.w"
-    _107 = _5;
 #line 94 "rt/regex_runtime.w"
+    _107 = _5;
+#line 93 "rt/regex_runtime.w"
     _108 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_107]));
     _109 = ((uint64_t)(_108));
     _110 = (_4 + _109);
-#line 93 "rt/regex_runtime.w"
     _4 = _110;
     goto bb101;
 bb108:
@@ -85943,9 +85981,9 @@ bb109:
         goto bb111;
     }
 bb110:
-#line 100 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     _111 = _5;
-#line 101 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _113 = (_111 == 85);
     if (_113 == 1) {
         goto bb113;
@@ -85972,9 +86010,8 @@ bb112:
 bb113:
 #line 102 "rt/regex_runtime.w"
     /* StorageLive(_114); */
-#line 105 "rt/regex_runtime.w"
-    _115 = 1;
 #line 104 "rt/regex_runtime.w"
+    _115 = 1;
     _116 = (_4[_115] == 16);
     if (_116 == 1) {
         goto bb115;
@@ -85983,7 +86020,7 @@ bb113:
         goto bb116;
     }
 bb114:
-#line 124 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     _130 = (_111 == 86);
     if (_130 == 1) {
         goto bb133;
@@ -85992,11 +86029,10 @@ bb114:
         goto bb134;
     }
 bb115:
-#line 105 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _117 = 1;
     goto bb117;
 bb116:
-#line 104 "rt/regex_runtime.w"
     _117 = 0;
     goto bb117;
 bb117:
@@ -86015,7 +86051,7 @@ bb118:
         goto bb122;
     }
 bb119:
-#line 113 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _120 = 1;
     _121 = (_4[_120] == 15);
     if (_121 == 1) {
@@ -86041,18 +86077,18 @@ bb122:
     _119 = 0;
     goto bb123;
 bb123:
+#line 107 "rt/regex_runtime.w"
     _114 = _119;
     goto bb120;
 bb124:
-#line 114 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _122 = 1;
     goto bb126;
 bb125:
-#line 113 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _122 = 0;
     goto bb126;
 bb126:
-#line 112 "rt/regex_runtime.w"
     _123 = (_122 != 0);
     if (_123 == 1) {
         goto bb127;
@@ -86061,7 +86097,7 @@ bb126:
         goto bb128;
     }
 bb127:
-#line 114 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _124 = 1;
     goto bb129;
 bb128:
@@ -86075,6 +86111,7 @@ bb130:
 #line 119 "rt/regex_runtime.w"
     _127 = ((int64_t)(2));
     _128 = ((uint64_t)(_127));
+#line 118 "rt/regex_runtime.w"
     _129 = (_4 + _128);
     _4 = _129;
     _126 = _129;
@@ -86088,11 +86125,10 @@ bb132:
     _112 = _126;
     goto bb112;
 bb133:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     /* StorageLive(_131); */
-#line 128 "rt/regex_runtime.w"
-    _132 = 1;
 #line 126 "rt/regex_runtime.w"
+    _132 = 1;
     _133 = (_4[_132] == 16);
     if (_133 == 1) {
         goto bb135;
@@ -86110,11 +86146,10 @@ bb134:
         goto bb154;
     }
 bb135:
-#line 129 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _134 = 1;
     goto bb137;
 bb136:
-#line 126 "rt/regex_runtime.w"
     _134 = 0;
     goto bb137;
 bb137:
@@ -86152,23 +86187,20 @@ bb140:
         goto bb151;
     }
 bb141:
-#line 131 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _136 = 1;
     goto bb143;
 bb142:
-#line 130 "rt/regex_runtime.w"
     _136 = 0;
     goto bb143;
 bb143:
-#line 129 "rt/regex_runtime.w"
     _131 = _136;
     goto bb140;
 bb144:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _139 = 1;
     goto bb146;
 bb145:
-#line 134 "rt/regex_runtime.w"
     _139 = 0;
     goto bb146;
 bb146:
@@ -86180,14 +86212,13 @@ bb146:
         goto bb148;
     }
 bb147:
-#line 135 "rt/regex_runtime.w"
     _141 = 1;
     goto bb149;
 bb148:
-#line 134 "rt/regex_runtime.w"
     _141 = 0;
     goto bb149;
 bb149:
+#line 133 "rt/regex_runtime.w"
     _131 = _141;
     goto bb140;
 bb150:
@@ -86203,11 +86234,11 @@ bb151:
     _143 = (__typeof__(_143)){0};
     goto bb152;
 bb152:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _112 = _143;
     goto bb112;
 bb153:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     /* StorageLive(_148); */
 #line 143 "rt/regex_runtime.w"
     _149 = 1;
@@ -86219,7 +86250,7 @@ bb153:
         goto bb156;
     }
 bb154:
-#line 156 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _164 = (_111 == 88);
     if (_164 == 1) {
         goto bb173;
@@ -86228,11 +86259,10 @@ bb154:
         goto bb174;
     }
 bb155:
-#line 144 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     _151 = 1;
     goto bb157;
 bb156:
-#line 143 "rt/regex_runtime.w"
     _151 = 0;
     goto bb157;
 bb157:
@@ -86261,7 +86291,7 @@ bb159:
         goto bb165;
     }
 bb160:
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _159 = (_148 != 0);
     if (_159 == 1) {
         goto bb170;
@@ -86277,14 +86307,14 @@ bb162:
     _153 = 0;
     goto bb163;
 bb163:
+#line 144 "rt/regex_runtime.w"
     _148 = _153;
     goto bb160;
 bb164:
-#line 148 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _156 = 1;
     goto bb166;
 bb165:
-#line 147 "rt/regex_runtime.w"
     _156 = 0;
     goto bb166;
 bb166:
@@ -86296,37 +86326,35 @@ bb166:
         goto bb168;
     }
 bb167:
-#line 148 "rt/regex_runtime.w"
     _158 = 1;
     goto bb169;
 bb168:
-#line 147 "rt/regex_runtime.w"
     _158 = 0;
     goto bb169;
 bb169:
     _148 = _158;
     goto bb160;
 bb170:
-#line 152 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _161 = ((int64_t)(2));
     _162 = ((uint64_t)(_161));
+#line 150 "rt/regex_runtime.w"
     _163 = (_4 + _162);
-#line 151 "rt/regex_runtime.w"
     _4 = _163;
     _160 = _163;
     goto bb172;
 bb171:
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _160 = (__typeof__(_160)){0};
     goto bb172;
 bb172:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _112 = _160;
     goto bb112;
 bb173:
-#line 159 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     /* StorageLive(_165); */
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _166 = 1;
     _167 = (_4[_166] == 16);
     if (_167 == 1) {
@@ -86336,7 +86364,7 @@ bb173:
         goto bb176;
     }
 bb174:
-#line 177 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _181 = (_111 == 89);
     if (_181 == 1) {
         goto bb193;
@@ -86345,7 +86373,7 @@ bb174:
         goto bb194;
     }
 bb175:
-#line 163 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _168 = 1;
     goto bb177;
 bb176:
@@ -86367,9 +86395,9 @@ bb178:
         goto bb182;
     }
 bb179:
-#line 169 "rt/regex_runtime.w"
-    _171 = 1;
 #line 168 "rt/regex_runtime.w"
+    _171 = 1;
+#line 167 "rt/regex_runtime.w"
     _172 = (_4[_171] == 15);
     if (_172 == 1) {
         goto bb184;
@@ -86378,7 +86406,7 @@ bb179:
         goto bb185;
     }
 bb180:
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _176 = (_165 != 0);
     if (_176 == 1) {
         goto bb190;
@@ -86387,22 +86415,22 @@ bb180:
         goto bb191;
     }
 bb181:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _170 = 1;
     goto bb183;
 bb182:
-#line 165 "rt/regex_runtime.w"
     _170 = 0;
     goto bb183;
 bb183:
+#line 164 "rt/regex_runtime.w"
     _165 = _170;
     goto bb180;
 bb184:
-#line 169 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _173 = 1;
     goto bb186;
 bb185:
-#line 168 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _173 = 0;
     goto bb186;
 bb186:
@@ -86414,31 +86442,31 @@ bb186:
         goto bb188;
     }
 bb187:
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _175 = 1;
     goto bb189;
 bb188:
-#line 168 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _175 = 0;
     goto bb189;
 bb189:
+#line 166 "rt/regex_runtime.w"
     _165 = _175;
     goto bb180;
 bb190:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _178 = ((int64_t)(2));
     _179 = ((uint64_t)(_178));
-#line 173 "rt/regex_runtime.w"
     _180 = (_4 + _179);
-#line 172 "rt/regex_runtime.w"
     _4 = _180;
     _177 = _180;
     goto bb192;
 bb191:
+#line 171 "rt/regex_runtime.w"
     _177 = (__typeof__(_177)){0};
     goto bb192;
 bb192:
-#line 159 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _112 = _177;
     goto bb112;
 bb193:
@@ -86446,6 +86474,7 @@ bb193:
     /* StorageLive(_182); */
 #line 178 "rt/regex_runtime.w"
     _183 = 1;
+#line 177 "rt/regex_runtime.w"
     _184 = (_4[_183] == 16);
     if (_184 == 1) {
         goto bb195;
@@ -86454,7 +86483,7 @@ bb193:
         goto bb196;
     }
 bb194:
-#line 195 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _198 = (_111 == 90);
     if (_198 == 1) {
         goto bb213;
@@ -86463,11 +86492,11 @@ bb194:
         goto bb214;
     }
 bb195:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _185 = 1;
     goto bb197;
 bb196:
-#line 178 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _185 = 0;
     goto bb197;
 bb197:
@@ -86486,9 +86515,8 @@ bb198:
         goto bb202;
     }
 bb199:
-#line 185 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _188 = 1;
-#line 184 "rt/regex_runtime.w"
     _189 = (_4[_188] == 15);
     if (_189 == 1) {
         goto bb204;
@@ -86497,7 +86525,7 @@ bb199:
         goto bb205;
     }
 bb200:
-#line 189 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _193 = (_182 != 0);
     if (_193 == 1) {
         goto bb210;
@@ -86506,23 +86534,21 @@ bb200:
         goto bb211;
     }
 bb201:
-#line 181 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _187 = 1;
     goto bb203;
 bb202:
-#line 180 "rt/regex_runtime.w"
     _187 = 0;
     goto bb203;
 bb203:
-#line 179 "rt/regex_runtime.w"
     _182 = _187;
     goto bb200;
 bb204:
-#line 186 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _190 = 1;
     goto bb206;
 bb205:
-#line 184 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _190 = 0;
     goto bb206;
 bb206:
@@ -86534,23 +86560,23 @@ bb206:
         goto bb208;
     }
 bb207:
-#line 187 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _192 = 1;
     goto bb209;
 bb208:
-#line 184 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _192 = 0;
     goto bb209;
 bb209:
-#line 183 "rt/regex_runtime.w"
     _182 = _192;
     goto bb200;
 bb210:
-#line 192 "rt/regex_runtime.w"
+#line 191 "rt/regex_runtime.w"
     _195 = ((int64_t)(2));
     _196 = ((uint64_t)(_195));
+#line 190 "rt/regex_runtime.w"
     _197 = (_4 + _196);
-#line 191 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _4 = _197;
     _194 = _197;
     goto bb212;
@@ -86563,11 +86589,10 @@ bb212:
     _112 = _194;
     goto bb112;
 bb213:
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     /* StorageLive(_199); */
-#line 200 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _200 = 1;
-#line 199 "rt/regex_runtime.w"
     _201 = (_4[_200] == 16);
     if (_201 == 1) {
         goto bb215;
@@ -86576,7 +86601,7 @@ bb213:
         goto bb216;
     }
 bb214:
-#line 218 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _215 = (_111 == 94);
     if (_215 == 1) {
         goto bb233;
@@ -86585,11 +86610,10 @@ bb214:
         goto bb234;
     }
 bb215:
-#line 202 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _202 = 1;
     goto bb217;
 bb216:
-#line 199 "rt/regex_runtime.w"
     _202 = 0;
     goto bb217;
 bb217:
@@ -86608,9 +86632,9 @@ bb218:
         goto bb222;
     }
 bb219:
-#line 208 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _205 = 1;
-#line 207 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _206 = (_4[_205] == 15);
     if (_206 == 1) {
         goto bb224;
@@ -86619,7 +86643,7 @@ bb219:
         goto bb225;
     }
 bb220:
-#line 211 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _210 = (_199 != 0);
     if (_210 == 1) {
         goto bb230;
@@ -86628,7 +86652,7 @@ bb220:
         goto bb231;
     }
 bb221:
-#line 203 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _204 = 1;
     goto bb223;
 bb222:
@@ -86638,11 +86662,11 @@ bb223:
     _199 = _204;
     goto bb220;
 bb224:
-#line 209 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _207 = 1;
     goto bb226;
 bb225:
-#line 207 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _207 = 0;
     goto bb226;
 bb226:
@@ -86654,40 +86678,40 @@ bb226:
         goto bb228;
     }
 bb227:
-#line 209 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _209 = 1;
     goto bb229;
 bb228:
-#line 207 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _209 = 0;
     goto bb229;
 bb229:
-#line 206 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _199 = _209;
     goto bb220;
 bb230:
-#line 215 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _212 = ((int64_t)(2));
     _213 = ((uint64_t)(_212));
     _214 = (_4 + _213);
-#line 214 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _4 = _214;
     _211 = _214;
     goto bb232;
 bb231:
-#line 211 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _211 = (__typeof__(_211)){0};
     goto bb232;
 bb232:
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _112 = _211;
     goto bb112;
 bb233:
-#line 220 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     /* StorageLive(_216); */
-#line 222 "rt/regex_runtime.w"
-    _217 = 1;
 #line 221 "rt/regex_runtime.w"
+    _217 = 1;
+#line 220 "rt/regex_runtime.w"
     _218 = (_4[_217] == 16);
     if (_218 == 1) {
         goto bb235;
@@ -86696,7 +86720,7 @@ bb233:
         goto bb236;
     }
 bb234:
-#line 239 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _232 = (_111 == 95);
     if (_232 == 1) {
         goto bb253;
@@ -86705,11 +86729,11 @@ bb234:
         goto bb254;
     }
 bb235:
-#line 222 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _219 = 1;
     goto bb237;
 bb236:
-#line 221 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _219 = 0;
     goto bb237;
 bb237:
@@ -86728,8 +86752,9 @@ bb238:
         goto bb242;
     }
 bb239:
-#line 229 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _222 = 1;
+#line 227 "rt/regex_runtime.w"
     _223 = (_4[_222] == 15);
     if (_223 == 1) {
         goto bb244;
@@ -86738,7 +86763,7 @@ bb239:
         goto bb245;
     }
 bb240:
-#line 233 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _227 = (_216 != 0);
     if (_227 == 1) {
         goto bb250;
@@ -86747,21 +86772,22 @@ bb240:
         goto bb251;
     }
 bb241:
-#line 225 "rt/regex_runtime.w"
+#line 224 "rt/regex_runtime.w"
     _221 = 1;
     goto bb243;
 bb242:
     _221 = 0;
     goto bb243;
 bb243:
+#line 222 "rt/regex_runtime.w"
     _216 = _221;
     goto bb240;
 bb244:
-#line 230 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _224 = 1;
     goto bb246;
 bb245:
-#line 229 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _224 = 0;
     goto bb246;
 bb246:
@@ -86773,38 +86799,40 @@ bb246:
         goto bb248;
     }
 bb247:
-#line 230 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _226 = 1;
     goto bb249;
 bb248:
-#line 229 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _226 = 0;
     goto bb249;
 bb249:
-#line 228 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _216 = _226;
     goto bb240;
 bb250:
-#line 235 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _229 = ((int64_t)(2));
     _230 = ((uint64_t)(_229));
+#line 233 "rt/regex_runtime.w"
     _231 = (_4 + _230);
     _4 = _231;
     _228 = _231;
     goto bb252;
 bb251:
-#line 233 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _228 = (__typeof__(_228)){0};
     goto bb252;
 bb252:
-#line 220 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _112 = _228;
     goto bb112;
 bb253:
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     /* StorageLive(_233); */
-#line 242 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _234 = 1;
+#line 239 "rt/regex_runtime.w"
     _235 = (_4[_234] == 16);
     if (_235 == 1) {
         goto bb255;
@@ -86813,7 +86841,7 @@ bb253:
         goto bb256;
     }
 bb254:
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _249 = (_111 == 96);
     if (_249 == 1) {
         goto bb273;
@@ -86822,11 +86850,11 @@ bb254:
         goto bb274;
     }
 bb255:
-#line 243 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _236 = 1;
     goto bb257;
 bb256:
-#line 242 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _236 = 0;
     goto bb257;
 bb257:
@@ -86845,8 +86873,9 @@ bb258:
         goto bb262;
     }
 bb259:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _239 = 1;
+#line 247 "rt/regex_runtime.w"
     _240 = (_4[_239] == 15);
     if (_240 == 1) {
         goto bb264;
@@ -86855,7 +86884,7 @@ bb259:
         goto bb265;
     }
 bb260:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _244 = (_233 != 0);
     if (_244 == 1) {
         goto bb270;
@@ -86864,24 +86893,25 @@ bb260:
         goto bb271;
     }
 bb261:
-#line 244 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _238 = 1;
     goto bb263;
 bb262:
     _238 = 0;
     goto bb263;
 bb263:
-#line 243 "rt/regex_runtime.w"
     _233 = _238;
     goto bb260;
 bb264:
-#line 250 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _241 = 1;
     goto bb266;
 bb265:
+#line 247 "rt/regex_runtime.w"
     _241 = 0;
     goto bb266;
 bb266:
+#line 246 "rt/regex_runtime.w"
     _242 = (_241 != 0);
     if (_242 == 1) {
         goto bb267;
@@ -86890,35 +86920,36 @@ bb266:
         goto bb268;
     }
 bb267:
+#line 250 "rt/regex_runtime.w"
     _243 = 1;
     goto bb269;
 bb268:
+#line 246 "rt/regex_runtime.w"
     _243 = 0;
     goto bb269;
 bb269:
+#line 245 "rt/regex_runtime.w"
     _233 = _243;
     goto bb260;
 bb270:
-#line 255 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _246 = ((int64_t)(2));
     _247 = ((uint64_t)(_246));
-#line 254 "rt/regex_runtime.w"
     _248 = (_4 + _247);
     _4 = _248;
     _245 = _248;
     goto bb272;
 bb271:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _245 = (__typeof__(_245)){0};
     goto bb272;
 bb272:
-#line 239 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _112 = _245;
     goto bb112;
 bb273:
 #line 257 "rt/regex_runtime.w"
     /* StorageLive(_250); */
-#line 259 "rt/regex_runtime.w"
     _251 = 1;
     _252 = (_4[_251] == 16);
     if (_252 == 1) {
@@ -86928,7 +86959,7 @@ bb273:
         goto bb276;
     }
 bb274:
-#line 273 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _266 = (_111 == 91);
     if (_266 == 1) {
         goto bb293;
@@ -86937,11 +86968,11 @@ bb274:
         goto bb294;
     }
 bb275:
-#line 260 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _253 = 1;
     goto bb277;
 bb276:
-#line 259 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _253 = 0;
     goto bb277;
 bb277:
@@ -86960,9 +86991,8 @@ bb278:
         goto bb282;
     }
 bb279:
-#line 264 "rt/regex_runtime.w"
-    _256 = 1;
 #line 263 "rt/regex_runtime.w"
+    _256 = 1;
     _257 = (_4[_256] == 15);
     if (_257 == 1) {
         goto bb284;
@@ -86971,7 +87001,7 @@ bb279:
         goto bb285;
     }
 bb280:
-#line 266 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _261 = (_250 != 0);
     if (_261 == 1) {
         goto bb290;
@@ -86980,23 +87010,21 @@ bb280:
         goto bb291;
     }
 bb281:
-#line 262 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _255 = 1;
     goto bb283;
 bb282:
-#line 261 "rt/regex_runtime.w"
     _255 = 0;
     goto bb283;
 bb283:
-#line 260 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _250 = _255;
     goto bb280;
 bb284:
-#line 265 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _258 = 1;
     goto bb286;
 bb285:
-#line 263 "rt/regex_runtime.w"
     _258 = 0;
     goto bb286;
 bb286:
@@ -87008,26 +87036,26 @@ bb286:
         goto bb288;
     }
 bb287:
-#line 265 "rt/regex_runtime.w"
     _260 = 1;
     goto bb289;
 bb288:
-#line 263 "rt/regex_runtime.w"
     _260 = 0;
     goto bb289;
 bb289:
+#line 262 "rt/regex_runtime.w"
     _250 = _260;
     goto bb280;
 bb290:
-#line 269 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _263 = ((int64_t)(2));
     _264 = ((uint64_t)(_263));
+#line 266 "rt/regex_runtime.w"
     _265 = (_4 + _264);
     _4 = _265;
     _262 = _265;
     goto bb292;
 bb291:
-#line 266 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _262 = (__typeof__(_262)){0};
     goto bb292;
 bb292:
@@ -87035,12 +87063,12 @@ bb292:
     _112 = _262;
     goto bb112;
 bb293:
-#line 275 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     /* StorageLive(_267); */
-#line 280 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _268 = (1 + 2);
     _269 = _268;
-#line 279 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _270 = (_4[_269] == 16);
     if (_270 == 1) {
         goto bb295;
@@ -87049,7 +87077,7 @@ bb293:
         goto bb296;
     }
 bb294:
-#line 301 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _285 = (_111 == 92);
     if (_285 == 1) {
         goto bb313;
@@ -87058,11 +87086,11 @@ bb294:
         goto bb314;
     }
 bb295:
-#line 281 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _271 = 1;
     goto bb297;
 bb296:
-#line 279 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _271 = 0;
     goto bb297;
 bb297:
@@ -87081,10 +87109,9 @@ bb298:
         goto bb302;
     }
 bb299:
-#line 288 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _274 = (1 + 2);
     _275 = _274;
-#line 287 "rt/regex_runtime.w"
     _276 = (_4[_275] == 15);
     if (_276 == 1) {
         goto bb304;
@@ -87093,7 +87120,7 @@ bb299:
         goto bb305;
     }
 bb300:
-#line 293 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _280 = (_267 != 0);
     if (_280 == 1) {
         goto bb310;
@@ -87102,21 +87129,22 @@ bb300:
         goto bb311;
     }
 bb301:
-#line 284 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _273 = 1;
     goto bb303;
 bb302:
     _273 = 0;
     goto bb303;
 bb303:
+#line 280 "rt/regex_runtime.w"
     _267 = _273;
     goto bb300;
 bb304:
-#line 288 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _277 = 1;
     goto bb306;
 bb305:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _277 = 0;
     goto bb306;
 bb306:
@@ -87128,40 +87156,40 @@ bb306:
         goto bb308;
     }
 bb307:
-#line 289 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _279 = 1;
     goto bb309;
 bb308:
-#line 287 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _279 = 0;
     goto bb309;
 bb309:
-#line 286 "rt/regex_runtime.w"
     _267 = _279;
     goto bb300;
 bb310:
-#line 297 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _282 = ((int64_t)(2));
     _283 = ((uint64_t)(_282));
-#line 296 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _284 = (_4 + _283);
     _4 = _284;
     _281 = _284;
     goto bb312;
 bb311:
-#line 293 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _281 = (__typeof__(_281)){0};
     goto bb312;
 bb312:
-#line 275 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _112 = _281;
     goto bb112;
 bb313:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     /* StorageLive(_286); */
-#line 304 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _287 = (1 + 2);
     _288 = _287;
+#line 301 "rt/regex_runtime.w"
     _289 = (_4[_288] == 16);
     if (_289 == 1) {
         goto bb315;
@@ -87179,11 +87207,11 @@ bb314:
         goto bb334;
     }
 bb315:
-#line 305 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _290 = 1;
     goto bb317;
 bb316:
-#line 304 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _290 = 0;
     goto bb317;
 bb317:
@@ -87202,10 +87230,9 @@ bb318:
         goto bb322;
     }
 bb319:
-#line 310 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _293 = (1 + 2);
     _294 = _293;
-#line 309 "rt/regex_runtime.w"
     _295 = (_4[_294] == 15);
     if (_295 == 1) {
         goto bb324;
@@ -87214,7 +87241,7 @@ bb319:
         goto bb325;
     }
 bb320:
-#line 314 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _299 = (_286 != 0);
     if (_299 == 1) {
         goto bb330;
@@ -87223,7 +87250,7 @@ bb320:
         goto bb331;
     }
 bb321:
-#line 307 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _292 = 1;
     goto bb323;
 bb322:
@@ -87233,11 +87260,10 @@ bb323:
     _286 = _292;
     goto bb320;
 bb324:
-#line 311 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _296 = 1;
     goto bb326;
 bb325:
-#line 309 "rt/regex_runtime.w"
     _296 = 0;
     goto bb326;
 bb326:
@@ -87249,14 +87275,13 @@ bb326:
         goto bb328;
     }
 bb327:
-#line 311 "rt/regex_runtime.w"
     _298 = 1;
     goto bb329;
 bb328:
-#line 309 "rt/regex_runtime.w"
     _298 = 0;
     goto bb329;
 bb329:
+#line 307 "rt/regex_runtime.w"
     _286 = _298;
     goto bb320;
 bb330:
@@ -87264,14 +87289,16 @@ bb330:
     _301 = ((int64_t)(2));
     _302 = ((uint64_t)(_301));
     _303 = (_4 + _302);
+#line 313 "rt/regex_runtime.w"
     _4 = _303;
     _300 = _303;
     goto bb332;
 bb331:
+#line 311 "rt/regex_runtime.w"
     _300 = (__typeof__(_300)){0};
     goto bb332;
 bb332:
-#line 302 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _112 = _300;
     goto bb112;
 bb333:
@@ -90645,7 +90672,7 @@ bb0:
 #line 11 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = 0;
-#line 12 "rt/regex_runtime.w"
+#line 13 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _7 = 0;
 #line 14 "rt/regex_runtime.w"
@@ -90672,7 +90699,7 @@ bb0:
 #line 26 "rt/regex_runtime.w"
     /* StorageLive(_15); */
     _15 = 0;
-#line 27 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     /* StorageLive(_16); */
     _16 = 0;
 #line 29 "rt/regex_runtime.w"
@@ -90698,12 +90725,11 @@ bb0:
 bb1:
 #line 40 "rt/regex_runtime.w"
     _2 = 0;
-#line 41 "rt/regex_runtime.w"
-    _24 = ((uint32_t)((*_1).overall_options));
 #line 43 "rt/regex_runtime.w"
+    _24 = ((uint32_t)((*_1).overall_options));
     _25 = ((uint32_t)(524288));
-#line 41 "rt/regex_runtime.w"
     _26 = (_24 & _25);
+#line 42 "rt/regex_runtime.w"
     _27 = (_26 != 0);
     if (_27 == 1) {
         goto bb77;
@@ -90714,7 +90740,7 @@ bb1:
 bb2:
 #line 60 "rt/regex_runtime.w"
     _6 = 0;
-#line 63 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _47 = (&_6);
     _48 = (int32_t*)((int32_t*)(_47));
     _49 = set_start_bits__5844(_1, _3, _4, _5, _48);
@@ -90760,30 +90786,30 @@ bb7:
         goto bb134;
     }
 bb8:
-#line 87 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb9:
-#line 88 "rt/regex_runtime.w"
-    _9 = -1;
 #line 89 "rt/regex_runtime.w"
+    _9 = -1;
+#line 90 "rt/regex_runtime.w"
     _10 = -1;
 #line 93 "rt/regex_runtime.w"
     _75 = 0;
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _76 = (&(*_1).start_bitmap[_75]);
     _77 = (uint8_t*)((uint8_t*)(_76));
-#line 90 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _11 = _77;
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _12 = 64;
-#line 95 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _8 = 0;
     goto bb11;
 bb10:
     goto bb3;
 bb11:
-#line 100 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _78 = (_8 < 256);
     if (_78 == 1) {
         goto bb145;
@@ -90792,7 +90818,7 @@ bb11:
         goto bb146;
     }
 bb12:
-#line 104 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _13 = (*_11);
 #line 108 "rt/regex_runtime.w"
     _82 = (_13 != 0);
@@ -90803,16 +90829,16 @@ bb12:
         goto bb155;
     }
 bb13:
-#line 113 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _86 = (_11 + 1);
     _11 = _86;
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _87 = (_8 + 8);
-#line 114 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     _8 = _87;
     goto bb11;
 bb14:
-#line 118 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _88 = (_9 >= 0);
     if (_88 == 1) {
         goto bb165;
@@ -90821,17 +90847,15 @@ bb14:
         goto bb166;
     }
 bb15:
-#line 124 "rt/regex_runtime.w"
-    _92 = ((int32_t)(_13));
 #line 125 "rt/regex_runtime.w"
+    _92 = ((int32_t)(_13));
     _93 = (~(_13));
     _94 = ((int32_t)(_93));
     _95 = (_94 + 1);
-#line 124 "rt/regex_runtime.w"
     _96 = (_92 & _95);
-#line 123 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _15 = _96;
-#line 126 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _97 = (_15 != _13);
     if (_97 == 1) {
         goto bb174;
@@ -90844,17 +90868,16 @@ bb16:
 bb17:
     goto bb19;
 bb18:
-#line 134 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _14 = _8;
     goto bb20;
 bb19:
 #line 138 "rt/regex_runtime.w"
     _101 = ((*_1).flags | _12);
-#line 137 "rt/regex_runtime.w"
     (*_1).flags = _101;
     goto bb10;
 bb20:
-#line 138 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _102 = (_13 == 1);
     if (_102 == 1) {
         goto bb191;
@@ -90863,9 +90886,8 @@ bb20:
         goto bb192;
     }
 bb21:
-#line 142 "rt/regex_runtime.w"
-    _19 = 0;
 #line 143 "rt/regex_runtime.w"
+    _19 = 0;
     _104 = (_4 != 0);
     if (_104 == 1) {
         goto bb197;
@@ -90876,45 +90898,45 @@ bb21:
 bb22:
     goto bb21;
 bb23:
-#line 149 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _111 = (_14 + 1);
-#line 148 "rt/regex_runtime.w"
     _14 = _111;
     goto bb21;
 bb24:
-#line 150 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _112 = (_14 + 2);
+#line 152 "rt/regex_runtime.w"
     _14 = _112;
     goto bb21;
 bb25:
-#line 154 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     _113 = (_14 + 3);
-#line 153 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _14 = _113;
     goto bb21;
 bb26:
-#line 159 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _114 = (_14 + 4);
-#line 158 "rt/regex_runtime.w"
     _14 = _114;
     goto bb21;
 bb27:
-#line 163 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _115 = (_14 + 5);
     _14 = _115;
     goto bb21;
 bb28:
-#line 166 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _116 = (_14 + 6);
+#line 167 "rt/regex_runtime.w"
     _14 = _116;
     goto bb21;
 bb29:
-#line 168 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _117 = (_14 + 7);
     _14 = _117;
     goto bb21;
 bb30:
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _118 = (_13 == 2);
     if (_118 == 1) {
         goto bb228;
@@ -90923,7 +90945,7 @@ bb30:
         goto bb229;
     }
 bb31:
-#line 174 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _120 = (_13 == 4);
     if (_120 == 1) {
         goto bb234;
@@ -90932,7 +90954,7 @@ bb31:
         goto bb235;
     }
 bb32:
-#line 177 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _122 = (_13 == 8);
     if (_122 == 1) {
         goto bb240;
@@ -90941,7 +90963,7 @@ bb32:
         goto bb241;
     }
 bb33:
-#line 179 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _124 = (_13 == 16);
     if (_124 == 1) {
         goto bb246;
@@ -90950,7 +90972,7 @@ bb33:
         goto bb247;
     }
 bb34:
-#line 183 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _126 = (_13 == 32);
     if (_126 == 1) {
         goto bb252;
@@ -90959,7 +90981,7 @@ bb34:
         goto bb253;
     }
 bb35:
-#line 188 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _128 = (_13 == 64);
     if (_128 == 1) {
         goto bb258;
@@ -90968,7 +90990,7 @@ bb35:
         goto bb259;
     }
 bb36:
-#line 193 "rt/regex_runtime.w"
+#line 196 "rt/regex_runtime.w"
     _130 = (_13 == 128);
     if (_130 == 1) {
         goto bb264;
@@ -90979,7 +91001,7 @@ bb36:
 bb37:
     goto bb19;
 bb38:
-#line 199 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _132 = (_9 < 0);
     if (_132 == 1) {
         goto bb272;
@@ -90988,11 +91010,11 @@ bb38:
         goto bb273;
     }
 bb39:
-#line 204 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _9 = _14;
     goto bb41;
 bb40:
-#line 208 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _136 = (_10 < 0);
     if (_136 == 1) {
         goto bb283;
@@ -91003,17 +91025,18 @@ bb40:
 bb41:
     goto bb16;
 bb42:
-#line 215 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _140 = ((int64_t)(256));
     _141 = ((uint64_t)(_140));
+#line 219 "rt/regex_runtime.w"
     _142 = ((*_1).tables + _141);
     _143 = _142;
-#line 216 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _144 = ((uint32_t)(_14));
     _145 = _144;
-#line 215 "rt/regex_runtime.w"
-    _16 = _143[_145];
 #line 218 "rt/regex_runtime.w"
+    _16 = _143[_145];
+#line 221 "rt/regex_runtime.w"
     _146 = (_4 != 0);
     if (_146 == 1) {
         goto bb294;
@@ -91026,25 +91049,23 @@ bb43:
 bb44:
     goto bb41;
 bb45:
-#line 233 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _153 = 0;
-#line 232 "rt/regex_runtime.w"
     _154 = (&__with_global__pcre2_ucd_records_8__2612[_153]);
     _155 = (ucd_record*)((ucd_record*)(_154));
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _158 = (_14 / 128);
     _159 = _158;
-#line 233 "rt/regex_runtime.w"
     _160 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_159]));
     _161 = (_160 * 128);
-#line 235 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _162 = (_14 % 128);
-#line 233 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _163 = (_161 + _162);
     _164 = _163;
+#line 235 "rt/regex_runtime.w"
     _165 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_164]));
     _166 = ((uint64_t)(_165));
-#line 232 "rt/regex_runtime.w"
     _167 = (_155 + _166);
     _168 = _167;
     _169 = ((*_168).caseset != 0);
@@ -91055,7 +91076,7 @@ bb45:
         goto bb314;
     }
 bb46:
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _173 = (_16 != _9);
     if (_173 == 1) {
         goto bb322;
@@ -91066,7 +91087,7 @@ bb46:
 bb47:
     goto bb19;
 bb48:
-#line 249 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _177 = (_14 > 127);
     if (_177 == 1) {
         goto bb333;
@@ -91075,24 +91096,24 @@ bb48:
         goto bb334;
     }
 bb49:
-#line 254 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _182 = 0;
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _183 = (&__with_global__pcre2_ucd_records_8__2612[_182]);
     _184 = (ucd_record*)((ucd_record*)(_183));
-#line 255 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _187 = (_14 / 128);
     _188 = _187;
     _189 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_188]));
     _190 = (_189 * 128);
-#line 256 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _191 = (_14 % 128);
-#line 255 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _192 = (_190 + _191);
     _193 = _192;
     _194 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_193]));
     _195 = ((uint64_t)(_194));
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _196 = (_184 + _195);
     _197 = _196;
     _198 = (_14 + (*_197).other_case);
@@ -91104,12 +91125,13 @@ bb50:
 bb51:
     goto bb19;
 bb52:
-#line 260 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _10 = _14;
     goto bb44;
 bb53:
-#line 263 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _21 = 0;
+#line 266 "rt/regex_runtime.w"
     _200 = ((uint32_t)((*_1).flags));
     _201 = ((uint32_t)(128));
     _202 = (_200 & _201);
@@ -91123,26 +91145,23 @@ bb53:
 bb54:
     goto bb19;
 bb55:
-#line 296 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _225 = ((uint32_t)(128));
-#line 297 "rt/regex_runtime.w"
     _226 = ((uint32_t)(256));
-#line 296 "rt/regex_runtime.w"
     _227 = (_225 | _226);
     _228 = (~(_227));
-#line 295 "rt/regex_runtime.w"
     _229 = ((*_1).flags & _228);
-#line 294 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     (*_1).flags = _229;
-#line 297 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     (*_1).last_codeunit = 0;
     goto bb56;
 bb56:
-#line 300 "rt/regex_runtime.w"
-    (*_1).first_codeunit = _9;
-#line 302 "rt/regex_runtime.w"
-    _12 = 16;
 #line 303 "rt/regex_runtime.w"
+    (*_1).first_codeunit = _9;
+#line 305 "rt/regex_runtime.w"
+    _12 = 16;
+#line 307 "rt/regex_runtime.w"
     _230 = (_10 >= 0);
     if (_230 == 1) {
         goto bb390;
@@ -91151,18 +91170,17 @@ bb56:
         goto bb391;
     }
 bb57:
-#line 308 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _234 = (_12 | 32);
+#line 310 "rt/regex_runtime.w"
     _12 = _234;
     goto bb58;
 bb58:
     goto bb54;
 bb59:
-#line 312 "rt/regex_runtime.w"
-    _235 = 0;
-#line 311 "rt/regex_runtime.w"
-    _18[_235] = 0;
 #line 314 "rt/regex_runtime.w"
+    _235 = 0;
+    _18[_235] = 0;
     _236 = (&_2);
     _237 = (int32_t*)((int32_t*)(_236));
     _238 = 0;
@@ -91393,7 +91411,7 @@ bb104:
         goto bb106;
     }
 bb105:
-#line 74 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _63 = ((*_1).top_backref <= 128);
     if (_63 == 1) {
         goto bb108;
@@ -91404,7 +91422,7 @@ bb105:
 bb106:
     goto bb107;
 bb107:
-#line 75 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _67 = (_22 != 0);
     if (_67 == 1) {
         goto bb114;
@@ -91413,6 +91431,7 @@ bb107:
         goto bb115;
     }
 bb108:
+#line 75 "rt/regex_runtime.w"
     _64 = 1;
     goto bb110;
 bb109:
@@ -91501,10 +91520,11 @@ bb134:
 bb135:
     goto bb132;
 bb136:
-#line 84 "rt/regex_runtime.w"
+#line 85 "rt/regex_runtime.w"
     _74 = (__typeof__(_74)){0};
     goto bb135;
 bb137:
+#line 84 "rt/regex_runtime.w"
     _74 = (__typeof__(_74)){0};
     goto bb135;
 bb138:
@@ -91522,11 +91542,11 @@ bb143:
 bb144:
     goto bb12;
 bb145:
-#line 101 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _79 = 1;
     goto bb147;
 bb146:
-#line 100 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _79 = 0;
     goto bb147;
 bb147:
@@ -91544,20 +91564,21 @@ bb149:
 bb150:
     goto bb144;
 bb151:
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _81 = (__typeof__(_81)){0};
     goto bb150;
 bb152:
-#line 100 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _81 = (__typeof__(_81)){0};
     goto bb150;
 bb153:
     goto bb13;
 bb154:
-#line 108 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _83 = 1;
     goto bb156;
 bb155:
+#line 108 "rt/regex_runtime.w"
     _83 = 0;
     goto bb156;
 bb156:
@@ -91575,7 +91596,7 @@ bb158:
 bb159:
     goto bb153;
 bb160:
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _85 = (__typeof__(_85)){0};
     goto bb159;
 bb161:
@@ -91593,7 +91614,6 @@ bb165:
     _89 = 1;
     goto bb167;
 bb166:
-#line 118 "rt/regex_runtime.w"
     _89 = 0;
     goto bb167;
 bb167:
@@ -91611,11 +91631,11 @@ bb169:
 bb170:
     goto bb164;
 bb171:
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _91 = (__typeof__(_91)){0};
     goto bb170;
 bb172:
-#line 118 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _91 = (__typeof__(_91)){0};
     goto bb170;
 bb173:
@@ -91625,7 +91645,7 @@ bb174:
     _98 = 1;
     goto bb176;
 bb175:
-#line 126 "rt/regex_runtime.w"
+#line 127 "rt/regex_runtime.w"
     _98 = 0;
     goto bb176;
 bb176:
@@ -91675,17 +91695,17 @@ bb192:
 bb193:
     goto bb190;
 bb194:
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _103 = (__typeof__(_103)){0};
     goto bb193;
 bb195:
-#line 138 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _103 = (__typeof__(_103)){0};
     goto bb193;
 bb196:
     goto bb22;
 bb197:
-#line 143 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _105 = (_14 > 127);
     if (_105 == 1) {
         goto bb200;
@@ -91696,7 +91716,7 @@ bb197:
 bb198:
     goto bb199;
 bb199:
-#line 145 "rt/regex_runtime.w"
+#line 146 "rt/regex_runtime.w"
     _109 = (_19 != 0);
     if (_109 == 1) {
         goto bb206;
@@ -91705,11 +91725,10 @@ bb199:
         goto bb207;
     }
 bb200:
-#line 144 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _106 = 1;
     goto bb202;
 bb201:
-#line 143 "rt/regex_runtime.w"
     _106 = 0;
     goto bb202;
 bb202:
@@ -91721,14 +91740,13 @@ bb202:
         goto bb204;
     }
 bb203:
-#line 145 "rt/regex_runtime.w"
     _108 = 1;
     goto bb205;
 bb204:
-#line 143 "rt/regex_runtime.w"
     _108 = 0;
     goto bb205;
 bb205:
+#line 144 "rt/regex_runtime.w"
     _19 = _108;
     goto bb199;
 bb206:
@@ -91738,10 +91756,11 @@ bb207:
 bb208:
     goto bb196;
 bb209:
-#line 145 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _110 = (__typeof__(_110)){0};
     goto bb208;
 bb210:
+#line 146 "rt/regex_runtime.w"
     _110 = (__typeof__(_110)){0};
     goto bb208;
 bb211:
@@ -91785,11 +91804,11 @@ bb229:
 bb230:
     goto bb227;
 bb231:
-#line 172 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _119 = (__typeof__(_119)){0};
     goto bb230;
 bb232:
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _119 = (__typeof__(_119)){0};
     goto bb230;
 bb233:
@@ -91801,11 +91820,11 @@ bb235:
 bb236:
     goto bb233;
 bb237:
-#line 176 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _121 = (__typeof__(_121)){0};
     goto bb236;
 bb238:
-#line 174 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _121 = (__typeof__(_121)){0};
     goto bb236;
 bb239:
@@ -91817,10 +91836,11 @@ bb241:
 bb242:
     goto bb239;
 bb243:
-#line 177 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _123 = (__typeof__(_123)){0};
     goto bb242;
 bb244:
+#line 178 "rt/regex_runtime.w"
     _123 = (__typeof__(_123)){0};
     goto bb242;
 bb245:
@@ -91832,11 +91852,11 @@ bb247:
 bb248:
     goto bb245;
 bb249:
-#line 180 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _125 = (__typeof__(_125)){0};
     goto bb248;
 bb250:
-#line 179 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _125 = (__typeof__(_125)){0};
     goto bb248;
 bb251:
@@ -91848,11 +91868,11 @@ bb253:
 bb254:
     goto bb251;
 bb255:
-#line 184 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _127 = (__typeof__(_127)){0};
     goto bb254;
 bb256:
-#line 183 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _127 = (__typeof__(_127)){0};
     goto bb254;
 bb257:
@@ -91864,11 +91884,11 @@ bb259:
 bb260:
     goto bb257;
 bb261:
-#line 189 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _129 = (__typeof__(_129)){0};
     goto bb260;
 bb262:
-#line 188 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _129 = (__typeof__(_129)){0};
     goto bb260;
 bb263:
@@ -91880,11 +91900,11 @@ bb265:
 bb266:
     goto bb263;
 bb267:
-#line 194 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _131 = (__typeof__(_131)){0};
     goto bb266;
 bb268:
-#line 193 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _131 = (__typeof__(_131)){0};
     goto bb266;
 bb269:
@@ -91894,11 +91914,10 @@ bb270:
 bb271:
     goto bb39;
 bb272:
-#line 200 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _133 = 1;
     goto bb274;
 bb273:
-#line 199 "rt/regex_runtime.w"
     _133 = 0;
     goto bb274;
 bb274:
@@ -91916,11 +91935,11 @@ bb276:
 bb277:
     goto bb271;
 bb278:
-#line 202 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _135 = (__typeof__(_135)){0};
     goto bb277;
 bb279:
-#line 198 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _135 = (__typeof__(_135)){0};
     goto bb277;
 bb280:
@@ -91930,11 +91949,11 @@ bb281:
 bb282:
     goto bb41;
 bb283:
-#line 209 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _137 = 1;
     goto bb285;
 bb284:
-#line 208 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _137 = 0;
     goto bb285;
 bb285:
@@ -91952,11 +91971,11 @@ bb287:
 bb288:
     goto bb282;
 bb289:
-#line 210 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _139 = (__typeof__(_139)){0};
     goto bb288;
 bb290:
-#line 208 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _139 = (__typeof__(_139)){0};
     goto bb288;
 bb291:
@@ -91973,7 +91992,7 @@ bb294:
         goto bb298;
     }
 bb295:
-#line 222 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _148 = (_5 != 0);
     if (_148 == 1) {
         goto bb300;
@@ -91982,7 +92001,7 @@ bb295:
         goto bb301;
     }
 bb296:
-#line 225 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _150 = (_20 != 0);
     if (_150 == 1) {
         goto bb303;
@@ -91991,25 +92010,26 @@ bb296:
         goto bb304;
     }
 bb297:
-#line 220 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _147 = 1;
     goto bb299;
 bb298:
+#line 224 "rt/regex_runtime.w"
     _147 = 0;
     goto bb299;
 bb299:
+#line 222 "rt/regex_runtime.w"
     _20 = _147;
     goto bb296;
 bb300:
-#line 224 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _149 = 1;
     goto bb302;
 bb301:
-#line 222 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _149 = 0;
     goto bb302;
 bb302:
-#line 221 "rt/regex_runtime.w"
     _20 = _149;
     goto bb296;
 bb303:
@@ -92019,10 +92039,11 @@ bb304:
 bb305:
     goto bb293;
 bb306:
-#line 225 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb305;
 bb307:
+#line 227 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb305;
 bb308:
@@ -92036,11 +92057,11 @@ bb311:
 bb312:
     goto bb46;
 bb313:
-#line 236 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _170 = 1;
     goto bb315;
 bb314:
-#line 232 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _170 = 0;
     goto bb315;
 bb315:
@@ -92058,21 +92079,21 @@ bb317:
 bb318:
     goto bb312;
 bb319:
-#line 238 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _172 = (__typeof__(_172)){0};
     goto bb318;
 bb320:
-#line 232 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _172 = (__typeof__(_172)){0};
     goto bb318;
 bb321:
     goto bb47;
 bb322:
-#line 242 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _174 = 1;
     goto bb324;
 bb323:
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _174 = 0;
     goto bb324;
 bb324:
@@ -92090,11 +92111,11 @@ bb326:
 bb327:
     goto bb321;
 bb328:
-#line 243 "rt/regex_runtime.w"
+#line 245 "rt/regex_runtime.w"
     _176 = (__typeof__(_176)){0};
     goto bb327;
 bb329:
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _176 = (__typeof__(_176)){0};
     goto bb327;
 bb330:
@@ -92104,11 +92125,11 @@ bb331:
 bb332:
     goto bb49;
 bb333:
-#line 250 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _178 = 1;
     goto bb335;
 bb334:
-#line 249 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _178 = 0;
     goto bb335;
 bb335:
@@ -92126,11 +92147,11 @@ bb337:
 bb338:
     goto bb332;
 bb339:
-#line 250 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _180 = (__typeof__(_180)){0};
     goto bb338;
 bb340:
-#line 249 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _180 = (__typeof__(_180)){0};
     goto bb338;
 bb341:
@@ -92152,9 +92173,9 @@ bb348:
 bb349:
     goto bb54;
 bb350:
-#line 265 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     /* StorageLive(_204); */
-#line 266 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _205 = ((uint32_t)(_9));
     _206 = ((*_1).last_codeunit == _205);
     if (_206 == 1) {
@@ -92166,7 +92187,7 @@ bb350:
 bb351:
     goto bb352;
 bb352:
-#line 287 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _223 = (_21 != 0);
     if (_223 == 1) {
         goto bb380;
@@ -92175,10 +92196,11 @@ bb352:
         goto bb381;
     }
 bb353:
-#line 266 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _207 = 1;
     goto bb355;
 bb354:
+#line 269 "rt/regex_runtime.w"
     _207 = 0;
     goto bb355;
 bb355:
@@ -92197,10 +92219,10 @@ bb356:
         goto bb360;
     }
 bb357:
-#line 270 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     /* StorageLive(_210); */
     _210 = 0;
-#line 271 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _211 = (_10 >= 0);
     if (_211 == 1) {
         goto bb362;
@@ -92209,7 +92231,7 @@ bb357:
         goto bb363;
     }
 bb358:
-#line 285 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _221 = (_204 != 0);
     if (_221 == 1) {
         goto bb377;
@@ -92218,22 +92240,21 @@ bb358:
         goto bb378;
     }
 bb359:
-#line 269 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _209 = 1;
     goto bb361;
 bb360:
     _209 = 0;
     goto bb361;
 bb361:
-#line 268 "rt/regex_runtime.w"
     _204 = _209;
     goto bb358;
 bb362:
-#line 272 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _212 = 1;
     goto bb364;
 bb363:
-#line 271 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _212 = 0;
     goto bb364;
 bb364:
@@ -92245,9 +92266,9 @@ bb364:
         goto bb366;
     }
 bb365:
-#line 277 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _214 = ((uint32_t)(_10));
-#line 275 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _215 = ((*_1).last_codeunit == _214);
     if (_215 == 1) {
         goto bb368;
@@ -92258,7 +92279,7 @@ bb365:
 bb366:
     goto bb367;
 bb367:
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _219 = (_210 != 0);
     if (_219 == 1) {
         goto bb374;
@@ -92267,11 +92288,11 @@ bb367:
         goto bb375;
     }
 bb368:
-#line 279 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _216 = 1;
     goto bb370;
 bb369:
-#line 275 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _216 = 0;
     goto bb370;
 bb370:
@@ -92283,38 +92304,38 @@ bb370:
         goto bb372;
     }
 bb371:
-#line 279 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _218 = 1;
     goto bb373;
 bb372:
-#line 275 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _218 = 0;
     goto bb373;
 bb373:
-#line 273 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _210 = _218;
     goto bb367;
 bb374:
-#line 284 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _220 = 1;
     goto bb376;
 bb375:
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _220 = 0;
     goto bb376;
 bb376:
-#line 282 "rt/regex_runtime.w"
     _204 = _220;
     goto bb358;
 bb377:
-#line 286 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _222 = 1;
     goto bb379;
 bb378:
-#line 285 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _222 = 0;
     goto bb379;
 bb379:
+#line 287 "rt/regex_runtime.w"
     _21 = _222;
     goto bb352;
 bb380:
@@ -92324,11 +92345,11 @@ bb381:
 bb382:
     goto bb349;
 bb383:
-#line 287 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _224 = (__typeof__(_224)){0};
     goto bb382;
 bb384:
-#line 286 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _224 = (__typeof__(_224)){0};
     goto bb382;
 bb385:
@@ -92342,11 +92363,10 @@ bb388:
 bb389:
     goto bb57;
 bb390:
-#line 304 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _231 = 1;
     goto bb392;
 bb391:
-#line 303 "rt/regex_runtime.w"
     _231 = 0;
     goto bb392;
 bb392:
@@ -92364,11 +92384,11 @@ bb394:
 bb395:
     goto bb389;
 bb396:
-#line 305 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _233 = (__typeof__(_233)){0};
     goto bb395;
 bb397:
-#line 303 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _233 = (__typeof__(_233)){0};
     goto bb395;
 bb398:
@@ -92382,7 +92402,7 @@ bb401:
 bb402:
     goto bb60;
 bb403:
-#line 313 "rt/regex_runtime.w"
+#line 314 "rt/regex_runtime.w"
     _17 = _241;
     goto bb61;
 bb404:
@@ -92400,7 +92420,6 @@ bb409:
 bb410:
     goto bb407;
 bb411:
-#line 314 "rt/regex_runtime.w"
     _243 = (__typeof__(_243)){0};
     goto bb410;
 bb412:
@@ -116802,7 +116821,7 @@ bb0:
 #line 21 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _7 = _1;
-#line 23 "rt/regex_runtime.w"
+#line 22 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = _2;
 #line 24 "rt/regex_runtime.w"
@@ -116820,15 +116839,14 @@ bb0:
 #line 30 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     _13 = 0;
-#line 33 "rt/regex_runtime.w"
+#line 32 "rt/regex_runtime.w"
     /* StorageLive(_14); */
     _14 = 0;
-#line 35 "rt/regex_runtime.w"
+#line 34 "rt/regex_runtime.w"
     /* StorageLive(_15); */
     { __typeof__(0) __tmp = 0; memcpy(&(_15), &__tmp, sizeof(_15) < sizeof(__tmp) ? sizeof(_15) : sizeof(__tmp)); }
 #line 38 "rt/regex_runtime.w"
     /* StorageLive(_16); */
-#line 39 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     { __typeof__(0) __tmp = 0; memcpy(&(_17), &__tmp, sizeof(_17) < sizeof(__tmp) ? sizeof(_17) : sizeof(__tmp)); }
 #line 40 "rt/regex_runtime.w"
@@ -116894,6 +116912,7 @@ bb0:
 #line 73 "rt/regex_runtime.w"
     /* StorageLive(_39); */
     _39 = 0;
+#line 74 "rt/regex_runtime.w"
     /* StorageLive(_40); */
     _40 = 0;
 #line 75 "rt/regex_runtime.w"
@@ -116905,40 +116924,41 @@ bb0:
     /* StorageLive(_43); */
 #line 78 "rt/regex_runtime.w"
     /* StorageLive(_44); */
-    /* StorageLive(_45); */
 #line 79 "rt/regex_runtime.w"
-    /* StorageLive(_46); */
+    /* StorageLive(_45); */
 #line 80 "rt/regex_runtime.w"
+    /* StorageLive(_46); */
+#line 81 "rt/regex_runtime.w"
     /* StorageLive(_47); */
     { __typeof__(0) __tmp = 0; memcpy(&(_47), &__tmp, sizeof(_47) < sizeof(__tmp) ? sizeof(_47) : sizeof(__tmp)); }
 #line 82 "rt/regex_runtime.w"
     /* StorageLive(_48); */
     { __typeof__(0) __tmp = 0; memcpy(&(_48), &__tmp, sizeof(_48) < sizeof(__tmp) ? sizeof(_48) : sizeof(__tmp)); }
-#line 83 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     /* StorageLive(_49); */
     _49 = 0;
-#line 84 "rt/regex_runtime.w"
+#line 85 "rt/regex_runtime.w"
     /* StorageLive(_50); */
     _50 = 0;
-#line 85 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     /* StorageLive(_51); */
     { __typeof__(0) __tmp = 0; memcpy(&(_51), &__tmp, sizeof(_51) < sizeof(__tmp) ? sizeof(_51) : sizeof(__tmp)); }
-#line 87 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     /* StorageLive(_52); */
     _52 = 0;
 #line 89 "rt/regex_runtime.w"
     /* StorageLive(_53); */
     { __typeof__(0) __tmp = 0; memcpy(&(_53), &__tmp, sizeof(_53) < sizeof(__tmp) ? sizeof(_53) : sizeof(__tmp)); }
-#line 90 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     /* StorageLive(_54); */
     _54 = 0;
-#line 92 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     /* StorageLive(_55); */
     { __typeof__(0) __tmp = 0; memcpy(&(_55), &__tmp, sizeof(_55) < sizeof(__tmp) ? sizeof(_55) : sizeof(__tmp)); }
-#line 94 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     /* StorageLive(_56); */
     { __typeof__(0) __tmp = 0; memcpy(&(_56), &__tmp, sizeof(_56) < sizeof(__tmp) ? sizeof(_56) : sizeof(__tmp)); }
-#line 96 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     /* StorageLive(_57); */
     _57 = 0;
 #line 99 "rt/regex_runtime.w"
@@ -116946,7 +116966,7 @@ bb0:
     _58 = 0;
 #line 100 "rt/regex_runtime.w"
     /* StorageLive(_59); */
-#line 101 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     /* StorageLive(_60); */
     _60 = 0;
 #line 103 "rt/regex_runtime.w"
@@ -116961,25 +116981,25 @@ bb0:
 #line 108 "rt/regex_runtime.w"
     /* StorageLive(_64); */
     _64 = 0;
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     /* StorageLive(_65); */
     _65 = 0;
 #line 111 "rt/regex_runtime.w"
     /* StorageLive(_66); */
     _66 = 0;
-#line 113 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     /* StorageLive(_67); */
     _67 = 0;
-#line 114 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     /* StorageLive(_68); */
     _68 = 0;
 #line 116 "rt/regex_runtime.w"
     /* StorageLive(_69); */
     _69 = 0;
-#line 118 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     /* StorageLive(_70); */
     _70 = 0;
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     /* StorageLive(_71); */
     { __typeof__(0) __tmp = 0; memcpy(&(_71), &__tmp, sizeof(_71) < sizeof(__tmp) ? sizeof(_71) : sizeof(__tmp)); }
 #line 122 "rt/regex_runtime.w"
@@ -116994,17 +117014,18 @@ bb0:
 #line 126 "rt/regex_runtime.w"
     /* StorageLive(_75); */
     _75 = 0;
+#line 128 "rt/regex_runtime.w"
     /* StorageLive(_76); */
     { __typeof__(0) __tmp = 0; memcpy(&(_76), &__tmp, sizeof(_76) < sizeof(__tmp) ? sizeof(_76) : sizeof(__tmp)); }
 #line 129 "rt/regex_runtime.w"
     /* StorageLive(_77); */
     _77 = 0;
+#line 130 "rt/regex_runtime.w"
     /* StorageLive(_78); */
     _78 = 0;
-#line 131 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     /* StorageLive(_79); */
     _79 = 0;
-#line 133 "rt/regex_runtime.w"
     /* StorageLive(_80); */
     _80 = 0;
 #line 134 "rt/regex_runtime.w"
@@ -117012,85 +117033,89 @@ bb0:
     _81 = 0;
     /* StorageLive(_82); */
     _82 = 0;
+#line 135 "rt/regex_runtime.w"
     /* StorageLive(_83); */
     _83 = 0;
-#line 135 "rt/regex_runtime.w"
     /* StorageLive(_84); */
     _84 = 0;
+#line 137 "rt/regex_runtime.w"
     /* StorageLive(_85); */
     _85 = 0;
-#line 137 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     /* StorageLive(_86); */
     _86 = 0;
-#line 138 "rt/regex_runtime.w"
     /* StorageLive(_87); */
     _87 = 0;
     /* StorageLive(_88); */
     { __typeof__(0) __tmp = 0; memcpy(&(_88), &__tmp, sizeof(_88) < sizeof(__tmp) ? sizeof(_88) : sizeof(__tmp)); }
+#line 139 "rt/regex_runtime.w"
     /* StorageLive(_89); */
     _89 = 0;
-#line 139 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     /* StorageLive(_90); */
     _90 = 0;
-#line 141 "rt/regex_runtime.w"
     /* StorageLive(_91); */
     _91 = 0;
+#line 142 "rt/regex_runtime.w"
     /* StorageLive(_92); */
     _92 = 0;
-#line 142 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     /* StorageLive(_93); */
     _93 = 0;
-#line 143 "rt/regex_runtime.w"
     /* StorageLive(_94); */
     _94 = 0;
+#line 144 "rt/regex_runtime.w"
     /* StorageLive(_95); */
     _95 = 0;
-#line 144 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     /* StorageLive(_96); */
     _96 = 0;
-#line 145 "rt/regex_runtime.w"
     /* StorageLive(_97); */
     _97 = 0;
+#line 146 "rt/regex_runtime.w"
     /* StorageLive(_98); */
     _98 = 0;
+#line 147 "rt/regex_runtime.w"
     /* StorageLive(_99); */
     _99 = 0;
-#line 147 "rt/regex_runtime.w"
     /* StorageLive(_100); */
     _100 = 0;
+#line 148 "rt/regex_runtime.w"
     /* StorageLive(_101); */
     _101 = 0;
+#line 149 "rt/regex_runtime.w"
     /* StorageLive(_102); */
     _102 = 0;
     goto bb1;
 bb1:
-#line 149 "rt/regex_runtime.w"
-    _13 = 0;
 #line 150 "rt/regex_runtime.w"
-    _103 = (pcre2_real_code_8*)((pcre2_real_code_8*)(0));
-    _15 = _103;
-#line 153 "rt/regex_runtime.w"
-    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_104, __with_arr_tmp, sizeof(_104)); }
+    _13 = 0;
 #line 152 "rt/regex_runtime.w"
-    memcpy(_18, _104, sizeof(_18));
-#line 153 "rt/regex_runtime.w"
-    _23 = 1;
+    _103 = (pcre2_real_code_8*)((pcre2_real_code_8*)(0));
+#line 151 "rt/regex_runtime.w"
+    _15 = _103;
 #line 155 "rt/regex_runtime.w"
-    _31 = 0;
+    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_104, __with_arr_tmp, sizeof(_104)); }
+#line 153 "rt/regex_runtime.w"
+    memcpy(_18, _104, sizeof(_18));
+#line 155 "rt/regex_runtime.w"
+    _23 = 1;
 #line 156 "rt/regex_runtime.w"
-    _34 = 4294967295;
+    _31 = 0;
 #line 159 "rt/regex_runtime.w"
-    _35 = 4294967295;
+    _34 = 4294967295;
 #line 162 "rt/regex_runtime.w"
-    _36 = 4294967295;
+    _35 = 4294967295;
 #line 163 "rt/regex_runtime.w"
-    _37 = 0;
+    _36 = 4294967295;
 #line 165 "rt/regex_runtime.w"
-    _38 = 0;
+    _37 = 0;
 #line 166 "rt/regex_runtime.w"
+    _38 = 0;
+#line 167 "rt/regex_runtime.w"
     _39 = 0;
-    _73 = 0;
 #line 168 "rt/regex_runtime.w"
+    _73 = 0;
     { __typeof__((_10 != 0)) __tmp = (_10 != 0); memcpy(&(_105), &__tmp, sizeof(_105) < sizeof(__tmp) ? sizeof(_105) : sizeof(__tmp)); }
     if (_105 == 1) {
         goto bb295;
@@ -117099,7 +117124,7 @@ bb1:
         goto bb296;
     }
 bb2:
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     { __typeof__((_5 != 0)) __tmp = (_5 != 0); memcpy(&(_115), &__tmp, sizeof(_115) < sizeof(__tmp) ? sizeof(_115) : sizeof(__tmp)); }
     if (_115 == 1) {
         goto bb310;
@@ -117108,7 +117133,7 @@ bb2:
         goto bb311;
     }
 bb3:
-#line 182 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     { __typeof__((_5 == 0)) __tmp = (_5 == 0); memcpy(&(_119), &__tmp, sizeof(_119) < sizeof(__tmp) ? sizeof(_119) : sizeof(__tmp)); }
     if (_119 == 1) {
         goto bb319;
@@ -117117,18 +117142,18 @@ bb3:
         goto bb320;
     }
 bb4:
-#line 188 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     (*_5) = 0;
     goto bb5;
 bb5:
-#line 190 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     /* drop(_59); */
     /* drop(_45); */
     /* drop(_16); */
     return _0;
 bb6:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     { __typeof__((_4 != 0)) __tmp = (_4 != 0); memcpy(&(_123), &__tmp, sizeof(_123) < sizeof(__tmp) ? sizeof(_123) : sizeof(__tmp)); }
     if (_123 == 1) {
         goto bb332;
@@ -117137,11 +117162,11 @@ bb6:
         goto bb333;
     }
 bb7:
-#line 197 "rt/regex_runtime.w"
-    (*_4) = 100;
 #line 198 "rt/regex_runtime.w"
+    (*_4) = 100;
+#line 200 "rt/regex_runtime.w"
     (*_5) = 0;
-#line 199 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     { __typeof__((_7 == 0)) __tmp = (_7 == 0); memcpy(&(_127), &__tmp, sizeof(_127) < sizeof(__tmp) ? sizeof(_127) : sizeof(__tmp)); }
     if (_127 == 1) {
         goto bb341;
@@ -117150,18 +117175,18 @@ bb7:
         goto bb342;
     }
 bb8:
-#line 204 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     (*_4) = 220;
     goto bb9;
 bb9:
-#line 207 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     /* drop(_59); */
     /* drop(_45); */
     /* drop(_16); */
     return _0;
 bb10:
-#line 209 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _131 = (_8 == 0);
     if (_131 == 1) {
         goto bb354;
@@ -117170,7 +117195,7 @@ bb10:
         goto bb355;
     }
 bb11:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     { __typeof__((_10 == 0)) __tmp = (_10 == 0); memcpy(&(_135), &__tmp, sizeof(_135) < sizeof(__tmp) ? sizeof(_135) : sizeof(__tmp)); }
     if (_135 == 1) {
         goto bb363;
@@ -117179,18 +117204,16 @@ bb11:
         goto bb364;
     }
 bb12:
-#line 220 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _139 = 0;
-#line 219 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _140 = (&_18[_139]);
     _141 = (uint8_t*)((uint8_t*)(_140));
-#line 218 "rt/regex_runtime.w"
     _7 = _141;
     goto bb14;
 bb13:
-#line 222 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     (*_4) = 116;
-#line 224 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     /* drop(_59); */
     /* drop(_45); */
@@ -117199,18 +117222,18 @@ bb13:
 bb14:
     goto bb11;
 bb15:
-#line 227 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _143 = (&__with_global__pcre2_default_compile_context_8__84);
     _144 = (pcre2_real_compile_context_8*)((pcre2_real_compile_context_8*)(_143));
-#line 226 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _10 = _144;
     goto bb16;
 bb16:
-#line 232 "rt/regex_runtime.w"
-    _145 = ((uint32_t)(_9));
 #line 233 "rt/regex_runtime.w"
+    _145 = ((uint32_t)(_9));
+#line 234 "rt/regex_runtime.w"
     _146 = ((uint32_t)(67108864));
-#line 232 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _147 = (_145 & _146);
     _148 = (_147 != 0);
     if (_148 == 1) {
@@ -117220,169 +117243,167 @@ bb16:
         goto bb381;
     }
 bb17:
-#line 236 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _152 = (_9 | 524288);
-#line 235 "rt/regex_runtime.w"
     _9 = _152;
     goto bb18;
 bb18:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _153 = ((uint32_t)(_9));
-#line 241 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _154 = ((uint32_t)(2147483648));
     _155 = ((uint32_t)(_154));
-#line 242 "rt/regex_runtime.w"
     _156 = ((uint32_t)(4));
-#line 241 "rt/regex_runtime.w"
     _157 = (_155 | _156);
     _158 = ((uint32_t)(_157));
-#line 243 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _159 = ((uint32_t)(8));
-#line 241 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _160 = (_158 | _159);
     _161 = ((uint32_t)(_160));
-#line 243 "rt/regex_runtime.w"
+#line 245 "rt/regex_runtime.w"
     _162 = ((uint32_t)(536870912));
-#line 241 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _163 = (_161 | _162);
     _164 = ((uint32_t)(_163));
-#line 243 "rt/regex_runtime.w"
+#line 247 "rt/regex_runtime.w"
     _165 = ((uint32_t)(256));
-#line 241 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _166 = (_164 | _165);
     _167 = ((uint32_t)(_166));
-#line 244 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _168 = ((uint32_t)(33554432));
-#line 241 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _169 = (_167 | _168);
     _170 = ((uint32_t)(_169));
-#line 246 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _171 = ((uint32_t)(67108864));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _172 = (_170 | _171);
     _173 = ((uint32_t)(_172));
-#line 249 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _174 = ((uint32_t)(65536));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _175 = (_173 | _174);
     _176 = ((uint32_t)(_175));
 #line 250 "rt/regex_runtime.w"
     _177 = ((uint32_t)(1073741824));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _178 = (_176 | _177);
     _179 = ((uint32_t)(_178));
-#line 250 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _180 = ((uint32_t)(8388608));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _181 = (_179 | _180);
     _182 = ((uint32_t)(_181));
-#line 250 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _183 = ((uint32_t)(524288));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _184 = (_182 | _183);
     _185 = ((uint32_t)(_184));
-#line 252 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _186 = ((uint32_t)(1));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _187 = (_185 | _186);
     _188 = ((uint32_t)(_187));
 #line 253 "rt/regex_runtime.w"
     _189 = ((uint32_t)(2));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _190 = (_188 | _189);
     _191 = ((uint32_t)(_190));
-#line 253 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _192 = ((uint32_t)(2097152));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _193 = (_191 | _192);
     _194 = ((uint32_t)(_193));
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _195 = ((uint32_t)(4194304));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _196 = (_194 | _195);
     _197 = ((uint32_t)(_196));
-#line 254 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _198 = ((uint32_t)(16));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _199 = (_197 | _198);
     _200 = ((uint32_t)(_199));
 #line 255 "rt/regex_runtime.w"
     _201 = ((uint32_t)(32));
-#line 240 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _202 = (_200 | _201);
     _203 = ((uint32_t)(_202));
-#line 255 "rt/regex_runtime.w"
-    _204 = ((uint32_t)(64));
-#line 240 "rt/regex_runtime.w"
-    _205 = (_203 | _204);
-    _206 = ((uint32_t)(_205));
-#line 255 "rt/regex_runtime.w"
-    _207 = ((uint32_t)(128));
-#line 240 "rt/regex_runtime.w"
-    _208 = (_206 | _207);
-#line 239 "rt/regex_runtime.w"
-    _209 = ((uint32_t)(_208));
 #line 256 "rt/regex_runtime.w"
+    _204 = ((uint32_t)(64));
+#line 243 "rt/regex_runtime.w"
+    _205 = (_203 | _204);
+#line 242 "rt/regex_runtime.w"
+    _206 = ((uint32_t)(_205));
+#line 257 "rt/regex_runtime.w"
+    _207 = ((uint32_t)(128));
+#line 242 "rt/regex_runtime.w"
+    _208 = (_206 | _207);
+    _209 = ((uint32_t)(_208));
+#line 257 "rt/regex_runtime.w"
     _210 = ((uint32_t)(16777216));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _211 = (_209 | _210);
     _212 = ((uint32_t)(_211));
 #line 257 "rt/regex_runtime.w"
     _213 = ((uint32_t)(512));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _214 = (_212 | _213);
     _215 = ((uint32_t)(_214));
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _216 = ((uint32_t)(1024));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _217 = (_215 | _216);
     _218 = ((uint32_t)(_217));
-#line 257 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _219 = ((uint32_t)(1048576));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _220 = (_218 | _219);
     _221 = ((uint32_t)(_220));
-#line 258 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _222 = ((uint32_t)(2048));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _223 = (_221 | _222);
     _224 = ((uint32_t)(_223));
-#line 259 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _225 = ((uint32_t)(4096));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _226 = (_224 | _225);
     _227 = ((uint32_t)(_226));
 #line 260 "rt/regex_runtime.w"
     _228 = ((uint32_t)(8192));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _229 = (_227 | _228);
     _230 = ((uint32_t)(_229));
-#line 260 "rt/regex_runtime.w"
+#line 261 "rt/regex_runtime.w"
     _231 = ((uint32_t)(16384));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _232 = (_230 | _231);
     _233 = ((uint32_t)(_232));
-#line 260 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _234 = ((uint32_t)(32768));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _235 = (_233 | _234);
     _236 = ((uint32_t)(_235));
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _237 = ((uint32_t)(131072));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _238 = (_236 | _237);
     _239 = ((uint32_t)(_238));
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _240 = ((uint32_t)(262144));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _241 = (_239 | _240);
     _242 = ((uint32_t)(_241));
 #line 263 "rt/regex_runtime.w"
     _243 = ((uint32_t)(134217728));
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _244 = (_242 | _243);
     _245 = (~(_244));
     _246 = ((uint32_t)(_245));
+#line 240 "rt/regex_runtime.w"
     _247 = (_153 & _246);
     _248 = (_247 != 0);
     if (_248 == 1) {
@@ -117392,22 +117413,20 @@ bb18:
         goto bb392;
     }
 bb19:
-#line 292 "rt/regex_runtime.w"
-    (*_4) = 117;
 #line 294 "rt/regex_runtime.w"
+    (*_4) = 117;
+#line 295 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     /* drop(_59); */
     /* drop(_45); */
     /* drop(_16); */
     return _0;
 bb20:
-#line 296 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _75 = 0;
-#line 297 "rt/regex_runtime.w"
-    _310 = ((uint32_t)(_9));
 #line 300 "rt/regex_runtime.w"
+    _310 = ((uint32_t)(_9));
     _311 = ((uint32_t)(33554432));
-#line 297 "rt/regex_runtime.w"
     _312 = (_310 & _311);
     _313 = (_312 != 0);
     if (_313 == 1) {
@@ -119191,11 +119210,11 @@ bb293:
 bb294:
     goto bb2;
 bb295:
-#line 168 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _106 = 1;
     goto bb297;
 bb296:
-#line 167 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _106 = 0;
     goto bb297;
 bb297:
@@ -119207,24 +119226,22 @@ bb297:
         goto bb299;
     }
 bb298:
-#line 168 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     _73 = (*_10).optimization_flags;
     goto bb300;
 bb299:
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _73 = 7;
     goto bb300;
 bb300:
-#line 172 "rt/regex_runtime.w"
     _42 = _73;
 #line 176 "rt/regex_runtime.w"
     _108 = 0;
-#line 174 "rt/regex_runtime.w"
     _109 = (&_46[_108]);
     _110 = (uint8_t*)((uint8_t*)(_109));
-#line 172 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _47 = _110;
-#line 176 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_111), &__tmp, sizeof(_111) < sizeof(__tmp) ? sizeof(_111) : sizeof(__tmp)); }
     if (_111 == 1) {
         goto bb301;
@@ -119253,11 +119270,9 @@ bb305:
 bb306:
     goto bb294;
 bb307:
-#line 177 "rt/regex_runtime.w"
     _114 = (__typeof__(_114)){0};
     goto bb306;
 bb308:
-#line 176 "rt/regex_runtime.w"
     _114 = (__typeof__(_114)){0};
     goto bb306;
 bb309:
@@ -119267,7 +119282,6 @@ bb310:
     _116 = 1;
     goto bb312;
 bb311:
-#line 178 "rt/regex_runtime.w"
     _116 = 0;
     goto bb312;
 bb312:
@@ -119285,21 +119299,21 @@ bb314:
 bb315:
     goto bb309;
 bb316:
-#line 179 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _118 = (__typeof__(_118)){0};
     goto bb315;
 bb317:
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _118 = (__typeof__(_118)){0};
     goto bb315;
 bb318:
     goto bb4;
 bb319:
-#line 183 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _120 = 1;
     goto bb321;
 bb320:
-#line 182 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _120 = 0;
     goto bb321;
 bb321:
@@ -119317,11 +119331,11 @@ bb323:
 bb324:
     goto bb318;
 bb325:
-#line 184 "rt/regex_runtime.w"
+#line 186 "rt/regex_runtime.w"
     _122 = (__typeof__(_122)){0};
     goto bb324;
 bb326:
-#line 182 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _122 = (__typeof__(_122)){0};
     goto bb324;
 bb327:
@@ -119335,11 +119349,11 @@ bb330:
 bb331:
     goto bb7;
 bb332:
-#line 193 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _124 = 1;
     goto bb334;
 bb333:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _124 = 0;
     goto bb334;
 bb334:
@@ -119357,21 +119371,21 @@ bb336:
 bb337:
     goto bb331;
 bb338:
-#line 193 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _126 = (__typeof__(_126)){0};
     goto bb337;
 bb339:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _126 = (__typeof__(_126)){0};
     goto bb337;
 bb340:
     goto bb8;
 bb341:
-#line 200 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _128 = 1;
     goto bb343;
 bb342:
-#line 198 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _128 = 0;
     goto bb343;
 bb343:
@@ -119389,11 +119403,11 @@ bb345:
 bb346:
     goto bb340;
 bb347:
-#line 202 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _130 = (__typeof__(_130)){0};
     goto bb346;
 bb348:
-#line 198 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _130 = (__typeof__(_130)){0};
     goto bb346;
 bb349:
@@ -119407,10 +119421,11 @@ bb352:
 bb353:
     goto bb11;
 bb354:
-#line 209 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _132 = 1;
     goto bb356;
 bb355:
+#line 210 "rt/regex_runtime.w"
     _132 = 0;
     goto bb356;
 bb356:
@@ -119428,21 +119443,21 @@ bb358:
 bb359:
     goto bb353;
 bb360:
-#line 210 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _134 = (__typeof__(_134)){0};
     goto bb359;
 bb361:
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _134 = (__typeof__(_134)){0};
     goto bb359;
 bb362:
     goto bb12;
 bb363:
-#line 215 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _136 = 1;
     goto bb365;
 bb364:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _136 = 0;
     goto bb365;
 bb365:
@@ -119460,11 +119475,11 @@ bb367:
 bb368:
     goto bb362;
 bb369:
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _138 = (__typeof__(_138)){0};
     goto bb368;
 bb370:
-#line 213 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _138 = (__typeof__(_138)){0};
     goto bb368;
 bb371:
@@ -119486,11 +119501,11 @@ bb378:
 bb379:
     goto bb17;
 bb380:
-#line 233 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _149 = 1;
     goto bb382;
 bb381:
-#line 231 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _149 = 0;
     goto bb382;
 bb382:
@@ -119508,11 +119523,11 @@ bb384:
 bb385:
     goto bb379;
 bb386:
-#line 233 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb385;
 bb387:
-#line 230 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb385;
 bb388:
@@ -119522,11 +119537,11 @@ bb389:
 bb390:
     goto bb19;
 bb391:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _249 = 1;
     goto bb393;
 bb392:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _249 = 0;
     goto bb393;
 bb393:
@@ -119545,92 +119560,90 @@ bb394:
         goto bb398;
     }
 bb395:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _252 = ((uint32_t)((*_10).extra_options));
-#line 268 "rt/regex_runtime.w"
-    _253 = ((uint32_t)(8));
 #line 269 "rt/regex_runtime.w"
+    _253 = ((uint32_t)(8));
     _254 = ((uint32_t)(4));
-#line 268 "rt/regex_runtime.w"
     _255 = (_253 | _254);
     _256 = ((uint32_t)(_255));
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _257 = ((uint32_t)(128));
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _258 = (_256 | _257);
     _259 = ((uint32_t)(_258));
-#line 269 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _260 = ((uint32_t)(65536));
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _261 = (_259 | _260);
     _262 = ((uint32_t)(_261));
-#line 270 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _263 = ((uint32_t)(1));
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _264 = (_262 | _263);
     _265 = ((uint32_t)(_264));
-#line 271 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _266 = ((uint32_t)(2));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _267 = (_265 | _266);
     _268 = ((uint32_t)(_267));
-#line 272 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     _269 = ((uint32_t)(16));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _270 = (_268 | _269);
     _271 = ((uint32_t)(_270));
-#line 273 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _272 = ((uint32_t)(32));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _273 = (_271 | _272);
     _274 = ((uint32_t)(_273));
-#line 274 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _275 = ((uint32_t)(64));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _276 = (_274 | _275);
     _277 = ((uint32_t)(_276));
-#line 276 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _278 = ((uint32_t)(256));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _279 = (_277 | _278);
     _280 = ((uint32_t)(_279));
-#line 278 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _281 = ((uint32_t)(512));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _282 = (_280 | _281);
     _283 = ((uint32_t)(_282));
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _284 = ((uint32_t)(1024));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _285 = (_283 | _284);
     _286 = ((uint32_t)(_285));
-#line 281 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _287 = ((uint32_t)(2048));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _288 = (_286 | _287);
     _289 = ((uint32_t)(_288));
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _290 = ((uint32_t)(4096));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _291 = (_289 | _290);
     _292 = ((uint32_t)(_291));
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _293 = ((uint32_t)(8192));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _294 = (_292 | _293);
     _295 = ((uint32_t)(_294));
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _296 = ((uint32_t)(16384));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _297 = (_295 | _296);
     _298 = ((uint32_t)(_297));
 #line 285 "rt/regex_runtime.w"
     _299 = ((uint32_t)(32768));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _300 = (_298 | _299);
-#line 266 "rt/regex_runtime.w"
     _301 = (~(_300));
     _302 = ((uint32_t)(_301));
+#line 267 "rt/regex_runtime.w"
     _303 = (_252 & _302);
     _304 = (_303 != 0);
     if (_304 == 1) {
@@ -119640,7 +119653,7 @@ bb395:
         goto bb401;
     }
 bb396:
-#line 287 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _308 = (_74 != 0);
     if (_308 == 1) {
         goto bb406;
@@ -119649,22 +119662,22 @@ bb396:
         goto bb407;
     }
 bb397:
-#line 265 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _251 = 1;
     goto bb399;
 bb398:
-#line 264 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _251 = 0;
     goto bb399;
 bb399:
     _74 = _251;
     goto bb396;
 bb400:
-#line 285 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _305 = 1;
     goto bb402;
 bb401:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _305 = 0;
     goto bb402;
 bb402:
@@ -119676,15 +119689,15 @@ bb402:
         goto bb404;
     }
 bb403:
-#line 286 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _307 = 1;
     goto bb405;
 bb404:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _307 = 0;
     goto bb405;
 bb405:
-#line 265 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _74 = _307;
     goto bb396;
 bb406:
@@ -119694,11 +119707,11 @@ bb407:
 bb408:
     goto bb390;
 bb409:
-#line 288 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _309 = (__typeof__(_309)){0};
     goto bb408;
 bb410:
-#line 287 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _309 = (__typeof__(_309)){0};
     goto bb408;
 bb411:
@@ -119712,7 +119725,6 @@ bb414:
     _314 = 1;
     goto bb416;
 bb415:
-#line 297 "rt/regex_runtime.w"
     _314 = 0;
     goto bb416;
 bb416:
@@ -119724,65 +119736,64 @@ bb416:
         goto bb418;
     }
 bb417:
-#line 300 "rt/regex_runtime.w"
-    /* StorageLive(_316); */
 #line 301 "rt/regex_runtime.w"
+    /* StorageLive(_316); */
+#line 302 "rt/regex_runtime.w"
     _317 = ((uint32_t)(_9));
-#line 303 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _318 = ((uint32_t)(2147483648));
     _319 = ((uint32_t)(_318));
-#line 304 "rt/regex_runtime.w"
     _320 = ((uint32_t)(4));
-#line 303 "rt/regex_runtime.w"
     _321 = (_319 | _320);
+#line 303 "rt/regex_runtime.w"
     _322 = ((uint32_t)(_321));
-#line 304 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _323 = ((uint32_t)(8));
 #line 303 "rt/regex_runtime.w"
     _324 = (_322 | _323);
     _325 = ((uint32_t)(_324));
-#line 305 "rt/regex_runtime.w"
+#line 306 "rt/regex_runtime.w"
     _326 = ((uint32_t)(536870912));
 #line 303 "rt/regex_runtime.w"
     _327 = (_325 | _326);
     _328 = ((uint32_t)(_327));
-#line 306 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _329 = ((uint32_t)(256));
 #line 303 "rt/regex_runtime.w"
     _330 = (_328 | _329);
     _331 = ((uint32_t)(_330));
 #line 307 "rt/regex_runtime.w"
     _332 = ((uint32_t)(33554432));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _333 = (_331 | _332);
     _334 = ((uint32_t)(_333));
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _335 = ((uint32_t)(67108864));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _336 = (_334 | _335);
     _337 = ((uint32_t)(_336));
 #line 308 "rt/regex_runtime.w"
     _338 = ((uint32_t)(65536));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _339 = (_337 | _338);
     _340 = ((uint32_t)(_339));
-#line 308 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _341 = ((uint32_t)(1073741824));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _342 = (_340 | _341);
     _343 = ((uint32_t)(_342));
-#line 309 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     _344 = ((uint32_t)(8388608));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _345 = (_343 | _344);
     _346 = ((uint32_t)(_345));
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _347 = ((uint32_t)(524288));
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _348 = (_346 | _347);
     _349 = (~(_348));
     _350 = ((uint32_t)(_349));
-#line 301 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _351 = (_317 & _350);
     _352 = (_351 != 0);
     if (_352 == 1) {
@@ -119803,11 +119814,11 @@ bb419:
         goto bb439;
     }
 bb420:
-#line 311 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _353 = 1;
     goto bb422;
 bb421:
-#line 301 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _353 = 0;
     goto bb422;
 bb422:
@@ -119859,15 +119870,12 @@ bb426:
     _355 = 1;
     goto bb428;
 bb427:
-#line 313 "rt/regex_runtime.w"
     _355 = 0;
     goto bb428;
 bb428:
-#line 312 "rt/regex_runtime.w"
     _316 = _355;
     goto bb425;
 bb429:
-#line 314 "rt/regex_runtime.w"
     _370 = 1;
     goto bb431;
 bb430:
@@ -242766,13 +242774,12 @@ bb11:
     _17 = (uint8_t*)((uint8_t*)(_16));
 #line 15 "rt/regex_runtime.w"
     _4 = _17;
-#line 19 "rt/regex_runtime.w"
-    _18 = (_1 - 100);
 #line 18 "rt/regex_runtime.w"
+    _18 = (_1 - 100);
     _6 = _18;
     goto bb13;
 bb12:
-#line 21 "rt/regex_runtime.w"
+#line 20 "rt/regex_runtime.w"
     _19 = (_1 < 0);
     if (_19 == 1) {
         goto bb14;
@@ -242783,11 +242790,11 @@ bb12:
 bb13:
     goto bb20;
 bb14:
-#line 22 "rt/regex_runtime.w"
+#line 21 "rt/regex_runtime.w"
     _20 = 1;
     goto bb16;
 bb15:
-#line 21 "rt/regex_runtime.w"
+#line 20 "rt/regex_runtime.w"
     _20 = 0;
     goto bb16;
 bb16:
@@ -242804,24 +242811,24 @@ bb17:
 #line 23 "rt/regex_runtime.w"
     _24 = (&__with_global_match_error_texts__5755[_23]);
     _25 = (uint8_t*)((uint8_t*)(_24));
+#line 22 "rt/regex_runtime.w"
     _4 = _25;
-#line 26 "rt/regex_runtime.w"
-    _26 = (0 - _1);
 #line 25 "rt/regex_runtime.w"
+    _26 = (0 - _1);
     _6 = _26;
     goto bb19;
 bb18:
-#line 29 "rt/regex_runtime.w"
-    _27 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("\000").ptr));
 #line 28 "rt/regex_runtime.w"
+    _27 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("\000").ptr));
+#line 27 "rt/regex_runtime.w"
     _4 = _27;
-#line 30 "rt/regex_runtime.w"
+#line 29 "rt/regex_runtime.w"
     _6 = 1;
     goto bb19;
 bb19:
     goto bb13;
 bb20:
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _28 = (_6 > 0);
     if (_28 == 1) {
         goto bb23;
@@ -242840,10 +242847,10 @@ bb23:
     _29 = 1;
     goto bb25;
 bb24:
+#line 31 "rt/regex_runtime.w"
     _29 = 0;
     goto bb25;
 bb25:
-#line 31 "rt/regex_runtime.w"
     _30 = (_29 != 0);
     if (_30 == 1) {
         goto bb21;
@@ -242859,12 +242866,11 @@ bb26:
         goto bb28;
     }
 bb27:
-#line 34 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     /* StorageLive(_31); */
     _31 = _4;
-#line 38 "rt/regex_runtime.w"
-    _32 = (_4 + 1);
 #line 36 "rt/regex_runtime.w"
+    _32 = (_4 + 1);
     _4 = _32;
 #line 38 "rt/regex_runtime.w"
     _33 = ((*_31) != 0);
@@ -242945,13 +242951,13 @@ bb43:
         goto bb47;
     }
 bb44:
-#line 49 "rt/regex_runtime.w"
-    _44 = ((uint64_t)(_3));
-#line 51 "rt/regex_runtime.w"
-    _45 = ((uint64_t)(1));
-#line 49 "rt/regex_runtime.w"
-    _46 = (_44 - _45);
 #line 48 "rt/regex_runtime.w"
+    _44 = ((uint64_t)(_3));
+#line 49 "rt/regex_runtime.w"
+    _45 = ((uint64_t)(1));
+#line 48 "rt/regex_runtime.w"
+    _46 = (_44 - _45);
+#line 47 "rt/regex_runtime.w"
     _47 = (_5 >= _46);
     if (_47 == 1) {
         goto bb49;
@@ -242995,7 +243001,7 @@ bb49:
     _48 = 1;
     goto bb51;
 bb50:
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _48 = 0;
     goto bb51;
 bb51:
@@ -243016,9 +243022,8 @@ bb54:
 #line 54 "rt/regex_runtime.w"
     /* StorageLive(_50); */
     _50 = _4;
-#line 56 "rt/regex_runtime.w"
-    _51 = (_4 + 1);
 #line 55 "rt/regex_runtime.w"
+    _51 = (_4 + 1);
     _4 = _51;
 #line 57 "rt/regex_runtime.w"
     _52 = _5;
@@ -243645,25 +243650,25 @@ bb0:
     _9 = 0;
 #line 12 "rt/regex_runtime.w"
     /* StorageLive(_10); */
-#line 15 "rt/regex_runtime.w"
+#line 14 "rt/regex_runtime.w"
     _12 = 0;
 #line 13 "rt/regex_runtime.w"
     _13 = (&__with_global__pcre2_ucd_records_8__2612[_12]);
     _14 = (ucd_record*)((ucd_record*)(_13));
-#line 18 "rt/regex_runtime.w"
-    _17 = ((int32_t)(_7));
 #line 17 "rt/regex_runtime.w"
+    _17 = ((int32_t)(_7));
     _18 = (_17 / 128);
     _19 = _18;
+#line 16 "rt/regex_runtime.w"
     _20 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_19]));
     _21 = (_20 * 128);
-#line 19 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     _22 = ((int32_t)(_7));
     _23 = (_22 % 128);
-#line 17 "rt/regex_runtime.w"
+#line 16 "rt/regex_runtime.w"
     _24 = (_21 + _23);
     _25 = _24;
-#line 16 "rt/regex_runtime.w"
+#line 15 "rt/regex_runtime.w"
     _26 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_25]));
     _27 = ((uint64_t)(_26));
 #line 13 "rt/regex_runtime.w"
@@ -243682,13 +243687,14 @@ bb1:
         goto bb5;
     }
 bb2:
-#line 24 "rt/regex_runtime.w"
+#line 23 "rt/regex_runtime.w"
     /* StorageLive(_33); */
-#line 26 "rt/regex_runtime.w"
+#line 25 "rt/regex_runtime.w"
     /* StorageLive(_34); */
     _34 = 1;
 #line 27 "rt/regex_runtime.w"
     _35 = (_5 != 0);
+#line 26 "rt/regex_runtime.w"
     _36 = (!(_35));
     if (_36 == 1) {
         goto bb7;
@@ -243697,7 +243703,7 @@ bb2:
         goto bb8;
     }
 bb3:
-#line 300 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _0 = _8;
     return _0;
 bb4:
@@ -243705,7 +243711,7 @@ bb4:
     _31 = 1;
     goto bb6;
 bb5:
-#line 22 "rt/regex_runtime.w"
+#line 21 "rt/regex_runtime.w"
     _31 = 0;
     goto bb6;
 bb6:
@@ -243717,11 +243723,11 @@ bb6:
         goto bb3;
     }
 bb7:
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     _37 = 1;
     goto bb9;
 bb8:
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _37 = 0;
     goto bb9;
 bb9:
@@ -243733,13 +243739,13 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _7 = (*_8);
     goto bb12;
 bb11:
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _7 = (*_8);
-#line 34 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     _39 = (_7 >= 192);
     if (_39 == 1) {
         goto bb13;
@@ -243748,40 +243754,39 @@ bb11:
         goto bb14;
     }
 bb12:
-#line 126 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _251 = 0;
-#line 125 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     _252 = (&__with_global__pcre2_ucd_records_8__2612[_251]);
     _253 = (ucd_record*)((ucd_record*)(_252));
-#line 129 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     _254 = ((int32_t)(_7));
     _255 = (_254 / 128);
     _256 = _255;
     _257 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_256]));
     _258 = (_257 * 128);
+#line 126 "rt/regex_runtime.w"
     _259 = ((int32_t)(_7));
     _260 = (_259 % 128);
-    _261 = (_258 + _260);
-#line 128 "rt/regex_runtime.w"
-    _262 = _261;
-#line 127 "rt/regex_runtime.w"
-    _263 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_262]));
-#line 126 "rt/regex_runtime.w"
-    _264 = ((uint64_t)(_263));
 #line 125 "rt/regex_runtime.w"
+    _261 = (_258 + _260);
+    _262 = _261;
+#line 124 "rt/regex_runtime.w"
+    _263 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_262]));
+    _264 = ((uint64_t)(_263));
+#line 123 "rt/regex_runtime.w"
     _265 = (_253 + _264);
     _266 = _265;
     _33 = (*_266).gbprop;
-#line 134 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _268 = _10;
-#line 133 "rt/regex_runtime.w"
     _269 = ((uint32_t)(__with_global__pcre2_ucp_gbtable_8__2597[_268]));
-#line 134 "rt/regex_runtime.w"
+#line 131 "rt/regex_runtime.w"
     _270 = ((uint32_t)(1));
     _271 = ((uint32_t)(_33));
     _272 = (_270 << _271);
     _273 = ((uint32_t)(_272));
-#line 133 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _274 = (_269 & _273);
     _275 = (_274 == 0);
     if (_275 == 1) {
@@ -243791,7 +243796,7 @@ bb12:
         goto bb44;
     }
 bb13:
-#line 34 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     _40 = 1;
     goto bb15;
 bb14:
@@ -243806,11 +243811,11 @@ bb15:
         goto bb17;
     }
 bb16:
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _42 = ((uint32_t)(_7));
-#line 38 "rt/regex_runtime.w"
-    _43 = ((uint32_t)(32));
 #line 36 "rt/regex_runtime.w"
+    _43 = ((uint32_t)(32));
+#line 35 "rt/regex_runtime.w"
     _44 = (_42 & _43);
     _45 = (_44 == 0);
     if (_45 == 1) {
@@ -243828,7 +243833,7 @@ bb19:
     _46 = 1;
     goto bb21;
 bb20:
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _46 = 0;
     goto bb21;
 bb21:
@@ -243842,37 +243847,38 @@ bb21:
 bb22:
 #line 39 "rt/regex_runtime.w"
     _48 = ((uint32_t)(_7));
-#line 40 "rt/regex_runtime.w"
     _49 = ((uint32_t)(31));
-#line 39 "rt/regex_runtime.w"
     _50 = (_48 & _49);
+#line 38 "rt/regex_runtime.w"
     _51 = ((uint32_t)(_50));
 #line 40 "rt/regex_runtime.w"
     _52 = ((uint32_t)(6));
-#line 39 "rt/regex_runtime.w"
+#line 38 "rt/regex_runtime.w"
     _53 = (_51 << _52);
     _54 = ((uint32_t)(_53));
 #line 41 "rt/regex_runtime.w"
     _55 = 1;
+#line 40 "rt/regex_runtime.w"
     _56 = ((int32_t)(_8[_55]));
     _57 = ((uint32_t)(_56));
-#line 43 "rt/regex_runtime.w"
-    _58 = ((uint32_t)(63));
 #line 41 "rt/regex_runtime.w"
+    _58 = ((uint32_t)(63));
+#line 40 "rt/regex_runtime.w"
     _59 = (_57 & _58);
     _60 = ((uint32_t)(_59));
-#line 39 "rt/regex_runtime.w"
+#line 38 "rt/regex_runtime.w"
     _61 = (_54 | _60);
     _7 = _61;
-#line 44 "rt/regex_runtime.w"
-    _62 = (_34 + 1);
 #line 43 "rt/regex_runtime.w"
+    _62 = (_34 + 1);
     _34 = _62;
     goto bb24;
 bb23:
-#line 47 "rt/regex_runtime.w"
+#line 45 "rt/regex_runtime.w"
     _63 = ((uint32_t)(_7));
+#line 47 "rt/regex_runtime.w"
     _64 = ((uint32_t)(16));
+#line 45 "rt/regex_runtime.w"
     _65 = (_63 & _64);
     _66 = (_65 == 0);
     if (_66 == 1) {
@@ -243884,9 +243890,11 @@ bb23:
 bb24:
     goto bb18;
 bb25:
+#line 47 "rt/regex_runtime.w"
     _67 = 1;
     goto bb27;
 bb26:
+#line 45 "rt/regex_runtime.w"
     _67 = 0;
     goto bb27;
 bb27:
@@ -243898,57 +243906,60 @@ bb27:
         goto bb29;
     }
 bb28:
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _69 = ((uint32_t)(_7));
-#line 52 "rt/regex_runtime.w"
-    _70 = ((uint32_t)(15));
 #line 51 "rt/regex_runtime.w"
+    _70 = ((uint32_t)(15));
+#line 49 "rt/regex_runtime.w"
     _71 = (_69 & _70);
     _72 = ((uint32_t)(_71));
-#line 52 "rt/regex_runtime.w"
-    _73 = ((uint32_t)(12));
 #line 51 "rt/regex_runtime.w"
+    _73 = ((uint32_t)(12));
+#line 49 "rt/regex_runtime.w"
     _74 = (_72 << _73);
     _75 = ((uint32_t)(_74));
-#line 55 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     _76 = 1;
-#line 54 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _77 = ((int32_t)(_8[_76]));
     _78 = ((uint32_t)(_77));
-#line 55 "rt/regex_runtime.w"
-    _79 = ((uint32_t)(63));
 #line 54 "rt/regex_runtime.w"
+    _79 = ((uint32_t)(63));
+#line 52 "rt/regex_runtime.w"
     _80 = (_78 & _79);
     _81 = ((uint32_t)(_80));
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     _82 = ((uint32_t)(6));
-#line 54 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _83 = (_81 << _82);
     _84 = ((uint32_t)(_83));
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _85 = (_75 | _84);
     _86 = ((uint32_t)(_85));
 #line 57 "rt/regex_runtime.w"
     _87 = 2;
+#line 56 "rt/regex_runtime.w"
     _88 = ((int32_t)(_8[_87]));
     _89 = ((uint32_t)(_88));
-#line 60 "rt/regex_runtime.w"
-    _90 = ((uint32_t)(63));
 #line 57 "rt/regex_runtime.w"
+    _90 = ((uint32_t)(63));
+#line 56 "rt/regex_runtime.w"
     _91 = (_89 & _90);
     _92 = ((uint32_t)(_91));
-#line 51 "rt/regex_runtime.w"
-    _93 = (_86 | _92);
 #line 49 "rt/regex_runtime.w"
+    _93 = (_86 | _92);
+#line 48 "rt/regex_runtime.w"
     _7 = _93;
-#line 61 "rt/regex_runtime.w"
+#line 60 "rt/regex_runtime.w"
     _94 = (_34 + 2);
     _34 = _94;
     goto bb30;
 bb29:
-#line 63 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     _95 = ((uint32_t)(_7));
+#line 63 "rt/regex_runtime.w"
     _96 = ((uint32_t)(8));
+#line 62 "rt/regex_runtime.w"
     _97 = (_95 & _96);
     _98 = (_97 == 0);
     if (_98 == 1) {
@@ -243960,11 +243971,11 @@ bb29:
 bb30:
     goto bb24;
 bb31:
-#line 64 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _99 = 1;
     goto bb33;
 bb32:
-#line 63 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     _99 = 0;
     goto bb33;
 bb33:
@@ -243976,40 +243987,41 @@ bb33:
         goto bb35;
     }
 bb34:
-#line 67 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _101 = ((uint32_t)(_7));
+#line 66 "rt/regex_runtime.w"
     _102 = ((uint32_t)(7));
+#line 65 "rt/regex_runtime.w"
     _103 = (_101 & _102);
     _104 = ((uint32_t)(_103));
+#line 67 "rt/regex_runtime.w"
     _105 = ((uint32_t)(18));
+#line 65 "rt/regex_runtime.w"
     _106 = (_104 << _105);
     _107 = ((uint32_t)(_106));
-#line 71 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _108 = 1;
+#line 67 "rt/regex_runtime.w"
     _109 = ((int32_t)(_8[_108]));
     _110 = ((uint32_t)(_109));
-#line 72 "rt/regex_runtime.w"
+#line 71 "rt/regex_runtime.w"
     _111 = ((uint32_t)(63));
-#line 70 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _112 = (_110 & _111);
-#line 69 "rt/regex_runtime.w"
     _113 = ((uint32_t)(_112));
-#line 72 "rt/regex_runtime.w"
+#line 71 "rt/regex_runtime.w"
     _114 = ((uint32_t)(12));
-#line 69 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _115 = (_113 << _114);
     _116 = ((uint32_t)(_115));
-#line 67 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _117 = (_107 | _116);
     _118 = ((uint32_t)(_117));
-#line 73 "rt/regex_runtime.w"
-    _119 = 2;
 #line 72 "rt/regex_runtime.w"
+    _119 = 2;
     _120 = ((int32_t)(_8[_119]));
     _121 = ((uint32_t)(_120));
-#line 73 "rt/regex_runtime.w"
     _122 = ((uint32_t)(63));
-#line 72 "rt/regex_runtime.w"
     _123 = (_121 & _122);
     _124 = ((uint32_t)(_123));
 #line 73 "rt/regex_runtime.w"
@@ -244017,31 +244029,32 @@ bb34:
 #line 72 "rt/regex_runtime.w"
     _126 = (_124 << _125);
     _127 = ((uint32_t)(_126));
-#line 67 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _128 = (_118 | _127);
     _129 = ((uint32_t)(_128));
-#line 75 "rt/regex_runtime.w"
+#line 73 "rt/regex_runtime.w"
     _130 = 3;
-#line 74 "rt/regex_runtime.w"
     _131 = ((int32_t)(_8[_130]));
     _132 = ((uint32_t)(_131));
-#line 75 "rt/regex_runtime.w"
-    _133 = ((uint32_t)(63));
 #line 74 "rt/regex_runtime.w"
+    _133 = ((uint32_t)(63));
+#line 73 "rt/regex_runtime.w"
     _134 = (_132 & _133);
     _135 = ((uint32_t)(_134));
-#line 67 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _136 = (_129 | _135);
-#line 66 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _7 = _136;
-#line 76 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _137 = (_34 + 3);
     _34 = _137;
     goto bb36;
 bb35:
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _138 = ((uint32_t)(_7));
+#line 78 "rt/regex_runtime.w"
     _139 = ((uint32_t)(4));
+#line 77 "rt/regex_runtime.w"
     _140 = (_138 & _139);
     _141 = (_140 == 0);
     if (_141 == 1) {
@@ -244053,9 +244066,11 @@ bb35:
 bb36:
     goto bb30;
 bb37:
+#line 78 "rt/regex_runtime.w"
     _142 = 1;
     goto bb39;
 bb38:
+#line 77 "rt/regex_runtime.w"
     _142 = 0;
     goto bb39;
 bb39:
@@ -244067,195 +244082,192 @@ bb39:
         goto bb41;
     }
 bb40:
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _144 = ((uint32_t)(_7));
-#line 80 "rt/regex_runtime.w"
-    _145 = ((uint32_t)(3));
 #line 79 "rt/regex_runtime.w"
+    _145 = ((uint32_t)(3));
+#line 78 "rt/regex_runtime.w"
     _146 = (_144 & _145);
     _147 = ((uint32_t)(_146));
-#line 80 "rt/regex_runtime.w"
-    _148 = ((uint32_t)(24));
 #line 79 "rt/regex_runtime.w"
+    _148 = ((uint32_t)(24));
+#line 78 "rt/regex_runtime.w"
     _149 = (_147 << _148);
     _150 = ((uint32_t)(_149));
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _151 = 1;
     _152 = ((int32_t)(_8[_151]));
     _153 = ((uint32_t)(_152));
-#line 82 "rt/regex_runtime.w"
-    _154 = ((uint32_t)(63));
 #line 81 "rt/regex_runtime.w"
+    _154 = ((uint32_t)(63));
+#line 80 "rt/regex_runtime.w"
     _155 = (_153 & _154);
     _156 = ((uint32_t)(_155));
-#line 83 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     _157 = ((uint32_t)(18));
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _158 = (_156 << _157);
     _159 = ((uint32_t)(_158));
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _160 = (_150 | _159);
     _161 = ((uint32_t)(_160));
-#line 85 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _162 = 2;
-#line 84 "rt/regex_runtime.w"
     _163 = ((int32_t)(_8[_162]));
     _164 = ((uint32_t)(_163));
-#line 85 "rt/regex_runtime.w"
-    _165 = ((uint32_t)(63));
 #line 84 "rt/regex_runtime.w"
+    _165 = ((uint32_t)(63));
+#line 83 "rt/regex_runtime.w"
     _166 = (_164 & _165);
     _167 = ((uint32_t)(_166));
-#line 86 "rt/regex_runtime.w"
+#line 85 "rt/regex_runtime.w"
     _168 = ((uint32_t)(12));
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _169 = (_167 << _168);
     _170 = ((uint32_t)(_169));
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _171 = (_161 | _170);
     _172 = ((uint32_t)(_171));
-#line 88 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _173 = 3;
-#line 87 "rt/regex_runtime.w"
     _174 = ((int32_t)(_8[_173]));
     _175 = ((uint32_t)(_174));
-#line 89 "rt/regex_runtime.w"
-    _176 = ((uint32_t)(63));
 #line 87 "rt/regex_runtime.w"
+    _176 = ((uint32_t)(63));
+#line 86 "rt/regex_runtime.w"
     _177 = (_175 & _176);
     _178 = ((uint32_t)(_177));
-#line 89 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _179 = ((uint32_t)(6));
-#line 87 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _180 = (_178 << _179);
     _181 = ((uint32_t)(_180));
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _182 = (_172 | _181);
     _183 = ((uint32_t)(_182));
-#line 91 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _184 = 4;
     _185 = ((int32_t)(_8[_184]));
     _186 = ((uint32_t)(_185));
-#line 93 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _187 = ((uint32_t)(63));
-#line 91 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _188 = (_186 & _187);
     _189 = ((uint32_t)(_188));
-#line 79 "rt/regex_runtime.w"
+#line 78 "rt/regex_runtime.w"
     _190 = (_183 | _189);
     _7 = _190;
-#line 95 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _191 = (_34 + 4);
+#line 92 "rt/regex_runtime.w"
     _34 = _191;
     goto bb42;
 bb41:
-#line 100 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _192 = ((uint32_t)(_7));
+#line 97 "rt/regex_runtime.w"
     _193 = ((uint32_t)(1));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _194 = (_192 & _193);
     _195 = ((uint32_t)(_194));
-#line 101 "rt/regex_runtime.w"
-    _196 = ((uint32_t)(30));
 #line 99 "rt/regex_runtime.w"
+    _196 = ((uint32_t)(30));
+#line 96 "rt/regex_runtime.w"
     _197 = (_195 << _196);
     _198 = ((uint32_t)(_197));
-#line 102 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _199 = 1;
     _200 = ((int32_t)(_8[_199]));
     _201 = ((uint32_t)(_200));
-#line 103 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _202 = ((uint32_t)(63));
-#line 102 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _203 = (_201 & _202);
     _204 = ((uint32_t)(_203));
-#line 104 "rt/regex_runtime.w"
-    _205 = ((uint32_t)(24));
 #line 102 "rt/regex_runtime.w"
+    _205 = ((uint32_t)(24));
+#line 100 "rt/regex_runtime.w"
     _206 = (_204 << _205);
     _207 = ((uint32_t)(_206));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _208 = (_198 | _207);
     _209 = ((uint32_t)(_208));
-#line 107 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _210 = 2;
-#line 105 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _211 = ((int32_t)(_8[_210]));
     _212 = ((uint32_t)(_211));
-#line 108 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _213 = ((uint32_t)(63));
-#line 105 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _214 = (_212 & _213);
     _215 = ((uint32_t)(_214));
-#line 108 "rt/regex_runtime.w"
-    _216 = ((uint32_t)(18));
 #line 105 "rt/regex_runtime.w"
+    _216 = ((uint32_t)(18));
+#line 103 "rt/regex_runtime.w"
     _217 = (_215 << _216);
     _218 = ((uint32_t)(_217));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _219 = (_209 | _218);
     _220 = ((uint32_t)(_219));
-#line 110 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _221 = 3;
-#line 109 "rt/regex_runtime.w"
     _222 = ((int32_t)(_8[_221]));
+#line 107 "rt/regex_runtime.w"
     _223 = ((uint32_t)(_222));
-#line 111 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _224 = ((uint32_t)(63));
-#line 109 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     _225 = (_223 & _224);
     _226 = ((uint32_t)(_225));
-#line 111 "rt/regex_runtime.w"
-    _227 = ((uint32_t)(12));
 #line 109 "rt/regex_runtime.w"
+    _227 = ((uint32_t)(12));
+#line 107 "rt/regex_runtime.w"
     _228 = (_226 << _227);
     _229 = ((uint32_t)(_228));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _230 = (_220 | _229);
     _231 = ((uint32_t)(_230));
-#line 114 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     _232 = 4;
-#line 113 "rt/regex_runtime.w"
     _233 = ((int32_t)(_8[_232]));
     _234 = ((uint32_t)(_233));
-#line 115 "rt/regex_runtime.w"
     _235 = ((uint32_t)(63));
-#line 113 "rt/regex_runtime.w"
     _236 = (_234 & _235);
     _237 = ((uint32_t)(_236));
-#line 116 "rt/regex_runtime.w"
-    _238 = ((uint32_t)(6));
 #line 113 "rt/regex_runtime.w"
+    _238 = ((uint32_t)(6));
+#line 111 "rt/regex_runtime.w"
     _239 = (_237 << _238);
     _240 = ((uint32_t)(_239));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _241 = (_231 | _240);
     _242 = ((uint32_t)(_241));
-#line 118 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     _243 = 5;
-#line 116 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     _244 = ((int32_t)(_8[_243]));
     _245 = ((uint32_t)(_244));
-#line 118 "rt/regex_runtime.w"
-    _246 = ((uint32_t)(63));
 #line 116 "rt/regex_runtime.w"
+    _246 = ((uint32_t)(63));
+#line 114 "rt/regex_runtime.w"
     _247 = (_245 & _246);
     _248 = ((uint32_t)(_247));
-#line 99 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _249 = (_242 | _248);
     _7 = _249;
-#line 120 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _250 = (_34 + 5);
     _34 = _250;
     goto bb42;
 bb42:
     goto bb36;
 bb43:
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _276 = 1;
     goto bb45;
 bb44:
-#line 133 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _276 = 0;
     goto bb45;
 bb45:
@@ -244271,13 +244283,12 @@ bb46:
 bb47:
     goto bb48;
 bb48:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     /* StorageLive(_278); */
     _278 = 0;
-#line 137 "rt/regex_runtime.w"
     /* StorageLive(_279); */
     _279 = 0;
-#line 138 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _280 = (_10 == 13);
     if (_280 == 1) {
         goto bb50;
@@ -244288,9 +244299,11 @@ bb48:
 bb49:
     goto bb48;
 bb50:
+#line 137 "rt/regex_runtime.w"
     _281 = 1;
     goto bb52;
 bb51:
+#line 135 "rt/regex_runtime.w"
     _281 = 0;
     goto bb52;
 bb52:
@@ -244302,6 +244315,7 @@ bb52:
         goto bb54;
     }
 bb53:
+#line 138 "rt/regex_runtime.w"
     _283 = (_33 == 14);
     if (_283 == 1) {
         goto bb56;
@@ -244312,7 +244326,6 @@ bb53:
 bb54:
     goto bb55;
 bb55:
-#line 141 "rt/regex_runtime.w"
     _287 = (_279 != 0);
     if (_287 == 1) {
         goto bb62;
@@ -244321,11 +244334,9 @@ bb55:
         goto bb63;
     }
 bb56:
-#line 140 "rt/regex_runtime.w"
     _284 = 1;
     goto bb58;
 bb57:
-#line 138 "rt/regex_runtime.w"
     _284 = 0;
     goto bb58;
 bb58:
@@ -244337,20 +244348,18 @@ bb58:
         goto bb60;
     }
 bb59:
-#line 140 "rt/regex_runtime.w"
     _286 = 1;
     goto bb61;
 bb60:
-#line 138 "rt/regex_runtime.w"
     _286 = 0;
     goto bb61;
 bb61:
+#line 137 "rt/regex_runtime.w"
     _279 = _286;
     goto bb55;
 bb62:
-#line 143 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _288 = (_9 != 0);
-#line 142 "rt/regex_runtime.w"
     _289 = (!(_288));
     if (_289 == 1) {
         goto bb65;
@@ -244361,7 +244370,7 @@ bb62:
 bb63:
     goto bb64;
 bb64:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _293 = (_278 != 0);
     if (_293 == 1) {
         goto bb71;
@@ -244370,13 +244379,14 @@ bb64:
         goto bb72;
     }
 bb65:
+#line 141 "rt/regex_runtime.w"
     _290 = 1;
     goto bb67;
 bb66:
-#line 142 "rt/regex_runtime.w"
     _290 = 0;
     goto bb67;
 bb67:
+#line 140 "rt/regex_runtime.w"
     _291 = (_290 != 0);
     if (_291 == 1) {
         goto bb68;
@@ -244385,15 +244395,14 @@ bb67:
         goto bb69;
     }
 bb68:
-#line 143 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _292 = 1;
     goto bb70;
 bb69:
-#line 142 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _292 = 0;
     goto bb70;
 bb70:
-#line 141 "rt/regex_runtime.w"
     _278 = _292;
     goto bb64;
 bb71:
@@ -244401,9 +244410,10 @@ bb71:
 bb72:
     goto bb73;
 bb73:
-#line 145 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     /* StorageLive(_294); */
     _294 = 0;
+#line 144 "rt/regex_runtime.w"
     _295 = (_10 == 11);
     if (_295 == 1) {
         goto bb75;
@@ -244414,11 +244424,11 @@ bb73:
 bb74:
     goto bb73;
 bb75:
-#line 146 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _296 = 1;
     goto bb77;
 bb76:
-#line 145 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _296 = 0;
     goto bb77;
 bb77:
@@ -244430,7 +244440,7 @@ bb77:
         goto bb79;
     }
 bb78:
-#line 147 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _298 = (_33 == 11);
     if (_298 == 1) {
         goto bb81;
@@ -244441,7 +244451,7 @@ bb78:
 bb79:
     goto bb80;
 bb80:
-#line 149 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _302 = (_294 != 0);
     if (_302 == 1) {
         goto bb87;
@@ -244450,10 +244460,10 @@ bb80:
         goto bb88;
     }
 bb81:
-#line 147 "rt/regex_runtime.w"
     _299 = 1;
     goto bb83;
 bb82:
+#line 145 "rt/regex_runtime.w"
     _299 = 0;
     goto bb83;
 bb83:
@@ -244465,28 +244475,29 @@ bb83:
         goto bb85;
     }
 bb84:
-#line 148 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _301 = 1;
     goto bb86;
 bb85:
-#line 147 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     _301 = 0;
     goto bb86;
 bb86:
     _294 = _301;
     goto bb80;
 bb87:
-#line 150 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     /* StorageLive(_303); */
     _303 = 0;
+#line 149 "rt/regex_runtime.w"
     /* StorageLive(_304); */
-#line 151 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _305 = ((int64_t)(1));
     _306 = ((uint64_t)(_305));
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _307 = (_8 - _306);
     _304 = _307;
-#line 152 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _308 = (_5 != 0);
     if (_308 == 1) {
         goto bb90;
@@ -244497,10 +244508,10 @@ bb87:
 bb88:
     goto bb89;
 bb89:
-#line 268 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     /* StorageLive(_561); */
     _561 = 0;
-#line 269 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _562 = (_10 == 14);
     if (_562 == 1) {
         goto bb158;
@@ -244515,12 +244526,12 @@ bb91:
 bb92:
     goto bb99;
 bb93:
-#line 154 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _309 = ((int32_t)((*_304)));
     _310 = ((uint32_t)(_309));
-#line 155 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _311 = ((uint32_t)(192));
-#line 154 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _312 = (_310 & _311);
     _313 = (_312 == 128);
     if (_313 == 1) {
@@ -244530,19 +244541,19 @@ bb93:
         goto bb97;
     }
 bb94:
-#line 159 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _316 = (_304 - 1);
-#line 158 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     _304 = _316;
     goto bb93;
 bb95:
     goto bb92;
 bb96:
-#line 156 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _314 = 1;
     goto bb98;
 bb97:
-#line 153 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     _314 = 0;
     goto bb98;
 bb98:
@@ -244554,7 +244565,7 @@ bb98:
         goto bb95;
     }
 bb99:
-#line 163 "rt/regex_runtime.w"
+#line 158 "rt/regex_runtime.w"
     { __typeof__((_304 > _3)) __tmp = (_304 > _3); memcpy(&(_317), &__tmp, sizeof(_317) < sizeof(__tmp) ? sizeof(_317) : sizeof(__tmp)); }
     if (_317 == 1) {
         goto bb102;
@@ -244563,10 +244574,11 @@ bb99:
         goto bb103;
     }
 bb100:
-#line 165 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _320 = (_304 - 1);
+#line 162 "rt/regex_runtime.w"
     _304 = _320;
-#line 166 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _321 = (_5 != 0);
     if (_321 == 1) {
         goto bb105;
@@ -244575,7 +244587,7 @@ bb100:
         goto bb106;
     }
 bb101:
-#line 265 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _557 = (_303 & 1);
     _558 = (_557 != 0);
     if (_558 == 1) {
@@ -244585,10 +244597,11 @@ bb101:
         goto bb152;
     }
 bb102:
-#line 163 "rt/regex_runtime.w"
+#line 161 "rt/regex_runtime.w"
     _318 = 1;
     goto bb104;
 bb103:
+#line 158 "rt/regex_runtime.w"
     _318 = 0;
     goto bb104;
 bb104:
@@ -244602,31 +244615,30 @@ bb104:
 bb105:
     goto bb108;
 bb106:
-#line 257 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _7 = (*_304);
     goto bb107;
 bb107:
-#line 258 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _537 = 0;
-#line 257 "rt/regex_runtime.w"
     _538 = (&__with_global__pcre2_ucd_records_8__2612[_537]);
     _539 = (ucd_record*)((ucd_record*)(_538));
-#line 260 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _540 = ((int32_t)(_7));
     _541 = (_540 / 128);
     _542 = _541;
-#line 259 "rt/regex_runtime.w"
     _543 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_542]));
+#line 256 "rt/regex_runtime.w"
     _544 = (_543 * 128);
-#line 260 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _545 = ((int32_t)(_7));
     _546 = (_545 % 128);
-#line 259 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _547 = (_544 + _546);
     _548 = _547;
+#line 255 "rt/regex_runtime.w"
     _549 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_548]));
     _550 = ((uint64_t)(_549));
-#line 257 "rt/regex_runtime.w"
     _551 = (_539 + _550);
     _552 = _551;
     _553 = ((*_552).gbprop != 11);
@@ -244637,12 +244649,12 @@ bb107:
         goto bb145;
     }
 bb108:
-#line 167 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _322 = ((int32_t)((*_304)));
     _323 = ((uint32_t)(_322));
-#line 168 "rt/regex_runtime.w"
-    _324 = ((uint32_t)(192));
 #line 166 "rt/regex_runtime.w"
+    _324 = ((uint32_t)(192));
+#line 165 "rt/regex_runtime.w"
     _325 = (_323 & _324);
     _326 = (_325 == 128);
     if (_326 == 1) {
@@ -244652,14 +244664,15 @@ bb108:
         goto bb112;
     }
 bb109:
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _329 = (_304 - 1);
+#line 167 "rt/regex_runtime.w"
     _304 = _329;
     goto bb108;
 bb110:
-#line 171 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _7 = (*_304);
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _330 = (_7 >= 192);
     if (_330 == 1) {
         goto bb114;
@@ -244668,11 +244681,11 @@ bb110:
         goto bb115;
     }
 bb111:
-#line 168 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _327 = 1;
     goto bb113;
 bb112:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _327 = 0;
     goto bb113;
 bb113:
@@ -244684,7 +244697,7 @@ bb113:
         goto bb110;
     }
 bb114:
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _331 = 1;
     goto bb116;
 bb115:
@@ -244699,11 +244712,9 @@ bb116:
         goto bb118;
     }
 bb117:
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _333 = ((uint32_t)(_7));
-#line 176 "rt/regex_runtime.w"
     _334 = ((uint32_t)(32));
-#line 174 "rt/regex_runtime.w"
     _335 = (_333 & _334);
     _336 = (_335 == 0);
     if (_336 == 1) {
@@ -244717,11 +244728,9 @@ bb118:
 bb119:
     goto bb107;
 bb120:
-#line 176 "rt/regex_runtime.w"
     _337 = 1;
     goto bb122;
 bb121:
-#line 174 "rt/regex_runtime.w"
     _337 = 0;
     goto bb122;
 bb122:
@@ -244733,38 +244742,39 @@ bb122:
         goto bb124;
     }
 bb123:
-#line 176 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _339 = ((uint32_t)(_7));
-#line 177 "rt/regex_runtime.w"
-    _340 = ((uint32_t)(31));
 #line 176 "rt/regex_runtime.w"
+    _340 = ((uint32_t)(31));
+#line 175 "rt/regex_runtime.w"
     _341 = (_339 & _340);
     _342 = ((uint32_t)(_341));
-#line 177 "rt/regex_runtime.w"
-    _343 = ((uint32_t)(6));
 #line 176 "rt/regex_runtime.w"
+    _343 = ((uint32_t)(6));
+#line 175 "rt/regex_runtime.w"
     _344 = (_342 << _343);
     _345 = ((uint32_t)(_344));
-#line 178 "rt/regex_runtime.w"
-    _346 = 1;
 #line 177 "rt/regex_runtime.w"
+    _346 = 1;
+#line 176 "rt/regex_runtime.w"
     _347 = ((int32_t)(_304[_346]));
     _348 = ((uint32_t)(_347));
-#line 178 "rt/regex_runtime.w"
-    _349 = ((uint32_t)(63));
 #line 177 "rt/regex_runtime.w"
+    _349 = ((uint32_t)(63));
+#line 176 "rt/regex_runtime.w"
     _350 = (_348 & _349);
     _351 = ((uint32_t)(_350));
-#line 176 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _352 = (_345 | _351);
+#line 174 "rt/regex_runtime.w"
     _7 = _352;
     goto bb125;
 bb124:
-#line 180 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _353 = ((uint32_t)(_7));
-#line 181 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _354 = ((uint32_t)(16));
-#line 180 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _355 = (_353 & _354);
     _356 = (_355 == 0);
     if (_356 == 1) {
@@ -244776,15 +244786,14 @@ bb124:
 bb125:
     goto bb119;
 bb126:
-#line 181 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _357 = 1;
     goto bb128;
 bb127:
-#line 180 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _357 = 0;
     goto bb128;
 bb128:
-#line 179 "rt/regex_runtime.w"
     _358 = (_357 != 0);
     if (_358 == 1) {
         goto bb129;
@@ -244793,55 +244802,51 @@ bb128:
         goto bb130;
     }
 bb129:
-#line 183 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _359 = ((uint32_t)(_7));
-#line 184 "rt/regex_runtime.w"
     _360 = ((uint32_t)(15));
-#line 183 "rt/regex_runtime.w"
     _361 = (_359 & _360);
     _362 = ((uint32_t)(_361));
-#line 185 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _363 = ((uint32_t)(12));
-#line 183 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _364 = (_362 << _363);
     _365 = ((uint32_t)(_364));
-#line 187 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _366 = 1;
     _367 = ((int32_t)(_304[_366]));
     _368 = ((uint32_t)(_367));
-#line 188 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _369 = ((uint32_t)(63));
-#line 187 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _370 = (_368 & _369);
     _371 = ((uint32_t)(_370));
-#line 188 "rt/regex_runtime.w"
+#line 185 "rt/regex_runtime.w"
     _372 = ((uint32_t)(6));
-#line 187 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _373 = (_371 << _372);
     _374 = ((uint32_t)(_373));
-#line 183 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _375 = (_365 | _374);
     _376 = ((uint32_t)(_375));
-#line 191 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _377 = 2;
-#line 190 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _378 = ((int32_t)(_304[_377]));
     _379 = ((uint32_t)(_378));
-#line 192 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _380 = ((uint32_t)(63));
-#line 190 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _381 = (_379 & _380);
     _382 = ((uint32_t)(_381));
-#line 183 "rt/regex_runtime.w"
+#line 180 "rt/regex_runtime.w"
     _383 = (_376 | _382);
     _7 = _383;
     goto bb131;
 bb130:
-#line 194 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _384 = ((uint32_t)(_7));
-#line 195 "rt/regex_runtime.w"
     _385 = ((uint32_t)(8));
-#line 194 "rt/regex_runtime.w"
     _386 = (_384 & _385);
     _387 = (_386 == 0);
     if (_387 == 1) {
@@ -244853,11 +244858,11 @@ bb130:
 bb131:
     goto bb125;
 bb132:
-#line 195 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _388 = 1;
     goto bb134;
 bb133:
-#line 194 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _388 = 0;
     goto bb134;
 bb134:
@@ -244869,70 +244874,68 @@ bb134:
         goto bb136;
     }
 bb135:
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _390 = ((uint32_t)(_7));
     _391 = ((uint32_t)(7));
     _392 = (_390 & _391);
     _393 = ((uint32_t)(_392));
-#line 200 "rt/regex_runtime.w"
+#line 197 "rt/regex_runtime.w"
     _394 = ((uint32_t)(18));
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _395 = (_393 << _394);
     _396 = ((uint32_t)(_395));
-#line 202 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _397 = 1;
     _398 = ((int32_t)(_304[_397]));
     _399 = ((uint32_t)(_398));
-#line 203 "rt/regex_runtime.w"
     _400 = ((uint32_t)(63));
-#line 202 "rt/regex_runtime.w"
     _401 = (_399 & _400);
     _402 = ((uint32_t)(_401));
-#line 203 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _403 = ((uint32_t)(12));
-#line 202 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _404 = (_402 << _403);
     _405 = ((uint32_t)(_404));
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _406 = (_396 | _405);
     _407 = ((uint32_t)(_406));
-#line 205 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _408 = 2;
-#line 204 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _409 = ((int32_t)(_304[_408]));
     _410 = ((uint32_t)(_409));
-#line 206 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _411 = ((uint32_t)(63));
-#line 204 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _412 = (_410 & _411);
     _413 = ((uint32_t)(_412));
-#line 207 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _414 = ((uint32_t)(6));
-#line 204 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _415 = (_413 << _414);
     _416 = ((uint32_t)(_415));
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _417 = (_407 | _416);
     _418 = ((uint32_t)(_417));
-#line 209 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _419 = 3;
+#line 204 "rt/regex_runtime.w"
     _420 = ((int32_t)(_304[_419]));
     _421 = ((uint32_t)(_420));
-#line 210 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _422 = ((uint32_t)(63));
-#line 209 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _423 = (_421 & _422);
     _424 = ((uint32_t)(_423));
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _425 = (_418 | _424);
+#line 194 "rt/regex_runtime.w"
     _7 = _425;
     goto bb137;
 bb136:
-#line 213 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _426 = ((uint32_t)(_7));
-#line 215 "rt/regex_runtime.w"
     _427 = ((uint32_t)(4));
-#line 213 "rt/regex_runtime.w"
     _428 = (_426 & _427);
     _429 = (_428 == 0);
     if (_429 == 1) {
@@ -244944,15 +244947,14 @@ bb136:
 bb137:
     goto bb131;
 bb138:
-#line 215 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _430 = 1;
     goto bb140;
 bb139:
-#line 213 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _430 = 0;
     goto bb140;
 bb140:
-#line 212 "rt/regex_runtime.w"
     _431 = (_430 != 0);
     if (_431 == 1) {
         goto bb141;
@@ -244961,188 +244963,190 @@ bb140:
         goto bb142;
     }
 bb141:
-#line 217 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _432 = ((uint32_t)(_7));
+#line 215 "rt/regex_runtime.w"
     _433 = ((uint32_t)(3));
+#line 213 "rt/regex_runtime.w"
     _434 = (_432 & _433);
     _435 = ((uint32_t)(_434));
-#line 219 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _436 = ((uint32_t)(24));
-#line 217 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _437 = (_435 << _436);
     _438 = ((uint32_t)(_437));
-#line 220 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _439 = 1;
+#line 215 "rt/regex_runtime.w"
     _440 = ((int32_t)(_304[_439]));
     _441 = ((uint32_t)(_440));
-#line 221 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _442 = ((uint32_t)(63));
-#line 220 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _443 = (_441 & _442);
     _444 = ((uint32_t)(_443));
-#line 222 "rt/regex_runtime.w"
+#line 218 "rt/regex_runtime.w"
     _445 = ((uint32_t)(18));
-#line 220 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _446 = (_444 << _445);
     _447 = ((uint32_t)(_446));
-#line 217 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _448 = (_438 | _447);
+#line 212 "rt/regex_runtime.w"
     _449 = ((uint32_t)(_448));
-#line 225 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _450 = 2;
-#line 224 "rt/regex_runtime.w"
     _451 = ((int32_t)(_304[_450]));
     _452 = ((uint32_t)(_451));
-#line 225 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _453 = ((uint32_t)(63));
-#line 223 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _454 = (_452 & _453);
     _455 = ((uint32_t)(_454));
-#line 225 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _456 = ((uint32_t)(12));
-#line 223 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _457 = (_455 << _456);
     _458 = ((uint32_t)(_457));
-#line 217 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _459 = (_449 | _458);
     _460 = ((uint32_t)(_459));
-#line 228 "rt/regex_runtime.w"
+#line 224 "rt/regex_runtime.w"
     _461 = 3;
-#line 227 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _462 = ((int32_t)(_304[_461]));
     _463 = ((uint32_t)(_462));
-#line 228 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _464 = ((uint32_t)(63));
-#line 227 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _465 = (_463 & _464);
     _466 = ((uint32_t)(_465));
-#line 229 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _467 = ((uint32_t)(6));
-#line 227 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _468 = (_466 << _467);
     _469 = ((uint32_t)(_468));
-#line 217 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _470 = (_460 | _469);
-#line 216 "rt/regex_runtime.w"
     _471 = ((uint32_t)(_470));
-#line 231 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _472 = 4;
-#line 230 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _473 = ((int32_t)(_304[_472]));
     _474 = ((uint32_t)(_473));
-#line 233 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _475 = ((uint32_t)(63));
-#line 230 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _476 = (_474 & _475);
     _477 = ((uint32_t)(_476));
-#line 216 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _478 = (_471 | _477);
     _7 = _478;
     goto bb143;
 bb142:
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _479 = ((uint32_t)(_7));
+#line 233 "rt/regex_runtime.w"
     _480 = ((uint32_t)(1));
+#line 232 "rt/regex_runtime.w"
     _481 = (_479 & _480);
     _482 = ((uint32_t)(_481));
-#line 236 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _483 = ((uint32_t)(30));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _484 = (_482 << _483);
     _485 = ((uint32_t)(_484));
-#line 238 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _486 = 1;
+#line 234 "rt/regex_runtime.w"
     _487 = ((int32_t)(_304[_486]));
+#line 233 "rt/regex_runtime.w"
     _488 = ((uint32_t)(_487));
-#line 239 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _489 = ((uint32_t)(63));
-#line 238 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _490 = (_488 & _489);
-#line 237 "rt/regex_runtime.w"
     _491 = ((uint32_t)(_490));
-#line 239 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _492 = ((uint32_t)(24));
-#line 236 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _493 = (_491 << _492);
     _494 = ((uint32_t)(_493));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _495 = (_485 | _494);
     _496 = ((uint32_t)(_495));
-#line 241 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _497 = 2;
-#line 240 "rt/regex_runtime.w"
     _498 = ((int32_t)(_304[_497]));
     _499 = ((uint32_t)(_498));
-#line 242 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _500 = ((uint32_t)(63));
-#line 240 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _501 = (_499 & _500);
     _502 = ((uint32_t)(_501));
-#line 243 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _503 = ((uint32_t)(18));
-#line 240 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _504 = (_502 << _503);
     _505 = ((uint32_t)(_504));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _506 = (_496 | _505);
     _507 = ((uint32_t)(_506));
-#line 243 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _508 = 3;
     _509 = ((int32_t)(_304[_508]));
     _510 = ((uint32_t)(_509));
-#line 244 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _511 = ((uint32_t)(63));
-#line 243 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _512 = (_510 & _511);
     _513 = ((uint32_t)(_512));
-#line 246 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _514 = ((uint32_t)(12));
-#line 243 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _515 = (_513 << _514);
     _516 = ((uint32_t)(_515));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _517 = (_507 | _516);
     _518 = ((uint32_t)(_517));
-#line 250 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _519 = 4;
-#line 249 "rt/regex_runtime.w"
     _520 = ((int32_t)(_304[_519]));
     _521 = ((uint32_t)(_520));
-#line 250 "rt/regex_runtime.w"
     _522 = ((uint32_t)(63));
-#line 249 "rt/regex_runtime.w"
     _523 = (_521 & _522);
     _524 = ((uint32_t)(_523));
-#line 250 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _525 = ((uint32_t)(6));
-#line 249 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _526 = (_524 << _525);
     _527 = ((uint32_t)(_526));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _528 = (_518 | _527);
     _529 = ((uint32_t)(_528));
-#line 252 "rt/regex_runtime.w"
+#line 247 "rt/regex_runtime.w"
     _530 = 5;
-#line 251 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     _531 = ((int32_t)(_304[_530]));
     _532 = ((uint32_t)(_531));
-#line 253 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _533 = ((uint32_t)(63));
-#line 251 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     _534 = (_532 & _533);
     _535 = ((uint32_t)(_534));
-#line 235 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _536 = (_529 | _535);
+#line 230 "rt/regex_runtime.w"
     _7 = _536;
     goto bb143;
 bb143:
     goto bb137;
 bb144:
-#line 263 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _554 = 1;
     goto bb146;
 bb145:
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _554 = 0;
     goto bb146;
 bb146:
@@ -245158,19 +245162,18 @@ bb147:
 bb148:
     goto bb149;
 bb149:
-#line 264 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _556 = (_303 + 1);
-#line 263 "rt/regex_runtime.w"
     _303 = _556;
     goto bb99;
 bb150:
     goto bb149;
 bb151:
-#line 266 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _559 = 1;
     goto bb153;
 bb152:
-#line 265 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _559 = 0;
     goto bb153;
 bb153:
@@ -245190,11 +245193,11 @@ bb156:
 bb157:
     goto bb156;
 bb158:
-#line 270 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _563 = 1;
     goto bb160;
 bb159:
-#line 269 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _563 = 0;
     goto bb160;
 bb160:
@@ -245206,7 +245209,7 @@ bb160:
         goto bb162;
     }
 bb161:
-#line 271 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _565 = (_33 == 13);
     if (_565 == 1) {
         goto bb164;
@@ -245217,11 +245220,11 @@ bb161:
 bb162:
     goto bb163;
 bb163:
-#line 275 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _9 = _561;
-#line 278 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     /* StorageLive(_569); */
-#line 279 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _570 = (_33 != 3);
     if (_570 == 1) {
         goto bb170;
@@ -245230,11 +245233,11 @@ bb163:
         goto bb171;
     }
 bb164:
-#line 272 "rt/regex_runtime.w"
+#line 268 "rt/regex_runtime.w"
     _566 = 1;
     goto bb166;
 bb165:
-#line 271 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _566 = 0;
     goto bb166;
 bb166:
@@ -245246,22 +245249,23 @@ bb166:
         goto bb168;
     }
 bb167:
-#line 273 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _568 = 1;
     goto bb169;
 bb168:
-#line 271 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _568 = 0;
     goto bb169;
 bb169:
+#line 266 "rt/regex_runtime.w"
     _561 = _568;
     goto bb163;
 bb170:
-#line 281 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _571 = 1;
     goto bb172;
 bb171:
-#line 279 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _571 = 0;
     goto bb172;
 bb172:
@@ -245280,7 +245284,7 @@ bb173:
         goto bb177;
     }
 bb174:
-#line 285 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _574 = (_10 != 14);
     if (_574 == 1) {
         goto bb179;
@@ -245289,7 +245293,7 @@ bb174:
         goto bb180;
     }
 bb175:
-#line 287 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _578 = (_569 != 0);
     if (_578 == 1) {
         goto bb185;
@@ -245298,22 +245302,23 @@ bb175:
         goto bb186;
     }
 bb176:
-#line 284 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _573 = 1;
     goto bb178;
 bb177:
-#line 283 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _573 = 0;
     goto bb178;
 bb178:
+#line 274 "rt/regex_runtime.w"
     _569 = _573;
     goto bb175;
 bb179:
-#line 286 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _575 = 1;
     goto bb181;
 bb180:
-#line 285 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _575 = 0;
     goto bb181;
 bb181:
@@ -245325,31 +245330,31 @@ bb181:
         goto bb183;
     }
 bb182:
-#line 287 "rt/regex_runtime.w"
+#line 282 "rt/regex_runtime.w"
     _577 = 1;
     goto bb184;
 bb183:
-#line 285 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _577 = 0;
     goto bb184;
 bb184:
+#line 278 "rt/regex_runtime.w"
     _569 = _577;
     goto bb175;
 bb185:
-#line 289 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _10 = _33;
     goto bb187;
 bb186:
     goto bb187;
 bb187:
-#line 292 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _579 = ((int64_t)(_34));
     _580 = ((uint64_t)(_579));
-#line 291 "rt/regex_runtime.w"
     _581 = (_8 + _580);
-#line 290 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _8 = _581;
-#line 294 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     { __typeof__((_6 != 0)) __tmp = (_6 != 0); memcpy(&(_582), &__tmp, sizeof(_582) < sizeof(__tmp) ? sizeof(_582) : sizeof(__tmp)); }
     if (_582 == 1) {
         goto bb188;
@@ -245358,11 +245363,11 @@ bb187:
         goto bb189;
     }
 bb188:
-#line 295 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _583 = 1;
     goto bb190;
 bb189:
-#line 294 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _583 = 0;
     goto bb190;
 bb190:
@@ -245374,9 +245379,9 @@ bb190:
         goto bb192;
     }
 bb191:
-#line 297 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _585 = ((*_6) + 1);
-#line 296 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     (*_6) = _585;
     goto bb193;
 bb192:
@@ -245384,7 +245389,7 @@ bb192:
 bb193:
     goto bb1;
 bb194:
-#line 300 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -245773,11 +245778,10 @@ bb49:
     _7 = (__typeof__(_7)){0};
     goto bb10;
 bb50:
-#line 41 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     _0 = 4;
     return _0;
 bb51:
-#line 43 "rt/regex_runtime.w"
     _22 = (_6 == 2);
     if (_22 == 1) {
         goto bb53;
@@ -245786,11 +245790,9 @@ bb51:
         goto bb54;
     }
 bb52:
-#line 41 "rt/regex_runtime.w"
     _7 = (__typeof__(_7)){0};
     goto bb10;
 bb53:
-#line 43 "rt/regex_runtime.w"
     _7 = 0;
     goto bb10;
 bb54:
@@ -245803,10 +245805,10 @@ bb54:
         goto bb56;
     }
 bb55:
+#line 47 "rt/regex_runtime.w"
     _7 = 0;
     goto bb10;
 bb56:
-#line 47 "rt/regex_runtime.w"
     _24 = (_6 == 11);
     if (_24 == 1) {
         goto bb57;
@@ -245853,14 +245855,14 @@ bb64:
 bb65:
     goto bb64;
 bb66:
-#line 56 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _28 = (uint32_t*)((uint32_t*)(_2));
     _29 = _28;
     (*_29) = 1;
     _26 = 1;
     goto bb65;
 bb67:
-#line 58 "rt/regex_runtime.w"
+#line 60 "rt/regex_runtime.w"
     _30 = (_25 == 14);
     if (_30 == 1) {
         goto bb68;
@@ -245869,14 +245871,13 @@ bb67:
         goto bb69;
     }
 bb68:
-#line 60 "rt/regex_runtime.w"
     _31 = (uint32_t*)((uint32_t*)(_2));
     _32 = _31;
     (*_32) = 1;
     _26 = 1;
     goto bb65;
 bb69:
-#line 61 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     _33 = (_25 == 7);
     if (_33 == 1) {
         goto bb70;
@@ -245888,12 +245889,11 @@ bb70:
 #line 63 "rt/regex_runtime.w"
     _34 = (uint32_t*)((uint32_t*)(_2));
     _35 = _34;
-#line 62 "rt/regex_runtime.w"
     (*_35) = 10000000;
     _26 = 10000000;
     goto bb65;
 bb71:
-#line 64 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _36 = (_25 == 16);
     if (_36 == 1) {
         goto bb72;
@@ -245905,7 +245905,6 @@ bb72:
 #line 66 "rt/regex_runtime.w"
     _37 = (uint32_t*)((uint32_t*)(_2));
     _38 = _37;
-#line 65 "rt/regex_runtime.w"
     (*_38) = 2;
     _26 = 2;
     goto bb65;
@@ -245919,10 +245918,10 @@ bb73:
         goto bb75;
     }
 bb74:
-#line 68 "rt/regex_runtime.w"
+#line 69 "rt/regex_runtime.w"
     _40 = (uint32_t*)((uint32_t*)(_2));
     _41 = _40;
-#line 67 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     (*_41) = 20000000;
     _26 = 20000000;
     goto bb65;
@@ -245970,7 +245969,6 @@ bb81:
 #line 74 "rt/regex_runtime.w"
     _48 = (uint32_t*)((uint32_t*)(_2));
     _49 = _48;
-#line 73 "rt/regex_runtime.w"
     (*_49) = _47;
     _26 = _47;
     goto bb65;
@@ -245987,7 +245985,6 @@ bb83:
 #line 76 "rt/regex_runtime.w"
     _51 = (uint32_t*)((uint32_t*)(_2));
     _52 = _51;
-#line 75 "rt/regex_runtime.w"
     (*_52) = 10000000;
     _26 = 10000000;
     goto bb65;
@@ -246007,6 +246004,7 @@ bb85:
     _26 = 2;
     goto bb65;
 bb86:
+#line 79 "rt/regex_runtime.w"
     _56 = (_25 == 13);
     if (_56 == 1) {
         goto bb87;
@@ -246015,7 +246013,6 @@ bb86:
         goto bb88;
     }
 bb87:
-#line 79 "rt/regex_runtime.w"
     _57 = (uint32_t*)((uint32_t*)(_2));
     _58 = _57;
     (*_58) = 0;
@@ -246035,11 +246032,10 @@ bb89:
     _60 = (uint32_t*)((uint32_t*)(_2));
     _61 = _60;
     (*_61) = 250;
-#line 80 "rt/regex_runtime.w"
     _26 = 250;
     goto bb65;
 bb90:
-#line 82 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _62 = (_25 == 8);
     if (_62 == 1) {
         goto bb91;
@@ -246048,7 +246044,7 @@ bb90:
         goto bb92;
     }
 bb91:
-#line 83 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _63 = (uint32_t*)((uint32_t*)(_2));
     _64 = _63;
     (*_64) = 0;
@@ -246080,15 +246076,16 @@ bb94:
         goto bb96;
     }
 bb95:
-    /* StorageLive(_69); */
 #line 89 "rt/regex_runtime.w"
+    /* StorageLive(_69); */
+#line 90 "rt/regex_runtime.w"
     _71 = (int8_t*)((int8_t*)(__with_global__pcre2_unicode_version_8__2603));
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _69 = _71;
 #line 91 "rt/regex_runtime.w"
     /* StorageLive(_72); */
     _72 = 0;
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_73), &__tmp, sizeof(_73) < sizeof(__tmp) ? sizeof(_73) : sizeof(__tmp)); }
     if (_73 == 1) {
         goto bb97;
@@ -246132,14 +246129,15 @@ bb101:
 bb102:
 #line 103 "rt/regex_runtime.w"
     _79 = ((uint64_t)(1));
+#line 104 "rt/regex_runtime.w"
     _80 = ((uint64_t)(_72));
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _81 = (_79 + _80);
     _82 = ((int32_t)(_81));
     _0 = _82;
     return _0;
 bb103:
-#line 95 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _72 = _76;
     goto bb102;
 bb104:
@@ -246147,7 +246145,7 @@ bb104:
     _72 = _78;
     goto bb102;
 bb105:
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _26 = (__typeof__(_26)){0};
     goto bb65;
 bb106:
@@ -246158,7 +246156,7 @@ bb106:
     _26 = 1;
     goto bb65;
 bb107:
-#line 108 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _86 = (_25 == 11);
     if (_86 == 1) {
         goto bb108;
@@ -246167,11 +246165,9 @@ bb107:
         goto bb109;
     }
 bb108:
-#line 109 "rt/regex_runtime.w"
     /* StorageLive(_87); */
-#line 110 "rt/regex_runtime.w"
-    /* StorageLive(_88); */
 #line 111 "rt/regex_runtime.w"
+    /* StorageLive(_88); */
     _88 = 0;
     /* StorageLive(_89); */
     { __typeof__(0) __tmp = 0; memcpy(&(_89), &__tmp, sizeof(_89) < sizeof(__tmp) ? sizeof(_89) : sizeof(__tmp)); }
@@ -246202,7 +246198,6 @@ bb112:
 bb113:
 #line 116 "rt/regex_runtime.w"
     _93 = (int8_t*)((int8_t*)(WITH_STR_LIT("10.47 2025-10-21").ptr));
-#line 115 "rt/regex_runtime.w"
     _89 = _93;
     goto bb115;
 bb114:
@@ -246218,7 +246213,7 @@ bb115:
 #line 124 "rt/regex_runtime.w"
     /* StorageLive(_96); */
     _96 = 0;
-#line 125 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_97), &__tmp, sizeof(_97) < sizeof(__tmp) ? sizeof(_97) : sizeof(__tmp)); }
     if (_97 == 1) {
         goto bb116;
@@ -246227,11 +246222,9 @@ bb115:
         goto bb117;
     }
 bb116:
-#line 126 "rt/regex_runtime.w"
     _98 = 1;
     goto bb118;
 bb117:
-#line 125 "rt/regex_runtime.w"
     _98 = 0;
     goto bb118;
 bb118:
@@ -246271,7 +246264,7 @@ bb124:
     _26 = (__typeof__(_26)){0};
     goto bb65;
 bb125:
-#line 136 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     _0 = -34;
     return _0;
 bb126:
@@ -246455,7 +246448,7 @@ bb15:
 bb16:
     goto bb17;
 bb17:
-#line 17 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     _14 = ((uint32_t)(_2));
 #line 19 "rt/regex_runtime.w"
     _15 = ((uint32_t)(1));
@@ -246474,10 +246467,10 @@ bb17:
 #line 19 "rt/regex_runtime.w"
     _23 = (_21 | _22);
     _24 = (~(_23));
-#line 18 "rt/regex_runtime.w"
     _25 = ((uint32_t)(_24));
-#line 17 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     _26 = (_14 & _25);
+#line 17 "rt/regex_runtime.w"
     _27 = (_26 != 0);
     if (_27 == 1) {
         goto bb19;
@@ -246606,7 +246599,7 @@ bb0:
     /* StorageLive(_7); */
 #line 47 "rt/regex_runtime.w"
     (*_6).rc = -45;
-#line 50 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _0 = (*_6).rc;
     return _0;
 bb1:
@@ -246641,7 +246634,7 @@ bb1:
     return _0;
 }
 
-c_void* pcre2_jit_stack_assign_8__390(pcre2_real_match_context_8* _1, with_fn_198 _2, c_void* _3) {
+c_void* pcre2_jit_stack_assign_8__390(pcre2_real_match_context_8* _1, with_fn_200 _2, c_void* _3) {
     c_void* _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -246658,6 +246651,7 @@ pcre2_real_jit_stack_8* pcre2_jit_stack_free_8__391(pcre2_real_jit_stack_8* _1) 
     goto bb0;
 bb0:
     /* StorageLive(_1); */
+#line 73 "rt/regex_runtime.w"
     _0 = _1;
     return _0;
 }
@@ -246705,20 +246699,21 @@ int8_t* _pcre2_jit_get_target_8__1091() {
     int8_t* _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 80 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _1 = WITH_STR_LIT("JIT is not supported");
     _2 = 0;
+#line 80 "rt/regex_runtime.w"
     _3 = (&_1.ptr[_2]);
     _4 = (int8_t*)((int8_t*)(_3));
     _0 = _4;
     return _0;
 bb1:
-#line 81 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
 
-c_void* libc_stdin__13780() {
+c_void* libc_stdin__13782() {
     c_void* _0 __attribute__((unused)) = {0};
     c_void* _1 __attribute__((unused)) = {0};
     goto bb0;
@@ -246726,12 +246721,12 @@ bb0:
     _1 = rt_libc_stdin();
     goto bb1;
 bb1:
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _0 = _1;
     return _0;
 }
 
-c_void* libc_stdout__13781() {
+c_void* libc_stdout__13783() {
     c_void* _0 __attribute__((unused)) = {0};
     c_void* _1 __attribute__((unused)) = {0};
     goto bb0;
@@ -246739,12 +246734,12 @@ bb0:
     _1 = rt_libc_stdout();
     goto bb1;
 bb1:
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _0 = _1;
     return _0;
 }
 
-c_void* libc_stderr__13782() {
+c_void* libc_stderr__13784() {
     c_void* _0 __attribute__((unused)) = {0};
     c_void* _1 __attribute__((unused)) = {0};
     goto bb0;
@@ -246752,7 +246747,7 @@ bb0:
     _1 = rt_libc_stderr();
     goto bb1;
 bb1:
-#line 31 "rt/regex_runtime.w"
+#line 30 "rt/regex_runtime.w"
     _0 = _1;
     return _0;
 }
@@ -247018,11 +247013,10 @@ bb1:
     _6 = 1;
     goto bb3;
 bb2:
-#line 10 "rt/regex_runtime.w"
+#line 9 "rt/regex_runtime.w"
     _6 = 0;
     goto bb3;
 bb3:
-#line 9 "rt/regex_runtime.w"
     _7 = (_6 != 0);
     if (_7 == 1) {
         goto bb4;
@@ -247042,12 +247036,12 @@ bb4:
     _14 = (*_10).malloc(1088, (*_13).memory_data);
     goto bb7;
 bb5:
-#line 22 "rt/regex_runtime.w"
+#line 21 "rt/regex_runtime.w"
     _15 = ((int64_t)(1088));
     _16 = with_alloc(_15);
     goto bb8;
 bb6:
-#line 24 "rt/regex_runtime.w"
+#line 23 "rt/regex_runtime.w"
     _18 = (uint8_t*)((uint8_t*)(_4));
 #line 3 "rt/regex_runtime.w"
     _2 = _18;
@@ -247055,7 +247049,7 @@ bb6:
     /* StorageLive(_19); */
 #line 26 "rt/regex_runtime.w"
     /* StorageLive(_20); */
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_21), &__tmp, sizeof(_21) < sizeof(__tmp) ? sizeof(_21) : sizeof(__tmp)); }
     if (_21 == 1) {
         goto bb9;
@@ -247068,9 +247062,9 @@ bb7:
     _4 = _14;
     goto bb6;
 bb8:
-#line 22 "rt/regex_runtime.w"
-    _17 = (c_void*)((c_void*)(_16));
 #line 21 "rt/regex_runtime.w"
+    _17 = (c_void*)((c_void*)(_16));
+#line 20 "rt/regex_runtime.w"
     _4 = _17;
     goto bb6;
 bb9:
@@ -247104,7 +247098,7 @@ bb14:
 bb15:
     goto bb14;
 bb16:
-#line 33 "rt/regex_runtime.w"
+#line 32 "rt/regex_runtime.w"
     _24 = (_19 < 256);
     if (_24 == 1) {
         goto bb19;
@@ -247126,10 +247120,10 @@ bb19:
     _25 = 1;
     goto bb21;
 bb20:
+#line 32 "rt/regex_runtime.w"
     _25 = 0;
     goto bb21;
 bb21:
-#line 32 "rt/regex_runtime.w"
     _26 = (_25 != 0);
     if (_26 == 1) {
         goto bb17;
@@ -247304,6 +247298,7 @@ bb47:
     _19 = 0;
     goto bb48;
 bb48:
+#line 74 "rt/regex_runtime.w"
     _56 = (_19 < 256);
     if (_56 == 1) {
         goto bb51;
@@ -247319,6 +247314,7 @@ bb50:
     _204 = ((int64_t)(320));
     _205 = ((uint64_t)(_204));
     _206 = (_20 + _205);
+#line 136 "rt/regex_runtime.w"
     _20 = _206;
 #line 138 "rt/regex_runtime.w"
     _19 = 0;
@@ -247328,7 +247324,6 @@ bb51:
     _57 = 1;
     goto bb53;
 bb52:
-#line 73 "rt/regex_runtime.w"
     _57 = 0;
     goto bb53;
 bb53:
@@ -247353,18 +247348,18 @@ bb55:
     _61 = (_19 / 8);
     _62 = (64 + _61);
     _63 = _62;
-    _64 = ((uint32_t)(1));
 #line 78 "rt/regex_runtime.w"
+    _64 = ((uint32_t)(1));
     _65 = (_19 & 7);
     _66 = ((uint32_t)(_65));
-#line 77 "rt/regex_runtime.w"
     _67 = (_64 << _66);
-#line 76 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _68 = (_20[_63] | _67);
-#line 75 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _69 = (_19 / 8);
     _70 = (64 + _69);
     _71 = _70;
+#line 75 "rt/regex_runtime.w"
     _20[_71] = _68;
     goto bb57;
 bb56:
@@ -247387,15 +247382,16 @@ bb59:
     _75 = (96 + _74);
     _76 = _75;
     _77 = ((uint32_t)(1));
+#line 81 "rt/regex_runtime.w"
     _78 = (_19 & 7);
+#line 80 "rt/regex_runtime.w"
     _79 = ((uint32_t)(_78));
     _80 = (_77 << _79);
-#line 79 "rt/regex_runtime.w"
     _81 = (_20[_76] | _80);
+#line 79 "rt/regex_runtime.w"
     _82 = (_19 / 8);
     _83 = (96 + _82);
     _84 = _83;
-#line 78 "rt/regex_runtime.w"
     _20[_84] = _81;
     goto bb61;
 bb60:
@@ -247415,18 +247411,18 @@ bb62:
 bb63:
 #line 85 "rt/regex_runtime.w"
     _87 = (_19 / 8);
-#line 84 "rt/regex_runtime.w"
     _88 = (128 + _87);
     _89 = _88;
-#line 85 "rt/regex_runtime.w"
     _90 = ((uint32_t)(1));
+#line 86 "rt/regex_runtime.w"
     _91 = (_19 & 7);
     _92 = ((uint32_t)(_91));
+#line 85 "rt/regex_runtime.w"
     _93 = (_90 << _92);
 #line 84 "rt/regex_runtime.w"
     _94 = (_20[_89] | _93);
-#line 83 "rt/regex_runtime.w"
     _95 = (_19 / 8);
+#line 83 "rt/regex_runtime.w"
     _96 = (128 + _95);
     _97 = _96;
     _20[_97] = _94;
@@ -247450,16 +247446,15 @@ bb67:
     _100 = (_19 / 8);
     _101 = (160 + _100);
     _102 = _101;
-    _103 = ((uint32_t)(1));
 #line 91 "rt/regex_runtime.w"
+    _103 = ((uint32_t)(1));
     _104 = (_19 & 7);
     _105 = ((uint32_t)(_104));
-#line 90 "rt/regex_runtime.w"
     _106 = (_103 << _105);
 #line 89 "rt/regex_runtime.w"
     _107 = (_20[_102] | _106);
-#line 88 "rt/regex_runtime.w"
     _108 = (_19 / 8);
+#line 88 "rt/regex_runtime.w"
     _109 = (160 + _108);
     _110 = _109;
     _20[_110] = _107;
@@ -247476,9 +247471,11 @@ bb69:
         goto bb71;
     }
 bb70:
+#line 94 "rt/regex_runtime.w"
     _112 = 1;
     goto bb72;
 bb71:
+#line 93 "rt/regex_runtime.w"
     _112 = 0;
     goto bb72;
 bb72:
@@ -247501,8 +247498,8 @@ bb73:
     _120 = (_117 << _119);
 #line 96 "rt/regex_runtime.w"
     _121 = (_20[_116] | _120);
-#line 95 "rt/regex_runtime.w"
     _122 = (_19 / 8);
+#line 95 "rt/regex_runtime.w"
     _123 = (160 + _122);
     _124 = _123;
     _20[_124] = _121;
@@ -247524,8 +247521,8 @@ bb76:
 bb77:
 #line 104 "rt/regex_runtime.w"
     _127 = (_19 / 8);
-    _128 = (0 + _127);
 #line 103 "rt/regex_runtime.w"
+    _128 = (0 + _127);
     _129 = _128;
 #line 104 "rt/regex_runtime.w"
     _130 = ((uint32_t)(1));
@@ -247557,6 +247554,7 @@ bb80:
 bb81:
 #line 110 "rt/regex_runtime.w"
     _140 = (_19 / 8);
+#line 109 "rt/regex_runtime.w"
     _141 = (32 + _140);
     _142 = _141;
 #line 111 "rt/regex_runtime.w"
@@ -247592,9 +247590,7 @@ bb85:
     _154 = (192 + _153);
     _155 = _154;
     _156 = ((uint32_t)(1));
-#line 117 "rt/regex_runtime.w"
     _157 = (_19 & 7);
-#line 116 "rt/regex_runtime.w"
     _158 = ((uint32_t)(_157));
     _159 = (_156 << _158);
 #line 115 "rt/regex_runtime.w"
@@ -247624,10 +247620,11 @@ bb89:
     _166 = (_19 / 8);
     _167 = (224 + _166);
     _168 = _167;
-#line 123 "rt/regex_runtime.w"
     _169 = ((uint32_t)(1));
+#line 123 "rt/regex_runtime.w"
     _170 = (_19 & 7);
     _171 = ((uint32_t)(_170));
+#line 122 "rt/regex_runtime.w"
     _172 = (_169 << _171);
 #line 121 "rt/regex_runtime.w"
     _173 = (_20[_168] | _172);
@@ -247644,7 +247641,7 @@ bb91:
     _177 = ispunct(_19);
     goto bb92;
 bb92:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _178 = (_177 != 0);
     if (_178 == 1) {
         goto bb93;
@@ -247653,22 +247650,22 @@ bb92:
         goto bb94;
     }
 bb93:
-#line 129 "rt/regex_runtime.w"
-    _179 = (_19 / 8);
-    _180 = (256 + _179);
 #line 128 "rt/regex_runtime.w"
+    _179 = (_19 / 8);
+#line 127 "rt/regex_runtime.w"
+    _180 = (256 + _179);
     _181 = _180;
 #line 129 "rt/regex_runtime.w"
     _182 = ((uint32_t)(1));
     _183 = (_19 & 7);
     _184 = ((uint32_t)(_183));
     _185 = (_182 << _184);
-#line 127 "rt/regex_runtime.w"
-    _186 = (_20[_181] | _185);
 #line 126 "rt/regex_runtime.w"
+    _186 = (_20[_181] | _185);
     _187 = (_19 / 8);
     _188 = (256 + _187);
     _189 = _188;
+#line 125 "rt/regex_runtime.w"
     _20[_189] = _186;
     goto bb95;
 bb94:
@@ -247677,7 +247674,7 @@ bb95:
     _190 = iscntrl(_19);
     goto bb96;
 bb96:
-#line 131 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     _191 = (_190 != 0);
     if (_191 == 1) {
         goto bb97;
@@ -247695,10 +247692,11 @@ bb97:
     _197 = ((uint32_t)(_196));
     _198 = (_195 << _197);
     _199 = (_20[_194] | _198);
-    _200 = (_19 / 8);
 #line 133 "rt/regex_runtime.w"
+    _200 = (_19 / 8);
     _201 = (288 + _200);
     _202 = _201;
+#line 132 "rt/regex_runtime.w"
     _20[_202] = _199;
     goto bb99;
 bb98:
@@ -247751,9 +247749,8 @@ bb106:
         goto bb108;
     }
 bb107:
-#line 141 "rt/regex_runtime.w"
-    _213 = (_210 + 1);
 #line 140 "rt/regex_runtime.w"
+    _213 = (_210 + 1);
     _210 = _213;
     goto bb109;
 bb108:
@@ -247773,6 +247770,7 @@ bb110:
 bb111:
 #line 142 "rt/regex_runtime.w"
     _216 = (_210 + 2);
+#line 141 "rt/regex_runtime.w"
     _210 = _216;
     goto bb113;
 bb112:
@@ -248181,6 +248179,7 @@ void pcre2_maketables_free_8__392(pcre2_real_general_context_8* _1, uint8_t* _2)
     int32_t _16 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 162 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 165 "rt/regex_runtime.w"
@@ -248195,7 +248194,6 @@ bb1:
     _4 = 1;
     goto bb3;
 bb2:
-#line 164 "rt/regex_runtime.w"
     _4 = 0;
     goto bb3;
 bb3:
@@ -248207,7 +248205,7 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 165 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _6 = (&(*_1).memctl);
     _7 = (pcre2_memctl*)((pcre2_memctl*)(_6));
     _8 = _7;
@@ -248785,7 +248783,7 @@ int32_t pcre2_match_8__126(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3, uint
     int32_t _538 __attribute__((unused)) = {0};
     uint64_t _539 __attribute__((unused)) = {0};
     uint64_t _540 __attribute__((unused)) = {0};
-    with_fn_111 _541 __attribute__((unused)) = {0};
+    with_fn_113 _541 __attribute__((unused)) = {0};
     uint32_t _542 __attribute__((unused)) = {0};
     uint32_t _543 __attribute__((unused)) = {0};
     uint32_t _544 __attribute__((unused)) = {0};
@@ -249964,22 +249962,22 @@ bb0:
     /* StorageLive(_5); */
     /* StorageLive(_6); */
     /* StorageLive(_7); */
-#line 12 "rt/regex_runtime.w"
+#line 11 "rt/regex_runtime.w"
     /* StorageLive(_8); */
     _8 = _2;
 #line 13 "rt/regex_runtime.w"
     /* StorageLive(_9); */
     _9 = _3;
-#line 15 "rt/regex_runtime.w"
+#line 14 "rt/regex_runtime.w"
     /* StorageLive(_10); */
     _10 = _5;
-#line 17 "rt/regex_runtime.w"
+#line 16 "rt/regex_runtime.w"
     /* StorageLive(_11); */
     _11 = _7;
 #line 18 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     _12 = 0;
-#line 20 "rt/regex_runtime.w"
+#line 19 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     { __typeof__(0) __tmp = 0; memcpy(&(_13), &__tmp, sizeof(_13) < sizeof(__tmp) ? sizeof(_13) : sizeof(__tmp)); }
 #line 22 "rt/regex_runtime.w"
@@ -249988,10 +249986,10 @@ bb0:
 #line 24 "rt/regex_runtime.w"
     /* StorageLive(_15); */
     _15 = 0;
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     /* StorageLive(_16); */
     _16 = 0;
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     _17 = 0;
 #line 30 "rt/regex_runtime.w"
@@ -250058,7 +250056,7 @@ bb0:
 #line 67 "rt/regex_runtime.w"
     /* StorageLive(_39); */
     _39 = 0;
-#line 71 "rt/regex_runtime.w"
+#line 69 "rt/regex_runtime.w"
     /* StorageLive(_40); */
     _40 = 0;
 #line 72 "rt/regex_runtime.w"
@@ -250095,7 +250093,7 @@ bb0:
 #line 82 "rt/regex_runtime.w"
     /* StorageLive(_53); */
     { __typeof__(0) __tmp = 0; memcpy(&(_53), &__tmp, sizeof(_53) < sizeof(__tmp) ? sizeof(_53) : sizeof(__tmp)); }
-#line 83 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     /* StorageLive(_54); */
     _54 = 0;
 #line 85 "rt/regex_runtime.w"
@@ -250104,25 +250102,25 @@ bb0:
 #line 86 "rt/regex_runtime.w"
     /* StorageLive(_56); */
     { __typeof__(0) __tmp = 0; memcpy(&(_56), &__tmp, sizeof(_56) < sizeof(__tmp) ? sizeof(_56) : sizeof(__tmp)); }
-#line 87 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     /* StorageLive(_57); */
     _57 = 0;
 #line 89 "rt/regex_runtime.w"
     /* StorageLive(_58); */
     { __typeof__(0) __tmp = 0; memcpy(&(_58), &__tmp, sizeof(_58) < sizeof(__tmp) ? sizeof(_58) : sizeof(__tmp)); }
-#line 90 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     /* StorageLive(_59); */
     _59 = 0;
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     /* StorageLive(_60); */
     _60 = 0;
 #line 93 "rt/regex_runtime.w"
     /* StorageLive(_61); */
     _61 = 0;
-#line 94 "rt/regex_runtime.w"
+#line 95 "rt/regex_runtime.w"
     /* StorageLive(_62); */
     _62 = 0;
-#line 95 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     /* StorageLive(_63); */
     _63 = 0;
 #line 97 "rt/regex_runtime.w"
@@ -250134,198 +250132,200 @@ bb0:
 #line 100 "rt/regex_runtime.w"
     /* StorageLive(_66); */
     _66 = 0;
-#line 101 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     /* StorageLive(_67); */
     _67 = 0;
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     /* StorageLive(_68); */
     _68 = 0;
-#line 103 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     /* StorageLive(_69); */
     _69 = 0;
-#line 104 "rt/regex_runtime.w"
     /* StorageLive(_70); */
     _70 = 0;
-#line 105 "rt/regex_runtime.w"
+#line 107 "rt/regex_runtime.w"
     /* StorageLive(_71); */
     _71 = 0;
-#line 107 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     /* StorageLive(_72); */
     _72 = 0;
-#line 108 "rt/regex_runtime.w"
     /* StorageLive(_73); */
     { __typeof__(0) __tmp = 0; memcpy(&(_73), &__tmp, sizeof(_73) < sizeof(__tmp) ? sizeof(_73) : sizeof(__tmp)); }
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     /* StorageLive(_74); */
     _74 = 0;
 #line 111 "rt/regex_runtime.w"
     /* StorageLive(_75); */
     _75 = 0;
+#line 113 "rt/regex_runtime.w"
     /* StorageLive(_76); */
     _76 = 0;
-#line 113 "rt/regex_runtime.w"
+#line 114 "rt/regex_runtime.w"
     /* StorageLive(_77); */
     _77 = 0;
-#line 114 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     /* StorageLive(_78); */
     _78 = 0;
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     /* StorageLive(_79); */
     _79 = 0;
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     /* StorageLive(_80); */
     _80 = 0;
-#line 118 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     /* StorageLive(_81); */
     _81 = 0;
-#line 119 "rt/regex_runtime.w"
     /* StorageLive(_82); */
     _82 = 0;
+#line 121 "rt/regex_runtime.w"
     /* StorageLive(_83); */
     _83 = 0;
-#line 121 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     /* StorageLive(_84); */
     _84 = 0;
-#line 123 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     /* StorageLive(_85); */
     _85 = 0;
-#line 124 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     /* StorageLive(_86); */
     _86 = 0;
-#line 125 "rt/regex_runtime.w"
     /* StorageLive(_87); */
     _87 = 0;
+#line 126 "rt/regex_runtime.w"
     /* StorageLive(_88); */
     _88 = 0;
-#line 126 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     /* StorageLive(_89); */
     _89 = 0;
-#line 129 "rt/regex_runtime.w"
     /* StorageLive(_90); */
     { __typeof__(0) __tmp = 0; memcpy(&(_90), &__tmp, sizeof(_90) < sizeof(__tmp) ? sizeof(_90) : sizeof(__tmp)); }
+#line 131 "rt/regex_runtime.w"
     /* StorageLive(_91); */
     { __typeof__(0) __tmp = 0; memcpy(&(_91), &__tmp, sizeof(_91) < sizeof(__tmp) ? sizeof(_91) : sizeof(__tmp)); }
-#line 131 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     /* StorageLive(_92); */
     _92 = 0;
-#line 133 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     /* StorageLive(_93); */
     { __typeof__(0) __tmp = 0; memcpy(&(_93), &__tmp, sizeof(_93) < sizeof(__tmp) ? sizeof(_93) : sizeof(__tmp)); }
-#line 134 "rt/regex_runtime.w"
     /* StorageLive(_94); */
     { __typeof__(0) __tmp = 0; memcpy(&(_94), &__tmp, sizeof(_94) < sizeof(__tmp) ? sizeof(_94) : sizeof(__tmp)); }
+#line 135 "rt/regex_runtime.w"
     /* StorageLive(_95); */
     { __typeof__(0) __tmp = 0; memcpy(&(_95), &__tmp, sizeof(_95) < sizeof(__tmp) ? sizeof(_95) : sizeof(__tmp)); }
-#line 135 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     /* StorageLive(_96); */
     { __typeof__(0) __tmp = 0; memcpy(&(_96), &__tmp, sizeof(_96) < sizeof(__tmp) ? sizeof(_96) : sizeof(__tmp)); }
-#line 137 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     /* StorageLive(_97); */
     _97 = 0;
     /* StorageLive(_98); */
     _98 = 0;
-#line 138 "rt/regex_runtime.w"
     /* StorageLive(_99); */
     _99 = 0;
+#line 139 "rt/regex_runtime.w"
     /* StorageLive(_100); */
     _100 = 0;
+#line 140 "rt/regex_runtime.w"
     /* StorageLive(_101); */
     _101 = 0;
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     /* StorageLive(_102); */
     _102 = 0;
-#line 141 "rt/regex_runtime.w"
     /* StorageLive(_103); */
     _103 = 0;
+#line 143 "rt/regex_runtime.w"
     /* StorageLive(_104); */
     _104 = 0;
-#line 142 "rt/regex_runtime.w"
     /* StorageLive(_105); */
     _105 = 0;
-#line 143 "rt/regex_runtime.w"
     /* StorageLive(_106); */
     _106 = 0;
+#line 145 "rt/regex_runtime.w"
     /* StorageLive(_107); */
     _107 = 0;
-#line 144 "rt/regex_runtime.w"
     /* StorageLive(_108); */
     _108 = 0;
-#line 145 "rt/regex_runtime.w"
     /* StorageLive(_109); */
     _109 = 0;
+#line 147 "rt/regex_runtime.w"
     /* StorageLive(_110); */
     _110 = 0;
-#line 146 "rt/regex_runtime.w"
     /* StorageLive(_111); */
     _111 = 0;
-#line 147 "rt/regex_runtime.w"
     /* StorageLive(_112); */
     _112 = 0;
+#line 148 "rt/regex_runtime.w"
     /* StorageLive(_113); */
     _113 = 0;
+#line 149 "rt/regex_runtime.w"
     /* StorageLive(_114); */
     _114 = 0;
-#line 149 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     /* StorageLive(_115); */
     _115 = 0;
     /* StorageLive(_116); */
     _116 = 0;
-#line 150 "rt/regex_runtime.w"
+#line 151 "rt/regex_runtime.w"
     /* StorageLive(_117); */
     _117 = 0;
+#line 153 "rt/regex_runtime.w"
     /* StorageLive(_118); */
     _118 = 0;
-#line 151 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     /* StorageLive(_119); */
     _119 = 0;
-#line 153 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     /* StorageLive(_120); */
     _120 = 0;
-#line 154 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     /* StorageLive(_121); */
     _121 = 0;
-#line 155 "rt/regex_runtime.w"
+#line 159 "rt/regex_runtime.w"
     /* StorageLive(_122); */
     { __typeof__(0) __tmp = 0; memcpy(&(_122), &__tmp, sizeof(_122) < sizeof(__tmp) ? sizeof(_122) : sizeof(__tmp)); }
-#line 157 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     /* StorageLive(_123); */
     _123 = 0;
     goto bb1;
 bb1:
-#line 163 "rt/regex_runtime.w"
-    _124 = (uint8_t*)((uint8_t*)(0));
-#line 162 "rt/regex_runtime.w"
-    _13 = _124;
-#line 163 "rt/regex_runtime.w"
-    _14 = _1;
 #line 165 "rt/regex_runtime.w"
-    _15 = _10;
+    _124 = (uint8_t*)((uint8_t*)(0));
+#line 164 "rt/regex_runtime.w"
+    _13 = _124;
+#line 165 "rt/regex_runtime.w"
+    _14 = _1;
 #line 166 "rt/regex_runtime.w"
-    _18 = 0;
-#line 167 "rt/regex_runtime.w"
-    _19 = 0;
+    _15 = _10;
 #line 168 "rt/regex_runtime.w"
-    _23 = 0;
+    _18 = 0;
+#line 169 "rt/regex_runtime.w"
+    _19 = 0;
 #line 170 "rt/regex_runtime.w"
-    _24 = 0;
+    _23 = 0;
 #line 171 "rt/regex_runtime.w"
+    _24 = 0;
+#line 172 "rt/regex_runtime.w"
     _25 = 0;
     _26 = 0;
-#line 172 "rt/regex_runtime.w"
-    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_125, __with_arr_tmp, sizeof(_125)); }
-    memcpy(_27, _125, sizeof(_27));
-#line 173 "rt/regex_runtime.w"
-    _28 = _8;
 #line 176 "rt/regex_runtime.w"
+    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_125, __with_arr_tmp, sizeof(_125)); }
+#line 174 "rt/regex_runtime.w"
+    memcpy(_27, _125, sizeof(_27));
+#line 176 "rt/regex_runtime.w"
+    _28 = _8;
+#line 177 "rt/regex_runtime.w"
     _36 = 0;
     _37 = 0;
-#line 177 "rt/regex_runtime.w"
     _39 = 0;
+#line 179 "rt/regex_runtime.w"
     _126 = (&_43);
     _127 = (match_block_8*)((match_block_8*)(_126));
+#line 178 "rt/regex_runtime.w"
     _44 = _127;
-#line 179 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _59 = 0;
+#line 182 "rt/regex_runtime.w"
     { __typeof__((_8 == 0)) __tmp = (_8 == 0); memcpy(&(_128), &__tmp, sizeof(_128) < sizeof(__tmp) ? sizeof(_128) : sizeof(__tmp)); }
     if (_128 == 1) {
         goto bb268;
@@ -250334,15 +250334,16 @@ bb1:
         goto bb269;
     }
 bb2:
-#line 190 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _137 = 0;
-#line 188 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _138 = (&_27[_137]);
     _139 = (uint8_t*)((uint8_t*)(_138));
+#line 191 "rt/regex_runtime.w"
     _8 = _139;
     goto bb3;
 bb3:
-#line 193 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     { __typeof__((_6 == 0)) __tmp = (_6 == 0); memcpy(&(_140), &__tmp, sizeof(_140) < sizeof(__tmp) ? sizeof(_140) : sizeof(__tmp)); }
     if (_140 == 1) {
         goto bb288;
@@ -250351,12 +250352,13 @@ bb3:
         goto bb289;
     }
 bb4:
-#line 198 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _0 = -51;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb5:
+#line 202 "rt/regex_runtime.w"
     { __typeof__((_1 == 0)) __tmp = (_1 == 0); memcpy(&(_144), &__tmp, sizeof(_144) < sizeof(__tmp) ? sizeof(_144) : sizeof(__tmp)); }
     if (_144 == 1) {
         goto bb299;
@@ -250365,76 +250367,75 @@ bb5:
         goto bb300;
     }
 bb6:
-#line 210 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     (*_6).rc = -51;
-#line 211 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _0 = (*_6).rc;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb7:
-#line 214 "rt/regex_runtime.w"
     _154 = ((uint32_t)(_10));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _155 = ((uint32_t)(2147483648));
     _156 = ((uint32_t)(_155));
-#line 216 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _157 = ((uint32_t)(536870912));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _158 = (_156 | _157);
     _159 = ((uint32_t)(_158));
-#line 217 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _160 = ((uint32_t)(1));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _161 = (_159 | _160);
     _162 = ((uint32_t)(_161));
-#line 218 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _163 = ((uint32_t)(2));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _164 = (_162 | _163);
     _165 = ((uint32_t)(_164));
-#line 219 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _166 = ((uint32_t)(4));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _167 = (_165 | _166);
     _168 = ((uint32_t)(_167));
-#line 220 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _169 = ((uint32_t)(8));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _170 = (_168 | _169);
     _171 = ((uint32_t)(_170));
-#line 221 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _172 = ((uint32_t)(1073741824));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _173 = (_171 | _172);
     _174 = ((uint32_t)(_173));
-#line 222 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _175 = ((uint32_t)(32));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _176 = (_174 | _175);
     _177 = ((uint32_t)(_176));
-#line 222 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _178 = ((uint32_t)(16));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _179 = (_177 | _178);
     _180 = ((uint32_t)(_179));
-#line 224 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _181 = ((uint32_t)(8192));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _182 = (_180 | _181);
     _183 = ((uint32_t)(_182));
-#line 225 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _184 = ((uint32_t)(16384));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _185 = (_183 | _184);
     _186 = ((uint32_t)(_185));
-#line 225 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _187 = ((uint32_t)(262144));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _188 = (_186 | _187);
     _189 = (~(_188));
     _190 = ((uint32_t)(_189));
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _191 = (_154 & _190);
     _192 = (_191 != 0);
     if (_192 == 1) {
@@ -250444,32 +250445,28 @@ bb7:
         goto bb323;
     }
 bb8:
-#line 230 "rt/regex_runtime.w"
-    (*_6).rc = -34;
 #line 233 "rt/regex_runtime.w"
+    (*_6).rc = -34;
     _0 = (*_6).rc;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb9:
-#line 235 "rt/regex_runtime.w"
-    _196 = ((uint64_t)(_4));
-#line 234 "rt/regex_runtime.w"
-    _197 = (_8 + _196);
-#line 233 "rt/regex_runtime.w"
-    _32 = _197;
-#line 238 "rt/regex_runtime.w"
-    _198 = ((int64_t)(1));
-#line 237 "rt/regex_runtime.w"
-    _199 = ((uint64_t)(_198));
 #line 236 "rt/regex_runtime.w"
-    _200 = (_32 - _199);
+    _196 = ((uint64_t)(_4));
 #line 235 "rt/regex_runtime.w"
-    _33 = _200;
+    _197 = (_8 + _196);
+    _32 = _197;
 #line 239 "rt/regex_runtime.w"
+    _198 = ((int64_t)(1));
+    _199 = ((uint64_t)(_198));
+#line 238 "rt/regex_runtime.w"
+    _200 = (_32 - _199);
+    _33 = _200;
+#line 240 "rt/regex_runtime.w"
     _201 = ((uint64_t)(0));
     _202 = (~(_201));
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _203 = (_9 == _202);
     if (_203 == 1) {
         goto bb333;
@@ -250481,15 +250478,12 @@ bb10:
     _207 = _pcre2_strlen_8__1098(_8);
     goto bb342;
 bb11:
-#line 249 "rt/regex_runtime.w"
-    _208 = ((uint64_t)(_9));
-#line 247 "rt/regex_runtime.w"
-    _209 = (_8 + _208);
-#line 245 "rt/regex_runtime.w"
-    _30 = _209;
 #line 250 "rt/regex_runtime.w"
+    _208 = ((uint64_t)(_9));
+    _209 = (_8 + _208);
+    _30 = _209;
     _31 = _30;
-#line 251 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _210 = (_4 > _9);
     if (_210 == 1) {
         goto bb345;
@@ -250498,14 +250492,15 @@ bb11:
         goto bb346;
     }
 bb12:
-#line 255 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     (*_6).rc = -33;
+#line 257 "rt/regex_runtime.w"
     _0 = (*_6).rc;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb13:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _214 = ((*_14).magic_number != 1346589253);
     if (_214 == 1) {
         goto bb356;
@@ -250514,25 +250509,27 @@ bb13:
         goto bb357;
     }
 bb14:
-#line 260 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     (*_6).rc = -31;
-#line 261 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _0 = (*_6).rc;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb15:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _218 = ((uint32_t)((*_14).flags));
+#line 265 "rt/regex_runtime.w"
     _219 = ((uint32_t)(1));
     _220 = ((uint32_t)(2));
     _221 = (_219 | _220);
     _222 = ((uint32_t)(_221));
-#line 264 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _223 = ((uint32_t)(4));
-#line 263 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _224 = (_222 | _223);
     _225 = ((uint32_t)(_224));
+#line 264 "rt/regex_runtime.w"
     _226 = (_218 & _225);
     _227 = (_226 != 1);
     if (_227 == 1) {
@@ -250542,84 +250539,80 @@ bb15:
         goto bb368;
     }
 bb16:
-#line 268 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     (*_6).rc = -32;
-#line 269 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _0 = (*_6).rc;
     /* drop(_43); */
     /* drop(_42); */
     return _0;
 bb17:
-#line 272 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _231 = ((uint32_t)((*_14).flags));
-#line 273 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _232 = ((uint32_t)(65536));
-#line 275 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _233 = ((uint32_t)(131072));
-#line 273 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _234 = (_232 | _233);
     _235 = ((uint32_t)(_234));
-#line 272 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _236 = (_231 & _235);
     _237 = ((uint32_t)(_236));
-#line 278 "rt/regex_runtime.w"
-    _238 = ((uint32_t)(65536));
-#line 279 "rt/regex_runtime.w"
-    _239 = ((uint32_t)(131072));
-#line 278 "rt/regex_runtime.w"
-    _240 = (_238 | _239);
-#line 277 "rt/regex_runtime.w"
-    _241 = ((uint32_t)(_240));
-#line 280 "rt/regex_runtime.w"
-    _242 = ((uint32_t)(65536));
 #line 281 "rt/regex_runtime.w"
+    _238 = ((uint32_t)(65536));
+#line 283 "rt/regex_runtime.w"
+    _239 = ((uint32_t)(131072));
+#line 281 "rt/regex_runtime.w"
+    _240 = (_238 | _239);
+    _241 = ((uint32_t)(_240));
+#line 284 "rt/regex_runtime.w"
+    _242 = ((uint32_t)(65536));
     _243 = ((uint32_t)(131072));
-#line 280 "rt/regex_runtime.w"
     _244 = (_242 | _243);
     _245 = (~(_244));
     _246 = ((uint32_t)(_245));
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _247 = ((uint32_t)(1));
-#line 280 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _248 = (_246 + _247);
     _249 = ((uint32_t)(_248));
-#line 277 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _250 = (_241 & _249);
     _251 = ((uint32_t)(_250));
-#line 284 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _252 = ((uint32_t)(4));
-#line 285 "rt/regex_runtime.w"
     _253 = ((uint32_t)(8));
-#line 284 "rt/regex_runtime.w"
     _254 = (_252 | _253);
     _255 = ((uint32_t)(_254));
-#line 285 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _256 = ((uint32_t)(4));
     _257 = ((uint32_t)(8));
     _258 = (_256 | _257);
     _259 = (~(_258));
     _260 = ((uint32_t)(_259));
-#line 286 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _261 = ((uint32_t)(1));
-#line 285 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _262 = (_260 + _261);
     _263 = ((uint32_t)(_262));
-#line 284 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _264 = (_255 & _263);
     _265 = ((uint32_t)(_264));
-#line 277 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _266 = (_251 / _265);
     _267 = ((uint32_t)(_266));
-#line 272 "rt/regex_runtime.w"
+#line 276 "rt/regex_runtime.w"
     _268 = (_237 / _267);
-#line 271 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _269 = (_10 | _268);
+#line 273 "rt/regex_runtime.w"
     _10 = _269;
-#line 289 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _270 = ((uint32_t)((*_14).overall_options));
-#line 291 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _271 = ((uint32_t)(524288));
-#line 289 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _272 = (_270 & _271);
     _273 = (_272 != 0);
     if (_273 == 1) {
@@ -252129,11 +252122,11 @@ bb266:
 bb267:
     goto bb2;
 bb268:
-#line 180 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _129 = 1;
     goto bb270;
 bb269:
-#line 179 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _129 = 0;
     goto bb270;
 bb270:
@@ -252145,7 +252138,7 @@ bb270:
         goto bb272;
     }
 bb271:
-#line 182 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _131 = (_9 == 0);
     if (_131 == 1) {
         goto bb274;
@@ -252156,7 +252149,7 @@ bb271:
 bb272:
     goto bb273;
 bb273:
-#line 184 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _135 = (_59 != 0);
     if (_135 == 1) {
         goto bb280;
@@ -252165,7 +252158,7 @@ bb273:
         goto bb281;
     }
 bb274:
-#line 182 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _132 = 1;
     goto bb276;
 bb275:
@@ -252180,14 +252173,15 @@ bb276:
         goto bb278;
     }
 bb277:
-#line 183 "rt/regex_runtime.w"
+#line 185 "rt/regex_runtime.w"
     _134 = 1;
     goto bb279;
 bb278:
-#line 181 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _134 = 0;
     goto bb279;
 bb279:
+#line 183 "rt/regex_runtime.w"
     _59 = _134;
     goto bb273;
 bb280:
@@ -252197,11 +252191,11 @@ bb281:
 bb282:
     goto bb267;
 bb283:
-#line 185 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _136 = (__typeof__(_136)){0};
     goto bb282;
 bb284:
-#line 184 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     _136 = (__typeof__(_136)){0};
     goto bb282;
 bb285:
@@ -252211,10 +252205,11 @@ bb286:
 bb287:
     goto bb4;
 bb288:
-#line 193 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _141 = 1;
     goto bb290;
 bb289:
+#line 194 "rt/regex_runtime.w"
     _141 = 0;
     goto bb290;
 bb290:
@@ -252232,11 +252227,11 @@ bb292:
 bb293:
     goto bb287;
 bb294:
-#line 194 "rt/regex_runtime.w"
+#line 197 "rt/regex_runtime.w"
     _143 = (__typeof__(_143)){0};
     goto bb293;
 bb295:
-#line 193 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _143 = (__typeof__(_143)){0};
     goto bb293;
 bb296:
@@ -252246,11 +252241,11 @@ bb297:
 bb298:
     goto bb6;
 bb299:
-#line 199 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _145 = 1;
     goto bb301;
 bb300:
-#line 198 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _145 = 0;
     goto bb301;
 bb301:
@@ -252269,7 +252264,7 @@ bb302:
         goto bb306;
     }
 bb303:
-#line 203 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     { __typeof__((_8 == 0)) __tmp = (_8 == 0); memcpy(&(_148), &__tmp, sizeof(_148) < sizeof(__tmp) ? sizeof(_148) : sizeof(__tmp)); }
     if (_148 == 1) {
         goto bb308;
@@ -252278,7 +252273,7 @@ bb303:
         goto bb309;
     }
 bb304:
-#line 206 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _152 = (_60 != 0);
     if (_152 == 1) {
         goto bb314;
@@ -252287,21 +252282,22 @@ bb304:
         goto bb315;
     }
 bb305:
-#line 202 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     _147 = 1;
     goto bb307;
 bb306:
+#line 203 "rt/regex_runtime.w"
     _147 = 0;
     goto bb307;
 bb307:
     _60 = _147;
     goto bb304;
 bb308:
-#line 204 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _149 = 1;
     goto bb310;
 bb309:
-#line 203 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _149 = 0;
     goto bb310;
 bb310:
@@ -252313,14 +252309,15 @@ bb310:
         goto bb312;
     }
 bb311:
-#line 204 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _151 = 1;
     goto bb313;
 bb312:
-#line 203 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _151 = 0;
     goto bb313;
 bb313:
+#line 205 "rt/regex_runtime.w"
     _60 = _151;
     goto bb304;
 bb314:
@@ -252330,11 +252327,11 @@ bb315:
 bb316:
     goto bb298;
 bb317:
-#line 207 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _153 = (__typeof__(_153)){0};
     goto bb316;
 bb318:
-#line 206 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _153 = (__typeof__(_153)){0};
     goto bb316;
 bb319:
@@ -252344,11 +252341,11 @@ bb320:
 bb321:
     goto bb8;
 bb322:
-#line 226 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _193 = 1;
     goto bb324;
 bb323:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _193 = 0;
     goto bb324;
 bb324:
@@ -252366,11 +252363,11 @@ bb326:
 bb327:
     goto bb321;
 bb328:
-#line 227 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _195 = (__typeof__(_195)){0};
     goto bb327;
 bb329:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _195 = (__typeof__(_195)){0};
     goto bb327;
 bb330:
@@ -252380,11 +252377,11 @@ bb331:
 bb332:
     goto bb10;
 bb333:
-#line 239 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _204 = 1;
     goto bb335;
 bb334:
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _204 = 0;
     goto bb335;
 bb335:
@@ -252402,17 +252399,17 @@ bb337:
 bb338:
     goto bb332;
 bb339:
-#line 239 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _206 = (__typeof__(_206)){0};
     goto bb338;
 bb340:
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _206 = (__typeof__(_206)){0};
     goto bb338;
 bb341:
     goto bb11;
 bb342:
-#line 243 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _9 = _207;
     goto bb11;
 bb343:
@@ -252424,7 +252421,6 @@ bb345:
     _211 = 1;
     goto bb347;
 bb346:
-#line 251 "rt/regex_runtime.w"
     _211 = 0;
     goto bb347;
 bb347:
@@ -252442,11 +252438,11 @@ bb349:
 bb350:
     goto bb344;
 bb351:
-#line 253 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _213 = (__typeof__(_213)){0};
     goto bb350;
 bb352:
-#line 251 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _213 = (__typeof__(_213)){0};
     goto bb350;
 bb353:
@@ -252456,10 +252452,11 @@ bb354:
 bb355:
     goto bb14;
 bb356:
-#line 257 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _215 = 1;
     goto bb358;
 bb357:
+#line 258 "rt/regex_runtime.w"
     _215 = 0;
     goto bb358;
 bb358:
@@ -252477,11 +252474,11 @@ bb360:
 bb361:
     goto bb355;
 bb362:
-#line 258 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _217 = (__typeof__(_217)){0};
     goto bb361;
 bb363:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _217 = (__typeof__(_217)){0};
     goto bb361;
 bb364:
@@ -252491,11 +252488,11 @@ bb365:
 bb366:
     goto bb16;
 bb367:
-#line 265 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _228 = 1;
     goto bb369;
 bb368:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _228 = 0;
     goto bb369;
 bb369:
@@ -252513,11 +252510,11 @@ bb371:
 bb372:
     goto bb366;
 bb373:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _230 = (__typeof__(_230)){0};
     goto bb372;
 bb374:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _230 = (__typeof__(_230)){0};
     goto bb372;
 bb375:
@@ -252527,21 +252524,21 @@ bb376:
 bb377:
     goto bb18;
 bb378:
-#line 292 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _274 = 1;
     goto bb380;
 bb379:
-#line 289 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _274 = 0;
     goto bb380;
 bb380:
-#line 288 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _36 = _274;
-#line 295 "rt/regex_runtime.w"
-    _275 = ((uint32_t)((*_14).overall_options));
 #line 297 "rt/regex_runtime.w"
+    _275 = ((uint32_t)((*_14).overall_options));
+#line 300 "rt/regex_runtime.w"
     _276 = ((uint32_t)(67108864));
-#line 295 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _277 = (_275 & _276);
     _278 = (_277 != 0);
     if (_278 == 1) {
@@ -252551,21 +252548,21 @@ bb380:
         goto bb382;
     }
 bb381:
-#line 299 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _279 = 1;
     goto bb383;
 bb382:
-#line 295 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _279 = 0;
     goto bb383;
 bb383:
-#line 293 "rt/regex_runtime.w"
+#line 296 "rt/regex_runtime.w"
     _38 = _279;
-#line 300 "rt/regex_runtime.w"
-    _280 = ((uint32_t)((*_14).overall_options));
 #line 301 "rt/regex_runtime.w"
+    _280 = ((uint32_t)((*_14).overall_options));
+#line 303 "rt/regex_runtime.w"
     _281 = ((uint32_t)(131072));
-#line 300 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _282 = (_280 & _281);
     _283 = (_282 != 0);
     if (_283 == 1) {
@@ -252575,22 +252572,23 @@ bb383:
         goto bb385;
     }
 bb384:
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _284 = 1;
     goto bb386;
 bb385:
-#line 300 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _284 = 0;
     goto bb386;
 bb386:
+#line 300 "rt/regex_runtime.w"
     _37 = _284;
-#line 302 "rt/regex_runtime.w"
-    _61 = 0;
-#line 303 "rt/regex_runtime.w"
-    _285 = ((uint32_t)(_10));
 #line 304 "rt/regex_runtime.w"
+    _61 = 0;
+#line 305 "rt/regex_runtime.w"
+    _285 = ((uint32_t)(_10));
+#line 306 "rt/regex_runtime.w"
     _286 = ((uint32_t)(32));
-#line 303 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _287 = (_285 & _286);
     _288 = (_287 != 0);
     if (_288 == 1) {
@@ -252600,11 +252598,11 @@ bb386:
         goto bb388;
     }
 bb387:
-#line 304 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _289 = 1;
     goto bb389;
 bb388:
-#line 303 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _289 = 0;
     goto bb389;
 bb389:
@@ -252616,16 +252614,18 @@ bb389:
         goto bb391;
     }
 bb390:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _61 = 2;
     goto bb392;
 bb391:
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     /* StorageLive(_291); */
     _291 = 0;
-#line 308 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _292 = ((uint32_t)(_10));
+#line 310 "rt/regex_runtime.w"
     _293 = ((uint32_t)(16));
+#line 309 "rt/regex_runtime.w"
     _294 = (_292 & _293);
     _295 = (_294 != 0);
     if (_295 == 1) {
@@ -252646,10 +252646,11 @@ bb392:
         goto bb400;
     }
 bb393:
-#line 308 "rt/regex_runtime.w"
+#line 310 "rt/regex_runtime.w"
     _296 = 1;
     goto bb395;
 bb394:
+#line 309 "rt/regex_runtime.w"
     _296 = 0;
     goto bb395;
 bb395:
@@ -252661,19 +252662,17 @@ bb395:
         goto bb397;
     }
 bb396:
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _291 = 1;
     goto bb398;
 bb397:
-#line 311 "rt/regex_runtime.w"
+#line 314 "rt/regex_runtime.w"
     _291 = 0;
     goto bb398;
 bb398:
-#line 313 "rt/regex_runtime.w"
     _61 = _291;
     goto bb392;
 bb399:
-#line 314 "rt/regex_runtime.w"
     _299 = 1;
     goto bb401;
 bb400:
@@ -253880,7 +253879,7 @@ bb727:
     _540 = ((uint64_t)(_539));
     _42.subject_length = _540;
     _42.callout_flags = 0;
-    _541 = ((with_fn_111)((*_11).callout));
+    _541 = ((with_fn_113)((*_11).callout));
     (*_44).callout = _541;
     (*_44).callout_data = (*_11).callout_data;
     (*_44).start_subject = _8;
@@ -486665,7 +486664,7 @@ bb0:
     _3 = _1;
 #line 8 "rt/regex_runtime.w"
     /* StorageLive(_4); */
-#line 11 "rt/regex_runtime.w"
+#line 10 "rt/regex_runtime.w"
     _5 = (_3 < 1);
     if (_5 == 1) {
         goto bb1;
@@ -486674,6 +486673,7 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 11 "rt/regex_runtime.w"
     _6 = 1;
     goto bb3;
 bb2:
@@ -486738,7 +486738,7 @@ bb12:
     /* generic_call: should be resolved before C backend */ abort();
     goto bb13;
 bb13:
-#line 23 "rt/regex_runtime.w"
+#line 22 "rt/regex_runtime.w"
     _17 = ((uint64_t)(_16));
 #line 20 "rt/regex_runtime.w"
     _18 = (_15 * _17);
@@ -486753,7 +486753,7 @@ bb14:
 #line 18 "rt/regex_runtime.w"
     _23 = (pcre2_real_match_data_8*)((pcre2_real_match_data_8*)(_22));
     _4 = _23;
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_24), &__tmp, sizeof(_24) < sizeof(__tmp) ? sizeof(_24) : sizeof(__tmp)); }
     if (_24 == 1) {
         goto bb15;
@@ -486762,6 +486762,7 @@ bb14:
         goto bb16;
     }
 bb15:
+#line 28 "rt/regex_runtime.w"
     _25 = 1;
     goto bb17;
 bb16:
@@ -486785,14 +486786,15 @@ bb19:
 bb20:
 #line 30 "rt/regex_runtime.w"
     (*_4).oveccount = _3;
-#line 33 "rt/regex_runtime.w"
+#line 32 "rt/regex_runtime.w"
     (*_4).flags = 0;
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _27 = (heapframe*)((heapframe*)(0));
 #line 34 "rt/regex_runtime.w"
     (*_4).heapframes = _27;
-#line 38 "rt/regex_runtime.w"
+#line 36 "rt/regex_runtime.w"
     (*_4).heapframes_size = 0;
+#line 38 "rt/regex_runtime.w"
     _0 = _4;
     return _0;
 bb21:
@@ -486826,7 +486828,7 @@ bb0:
 #line 43 "rt/regex_runtime.w"
     /* StorageLive(_3); */
     _3 = _2;
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     { __typeof__((_1 == 0)) __tmp = (_1 == 0); memcpy(&(_4), &__tmp, sizeof(_4) < sizeof(__tmp) ? sizeof(_4) : sizeof(__tmp)); }
     if (_4 == 1) {
         goto bb1;
@@ -486835,9 +486837,11 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 45 "rt/regex_runtime.w"
     _5 = 1;
     goto bb3;
 bb2:
+#line 44 "rt/regex_runtime.w"
     _5 = 0;
     goto bb3;
 bb3:
@@ -486849,12 +486853,13 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 47 "rt/regex_runtime.w"
+#line 45 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&(_0), &__tmp, sizeof(_0) < sizeof(__tmp) ? sizeof(_0) : sizeof(__tmp)); }
     return _0;
 bb5:
     goto bb6;
 bb6:
+#line 47 "rt/regex_runtime.w"
     { __typeof__((_3 == 0)) __tmp = (_3 == 0); memcpy(&(_7), &__tmp, sizeof(_7) < sizeof(__tmp) ? sizeof(_7) : sizeof(__tmp)); }
     if (_7 == 1) {
         goto bb8;
@@ -486865,11 +486870,9 @@ bb6:
 bb7:
     goto bb6;
 bb8:
-#line 48 "rt/regex_runtime.w"
     _8 = 1;
     goto bb10;
 bb9:
-#line 47 "rt/regex_runtime.w"
     _8 = 0;
     goto bb10;
 bb10:
@@ -486881,7 +486884,7 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 51 "rt/regex_runtime.w"
+#line 50 "rt/regex_runtime.w"
     _10 = (pcre2_real_general_context_8*)((pcre2_real_general_context_8*)(_1));
 #line 49 "rt/regex_runtime.w"
     _3 = _10;
@@ -486895,7 +486898,7 @@ bb13:
     _13 = pcre2_match_data_create_8__360(_12, _3);
     goto bb14;
 bb14:
-#line 53 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _0 = _13;
     return _0;
 bb15:
@@ -486966,6 +486969,7 @@ bb2:
     _3 = 0;
     goto bb3;
 bb3:
+#line 57 "rt/regex_runtime.w"
     _4 = (_3 != 0);
     if (_4 == 1) {
         goto bb4;
@@ -486987,11 +486991,10 @@ bb5:
 bb6:
     return;
 bb7:
-#line 62 "rt/regex_runtime.w"
     _6 = 1;
     goto bb9;
 bb8:
-#line 61 "rt/regex_runtime.w"
+#line 60 "rt/regex_runtime.w"
     _6 = 0;
     goto bb9;
 bb9:
@@ -487003,11 +487006,11 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 63 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     _8 = (&(*_1).memctl);
     _9 = (pcre2_memctl*)((pcre2_memctl*)(_8));
     _10 = _9;
-#line 66 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _11 = (&(*_1).memctl);
     _12 = (pcre2_memctl*)((pcre2_memctl*)(_11));
     _13 = _12;
@@ -487016,13 +487019,12 @@ bb10:
 bb11:
     goto bb12;
 bb12:
-#line 70 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _15 = ((int32_t)((*_1).flags));
-#line 69 "rt/regex_runtime.w"
     _16 = ((uint32_t)(_15));
-#line 72 "rt/regex_runtime.w"
+#line 71 "rt/regex_runtime.w"
     _17 = ((uint32_t)(1));
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _18 = (_16 & _17);
     _19 = (_18 != 0);
     if (_19 == 1) {
@@ -487038,7 +487040,7 @@ bb14:
     _20 = 1;
     goto bb16;
 bb15:
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _20 = 0;
     goto bb16;
 bb16:
@@ -487068,7 +487070,7 @@ bb19:
     _30 = (&(*_1).memctl);
     _31 = (pcre2_memctl*)((pcre2_memctl*)(_30));
     _32 = _31;
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _33 = (&(*_1).memctl);
     _34 = (pcre2_memctl*)((pcre2_memctl*)(_33));
     _35 = _34;
@@ -487141,6 +487143,7 @@ uint8_t* pcre2_get_mark_8__365(pcre2_real_match_data_8* _1) {
     uint8_t* _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 78 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 80 "rt/regex_runtime.w"
     _0 = (*_1).mark;
@@ -487166,7 +487169,6 @@ bb0:
     /* StorageLive(_1); */
 #line 83 "rt/regex_runtime.w"
     _2 = ((uint64_t)(120));
-#line 84 "rt/regex_runtime.w"
     _3 = ((int32_t)((*_1).oveccount));
     _4 = (2 * _3);
     _5 = ((uint64_t)(_4));
@@ -487175,11 +487177,11 @@ bb0:
 bb1:
 #line 85 "rt/regex_runtime.w"
     _7 = ((uint64_t)(_6));
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _8 = (_5 * _7);
     _9 = ((uint64_t)(_8));
-#line 83 "rt/regex_runtime.w"
     _10 = (_2 + _9);
+#line 82 "rt/regex_runtime.w"
     _0 = _10;
     return _0;
 bb2:
@@ -487211,13 +487213,12 @@ uint32_t pcre2_get_ovector_count_8__131(pcre2_real_match_data_8* _1) {
     uint32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 91 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _0 = (*_1).oveccount;
     return _0;
 bb1:
-#line 95 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -487229,16 +487230,17 @@ uint64_t* pcre2_get_ovector_pointer_8__129(pcre2_real_match_data_8* _1) {
     uint64_t* _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 95 "rt/regex_runtime.w"
     /* StorageLive(_1); */
 #line 100 "rt/regex_runtime.w"
     _2 = 0;
+#line 99 "rt/regex_runtime.w"
     _3 = (&(*_1).ovector[_2]);
     _4 = (uint64_t*)((uint64_t*)(_3));
-#line 99 "rt/regex_runtime.w"
     _0 = _4;
     return _0;
 bb1:
-#line 101 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -487247,11 +487249,13 @@ uint64_t pcre2_get_startchar_8__368(pcre2_real_match_data_8* _1) {
     uint64_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 101 "rt/regex_runtime.w"
     /* StorageLive(_1); */
-#line 104 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _0 = (*_1).startchar;
     return _0;
 bb1:
+#line 104 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -487391,9 +487395,8 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 27 "rt/regex_runtime.w"
-    _19 = 1;
 #line 26 "rt/regex_runtime.w"
+    _19 = 1;
     _20 = (_6[_19] == _5);
     if (_20 == 1) {
         goto bb17;
@@ -487417,7 +487420,7 @@ bb17:
     _21 = 1;
     goto bb19;
 bb18:
-#line 26 "rt/regex_runtime.w"
+#line 25 "rt/regex_runtime.w"
     _21 = 0;
     goto bb19;
 bb19:
@@ -487429,15 +487432,14 @@ bb19:
         goto bb21;
     }
 bb20:
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _23 = 1;
     goto bb22;
 bb21:
-#line 26 "rt/regex_runtime.w"
+#line 25 "rt/regex_runtime.w"
     _23 = 0;
     goto bb22;
 bb22:
-#line 25 "rt/regex_runtime.w"
     _14 = _23;
     goto bb16;
 bb23:
@@ -487531,16 +487533,17 @@ bb38:
 bb39:
     goto bb40;
 bb40:
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _40 = 1;
 #line 52 "rt/regex_runtime.w"
     (*_2) = _6[_40];
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     (*_3) = 0;
+#line 55 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb41:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _37 = 1;
     goto bb43;
 bb42:
@@ -487562,7 +487565,7 @@ bb44:
 bb45:
     goto bb46;
 bb46:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _39 = 1;
 #line 47 "rt/regex_runtime.w"
     (*_2) = _6[_39];
@@ -487667,7 +487670,6 @@ uint64_t do_bumpalong__12769(pcre2_real_match_data_8* _1, uint64_t _2) {
     uint64_t _80 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 56 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 60 "rt/regex_runtime.w"
@@ -487678,13 +487680,11 @@ bb0:
     _4 = (*_1).subject_length;
 #line 63 "rt/regex_runtime.w"
     /* StorageLive(_5); */
-#line 64 "rt/regex_runtime.w"
     _6 = ((uint32_t)((*(*_1).code).overall_options));
 #line 66 "rt/regex_runtime.w"
     _7 = ((uint32_t)(524288));
-#line 64 "rt/regex_runtime.w"
-    _8 = (_6 & _7);
 #line 63 "rt/regex_runtime.w"
+    _8 = (_6 & _7);
     _9 = (_8 != 0);
     if (_9 == 1) {
         goto bb1;
@@ -487693,7 +487693,7 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 67 "rt/regex_runtime.w"
+#line 66 "rt/regex_runtime.w"
     _10 = 1;
     goto bb3;
 bb2:
@@ -487707,9 +487707,8 @@ bb3:
     _11 = 0;
     /* StorageLive(_12); */
     _12 = 0;
-#line 72 "rt/regex_runtime.w"
-    _13 = _2;
 #line 71 "rt/regex_runtime.w"
+    _13 = _2;
     _14 = (_3[_13] == 13);
     if (_14 == 1) {
         goto bb4;
@@ -487726,6 +487725,7 @@ bb5:
     _15 = 0;
     goto bb6;
 bb6:
+#line 70 "rt/regex_runtime.w"
     _16 = (_15 != 0);
     if (_16 == 1) {
         goto bb7;
@@ -487736,9 +487736,7 @@ bb6:
 bb7:
 #line 72 "rt/regex_runtime.w"
     _17 = ((uint64_t)(_2));
-#line 73 "rt/regex_runtime.w"
     _18 = ((uint64_t)(1));
-#line 72 "rt/regex_runtime.w"
     _19 = (_17 + _18);
     _20 = (_19 < _4);
     if (_20 == 1) {
@@ -487787,9 +487785,7 @@ bb15:
 bb16:
 #line 75 "rt/regex_runtime.w"
     _25 = ((uint64_t)(_2));
-#line 76 "rt/regex_runtime.w"
     _26 = ((uint64_t)(1));
-#line 75 "rt/regex_runtime.w"
     _27 = (_25 + _26);
     _28 = _27;
     _29 = (_3[_28] == 10);
@@ -487802,7 +487798,7 @@ bb16:
 bb17:
     goto bb18;
 bb18:
-#line 78 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _33 = (_11 != 0);
     if (_33 == 1) {
         goto bb25;
@@ -487811,7 +487807,7 @@ bb18:
         goto bb26;
     }
 bb19:
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _30 = 1;
     goto bb21;
 bb20:
@@ -487835,6 +487831,7 @@ bb23:
     _32 = 0;
     goto bb24;
 bb24:
+#line 74 "rt/regex_runtime.w"
     _11 = _32;
     goto bb18;
 bb25:
@@ -487863,9 +487860,7 @@ bb28:
 bb29:
 #line 79 "rt/regex_runtime.w"
     _37 = ((uint64_t)(_2));
-#line 80 "rt/regex_runtime.w"
     _38 = ((uint64_t)(2));
-#line 79 "rt/regex_runtime.w"
     _39 = (_37 + _38);
     _0 = _39;
     return _0;
@@ -487885,14 +487880,13 @@ bb31:
 bb32:
 #line 81 "rt/regex_runtime.w"
     _41 = ((uint64_t)(_2));
-#line 82 "rt/regex_runtime.w"
     _42 = ((uint64_t)(2));
-#line 81 "rt/regex_runtime.w"
     _43 = (_41 + _42);
+#line 80 "rt/regex_runtime.w"
     _0 = _43;
     return _0;
 bb33:
-#line 83 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     _44 = (_34 == 5);
     if (_44 == 1) {
         goto bb35;
@@ -487901,15 +487895,16 @@ bb33:
         goto bb28;
     }
 bb34:
-#line 81 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _35 = (__typeof__(_35)){0};
     goto bb28;
 bb35:
-#line 84 "rt/regex_runtime.w"
-    _45 = ((uint64_t)(_2));
-    _46 = ((uint64_t)(2));
-    _47 = (_45 + _46);
 #line 83 "rt/regex_runtime.w"
+    _45 = ((uint64_t)(_2));
+#line 84 "rt/regex_runtime.w"
+    _46 = ((uint64_t)(2));
+#line 83 "rt/regex_runtime.w"
+    _47 = (_45 + _46);
     _0 = _47;
     return _0;
 bb36:
@@ -487995,7 +487990,7 @@ bb46:
 #line 100 "rt/regex_runtime.w"
     _62 = ((int32_t)((*_49)));
     _63 = ((uint32_t)(_62));
-#line 102 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     _64 = ((uint32_t)(192));
 #line 100 "rt/regex_runtime.w"
     _65 = (_63 & _64);
@@ -488035,7 +488030,7 @@ bb51:
         goto bb53;
     }
 bb52:
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _69 = 1;
     goto bb54;
 bb53:
@@ -488507,7 +488502,7 @@ int32_t pcre2_dfa_match_8__361(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3, 
     int32_t _380 __attribute__((unused)) = {0};
     bool _381 __attribute__((unused)) = {0};
     int32_t _382 __attribute__((unused)) = {0};
-    with_fn_111 _383 __attribute__((unused)) = {0};
+    with_fn_113 _383 __attribute__((unused)) = {0};
     pcre2_memctl* _384 __attribute__((unused)) = {0};
     int8_t* _385 __attribute__((unused)) = {0};
     pcre2_memctl* _386 __attribute__((unused)) = {0};
@@ -488540,7 +488535,7 @@ int32_t pcre2_dfa_match_8__361(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3, 
     int32_t _414 __attribute__((unused)) = {0};
     bool _415 __attribute__((unused)) = {0};
     int32_t _416 __attribute__((unused)) = {0};
-    with_fn_111 _417 __attribute__((unused)) = {0};
+    with_fn_113 _417 __attribute__((unused)) = {0};
     pcre2_memctl* _418 __attribute__((unused)) = {0};
     int8_t* _419 __attribute__((unused)) = {0};
     pcre2_memctl* _420 __attribute__((unused)) = {0};
@@ -489680,16 +489675,16 @@ bb0:
 #line 14 "rt/regex_runtime.w"
     /* StorageLive(_10); */
     _10 = _2;
-#line 16 "rt/regex_runtime.w"
+#line 15 "rt/regex_runtime.w"
     /* StorageLive(_11); */
     _11 = _3;
 #line 17 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     _12 = _5;
-#line 19 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     _13 = 0;
-#line 21 "rt/regex_runtime.w"
+#line 20 "rt/regex_runtime.w"
     /* StorageLive(_14); */
     { __typeof__(0) __tmp = 0; memcpy(&(_14), &__tmp, sizeof(_14) < sizeof(__tmp) ? sizeof(_14) : sizeof(__tmp)); }
 #line 23 "rt/regex_runtime.w"
@@ -489697,7 +489692,7 @@ bb0:
     _15 = 0;
 #line 25 "rt/regex_runtime.w"
     /* StorageLive(_16); */
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     { __typeof__(0) __tmp = 0; memcpy(&(_17), &__tmp, sizeof(_17) < sizeof(__tmp) ? sizeof(_17) : sizeof(__tmp)); }
 #line 29 "rt/regex_runtime.w"
@@ -489706,7 +489701,7 @@ bb0:
 #line 31 "rt/regex_runtime.w"
     /* StorageLive(_19); */
     { __typeof__(0) __tmp = 0; memcpy(&(_19), &__tmp, sizeof(_19) < sizeof(__tmp) ? sizeof(_19) : sizeof(__tmp)); }
-#line 34 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     /* StorageLive(_20); */
     { __typeof__(0) __tmp = 0; memcpy(&(_20), &__tmp, sizeof(_20) < sizeof(__tmp) ? sizeof(_20) : sizeof(__tmp)); }
 #line 36 "rt/regex_runtime.w"
@@ -489730,13 +489725,13 @@ bb0:
 #line 44 "rt/regex_runtime.w"
     /* StorageLive(_27); */
     _27 = 0;
-#line 47 "rt/regex_runtime.w"
+#line 45 "rt/regex_runtime.w"
     /* StorageLive(_28); */
     { __typeof__(0) __tmp = 0; memcpy(&(_28), &__tmp, sizeof(_28) < sizeof(__tmp) ? sizeof(_28) : sizeof(__tmp)); }
 #line 48 "rt/regex_runtime.w"
     /* StorageLive(_29); */
     { __typeof__(0) __tmp = 0; memcpy(&(_29), &__tmp, sizeof(_29) < sizeof(__tmp) ? sizeof(_29) : sizeof(__tmp)); }
-#line 52 "rt/regex_runtime.w"
+#line 51 "rt/regex_runtime.w"
     /* StorageLive(_30); */
     _30 = 0;
 #line 53 "rt/regex_runtime.w"
@@ -489745,7 +489740,6 @@ bb0:
 #line 55 "rt/regex_runtime.w"
     /* StorageLive(_32); */
     _32 = 0;
-#line 56 "rt/regex_runtime.w"
     /* StorageLive(_33); */
     _33 = 0;
 #line 57 "rt/regex_runtime.w"
@@ -489771,9 +489765,9 @@ bb0:
     _41 = 0;
     /* StorageLive(_42); */
     { __typeof__(0) __tmp = 0; memcpy(&(_42), &__tmp, sizeof(_42) < sizeof(__tmp) ? sizeof(_42) : sizeof(__tmp)); }
-#line 73 "rt/regex_runtime.w"
     /* StorageLive(_43); */
     _43 = 0;
+#line 73 "rt/regex_runtime.w"
     /* StorageLive(_44); */
     _44 = 0;
     /* StorageLive(_45); */
@@ -489815,11 +489809,13 @@ bb0:
 #line 86 "rt/regex_runtime.w"
     /* StorageLive(_58); */
     _58 = 0;
+#line 87 "rt/regex_runtime.w"
     /* StorageLive(_59); */
     _59 = 0;
 #line 88 "rt/regex_runtime.w"
     /* StorageLive(_60); */
     _60 = 0;
+#line 89 "rt/regex_runtime.w"
     /* StorageLive(_61); */
     _61 = 0;
 #line 90 "rt/regex_runtime.w"
@@ -489828,35 +489824,37 @@ bb0:
 #line 91 "rt/regex_runtime.w"
     /* StorageLive(_63); */
     _63 = 0;
-#line 92 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     /* StorageLive(_64); */
     _64 = 0;
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     /* StorageLive(_65); */
     _65 = 0;
 #line 95 "rt/regex_runtime.w"
     /* StorageLive(_66); */
     _66 = 0;
-#line 96 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     /* StorageLive(_67); */
     _67 = 0;
-#line 97 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     /* StorageLive(_68); */
     _68 = 0;
-#line 99 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     /* StorageLive(_69); */
     _69 = 0;
-#line 100 "rt/regex_runtime.w"
+#line 101 "rt/regex_runtime.w"
     /* StorageLive(_70); */
     _70 = 0;
 #line 102 "rt/regex_runtime.w"
     /* StorageLive(_71); */
     _71 = 0;
+#line 103 "rt/regex_runtime.w"
     /* StorageLive(_72); */
     _72 = 0;
 #line 104 "rt/regex_runtime.w"
     /* StorageLive(_73); */
     _73 = 0;
+#line 105 "rt/regex_runtime.w"
     /* StorageLive(_74); */
     _74 = 0;
 #line 107 "rt/regex_runtime.w"
@@ -489865,145 +489863,146 @@ bb0:
 #line 108 "rt/regex_runtime.w"
     /* StorageLive(_76); */
     _76 = 0;
+#line 109 "rt/regex_runtime.w"
     /* StorageLive(_77); */
     _77 = 0;
-#line 110 "rt/regex_runtime.w"
+#line 111 "rt/regex_runtime.w"
     /* StorageLive(_78); */
     _78 = 0;
-#line 111 "rt/regex_runtime.w"
     /* StorageLive(_79); */
     { __typeof__(0) __tmp = 0; memcpy(&(_79), &__tmp, sizeof(_79) < sizeof(__tmp) ? sizeof(_79) : sizeof(__tmp)); }
-#line 112 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     /* StorageLive(_80); */
     { __typeof__(0) __tmp = 0; memcpy(&(_80), &__tmp, sizeof(_80) < sizeof(__tmp) ? sizeof(_80) : sizeof(__tmp)); }
-#line 114 "rt/regex_runtime.w"
+#line 115 "rt/regex_runtime.w"
     /* StorageLive(_81); */
     _81 = 0;
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     /* StorageLive(_82); */
     { __typeof__(0) __tmp = 0; memcpy(&(_82), &__tmp, sizeof(_82) < sizeof(__tmp) ? sizeof(_82) : sizeof(__tmp)); }
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     /* StorageLive(_83); */
     { __typeof__(0) __tmp = 0; memcpy(&(_83), &__tmp, sizeof(_83) < sizeof(__tmp) ? sizeof(_83) : sizeof(__tmp)); }
-#line 118 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     /* StorageLive(_84); */
     { __typeof__(0) __tmp = 0; memcpy(&(_84), &__tmp, sizeof(_84) < sizeof(__tmp) ? sizeof(_84) : sizeof(__tmp)); }
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     /* StorageLive(_85); */
     { __typeof__(0) __tmp = 0; memcpy(&(_85), &__tmp, sizeof(_85) < sizeof(__tmp) ? sizeof(_85) : sizeof(__tmp)); }
-#line 120 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     /* StorageLive(_86); */
     _86 = 0;
-#line 122 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     /* StorageLive(_87); */
     _87 = 0;
-#line 123 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     /* StorageLive(_88); */
     _88 = 0;
-#line 124 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     /* StorageLive(_89); */
     _89 = 0;
-#line 125 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     /* StorageLive(_90); */
     _90 = 0;
-#line 126 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     /* StorageLive(_91); */
     _91 = 0;
-#line 127 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     /* StorageLive(_92); */
     _92 = 0;
-#line 129 "rt/regex_runtime.w"
     /* StorageLive(_93); */
     _93 = 0;
+#line 131 "rt/regex_runtime.w"
     /* StorageLive(_94); */
     _94 = 0;
-#line 131 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     /* StorageLive(_95); */
     _95 = 0;
-#line 133 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     /* StorageLive(_96); */
     _96 = 0;
-#line 134 "rt/regex_runtime.w"
     /* StorageLive(_97); */
     _97 = 0;
+#line 135 "rt/regex_runtime.w"
     /* StorageLive(_98); */
     _98 = 0;
     /* StorageLive(_99); */
     _99 = 0;
-#line 135 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     /* StorageLive(_100); */
     _100 = 0;
-#line 137 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     /* StorageLive(_101); */
     _101 = 0;
-#line 138 "rt/regex_runtime.w"
     /* StorageLive(_102); */
     _102 = 0;
     /* StorageLive(_103); */
     _103 = 0;
+#line 139 "rt/regex_runtime.w"
     /* StorageLive(_104); */
     _104 = 0;
+#line 140 "rt/regex_runtime.w"
     /* StorageLive(_105); */
     _105 = 0;
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     /* StorageLive(_106); */
     _106 = 0;
-#line 141 "rt/regex_runtime.w"
     /* StorageLive(_107); */
     _107 = 0;
+#line 143 "rt/regex_runtime.w"
     /* StorageLive(_108); */
     _108 = 0;
     goto bb1;
 bb1:
-#line 143 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _14 = _1;
-    _15 = _12;
 #line 145 "rt/regex_runtime.w"
-    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_109, __with_arr_tmp, sizeof(_109)); }
-    memcpy(_16, _109, sizeof(_16));
-    _17 = _10;
+    _15 = _12;
 #line 147 "rt/regex_runtime.w"
+    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_109, __with_arr_tmp, sizeof(_109)); }
+#line 145 "rt/regex_runtime.w"
+    memcpy(_16, _109, sizeof(_16));
+#line 147 "rt/regex_runtime.w"
+    _17 = _10;
     _26 = 0;
-    _27 = 0;
-#line 148 "rt/regex_runtime.w"
-    { __typeof__(0) __tmp = 0; memcpy(&(_28), &__tmp, sizeof(_28) < sizeof(__tmp) ? sizeof(_28) : sizeof(__tmp)); }
 #line 149 "rt/regex_runtime.w"
-    { __typeof__(0) __tmp = 0; memcpy(&(_29), &__tmp, sizeof(_29) < sizeof(__tmp) ? sizeof(_29) : sizeof(__tmp)); }
+    _27 = 0;
 #line 150 "rt/regex_runtime.w"
+    { __typeof__(0) __tmp = 0; memcpy(&(_28), &__tmp, sizeof(_28) < sizeof(__tmp) ? sizeof(_28) : sizeof(__tmp)); }
+    { __typeof__(0) __tmp = 0; memcpy(&(_29), &__tmp, sizeof(_29) < sizeof(__tmp) ? sizeof(_29) : sizeof(__tmp)); }
+#line 152 "rt/regex_runtime.w"
     _30 = 0;
-#line 151 "rt/regex_runtime.w"
-    _31 = 0;
 #line 153 "rt/regex_runtime.w"
-    _32 = 0;
-#line 154 "rt/regex_runtime.w"
-    _33 = 0;
-#line 157 "rt/regex_runtime.w"
-    _110 = (uint8_t*)((uint8_t*)(0));
+    _31 = 0;
 #line 155 "rt/regex_runtime.w"
-    _34 = _110;
+    _32 = 0;
+#line 156 "rt/regex_runtime.w"
+    _33 = 0;
 #line 161 "rt/regex_runtime.w"
+    _110 = (uint8_t*)((uint8_t*)(0));
+#line 158 "rt/regex_runtime.w"
+    _34 = _110;
+#line 163 "rt/regex_runtime.w"
     _111 = (&_36);
     _112 = (dfa_match_block_8*)((dfa_match_block_8*)(_111));
-#line 159 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _37 = _112;
 #line 166 "rt/regex_runtime.w"
     _113 = 0;
-#line 165 "rt/regex_runtime.w"
     _114 = (&_38[_113]);
     _115 = (RWS_anchor*)((RWS_anchor*)(_114));
-#line 163 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _39 = _115;
-#line 167 "rt/regex_runtime.w"
-    _116 = (RWS_anchor*)((RWS_anchor*)(0));
-#line 166 "rt/regex_runtime.w"
-    (*_39).next = _116;
 #line 168 "rt/regex_runtime.w"
-    (*_39).size = 7680;
+    _116 = (RWS_anchor*)((RWS_anchor*)(0));
+#line 167 "rt/regex_runtime.w"
+    (*_39).next = _116;
 #line 169 "rt/regex_runtime.w"
+    (*_39).size = 7680;
+#line 170 "rt/regex_runtime.w"
     (*_39).free = 7676;
-#line 171 "rt/regex_runtime.w"
-    _53 = 0;
 #line 172 "rt/regex_runtime.w"
+    _53 = 0;
     { __typeof__((_10 == 0)) __tmp = (_10 == 0); memcpy(&(_117), &__tmp, sizeof(_117) < sizeof(__tmp) ? sizeof(_117) : sizeof(__tmp)); }
     if (_117 == 1) {
         goto bb225;
@@ -490012,15 +490011,15 @@ bb1:
         goto bb226;
     }
 bb2:
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _126 = 0;
-#line 177 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _127 = (&_16[_126]);
     _128 = (uint8_t*)((uint8_t*)(_127));
     _10 = _128;
     goto bb3;
 bb3:
-#line 179 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     { __typeof__((_6 == 0)) __tmp = (_6 == 0); memcpy(&(_129), &__tmp, sizeof(_129) < sizeof(__tmp) ? sizeof(_129) : sizeof(__tmp)); }
     if (_129 == 1) {
         goto bb245;
@@ -490029,13 +490028,13 @@ bb3:
         goto bb246;
     }
 bb4:
-#line 184 "rt/regex_runtime.w"
+#line 186 "rt/regex_runtime.w"
     _0 = -51;
     /* drop(_36); */
     /* drop(_35); */
     return _0;
 bb5:
-#line 187 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     { __typeof__((_14 == 0)) __tmp = (_14 == 0); memcpy(&(_133), &__tmp, sizeof(_133) < sizeof(__tmp) ? sizeof(_133) : sizeof(__tmp)); }
     if (_133 == 1) {
         goto bb256;
@@ -490044,72 +490043,72 @@ bb5:
         goto bb257;
     }
 bb6:
-#line 204 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _13 = -51;
     goto bb8;
 bb7:
-#line 207 "rt/regex_runtime.w"
-    _149 = ((uint32_t)(_12));
 #line 209 "rt/regex_runtime.w"
+    _149 = ((uint32_t)(_12));
+#line 210 "rt/regex_runtime.w"
     _150 = ((uint32_t)(2147483648));
     _151 = ((uint32_t)(_150));
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _152 = ((uint32_t)(536870912));
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _153 = (_151 | _152);
     _154 = ((uint32_t)(_153));
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _155 = ((uint32_t)(1));
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _156 = (_154 | _155);
     _157 = ((uint32_t)(_156));
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _158 = ((uint32_t)(2));
-#line 209 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _159 = (_157 | _158);
     _160 = ((uint32_t)(_159));
-#line 212 "rt/regex_runtime.w"
+#line 214 "rt/regex_runtime.w"
     _161 = ((uint32_t)(4));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _162 = (_160 | _161);
     _163 = ((uint32_t)(_162));
-#line 213 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _164 = ((uint32_t)(8));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _165 = (_163 | _164);
     _166 = ((uint32_t)(_165));
 #line 215 "rt/regex_runtime.w"
     _167 = ((uint32_t)(1073741824));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _168 = (_166 | _167);
     _169 = ((uint32_t)(_168));
-#line 215 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _170 = ((uint32_t)(32));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _171 = (_169 | _170);
     _172 = ((uint32_t)(_171));
-#line 215 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _173 = ((uint32_t)(16));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _174 = (_172 | _173);
     _175 = ((uint32_t)(_174));
-#line 217 "rt/regex_runtime.w"
+#line 218 "rt/regex_runtime.w"
     _176 = ((uint32_t)(128));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _177 = (_175 | _176);
     _178 = ((uint32_t)(_177));
-#line 217 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _179 = ((uint32_t)(64));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _180 = (_178 | _179);
     _181 = ((uint32_t)(_180));
-#line 219 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _182 = ((uint32_t)(16384));
-#line 208 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _183 = (_181 | _182);
     _184 = (~(_183));
+#line 209 "rt/regex_runtime.w"
     _185 = ((uint32_t)(_184));
-#line 207 "rt/regex_runtime.w"
     _186 = (_149 & _185);
     _187 = (_186 != 0);
     if (_187 == 1) {
@@ -490121,11 +490120,11 @@ bb7:
 bb8:
     goto bb220;
 bb9:
-#line 225 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _13 = -34;
     goto bb8;
 bb10:
-#line 228 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _191 = ((uint64_t)(0));
     _192 = (~(_191));
     _193 = (_11 == _192);
@@ -490139,7 +490138,7 @@ bb11:
     _197 = _pcre2_strlen_8__1098(_10);
     goto bb313;
 bb12:
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _198 = (_9 < 20);
     if (_198 == 1) {
         goto bb316;
@@ -490148,11 +490147,11 @@ bb12:
         goto bb317;
     }
 bb13:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _13 = -43;
     goto bb8;
 bb14:
-#line 242 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _202 = (_4 > _11);
     if (_202 == 1) {
         goto bb327;
@@ -490161,21 +490160,18 @@ bb14:
         goto bb328;
     }
 bb15:
-#line 247 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _13 = -33;
     goto bb8;
 bb16:
-#line 250 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _56 = 0;
-    _206 = ((uint32_t)(_12));
-#line 252 "rt/regex_runtime.w"
-    _207 = ((uint32_t)(32));
 #line 253 "rt/regex_runtime.w"
+    _206 = ((uint32_t)(_12));
+    _207 = ((uint32_t)(32));
     _208 = ((uint32_t)(16));
-#line 252 "rt/regex_runtime.w"
     _209 = (_207 | _208);
     _210 = ((uint32_t)(_209));
-#line 250 "rt/regex_runtime.w"
     _211 = (_206 & _210);
     _212 = (_211 != 0);
     if (_212 == 1) {
@@ -490189,11 +490185,9 @@ bb17:
     _13 = -34;
     goto bb8;
 bb18:
-#line 262 "rt/regex_runtime.w"
-    _227 = ((uint32_t)((*_14).overall_options));
 #line 263 "rt/regex_runtime.w"
+    _227 = ((uint32_t)((*_14).overall_options));
     _228 = ((uint32_t)(67108864));
-#line 262 "rt/regex_runtime.w"
     _229 = (_227 & _228);
     _230 = (_229 != 0);
     if (_230 == 1) {
@@ -490203,11 +490197,11 @@ bb18:
         goto bb359;
     }
 bb19:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _13 = -66;
     goto bb8;
 bb20:
-#line 268 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _234 = ((*_14).magic_number != 1346589253);
     if (_234 == 1) {
         goto bb369;
@@ -490216,26 +490210,24 @@ bb20:
         goto bb370;
     }
 bb21:
-#line 273 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _13 = -31;
     goto bb8;
 bb22:
-#line 279 "rt/regex_runtime.w"
+#line 282 "rt/regex_runtime.w"
     _238 = ((uint32_t)((*_14).flags));
-#line 281 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _239 = ((uint32_t)(1));
     _240 = ((uint32_t)(2));
     _241 = (_239 | _240);
     _242 = ((uint32_t)(_241));
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _243 = ((uint32_t)(4));
-#line 281 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _244 = (_242 | _243);
-#line 280 "rt/regex_runtime.w"
     _245 = ((uint32_t)(_244));
-#line 279 "rt/regex_runtime.w"
+#line 282 "rt/regex_runtime.w"
     _246 = (_238 & _245);
-#line 278 "rt/regex_runtime.w"
     _247 = (_246 != 1);
     if (_247 == 1) {
         goto bb380;
@@ -490244,79 +490236,72 @@ bb22:
         goto bb381;
     }
 bb23:
-#line 287 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _13 = -32;
     goto bb8;
 bb24:
-#line 291 "rt/regex_runtime.w"
-    _251 = ((uint32_t)((*_14).flags));
-#line 294 "rt/regex_runtime.w"
-    _252 = ((uint32_t)(65536));
 #line 295 "rt/regex_runtime.w"
+    _251 = ((uint32_t)((*_14).flags));
+#line 297 "rt/regex_runtime.w"
+    _252 = ((uint32_t)(65536));
     _253 = ((uint32_t)(131072));
-#line 294 "rt/regex_runtime.w"
     _254 = (_252 | _253);
     _255 = ((uint32_t)(_254));
-#line 291 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _256 = (_251 & _255);
     _257 = ((uint32_t)(_256));
-#line 296 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _258 = ((uint32_t)(65536));
-#line 297 "rt/regex_runtime.w"
     _259 = ((uint32_t)(131072));
-#line 296 "rt/regex_runtime.w"
     _260 = (_258 | _259);
     _261 = ((uint32_t)(_260));
-#line 300 "rt/regex_runtime.w"
     _262 = ((uint32_t)(65536));
+#line 301 "rt/regex_runtime.w"
     _263 = ((uint32_t)(131072));
-#line 299 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _264 = (_262 | _263);
     _265 = (~(_264));
     _266 = ((uint32_t)(_265));
-#line 300 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _267 = ((uint32_t)(1));
-#line 299 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _268 = (_266 + _267);
     _269 = ((uint32_t)(_268));
-#line 296 "rt/regex_runtime.w"
     _270 = (_261 & _269);
     _271 = ((uint32_t)(_270));
-#line 301 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _272 = ((uint32_t)(4));
     _273 = ((uint32_t)(8));
     _274 = (_272 | _273);
     _275 = ((uint32_t)(_274));
-#line 302 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _276 = ((uint32_t)(4));
-#line 303 "rt/regex_runtime.w"
     _277 = ((uint32_t)(8));
-#line 302 "rt/regex_runtime.w"
     _278 = (_276 | _277);
     _279 = (~(_278));
     _280 = ((uint32_t)(_279));
-#line 303 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _281 = ((uint32_t)(1));
-#line 302 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _282 = (_280 + _281);
     _283 = ((uint32_t)(_282));
-#line 301 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _284 = (_275 & _283);
     _285 = ((uint32_t)(_284));
-#line 296 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _286 = (_271 / _285);
     _287 = ((uint32_t)(_286));
-#line 291 "rt/regex_runtime.w"
+#line 295 "rt/regex_runtime.w"
     _288 = (_257 / _287);
-#line 290 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _289 = (_12 | _288);
-#line 289 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _12 = _289;
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _290 = ((uint32_t)(_12));
-#line 306 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _291 = ((uint32_t)(64));
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _292 = (_290 & _291);
     _293 = (_292 != 0);
     if (_293 == 1) {
@@ -490326,9 +490311,9 @@ bb24:
         goto bb392;
     }
 bb25:
-#line 310 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _297 = 0;
-#line 309 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _298 = (_8[_297] & -2);
     _299 = (_298 != 0);
     if (_299 == 1) {
@@ -490355,7 +490340,7 @@ bb27:
 bb28:
     goto bb26;
 bb29:
-    _383 = ((with_fn_111)(0));
+    _383 = ((with_fn_113)(0));
     (*_37).callout = _383;
     _384 = (&(*_37).memctl);
     _385 = (int8_t*)((int8_t*)(_384));
@@ -490393,7 +490378,7 @@ bb32:
         goto bb503;
     }
 bb33:
-    _417 = ((with_fn_111)((*_7).callout));
+    _417 = ((with_fn_113)((*_7).callout));
     (*_37).callout = _417;
     (*_37).callout_data = (*_7).callout_data;
     _418 = (&(*_37).memctl);
@@ -491604,7 +491589,7 @@ bb227:
         goto bb229;
     }
 bb228:
-#line 173 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _120 = (_11 == 0);
     if (_120 == 1) {
         goto bb231;
@@ -491624,11 +491609,10 @@ bb230:
         goto bb238;
     }
 bb231:
-#line 174 "rt/regex_runtime.w"
     _121 = 1;
     goto bb233;
 bb232:
-#line 173 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _121 = 0;
     goto bb233;
 bb233:
@@ -491640,14 +491624,15 @@ bb233:
         goto bb235;
     }
 bb234:
-#line 175 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _123 = 1;
     goto bb236;
 bb235:
-#line 172 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _123 = 0;
     goto bb236;
 bb236:
+#line 173 "rt/regex_runtime.w"
     _53 = _123;
     goto bb230;
 bb237:
@@ -491657,10 +491642,11 @@ bb238:
 bb239:
     goto bb224;
 bb240:
-#line 176 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _125 = (__typeof__(_125)){0};
     goto bb239;
 bb241:
+#line 176 "rt/regex_runtime.w"
     _125 = (__typeof__(_125)){0};
     goto bb239;
 bb242:
@@ -491670,11 +491656,10 @@ bb243:
 bb244:
     goto bb4;
 bb245:
-#line 180 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _130 = 1;
     goto bb247;
 bb246:
-#line 179 "rt/regex_runtime.w"
     _130 = 0;
     goto bb247;
 bb247:
@@ -491692,11 +491677,11 @@ bb249:
 bb250:
     goto bb244;
 bb251:
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _132 = (__typeof__(_132)){0};
     goto bb250;
 bb252:
-#line 179 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _132 = (__typeof__(_132)){0};
     goto bb250;
 bb253:
@@ -491706,15 +491691,13 @@ bb254:
 bb255:
     goto bb6;
 bb256:
-#line 187 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _134 = 1;
     goto bb258;
 bb257:
-#line 186 "rt/regex_runtime.w"
     _134 = 0;
     goto bb258;
 bb258:
-#line 185 "rt/regex_runtime.w"
     _135 = (_134 != 0);
     if (_135 == 1) {
         goto bb259;
@@ -491730,7 +491713,7 @@ bb259:
         goto bb263;
     }
 bb260:
-#line 191 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     { __typeof__((_10 == 0)) __tmp = (_10 == 0); memcpy(&(_137), &__tmp, sizeof(_137) < sizeof(__tmp) ? sizeof(_137) : sizeof(__tmp)); }
     if (_137 == 1) {
         goto bb265;
@@ -491739,7 +491722,7 @@ bb260:
         goto bb266;
     }
 bb261:
-#line 193 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _141 = (_55 != 0);
     if (_141 == 1) {
         goto bb271;
@@ -491748,21 +491731,22 @@ bb261:
         goto bb272;
     }
 bb262:
-#line 188 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _136 = 1;
     goto bb264;
 bb263:
     _136 = 0;
     goto bb264;
 bb264:
+#line 189 "rt/regex_runtime.w"
     _55 = _136;
     goto bb261;
 bb265:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _138 = 1;
     goto bb267;
 bb266:
-#line 191 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _138 = 0;
     goto bb267;
 bb267:
@@ -491774,15 +491758,14 @@ bb267:
         goto bb269;
     }
 bb268:
-#line 192 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _140 = 1;
     goto bb270;
 bb269:
-#line 191 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     _140 = 0;
     goto bb270;
 bb270:
-#line 190 "rt/regex_runtime.w"
     _55 = _140;
     goto bb261;
 bb271:
@@ -491802,7 +491785,7 @@ bb272:
         goto bb278;
     }
 bb273:
-#line 199 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _147 = (_54 != 0);
     if (_147 == 1) {
         goto bb283;
@@ -491811,21 +491794,22 @@ bb273:
         goto bb284;
     }
 bb274:
-#line 195 "rt/regex_runtime.w"
+#line 197 "rt/regex_runtime.w"
     _142 = 1;
     goto bb276;
 bb275:
     _142 = 0;
     goto bb276;
 bb276:
-#line 194 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _54 = _142;
     goto bb273;
 bb277:
-#line 198 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     _144 = 1;
     goto bb279;
 bb278:
+#line 198 "rt/regex_runtime.w"
     _144 = 0;
     goto bb279;
 bb279:
@@ -491837,13 +491821,14 @@ bb279:
         goto bb281;
     }
 bb280:
+#line 200 "rt/regex_runtime.w"
     _146 = 1;
     goto bb282;
 bb281:
+#line 198 "rt/regex_runtime.w"
     _146 = 0;
     goto bb282;
 bb282:
-#line 197 "rt/regex_runtime.w"
     _54 = _146;
     goto bb273;
 bb283:
@@ -491853,11 +491838,11 @@ bb284:
 bb285:
     goto bb255;
 bb286:
-#line 202 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     _148 = (__typeof__(_148)){0};
     goto bb285;
 bb287:
-#line 199 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _148 = (__typeof__(_148)){0};
     goto bb285;
 bb288:
@@ -491867,14 +491852,15 @@ bb289:
 bb290:
     goto bb8;
 bb291:
-#line 220 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _188 = 1;
     goto bb293;
 bb292:
-#line 207 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     _188 = 0;
     goto bb293;
 bb293:
+#line 208 "rt/regex_runtime.w"
     _189 = (_188 != 0);
     if (_189 == 1) {
         goto bb294;
@@ -491893,7 +491879,7 @@ bb297:
     _190 = (__typeof__(_190)){0};
     goto bb296;
 bb298:
-#line 207 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     _190 = (__typeof__(_190)){0};
     goto bb296;
 bb299:
@@ -491907,11 +491893,11 @@ bb302:
 bb303:
     goto bb11;
 bb304:
-#line 229 "rt/regex_runtime.w"
+#line 230 "rt/regex_runtime.w"
     _194 = 1;
     goto bb306;
 bb305:
-#line 228 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _194 = 0;
     goto bb306;
 bb306:
@@ -491929,17 +491915,17 @@ bb308:
 bb309:
     goto bb303;
 bb310:
-#line 229 "rt/regex_runtime.w"
+#line 231 "rt/regex_runtime.w"
     _196 = (__typeof__(_196)){0};
     goto bb309;
 bb311:
-#line 228 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     _196 = (__typeof__(_196)){0};
     goto bb309;
 bb312:
     goto bb12;
 bb313:
-#line 233 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _11 = _197;
     goto bb12;
 bb314:
@@ -491947,10 +491933,11 @@ bb314:
 bb315:
     goto bb13;
 bb316:
-#line 235 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _199 = 1;
     goto bb318;
 bb317:
+#line 236 "rt/regex_runtime.w"
     _199 = 0;
     goto bb318;
 bb318:
@@ -491968,11 +491955,11 @@ bb320:
 bb321:
     goto bb315;
 bb322:
-#line 236 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _201 = (__typeof__(_201)){0};
     goto bb321;
 bb323:
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _201 = (__typeof__(_201)){0};
     goto bb321;
 bb324:
@@ -491986,7 +491973,6 @@ bb327:
     _203 = 1;
     goto bb329;
 bb328:
-#line 242 "rt/regex_runtime.w"
     _203 = 0;
     goto bb329;
 bb329:
@@ -492004,11 +491990,11 @@ bb331:
 bb332:
     goto bb326;
 bb333:
-#line 243 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _205 = (__typeof__(_205)){0};
     goto bb332;
 bb334:
-#line 242 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _205 = (__typeof__(_205)){0};
     goto bb332;
 bb335:
@@ -492018,11 +492004,11 @@ bb336:
 bb337:
     goto bb17;
 bb338:
-#line 253 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _213 = 1;
     goto bb340;
 bb339:
-#line 250 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _213 = 0;
     goto bb340;
 bb340:
@@ -492034,16 +492020,16 @@ bb340:
         goto bb342;
     }
 bb341:
-#line 254 "rt/regex_runtime.w"
-    _215 = ((uint32_t)((*_14).overall_options));
 #line 255 "rt/regex_runtime.w"
+    _215 = ((uint32_t)((*_14).overall_options));
+#line 256 "rt/regex_runtime.w"
     _216 = ((uint32_t)(_12));
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _217 = (_215 | _216);
     _218 = ((uint32_t)(_217));
-#line 255 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _219 = ((uint32_t)(536870912));
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _220 = (_218 & _219);
     _221 = (_220 != 0);
     if (_221 == 1) {
@@ -492055,7 +492041,7 @@ bb341:
 bb342:
     goto bb343;
 bb343:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _225 = (_56 != 0);
     if (_225 == 1) {
         goto bb350;
@@ -492064,11 +492050,11 @@ bb343:
         goto bb351;
     }
 bb344:
-#line 256 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _222 = 1;
     goto bb346;
 bb345:
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _222 = 0;
     goto bb346;
 bb346:
@@ -492084,7 +492070,7 @@ bb347:
     _224 = 1;
     goto bb349;
 bb348:
-#line 253 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _224 = 0;
     goto bb349;
 bb349:
@@ -492097,10 +492083,11 @@ bb351:
 bb352:
     goto bb337;
 bb353:
-#line 257 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _226 = (__typeof__(_226)){0};
     goto bb352;
 bb354:
+#line 257 "rt/regex_runtime.w"
     _226 = (__typeof__(_226)){0};
     goto bb352;
 bb355:
@@ -492110,15 +492097,14 @@ bb356:
 bb357:
     goto bb19;
 bb358:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _231 = 1;
     goto bb360;
 bb359:
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _231 = 0;
     goto bb360;
 bb360:
-#line 261 "rt/regex_runtime.w"
     _232 = (_231 != 0);
     if (_232 == 1) {
         goto bb361;
@@ -492133,11 +492119,11 @@ bb362:
 bb363:
     goto bb357;
 bb364:
-#line 263 "rt/regex_runtime.w"
+#line 265 "rt/regex_runtime.w"
     _233 = (__typeof__(_233)){0};
     goto bb363;
 bb365:
-#line 261 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _233 = (__typeof__(_233)){0};
     goto bb363;
 bb366:
@@ -492147,11 +492133,11 @@ bb367:
 bb368:
     goto bb21;
 bb369:
-#line 269 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _235 = 1;
     goto bb371;
 bb370:
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _235 = 0;
     goto bb371;
 bb371:
@@ -492169,11 +492155,11 @@ bb373:
 bb374:
     goto bb368;
 bb375:
-#line 270 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _237 = (__typeof__(_237)){0};
     goto bb374;
 bb376:
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _237 = (__typeof__(_237)){0};
     goto bb374;
 bb377:
@@ -492183,14 +492169,15 @@ bb378:
 bb379:
     goto bb23;
 bb380:
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _248 = 1;
     goto bb382;
 bb381:
-#line 278 "rt/regex_runtime.w"
+#line 282 "rt/regex_runtime.w"
     _248 = 0;
     goto bb382;
 bb382:
+#line 281 "rt/regex_runtime.w"
     _249 = (_248 != 0);
     if (_249 == 1) {
         goto bb383;
@@ -492205,11 +492192,11 @@ bb384:
 bb385:
     goto bb379;
 bb386:
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _250 = (__typeof__(_250)){0};
     goto bb385;
 bb387:
-#line 278 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _250 = (__typeof__(_250)){0};
     goto bb385;
 bb388:
@@ -492219,11 +492206,11 @@ bb389:
 bb390:
     goto bb25;
 bb391:
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _294 = 1;
     goto bb393;
 bb392:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _294 = 0;
     goto bb393;
 bb393:
@@ -492241,21 +492228,21 @@ bb395:
 bb396:
     goto bb390;
 bb397:
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _296 = (__typeof__(_296)){0};
     goto bb396;
 bb398:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _296 = (__typeof__(_296)){0};
     goto bb396;
 bb399:
     goto bb26;
 bb400:
-#line 311 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _300 = 1;
     goto bb402;
 bb401:
-#line 309 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _300 = 0;
     goto bb402;
 bb402:
@@ -492292,18 +492279,15 @@ bb405:
         goto bb416;
     }
 bb406:
-#line 312 "rt/regex_runtime.w"
     _302 = 1;
     goto bb408;
 bb407:
     _302 = 0;
     goto bb408;
 bb408:
-#line 311 "rt/regex_runtime.w"
     _58 = _302;
     goto bb405;
 bb409:
-#line 314 "rt/regex_runtime.w"
     _305 = 1;
     goto bb411;
 bb410:
@@ -562756,7 +562740,7 @@ int32_t pcre2_substitute_8__169(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3,
     uint64_t _41[2] __attribute__((unused)) = {0};
     pcre2_substitute_callout_block_8 _42 __attribute__((unused)) = {0};
     uint64_t _43 __attribute__((unused)) = {0};
-    with_fn_116 _44 __attribute__((unused)) = {0};
+    with_fn_118 _44 __attribute__((unused)) = {0};
     c_void* _45 __attribute__((unused)) = {0};
     pcre2_real_general_context_8 _46 __attribute__((unused)) = {0};
     int32_t _47 __attribute__((unused)) = {0};
@@ -562889,14 +562873,14 @@ int32_t pcre2_substitute_8__169(pcre2_real_code_8* _1, uint8_t* _2, uint64_t _3,
     int32_t _174 __attribute__((unused)) = {0};
     uint8_t _175[1] __attribute__((unused)) = {0};
     uint64_t _176[2] __attribute__((unused)) = {0};
-    with_fn_116 _177 __attribute__((unused)) = {0};
+    with_fn_118 _177 __attribute__((unused)) = {0};
     uint64_t _178 __attribute__((unused)) = {0};
     uint64_t _179 __attribute__((unused)) = {0};
     bool _180 __attribute__((unused)) = {0};
     int32_t _181 __attribute__((unused)) = {0};
     bool _182 __attribute__((unused)) = {0};
     int32_t _183 __attribute__((unused)) = {0};
-    with_fn_116 _184 __attribute__((unused)) = {0};
+    with_fn_118 _184 __attribute__((unused)) = {0};
     uint32_t _185 __attribute__((unused)) = {0};
     uint32_t _186 __attribute__((unused)) = {0};
     uint32_t _187 __attribute__((unused)) = {0};
@@ -565223,7 +565207,7 @@ bb0:
 #line 16 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     _12 = _2;
-#line 18 "rt/regex_runtime.w"
+#line 17 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     _13 = _3;
 #line 19 "rt/regex_runtime.w"
@@ -565232,19 +565216,19 @@ bb0:
 #line 21 "rt/regex_runtime.w"
     /* StorageLive(_15); */
     _15 = _5;
-#line 23 "rt/regex_runtime.w"
+#line 22 "rt/regex_runtime.w"
     /* StorageLive(_16); */
     _16 = _6;
-#line 25 "rt/regex_runtime.w"
+#line 24 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     _17 = _8;
 #line 26 "rt/regex_runtime.w"
     /* StorageLive(_18); */
     _18 = _9;
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     /* StorageLive(_19); */
     _19 = 0;
-#line 30 "rt/regex_runtime.w"
+#line 29 "rt/regex_runtime.w"
     /* StorageLive(_20); */
     _20 = 0;
 #line 31 "rt/regex_runtime.w"
@@ -565253,18 +565237,19 @@ bb0:
 #line 33 "rt/regex_runtime.w"
     /* StorageLive(_22); */
     _22 = 0;
-#line 35 "rt/regex_runtime.w"
+#line 34 "rt/regex_runtime.w"
     /* StorageLive(_23); */
     _23 = 0;
-#line 38 "rt/regex_runtime.w"
+#line 36 "rt/regex_runtime.w"
     /* StorageLive(_24); */
     { __typeof__(0) __tmp = 0; memcpy(&(_24), &__tmp, sizeof(_24) < sizeof(__tmp) ? sizeof(_24) : sizeof(__tmp)); }
 #line 39 "rt/regex_runtime.w"
     /* StorageLive(_25); */
     _25 = 0;
-#line 41 "rt/regex_runtime.w"
+#line 40 "rt/regex_runtime.w"
     /* StorageLive(_26); */
     _26 = 0;
+#line 41 "rt/regex_runtime.w"
     /* StorageLive(_27); */
     _27 = 0;
 #line 43 "rt/regex_runtime.w"
@@ -565275,17 +565260,17 @@ bb0:
     _29 = 0;
 #line 47 "rt/regex_runtime.w"
     /* StorageLive(_30); */
-#line 48 "rt/regex_runtime.w"
     /* StorageLive(_31); */
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     /* StorageLive(_32); */
     { __typeof__(0) __tmp = 0; memcpy(&(_32), &__tmp, sizeof(_32) < sizeof(__tmp) ? sizeof(_32) : sizeof(__tmp)); }
 #line 52 "rt/regex_runtime.w"
     /* StorageLive(_33); */
     { __typeof__(0) __tmp = 0; memcpy(&(_33), &__tmp, sizeof(_33) < sizeof(__tmp) ? sizeof(_33) : sizeof(__tmp)); }
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     /* StorageLive(_34); */
     { __typeof__(0) __tmp = 0; memcpy(&(_34), &__tmp, sizeof(_34) < sizeof(__tmp) ? sizeof(_34) : sizeof(__tmp)); }
+#line 55 "rt/regex_runtime.w"
     /* StorageLive(_35); */
     _35 = 0;
 #line 57 "rt/regex_runtime.w"
@@ -565297,16 +565282,17 @@ bb0:
 #line 61 "rt/regex_runtime.w"
     /* StorageLive(_38); */
     _38 = 0;
-#line 63 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     /* StorageLive(_39); */
     _39 = 0;
+#line 63 "rt/regex_runtime.w"
     /* StorageLive(_40); */
     { __typeof__(0) __tmp = 0; memcpy(&(_40), &__tmp, sizeof(_40) < sizeof(__tmp) ? sizeof(_40) : sizeof(__tmp)); }
 #line 66 "rt/regex_runtime.w"
     /* StorageLive(_41); */
 #line 67 "rt/regex_runtime.w"
     /* StorageLive(_42); */
-#line 71 "rt/regex_runtime.w"
+#line 69 "rt/regex_runtime.w"
     /* StorageLive(_43); */
     _43 = 0;
 #line 72 "rt/regex_runtime.w"
@@ -565317,7 +565303,6 @@ bb0:
     { __typeof__(0) __tmp = 0; memcpy(&(_45), &__tmp, sizeof(_45) < sizeof(__tmp) ? sizeof(_45) : sizeof(__tmp)); }
 #line 75 "rt/regex_runtime.w"
     /* StorageLive(_46); */
-#line 76 "rt/regex_runtime.w"
     /* StorageLive(_47); */
     _47 = 0;
 #line 77 "rt/regex_runtime.w"
@@ -565331,7 +565316,7 @@ bb0:
     _51 = 0;
 #line 80 "rt/regex_runtime.w"
     /* StorageLive(_52); */
-#line 81 "rt/regex_runtime.w"
+#line 82 "rt/regex_runtime.w"
     /* StorageLive(_53); */
     _53 = 0;
 #line 83 "rt/regex_runtime.w"
@@ -565352,16 +565337,16 @@ bb0:
 #line 90 "rt/regex_runtime.w"
     /* StorageLive(_59); */
     _59 = 0;
-#line 91 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     /* StorageLive(_60); */
     _60 = 0;
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     /* StorageLive(_61); */
     { __typeof__(0) __tmp = 0; memcpy(&(_61), &__tmp, sizeof(_61) < sizeof(__tmp) ? sizeof(_61) : sizeof(__tmp)); }
-#line 95 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     /* StorageLive(_62); */
     { __typeof__(0) __tmp = 0; memcpy(&(_62), &__tmp, sizeof(_62) < sizeof(__tmp) ? sizeof(_62) : sizeof(__tmp)); }
-#line 97 "rt/regex_runtime.w"
+#line 98 "rt/regex_runtime.w"
     /* StorageLive(_63); */
     { __typeof__(0) __tmp = 0; memcpy(&(_63), &__tmp, sizeof(_63) < sizeof(__tmp) ? sizeof(_63) : sizeof(__tmp)); }
 #line 100 "rt/regex_runtime.w"
@@ -565387,12 +565372,13 @@ bb0:
 #line 111 "rt/regex_runtime.w"
     /* StorageLive(_71); */
     { __typeof__(0) __tmp = 0; memcpy(&(_71), &__tmp, sizeof(_71) < sizeof(__tmp) ? sizeof(_71) : sizeof(__tmp)); }
+#line 113 "rt/regex_runtime.w"
     /* StorageLive(_72); */
     { __typeof__(0) __tmp = 0; memcpy(&(_72), &__tmp, sizeof(_72) < sizeof(__tmp) ? sizeof(_72) : sizeof(__tmp)); }
 #line 114 "rt/regex_runtime.w"
     /* StorageLive(_73); */
     _73 = 0;
-#line 115 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     /* StorageLive(_74); */
     { __typeof__(0) __tmp = 0; memcpy(&(_74), &__tmp, sizeof(_74) < sizeof(__tmp) ? sizeof(_74) : sizeof(__tmp)); }
 #line 118 "rt/regex_runtime.w"
@@ -565401,10 +565387,10 @@ bb0:
 #line 119 "rt/regex_runtime.w"
     /* StorageLive(_76); */
     _76 = 0;
-#line 120 "rt/regex_runtime.w"
+#line 121 "rt/regex_runtime.w"
     /* StorageLive(_77); */
     _77 = 0;
-#line 122 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     /* StorageLive(_78); */
     _78 = 0;
 #line 124 "rt/regex_runtime.w"
@@ -565413,12 +565399,13 @@ bb0:
 #line 125 "rt/regex_runtime.w"
     /* StorageLive(_80); */
     { __typeof__(0) __tmp = 0; memcpy(&(_80), &__tmp, sizeof(_80) < sizeof(__tmp) ? sizeof(_80) : sizeof(__tmp)); }
-#line 126 "rt/regex_runtime.w"
+#line 127 "rt/regex_runtime.w"
     /* StorageLive(_81); */
     { __typeof__(0) __tmp = 0; memcpy(&(_81), &__tmp, sizeof(_81) < sizeof(__tmp) ? sizeof(_81) : sizeof(__tmp)); }
 #line 129 "rt/regex_runtime.w"
     /* StorageLive(_82); */
     _82 = 0;
+#line 130 "rt/regex_runtime.w"
     /* StorageLive(_83); */
     _83 = 0;
 #line 133 "rt/regex_runtime.w"
@@ -565439,17 +565426,19 @@ bb0:
     _89 = 0;
     /* StorageLive(_90); */
     _90 = 0;
-#line 139 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     /* StorageLive(_91); */
     _91 = 0;
 #line 141 "rt/regex_runtime.w"
     /* StorageLive(_92); */
     _92 = 0;
+#line 142 "rt/regex_runtime.w"
     /* StorageLive(_93); */
     _93 = 0;
 #line 143 "rt/regex_runtime.w"
     /* StorageLive(_94); */
     _94 = 0;
+#line 144 "rt/regex_runtime.w"
     /* StorageLive(_95); */
     _95 = 0;
 #line 145 "rt/regex_runtime.w"
@@ -565462,213 +565451,215 @@ bb0:
     _98 = 0;
     /* StorageLive(_99); */
     _99 = 0;
-#line 148 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     /* StorageLive(_100); */
     _100 = 0;
-#line 149 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     /* StorageLive(_101); */
     _101 = 0;
-#line 150 "rt/regex_runtime.w"
     /* StorageLive(_102); */
     _102 = 0;
-#line 151 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     /* StorageLive(_103); */
     _103 = 0;
-#line 153 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     /* StorageLive(_104); */
     _104 = 0;
-#line 154 "rt/regex_runtime.w"
+#line 156 "rt/regex_runtime.w"
     /* StorageLive(_105); */
     _105 = 0;
-#line 156 "rt/regex_runtime.w"
+#line 158 "rt/regex_runtime.w"
     /* StorageLive(_106); */
     _106 = 0;
-#line 159 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     /* StorageLive(_107); */
     _107 = 0;
-#line 162 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     /* StorageLive(_108); */
     _108 = 0;
-#line 163 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     /* StorageLive(_109); */
     _109 = 0;
-#line 165 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     /* StorageLive(_110); */
     _110 = 0;
-#line 166 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     /* StorageLive(_111); */
     _111 = 0;
-#line 167 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     /* StorageLive(_112); */
     _112 = 0;
-#line 168 "rt/regex_runtime.w"
+#line 170 "rt/regex_runtime.w"
     /* StorageLive(_113); */
     _113 = 0;
-#line 170 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     /* StorageLive(_114); */
     _114 = 0;
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     /* StorageLive(_115); */
     _115 = 0;
-#line 172 "rt/regex_runtime.w"
     /* StorageLive(_116); */
     _116 = 0;
+#line 173 "rt/regex_runtime.w"
     /* StorageLive(_117); */
     _117 = 0;
-#line 173 "rt/regex_runtime.w"
-    /* StorageLive(_118); */
 #line 175 "rt/regex_runtime.w"
-    /* StorageLive(_119); */
+    /* StorageLive(_118); */
 #line 176 "rt/regex_runtime.w"
+    /* StorageLive(_119); */
     /* StorageLive(_120); */
     _120 = 0;
+#line 177 "rt/regex_runtime.w"
     /* StorageLive(_121); */
     _121 = 0;
-#line 177 "rt/regex_runtime.w"
     /* StorageLive(_122); */
     _122 = 0;
+#line 178 "rt/regex_runtime.w"
     /* StorageLive(_123); */
     _123 = 0;
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     /* StorageLive(_124); */
     _124 = 0;
     /* StorageLive(_125); */
     _125 = 0;
-#line 179 "rt/regex_runtime.w"
+#line 180 "rt/regex_runtime.w"
     /* StorageLive(_126); */
     _126 = 0;
+#line 181 "rt/regex_runtime.w"
     /* StorageLive(_127); */
     _127 = 0;
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     /* StorageLive(_128); */
     _128 = 0;
-#line 182 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     /* StorageLive(_129); */
     _129 = 0;
-#line 183 "rt/regex_runtime.w"
+#line 185 "rt/regex_runtime.w"
     /* StorageLive(_130); */
     _130 = 0;
-#line 184 "rt/regex_runtime.w"
+#line 187 "rt/regex_runtime.w"
     /* StorageLive(_131); */
     _131 = 0;
-#line 187 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     /* StorageLive(_132); */
     _132 = 0;
     /* StorageLive(_133); */
     _133 = 0;
-#line 188 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     /* StorageLive(_134); */
     _134 = 0;
-#line 189 "rt/regex_runtime.w"
+#line 192 "rt/regex_runtime.w"
     /* StorageLive(_135); */
     _135 = 0;
-#line 191 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     /* StorageLive(_136); */
     _136 = 0;
-#line 192 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     /* StorageLive(_137); */
     _137 = 0;
-#line 193 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     /* StorageLive(_138); */
     _138 = 0;
-#line 194 "rt/regex_runtime.w"
     /* StorageLive(_139); */
     _139 = 0;
-#line 195 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     /* StorageLive(_140); */
     _140 = 0;
-#line 197 "rt/regex_runtime.w"
     /* StorageLive(_141); */
     _141 = 0;
-#line 198 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     /* StorageLive(_142); */
     _142 = 0;
+#line 202 "rt/regex_runtime.w"
     /* StorageLive(_143); */
     _143 = 0;
-#line 200 "rt/regex_runtime.w"
+#line 203 "rt/regex_runtime.w"
     /* StorageLive(_144); */
     _144 = 0;
-#line 202 "rt/regex_runtime.w"
     /* StorageLive(_145); */
     _145 = 0;
-#line 203 "rt/regex_runtime.w"
+#line 204 "rt/regex_runtime.w"
     /* StorageLive(_146); */
     _146 = 0;
+#line 206 "rt/regex_runtime.w"
     /* StorageLive(_147); */
     _147 = 0;
-#line 204 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     /* StorageLive(_148); */
     _148 = 0;
-#line 206 "rt/regex_runtime.w"
+#line 208 "rt/regex_runtime.w"
     /* StorageLive(_149); */
     _149 = 0;
-#line 207 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     /* StorageLive(_150); */
     _150 = 0;
-#line 208 "rt/regex_runtime.w"
     /* StorageLive(_151); */
     _151 = 0;
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     /* StorageLive(_152); */
     _152 = 0;
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     /* StorageLive(_153); */
     _153 = 0;
+#line 215 "rt/regex_runtime.w"
     /* StorageLive(_154); */
     _154 = 0;
-#line 212 "rt/regex_runtime.w"
     /* StorageLive(_155); */
     _155 = 0;
-#line 215 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     /* StorageLive(_156); */
     _156 = 0;
+#line 217 "rt/regex_runtime.w"
     /* StorageLive(_157); */
     _157 = 0;
-#line 216 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     /* StorageLive(_158); */
     _158 = 0;
-#line 217 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     /* StorageLive(_159); */
     _159 = 0;
-#line 219 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     /* StorageLive(_160); */
     { __typeof__(0) __tmp = 0; memcpy(&(_160), &__tmp, sizeof(_160) < sizeof(__tmp) ? sizeof(_160) : sizeof(__tmp)); }
-#line 220 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     /* StorageLive(_161); */
     _161 = 0;
-#line 221 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     /* StorageLive(_162); */
     { __typeof__(0) __tmp = 0; memcpy(&(_162), &__tmp, sizeof(_162) < sizeof(__tmp) ? sizeof(_162) : sizeof(__tmp)); }
-#line 222 "rt/regex_runtime.w"
     /* StorageLive(_163); */
     _163 = 0;
-#line 224 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     /* StorageLive(_164); */
     _164 = 0;
-#line 225 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     /* StorageLive(_165); */
     _165 = 0;
+#line 228 "rt/regex_runtime.w"
     /* StorageLive(_166); */
     _166 = 0;
-#line 227 "rt/regex_runtime.w"
+#line 229 "rt/regex_runtime.w"
     /* StorageLive(_167); */
     _167 = 0;
-#line 228 "rt/regex_runtime.w"
+#line 230 "rt/regex_runtime.w"
     /* StorageLive(_168); */
     _168 = 0;
     goto bb1;
 bb1:
-#line 230 "rt/regex_runtime.w"
-    _22 = 0;
 #line 233 "rt/regex_runtime.w"
+    _22 = 0;
+#line 235 "rt/regex_runtime.w"
     _169 = (pcre2_real_match_data_8*)((pcre2_real_match_data_8*)(0));
     _24 = _169;
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _25 = 0;
-    _26 = 0;
 #line 238 "rt/regex_runtime.w"
+    _26 = 0;
+#line 239 "rt/regex_runtime.w"
     _170 = ((uint32_t)((*_1).overall_options));
+#line 240 "rt/regex_runtime.w"
     _171 = ((uint32_t)(524288));
+#line 239 "rt/regex_runtime.w"
     _172 = (_170 & _171);
     _173 = (_172 != 0);
     if (_173 == 1) {
@@ -565678,23 +565669,22 @@ bb1:
         goto bb571;
     }
 bb2:
-#line 260 "rt/regex_runtime.w"
-    _184 = ((with_fn_116)((*_7).substitute_case_callout));
-    _44 = _184;
 #line 263 "rt/regex_runtime.w"
+    _184 = ((with_fn_118)((*_7).substitute_case_callout));
+#line 262 "rt/regex_runtime.w"
+    _44 = _184;
+#line 265 "rt/regex_runtime.w"
     _45 = (*_7).substitute_case_callout_data;
     goto bb3;
 bb3:
-#line 266 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _185 = ((uint32_t)(_15));
-#line 267 "rt/regex_runtime.w"
     _186 = ((uint32_t)(32));
-#line 268 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _187 = ((uint32_t)(16));
-#line 267 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _188 = (_186 | _187);
     _189 = ((uint32_t)(_188));
-#line 266 "rt/regex_runtime.w"
     _190 = (_185 & _189);
     _191 = (_190 != 0);
     if (_191 == 1) {
@@ -565704,7 +565694,7 @@ bb3:
         goto bb585;
     }
 bb4:
-#line 272 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _0 = -34;
     /* drop(_119); */
     /* drop(_118); */
@@ -565715,7 +565705,7 @@ bb4:
     /* drop(_42); */
     return _0;
 bb5:
-#line 275 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     { __typeof__((_17 == 0)) __tmp = (_17 == 0); memcpy(&(_195), &__tmp, sizeof(_195) < sizeof(__tmp) ? sizeof(_195) : sizeof(__tmp)); }
     if (_195 == 1) {
         goto bb595;
@@ -565724,7 +565714,7 @@ bb5:
         goto bb596;
     }
 bb6:
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _199 = (_18 != 0);
     if (_199 == 1) {
         goto bb604;
@@ -565733,9 +565723,10 @@ bb6:
         goto bb605;
     }
 bb7:
-#line 287 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     _203 = ((uint64_t)(0));
     _204 = (~(_203));
+#line 290 "rt/regex_runtime.w"
     _205 = (_18 == _204);
     if (_205 == 1) {
         goto bb613;
@@ -565744,7 +565735,7 @@ bb7:
         goto bb614;
     }
 bb8:
-#line 294 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _0 = -51;
     /* drop(_119); */
     /* drop(_118); */
@@ -565755,24 +565746,23 @@ bb8:
     /* drop(_42); */
     return _0;
 bb9:
-#line 298 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _209 = 0;
-#line 296 "rt/regex_runtime.w"
     _210 = (&_31[_209]);
     _211 = (uint8_t*)((uint8_t*)(_210));
-#line 295 "rt/regex_runtime.w"
     _17 = _211;
     goto bb7;
 bb10:
     _212 = _pcre2_strlen_8__1098(_17);
     goto bb626;
 bb11:
-#line 304 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _213 = ((uint64_t)(_18));
+#line 306 "rt/regex_runtime.w"
     _214 = (_17 + _213);
-#line 303 "rt/regex_runtime.w"
-    _34 = _214;
 #line 305 "rt/regex_runtime.w"
+    _34 = _214;
+#line 307 "rt/regex_runtime.w"
     { __typeof__((_12 == 0)) __tmp = (_12 == 0); memcpy(&(_215), &__tmp, sizeof(_215) < sizeof(__tmp) ? sizeof(_215) : sizeof(__tmp)); }
     if (_215 == 1) {
         goto bb629;
@@ -565781,7 +565771,7 @@ bb11:
         goto bb630;
     }
 bb12:
-#line 308 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _219 = (_13 != 0);
     if (_219 == 1) {
         goto bb638;
@@ -569497,45 +569487,45 @@ bb568:
 bb569:
     goto bb2;
 bb570:
-#line 239 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _174 = 1;
     goto bb572;
 bb571:
-#line 236 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _174 = 0;
     goto bb572;
 bb572:
     _29 = _174;
-#line 240 "rt/regex_runtime.w"
-    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_175, __with_arr_tmp, sizeof(_175)); }
-#line 239 "rt/regex_runtime.w"
-    memcpy(_31, _175, sizeof(_31));
-#line 240 "rt/regex_runtime.w"
-    _32 = _12;
 #line 243 "rt/regex_runtime.w"
-    { __typeof__(0) __tmp = 0; memcpy(&(_34), &__tmp, sizeof(_34) < sizeof(__tmp) ? sizeof(_34) : sizeof(__tmp)); }
-    _35 = 0;
-#line 245 "rt/regex_runtime.w"
-    memset(_176, 0, sizeof(_176));
+    { uint8_t __with_arr_tmp[1] = {205}; memcpy(_175, __with_arr_tmp, sizeof(_175)); }
+#line 242 "rt/regex_runtime.w"
+    memcpy(_31, _175, sizeof(_31));
+#line 243 "rt/regex_runtime.w"
+    _32 = _12;
 #line 244 "rt/regex_runtime.w"
-    memcpy(_41, _176, sizeof(_41));
-#line 249 "rt/regex_runtime.w"
-    _177 = ((with_fn_116)(0));
+    { __typeof__(0) __tmp = 0; memcpy(&(_34), &__tmp, sizeof(_34) < sizeof(__tmp) ? sizeof(_34) : sizeof(__tmp)); }
 #line 246 "rt/regex_runtime.w"
+    _35 = 0;
+#line 250 "rt/regex_runtime.w"
+    memset(_176, 0, sizeof(_176));
+#line 249 "rt/regex_runtime.w"
+    memcpy(_41, _176, sizeof(_41));
+#line 250 "rt/regex_runtime.w"
+    _177 = ((with_fn_118)(0));
     _44 = _177;
-#line 251 "rt/regex_runtime.w"
-    { __typeof__(0) __tmp = 0; memcpy(&(_45), &__tmp, sizeof(_45) < sizeof(__tmp) ? sizeof(_45) : sizeof(__tmp)); }
 #line 253 "rt/regex_runtime.w"
+    { __typeof__(0) __tmp = 0; memcpy(&(_45), &__tmp, sizeof(_45) < sizeof(__tmp) ? sizeof(_45) : sizeof(__tmp)); }
+#line 254 "rt/regex_runtime.w"
     _36 = 0;
-    _37 = (*_11);
 #line 255 "rt/regex_runtime.w"
+    _37 = (*_11);
+#line 256 "rt/regex_runtime.w"
     _38 = _37;
 #line 257 "rt/regex_runtime.w"
     _178 = ((uint64_t)(0));
     _179 = (~(_178));
-#line 256 "rt/regex_runtime.w"
     (*_11) = _179;
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     { __typeof__((_7 != 0)) __tmp = (_7 != 0); memcpy(&(_180), &__tmp, sizeof(_180) < sizeof(__tmp) ? sizeof(_180) : sizeof(__tmp)); }
     if (_180 == 1) {
         goto bb573;
@@ -569544,9 +569534,11 @@ bb572:
         goto bb574;
     }
 bb573:
+#line 259 "rt/regex_runtime.w"
     _181 = 1;
     goto bb575;
 bb574:
+#line 258 "rt/regex_runtime.w"
     _181 = 0;
     goto bb575;
 bb575:
@@ -569564,11 +569556,11 @@ bb577:
 bb578:
     goto bb569;
 bb579:
-#line 258 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _183 = (__typeof__(_183)){0};
     goto bb578;
 bb580:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _183 = (__typeof__(_183)){0};
     goto bb578;
 bb581:
@@ -569578,11 +569570,11 @@ bb582:
 bb583:
     goto bb4;
 bb584:
-#line 269 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _192 = 1;
     goto bb586;
 bb585:
-#line 266 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _192 = 0;
     goto bb586;
 bb586:
@@ -569600,11 +569592,11 @@ bb588:
 bb589:
     goto bb583;
 bb590:
-#line 269 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _194 = (__typeof__(_194)){0};
     goto bb589;
 bb591:
-#line 266 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _194 = (__typeof__(_194)){0};
     goto bb589;
 bb592:
@@ -569614,15 +569606,14 @@ bb593:
 bb594:
     goto bb6;
 bb595:
-#line 276 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _196 = 1;
     goto bb597;
 bb596:
-#line 275 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _196 = 0;
     goto bb597;
 bb597:
-#line 274 "rt/regex_runtime.w"
     _197 = (_196 != 0);
     if (_197 == 1) {
         goto bb598;
@@ -569637,21 +569628,21 @@ bb599:
 bb600:
     goto bb594;
 bb601:
-#line 278 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _198 = (__typeof__(_198)){0};
     goto bb600;
 bb602:
-#line 274 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _198 = (__typeof__(_198)){0};
     goto bb600;
 bb603:
     goto bb7;
 bb604:
-#line 284 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _200 = 1;
     goto bb606;
 bb605:
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _200 = 0;
     goto bb606;
 bb606:
@@ -569669,21 +569660,21 @@ bb608:
 bb609:
     goto bb603;
 bb610:
-#line 285 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _202 = (__typeof__(_202)){0};
     goto bb609;
 bb611:
-#line 283 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _202 = (__typeof__(_202)){0};
     goto bb609;
 bb612:
     goto bb8;
 bb613:
-#line 288 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _206 = 1;
     goto bb615;
 bb614:
-#line 287 "rt/regex_runtime.w"
+#line 290 "rt/regex_runtime.w"
     _206 = 0;
     goto bb615;
 bb615:
@@ -569701,11 +569692,11 @@ bb617:
 bb618:
     goto bb612;
 bb619:
-#line 289 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _208 = (__typeof__(_208)){0};
     goto bb618;
 bb620:
-#line 287 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _208 = (__typeof__(_208)){0};
     goto bb618;
 bb621:
@@ -569719,7 +569710,7 @@ bb624:
 bb625:
     goto bb11;
 bb626:
-#line 300 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _18 = _212;
     goto bb11;
 bb627:
@@ -569727,11 +569718,11 @@ bb627:
 bb628:
     goto bb12;
 bb629:
-#line 306 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _216 = 1;
     goto bb631;
 bb630:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _216 = 0;
     goto bb631;
 bb631:
@@ -569749,21 +569740,21 @@ bb633:
 bb634:
     goto bb628;
 bb635:
-#line 307 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _218 = (__typeof__(_218)){0};
     goto bb634;
 bb636:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _218 = (__typeof__(_218)){0};
     goto bb634;
 bb637:
     goto bb13;
 bb638:
-#line 309 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _220 = 1;
     goto bb640;
 bb639:
-#line 308 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _220 = 0;
     goto bb640;
 bb640:
@@ -569781,11 +569772,11 @@ bb642:
 bb643:
     goto bb637;
 bb644:
-#line 310 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _222 = (__typeof__(_222)){0};
     goto bb643;
 bb645:
-#line 308 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _222 = (__typeof__(_222)){0};
     goto bb643;
 bb646:
@@ -584785,7 +584776,7 @@ bb628: ;
 bb629: ;
 }
 
-uint64_t do_case_copy__13308(uint8_t* _1, uint64_t _2, uint64_t _3, case_state* _4, int32_t _5, with_fn_116 _6, c_void* _7) {
+uint64_t do_case_copy__13308(uint8_t* _1, uint64_t _2, uint64_t _3, case_state* _4, int32_t _5, with_fn_118 _6, c_void* _7) {
     uint64_t _0 __attribute__((unused)) = {0};
     uint8_t* _8 __attribute__((unused)) = {0};
     uint8_t* _9 __attribute__((unused)) = {0};
@@ -586904,10 +586895,11 @@ bb17:
     /* StorageLive(_24); */
 #line 36 "rt/regex_runtime.w"
     _25 = 0;
+#line 35 "rt/regex_runtime.w"
     _26 = ((int32_t)(_7[_25]));
 #line 38 "rt/regex_runtime.w"
     _27 = ((uint32_t)(8));
-#line 36 "rt/regex_runtime.w"
+#line 35 "rt/regex_runtime.w"
     _28 = (_26 << _27);
 #line 38 "rt/regex_runtime.w"
     _29 = (0 + 1);
@@ -586918,7 +586910,7 @@ bb17:
     _33 = ((uint32_t)(_32));
 #line 34 "rt/regex_runtime.w"
     _24 = _33;
-#line 40 "rt/regex_runtime.w"
+#line 39 "rt/regex_runtime.w"
     _34 = (_24 < (*_1).oveccount);
     if (_34 == 1) {
         goto bb22;
@@ -586927,7 +586919,7 @@ bb17:
         goto bb23;
     }
 bb18:
-#line 55 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _0 = _8;
     return _0;
 bb19:
@@ -586963,12 +586955,12 @@ bb24:
         goto bb26;
     }
 bb25:
-#line 43 "rt/regex_runtime.w"
-    _37 = ((uint32_t)(_24));
-    _38 = ((uint32_t)(2));
-#line 42 "rt/regex_runtime.w"
-    _39 = (_37 * _38);
 #line 41 "rt/regex_runtime.w"
+    _37 = ((uint32_t)(_24));
+#line 43 "rt/regex_runtime.w"
+    _38 = ((uint32_t)(2));
+#line 41 "rt/regex_runtime.w"
+    _39 = (_37 * _38);
     _40 = _39;
 #line 43 "rt/regex_runtime.w"
     _41 = ((uint64_t)(0));
@@ -587017,7 +587009,7 @@ bb33:
     _8 = -55;
     goto bb27;
 bb34:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _0 = _46;
     return _0;
 bb35:
@@ -587106,7 +587098,7 @@ bb0:
 #line 61 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     /* StorageLive(_6); */
-#line 65 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _7 = (&_6);
     _8 = (uint64_t*)((uint64_t*)(_7));
     _9 = pcre2_substring_length_bynumber_8__376(_1, _2, _8);
@@ -587114,7 +587106,7 @@ bb0:
 bb1:
 #line 62 "rt/regex_runtime.w"
     _5 = _9;
-#line 67 "rt/regex_runtime.w"
+#line 66 "rt/regex_runtime.w"
     _10 = (_5 < 0);
     if (_10 == 1) {
         goto bb2;
@@ -587123,9 +587115,11 @@ bb1:
         goto bb3;
     }
 bb2:
+#line 67 "rt/regex_runtime.w"
     _11 = 1;
     goto bb4;
 bb3:
+#line 66 "rt/regex_runtime.w"
     _11 = 0;
     goto bb4;
 bb4:
@@ -587137,18 +587131,18 @@ bb4:
         goto bb6;
     }
 bb5:
+#line 67 "rt/regex_runtime.w"
     _0 = _5;
     return _0;
 bb6:
     goto bb7;
 bb7:
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _13 = ((uint64_t)(_6));
 #line 71 "rt/regex_runtime.w"
     _14 = ((uint64_t)(1));
-#line 69 "rt/regex_runtime.w"
-    _15 = (_13 + _14);
 #line 68 "rt/regex_runtime.w"
+    _15 = (_13 + _14);
     _16 = (_15 > (*_4));
     if (_16 == 1) {
         goto bb9;
@@ -587230,9 +587224,8 @@ bb19:
 bb20:
     goto bb21;
 bb21:
-#line 78 "rt/regex_runtime.w"
-    _35 = _6;
 #line 77 "rt/regex_runtime.w"
+    _35 = _6;
     _3[_35] = 0;
 #line 78 "rt/regex_runtime.w"
     (*_4) = _6;
@@ -587484,7 +587477,7 @@ bb12:
 bb13:
     goto bb14;
 bb14:
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _8 = -54;
 #line 111 "rt/regex_runtime.w"
     _7 = _5;
@@ -587775,9 +587768,10 @@ bb9:
     _19 = ((uint64_t)(_18));
 #line 145 "rt/regex_runtime.w"
     _20 = ((uint64_t)(8));
-#line 143 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _21 = (_19 * _20);
     _22 = ((uint64_t)(_21));
+#line 143 "rt/regex_runtime.w"
     _23 = (_15 + _22);
 #line 145 "rt/regex_runtime.w"
     _24 = (pcre2_memctl*)((pcre2_memctl*)(_1));
@@ -587852,21 +587846,24 @@ bb21:
         goto bb23;
     }
 bb22:
+#line 151 "rt/regex_runtime.w"
     _38 = (int8_t*)((int8_t*)(_7));
 #line 153 "rt/regex_runtime.w"
     _39 = ((uint32_t)(_2));
-#line 154 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _40 = ((uint32_t)(2));
 #line 153 "rt/regex_runtime.w"
     _41 = (_39 * _40);
     _42 = _41;
     _43 = ((uint64_t)((*_1).ovector[_42]));
-#line 151 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _44 = ((*_1).subject + _43);
     _45 = (int8_t*)((int8_t*)(_44));
 #line 156 "rt/regex_runtime.w"
     _46 = ((uint64_t)(_6));
+#line 157 "rt/regex_runtime.w"
     _47 = ((uint64_t)(1));
+#line 156 "rt/regex_runtime.w"
     _48 = (_46 * _47);
     _49 = ((int64_t)(_48));
     _50 = with_memcpy(_38, _45, _49);
@@ -587993,8 +587990,8 @@ bb0:
     /* StorageLive(_6); */
 #line 171 "rt/regex_runtime.w"
     /* StorageLive(_7); */
-    /* StorageLive(_8); */
 #line 172 "rt/regex_runtime.w"
+    /* StorageLive(_8); */
     _9 = ((*_1).matchedby == 1);
     if (_9 == 1) {
         goto bb1;
@@ -588003,7 +588000,7 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 173 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _10 = 1;
     goto bb3;
 bb2:
@@ -588067,13 +588064,13 @@ bb13:
     goto bb14;
 bb14:
     _7 = -54;
-#line 180 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _6 = _4;
     goto bb16;
 bb15:
     goto bb14;
 bb16:
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     { __typeof__((_6 <= _5)) __tmp = (_6 <= _5); memcpy(&(_20), &__tmp, sizeof(_20) < sizeof(__tmp) ? sizeof(_20) : sizeof(__tmp)); }
     if (_20 == 1) {
         goto bb19;
@@ -588084,10 +588081,11 @@ bb16:
 bb17:
 #line 183 "rt/regex_runtime.w"
     /* StorageLive(_23); */
-#line 184 "rt/regex_runtime.w"
-    _24 = 0;
-    _25 = ((int32_t)(_6[_24]));
 #line 185 "rt/regex_runtime.w"
+    _24 = 0;
+#line 184 "rt/regex_runtime.w"
+    _25 = ((int32_t)(_6[_24]));
+#line 186 "rt/regex_runtime.w"
     _26 = ((uint32_t)(8));
 #line 184 "rt/regex_runtime.w"
     _27 = (_25 << _26);
@@ -588117,7 +588115,6 @@ bb19:
     _21 = 1;
     goto bb21;
 bb20:
-#line 181 "rt/regex_runtime.w"
     _21 = 0;
     goto bb21;
 bb21:
@@ -588147,7 +588144,9 @@ bb24:
 bb25:
 #line 192 "rt/regex_runtime.w"
     _36 = ((uint32_t)(_23));
+#line 193 "rt/regex_runtime.w"
     _37 = ((uint32_t)(2));
+#line 192 "rt/regex_runtime.w"
     _38 = (_36 * _37);
     _39 = _38;
 #line 193 "rt/regex_runtime.w"
@@ -588164,12 +588163,12 @@ bb25:
 bb26:
     goto bb27;
 bb27:
-#line 200 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _46 = ((int64_t)(_8));
     _47 = ((uint64_t)(_46));
-#line 199 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _48 = (_6 + _47);
-#line 198 "rt/regex_runtime.w"
+#line 199 "rt/regex_runtime.w"
     _6 = _48;
     goto bb16;
 bb28:
@@ -588328,8 +588327,9 @@ bb0:
     /* StorageLive(_3); */
 #line 208 "rt/regex_runtime.w"
     /* StorageLive(_4); */
-    /* StorageLive(_5); */
 #line 209 "rt/regex_runtime.w"
+    /* StorageLive(_5); */
+#line 210 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = (*_1).rc;
 #line 211 "rt/regex_runtime.w"
@@ -588341,9 +588341,11 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 212 "rt/regex_runtime.w"
     _8 = 1;
     goto bb3;
 bb2:
+#line 211 "rt/regex_runtime.w"
     _8 = 0;
     goto bb3;
 bb3:
@@ -588355,7 +588357,7 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 212 "rt/regex_runtime.w"
+#line 214 "rt/regex_runtime.w"
     _10 = (_2 > 0);
     if (_10 == 1) {
         goto bb7;
@@ -588382,11 +588384,11 @@ bb6:
         goto bb22;
     }
 bb7:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _11 = 1;
     goto bb9;
 bb8:
-#line 212 "rt/regex_runtime.w"
+#line 213 "rt/regex_runtime.w"
     _11 = 0;
     goto bb9;
 bb9:
@@ -588409,11 +588411,11 @@ bb12:
 bb13:
     goto bb12;
 bb14:
-#line 217 "rt/regex_runtime.w"
+#line 218 "rt/regex_runtime.w"
     _14 = 1;
     goto bb16;
 bb15:
-#line 216 "rt/regex_runtime.w"
+#line 217 "rt/regex_runtime.w"
     _14 = 0;
     goto bb16;
 bb16:
@@ -588425,7 +588427,7 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 218 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _0 = _6;
     return _0;
 bb18:
@@ -588435,7 +588437,7 @@ bb19:
 bb20:
     goto bb19;
 bb21:
-#line 221 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _17 = 1;
     goto bb23;
 bb22:
@@ -588451,7 +588453,7 @@ bb23:
         goto bb25;
     }
 bb24:
-#line 222 "rt/regex_runtime.w"
+#line 224 "rt/regex_runtime.w"
     _19 = (_2 > (*(*_1).code).top_bracket);
     if (_19 == 1) {
         goto bb27;
@@ -588471,21 +588473,21 @@ bb25:
 bb26:
 #line 249 "rt/regex_runtime.w"
     _47 = ((uint32_t)(_2));
-    _48 = ((uint32_t)(2));
-#line 248 "rt/regex_runtime.w"
-    _49 = (_47 * _48);
-#line 247 "rt/regex_runtime.w"
-    _50 = _49;
-#line 244 "rt/regex_runtime.w"
-    _4 = (*_1).ovector[_50];
 #line 250 "rt/regex_runtime.w"
-    _51 = ((uint32_t)(_2));
+    _48 = ((uint32_t)(2));
+#line 249 "rt/regex_runtime.w"
+    _49 = (_47 * _48);
+    _50 = _49;
+#line 246 "rt/regex_runtime.w"
+    _4 = (*_1).ovector[_50];
 #line 251 "rt/regex_runtime.w"
+    _51 = ((uint32_t)(_2));
+#line 252 "rt/regex_runtime.w"
     _52 = ((uint32_t)(2));
 #line 250 "rt/regex_runtime.w"
     _53 = (_51 * _52);
     _54 = ((uint32_t)(_53));
-#line 252 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _55 = ((uint32_t)(1));
 #line 250 "rt/regex_runtime.w"
     _56 = (_54 + _55);
@@ -588505,7 +588507,7 @@ bb27:
     _20 = 1;
     goto bb29;
 bb28:
-#line 222 "rt/regex_runtime.w"
+#line 223 "rt/regex_runtime.w"
     _20 = 0;
     goto bb29;
 bb29:
@@ -588523,7 +588525,7 @@ bb30:
 bb31:
     goto bb32;
 bb32:
-#line 226 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _22 = (_2 >= (*_1).oveccount);
     if (_22 == 1) {
         goto bb34;
@@ -588538,7 +588540,7 @@ bb34:
     _23 = 1;
     goto bb36;
 bb35:
-#line 226 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _23 = 0;
     goto bb36;
 bb36:
@@ -588556,11 +588558,11 @@ bb37:
 bb38:
     goto bb39;
 bb39:
-#line 230 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _25 = ((uint32_t)(_2));
 #line 233 "rt/regex_runtime.w"
     _26 = ((uint32_t)(2));
-#line 230 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     _27 = (_25 * _26);
     _28 = _27;
 #line 233 "rt/regex_runtime.w"
@@ -588581,7 +588583,7 @@ bb41:
     _32 = 1;
     goto bb43;
 bb42:
-#line 229 "rt/regex_runtime.w"
+#line 230 "rt/regex_runtime.w"
     _32 = 0;
     goto bb43;
 bb43:
@@ -588593,7 +588595,7 @@ bb43:
         goto bb45;
     }
 bb44:
-#line 233 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _0 = -55;
     return _0;
 bb45:
@@ -588603,10 +588605,11 @@ bb46:
 bb47:
     goto bb46;
 bb48:
-#line 235 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _35 = 1;
     goto bb50;
 bb49:
+#line 235 "rt/regex_runtime.w"
     _35 = 0;
     goto bb50;
 bb50:
@@ -588618,7 +588621,7 @@ bb50:
         goto bb52;
     }
 bb51:
-#line 236 "rt/regex_runtime.w"
+#line 237 "rt/regex_runtime.w"
     _0 = -54;
     return _0;
 bb52:
@@ -588654,7 +588657,7 @@ bb57:
 bb58:
 #line 242 "rt/regex_runtime.w"
     _41 = ((uint32_t)(_6));
-#line 240 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _42 = (_2 >= _41);
     if (_42 == 1) {
         goto bb61;
@@ -588674,11 +588677,10 @@ bb60:
         goto bb68;
     }
 bb61:
-#line 242 "rt/regex_runtime.w"
     _43 = 1;
     goto bb63;
 bb62:
-#line 240 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _43 = 0;
     goto bb63;
 bb63:
@@ -588694,15 +588696,15 @@ bb64:
     _45 = 1;
     goto bb66;
 bb65:
-#line 240 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _45 = 0;
     goto bb66;
 bb66:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _37 = _45;
     goto bb60;
 bb67:
-#line 243 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _0 = -55;
     return _0;
 bb68:
@@ -588712,7 +588714,7 @@ bb69:
 bb70:
     goto bb69;
 bb71:
-#line 254 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _60 = 1;
     goto bb73;
 bb72:
@@ -588735,7 +588737,7 @@ bb74:
         goto bb78;
     }
 bb75:
-#line 256 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _63 = (_5 > (*_1).subject_length);
     if (_63 == 1) {
         goto bb80;
@@ -588744,7 +588746,7 @@ bb75:
         goto bb81;
     }
 bb76:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _67 = (_58 != 0);
     if (_67 == 1) {
         goto bb86;
@@ -588767,7 +588769,6 @@ bb80:
     _64 = 1;
     goto bb82;
 bb81:
-#line 256 "rt/regex_runtime.w"
     _64 = 0;
     goto bb82;
 bb82:
@@ -588779,15 +588780,13 @@ bb82:
         goto bb84;
     }
 bb83:
-#line 257 "rt/regex_runtime.w"
     _66 = 1;
     goto bb85;
 bb84:
-#line 256 "rt/regex_runtime.w"
     _66 = 0;
     goto bb85;
 bb85:
-#line 255 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _58 = _66;
     goto bb76;
 bb86:
@@ -588806,7 +588805,6 @@ bb88:
 bb89:
     goto bb90;
 bb90:
-#line 259 "rt/regex_runtime.w"
     _68 = (0 != 0);
     if (_68 == 1) {
         goto bb89;
@@ -588820,10 +588818,11 @@ bb91:
 bb92:
     goto bb88;
 bb93:
-#line 260 "rt/regex_runtime.w"
+#line 261 "rt/regex_runtime.w"
     _70 = 1;
     goto bb95;
 bb94:
+#line 260 "rt/regex_runtime.w"
     _70 = 0;
     goto bb95;
 bb95:
@@ -588835,9 +588834,10 @@ bb95:
         goto bb97;
     }
 bb96:
+#line 262 "rt/regex_runtime.w"
     /* StorageLive(_72); */
     _72 = 0;
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _73 = (_4 > _5);
     if (_73 == 1) {
         goto bb99;
@@ -588848,7 +588848,7 @@ bb96:
 bb97:
     goto bb98;
 bb98:
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb99:
@@ -588856,7 +588856,6 @@ bb99:
     _74 = 1;
     goto bb101;
 bb100:
-#line 262 "rt/regex_runtime.w"
     _74 = 0;
     goto bb101;
 bb101:
@@ -588868,23 +588867,23 @@ bb101:
         goto bb103;
     }
 bb102:
-#line 263 "rt/regex_runtime.w"
     _72 = 0;
     goto bb104;
 bb103:
 #line 265 "rt/regex_runtime.w"
     _76 = ((uint64_t)(_5));
+#line 266 "rt/regex_runtime.w"
     _77 = ((uint64_t)(_4));
+#line 265 "rt/regex_runtime.w"
     _78 = (_76 - _77);
-#line 264 "rt/regex_runtime.w"
     _72 = _78;
     goto bb104;
 bb104:
-#line 266 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     (*_3) = _72;
     goto bb98;
 bb105:
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -588993,32 +588992,32 @@ bb0:
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 273 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 275 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     /* StorageLive(_6); */
     _6 = (*_1).name_count;
-#line 279 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     /* StorageLive(_7); */
     _7 = (*_1).name_entry_size;
-#line 281 "rt/regex_runtime.w"
-    /* StorageLive(_8); */
 #line 283 "rt/regex_runtime.w"
+    /* StorageLive(_8); */
+#line 284 "rt/regex_runtime.w"
     _9 = (int8_t*)((int8_t*)(_1));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb1;
 bb1:
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _11 = ((uint64_t)(_10));
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _12 = (_9 + _11);
     _13 = (uint8_t*)((uint8_t*)(_12));
-#line 281 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _8 = _13;
     goto bb2;
 bb2:
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _14 = (_6 > _5);
     if (_14 == 1) {
         goto bb5;
@@ -589027,35 +589026,34 @@ bb2:
         goto bb6;
     }
 bb3:
-#line 287 "rt/regex_runtime.w"
-    /* StorageLive(_17); */
 #line 288 "rt/regex_runtime.w"
+    /* StorageLive(_17); */
+#line 289 "rt/regex_runtime.w"
     _18 = ((int32_t)(_6));
     _19 = ((int32_t)(_5));
     _20 = (_18 + _19);
     _21 = (_20 / 2);
-#line 287 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _17 = _21;
-#line 289 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     /* StorageLive(_22); */
-#line 292 "rt/regex_runtime.w"
-    _23 = ((int32_t)(_7));
 #line 294 "rt/regex_runtime.w"
+    _23 = ((int32_t)(_7));
+#line 295 "rt/regex_runtime.w"
     _24 = ((int32_t)(_17));
-#line 292 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _25 = (_23 * _24);
     _26 = ((int64_t)(_25));
     _27 = ((uint64_t)(_26));
-#line 291 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _28 = (_8 + _27);
-#line 289 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     _22 = _28;
-#line 296 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     /* StorageLive(_29); */
 #line 300 "rt/regex_runtime.w"
     _30 = ((int64_t)(2));
     _31 = ((uint64_t)(_30));
-#line 299 "rt/regex_runtime.w"
     _32 = (_22 + _31);
     _33 = _pcre2_strcmp_8__1095(_2, _32);
     goto bb8;
@@ -589064,11 +589062,11 @@ bb4:
     _0 = -49;
     return _0;
 bb5:
-#line 286 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _15 = 1;
     goto bb7;
 bb6:
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _15 = 0;
     goto bb7;
 bb7:
@@ -589080,7 +589078,7 @@ bb7:
         goto bb4;
     }
 bb8:
-#line 296 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _29 = _33;
 #line 300 "rt/regex_runtime.w"
     _34 = (_29 == 0);
@@ -589091,9 +589089,11 @@ bb8:
         goto bb10;
     }
 bb9:
+#line 301 "rt/regex_runtime.w"
     _35 = 1;
     goto bb11;
 bb10:
+#line 300 "rt/regex_runtime.w"
     _35 = 0;
     goto bb11;
 bb11:
@@ -589105,26 +589105,26 @@ bb11:
         goto bb13;
     }
 bb12:
-#line 301 "rt/regex_runtime.w"
-    /* StorageLive(_37); */
 #line 302 "rt/regex_runtime.w"
-    /* StorageLive(_38); */
+    /* StorageLive(_37); */
 #line 303 "rt/regex_runtime.w"
+    /* StorageLive(_38); */
+#line 304 "rt/regex_runtime.w"
     /* StorageLive(_39); */
-#line 305 "rt/regex_runtime.w"
-    _40 = ((int32_t)(_7));
 #line 307 "rt/regex_runtime.w"
+    _40 = ((int32_t)(_7));
     _41 = ((int32_t)((*_1).name_count));
     _42 = (_41 - 1);
-#line 305 "rt/regex_runtime.w"
     _43 = (_40 * _42);
     _44 = ((int64_t)(_43));
+#line 306 "rt/regex_runtime.w"
     _45 = ((uint64_t)(_44));
-#line 304 "rt/regex_runtime.w"
+#line 305 "rt/regex_runtime.w"
     _46 = (_8 + _45);
     _39 = _46;
 #line 308 "rt/regex_runtime.w"
     _38 = _22;
+#line 309 "rt/regex_runtime.w"
     _37 = _38;
     goto bb15;
 bb13:
@@ -589139,7 +589139,7 @@ bb14:
         goto bb58;
     }
 bb15:
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     { __typeof__((_37 > _8)) __tmp = (_37 > _8); memcpy(&(_47), &__tmp, sizeof(_47) < sizeof(__tmp) ? sizeof(_47) : sizeof(__tmp)); }
     if (_47 == 1) {
         goto bb18;
@@ -589151,23 +589151,20 @@ bb16:
 #line 314 "rt/regex_runtime.w"
     _50 = ((uint32_t)(_7));
     _51 = ((uint64_t)(_50));
-#line 313 "rt/regex_runtime.w"
     _52 = (_37 - _51);
-#line 314 "rt/regex_runtime.w"
     _53 = ((int64_t)(2));
     _54 = ((uint64_t)(_53));
-#line 313 "rt/regex_runtime.w"
     _55 = (_52 + _54);
     _56 = _pcre2_strcmp_8__1095(_2, _55);
     goto bb21;
 bb17:
     goto bb29;
 bb18:
-#line 311 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _48 = 1;
     goto bb20;
 bb19:
-#line 310 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _48 = 0;
     goto bb20;
 bb20:
@@ -589179,7 +589176,7 @@ bb20:
         goto bb17;
     }
 bb21:
-#line 312 "rt/regex_runtime.w"
+#line 313 "rt/regex_runtime.w"
     _57 = (_56 != 0);
     if (_57 == 1) {
         goto bb22;
@@ -590483,9 +590480,9 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 11 "rt/regex_runtime.w"
+#line 10 "rt/regex_runtime.w"
     _8 = _2;
-#line 12 "rt/regex_runtime.w"
+#line 11 "rt/regex_runtime.w"
     _10 = (_8 == 0);
     if (_10 == 1) {
         goto bb8;
@@ -590496,7 +590493,7 @@ bb4:
 bb5:
     goto bb6;
 bb6:
-#line 66 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_37), &__tmp, sizeof(_37) < sizeof(__tmp) ? sizeof(_37) : sizeof(__tmp)); }
     if (_37 == 1) {
         goto bb88;
@@ -590630,7 +590627,7 @@ bb29:
     _0 = 4;
     return _0;
 bb30:
-#line 29 "rt/regex_runtime.w"
+#line 30 "rt/regex_runtime.w"
     _18 = (_8 == 5);
     if (_18 == 1) {
         goto bb32;
@@ -590660,7 +590657,7 @@ bb34:
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb35:
-#line 32 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     _0 = 4;
     return _0;
 bb36:
@@ -590673,7 +590670,7 @@ bb36:
         goto bb39;
     }
 bb37:
-#line 32 "rt/regex_runtime.w"
+#line 33 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb38:
@@ -590764,6 +590761,7 @@ bb53:
     _0 = 4;
     return _0;
 bb54:
+#line 44 "rt/regex_runtime.w"
     _26 = (_8 == 14);
     if (_26 == 1) {
         goto bb56;
@@ -590772,6 +590770,7 @@ bb54:
         goto bb57;
     }
 bb55:
+#line 43 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb56:
@@ -590779,6 +590778,7 @@ bb56:
     _0 = 4;
     return _0;
 bb57:
+#line 47 "rt/regex_runtime.w"
     _27 = (_8 == 15);
     if (_27 == 1) {
         goto bb59;
@@ -590787,6 +590787,7 @@ bb57:
         goto bb60;
     }
 bb58:
+#line 45 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb59:
@@ -590794,6 +590795,7 @@ bb59:
     _0 = 4;
     return _0;
 bb60:
+#line 48 "rt/regex_runtime.w"
     _28 = (_8 == 16);
     if (_28 == 1) {
         goto bb62;
@@ -590802,6 +590804,7 @@ bb60:
         goto bb63;
     }
 bb61:
+#line 47 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb62:
@@ -590822,11 +590825,11 @@ bb64:
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb65:
-#line 51 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _0 = 4;
     return _0;
 bb66:
-#line 52 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     _30 = (_8 == 17);
     if (_30 == 1) {
         goto bb68;
@@ -590835,11 +590838,11 @@ bb66:
         goto bb69;
     }
 bb67:
-#line 51 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb68:
-#line 53 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _0 = 4;
     return _0;
 bb69:
@@ -590852,7 +590855,7 @@ bb69:
         goto bb72;
     }
 bb70:
-#line 53 "rt/regex_runtime.w"
+#line 54 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb71:
@@ -590860,7 +590863,7 @@ bb71:
     _0 = 4;
     return _0;
 bb72:
-#line 56 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _32 = (_8 == 7);
     if (_32 == 1) {
         goto bb74;
@@ -590877,6 +590880,7 @@ bb74:
     _0 = 8;
     return _0;
 bb75:
+#line 58 "rt/regex_runtime.w"
     _33 = (_8 == 10);
     if (_33 == 1) {
         goto bb77;
@@ -590885,14 +590889,15 @@ bb75:
         goto bb78;
     }
 bb76:
+#line 57 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb77:
-#line 59 "rt/regex_runtime.w"
+#line 60 "rt/regex_runtime.w"
     _0 = 8;
     return _0;
 bb78:
-#line 60 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _34 = (_8 == 22);
     if (_34 == 1) {
         goto bb80;
@@ -590901,7 +590906,7 @@ bb78:
         goto bb81;
     }
 bb79:
-#line 59 "rt/regex_runtime.w"
+#line 60 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb80:
@@ -590922,11 +590927,10 @@ bb82:
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb83:
-#line 62 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _0 = 8;
     return _0;
 bb84:
-#line 63 "rt/regex_runtime.w"
     _36 = (_8 == 19);
     if (_36 == 1) {
         goto bb86;
@@ -590935,18 +590939,17 @@ bb84:
         goto bb7;
     }
 bb85:
-#line 62 "rt/regex_runtime.w"
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb86:
-#line 63 "rt/regex_runtime.w"
+#line 65 "rt/regex_runtime.w"
     _0 = 8;
     return _0;
 bb87:
     _9 = (__typeof__(_9)){0};
     goto bb7;
 bb88:
-#line 66 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _38 = 1;
     goto bb90;
 bb89:
@@ -590961,12 +590964,12 @@ bb90:
         goto bb92;
     }
 bb91:
-#line 67 "rt/regex_runtime.w"
     _0 = -51;
     return _0;
 bb92:
     goto bb93;
 bb93:
+#line 69 "rt/regex_runtime.w"
     _40 = ((*_4).magic_number != 1346589253);
     if (_40 == 1) {
         goto bb95;
@@ -590977,11 +590980,11 @@ bb93:
 bb94:
     goto bb93;
 bb95:
-#line 69 "rt/regex_runtime.w"
+#line 71 "rt/regex_runtime.w"
     _41 = 1;
     goto bb97;
 bb96:
-#line 67 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _41 = 0;
     goto bb97;
 bb97:
@@ -590993,13 +590996,12 @@ bb97:
         goto bb99;
     }
 bb98:
-#line 71 "rt/regex_runtime.w"
+#line 72 "rt/regex_runtime.w"
     _0 = -31;
     return _0;
 bb99:
     goto bb100;
 bb100:
-#line 72 "rt/regex_runtime.w"
     _43 = ((uint32_t)((*_4).flags));
     _44 = ((uint32_t)(1));
     _45 = (_43 & _44);
@@ -591027,6 +591029,7 @@ bb104:
         goto bb106;
     }
 bb105:
+#line 73 "rt/regex_runtime.w"
     _0 = -32;
     return _0;
 bb106:
@@ -591043,8 +591046,8 @@ bb109:
         goto bb111;
     }
 bb110:
-#line 73 "rt/regex_runtime.w"
     _49 = _2;
+#line 74 "rt/regex_runtime.w"
     _51 = (_49 == 0);
     if (_51 == 1) {
         goto bb113;
@@ -591059,15 +591062,15 @@ bb111:
 bb112:
     goto bb111;
 bb113:
-#line 74 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _52 = (uint32_t*)((uint32_t*)(_3));
     _53 = _52;
-#line 73 "rt/regex_runtime.w"
     (*_53) = (*_4).overall_options;
+#line 74 "rt/regex_runtime.w"
     _50 = (*_4).overall_options;
     goto bb112;
 bb114:
-#line 75 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _54 = (_49 == 1);
     if (_54 == 1) {
         goto bb115;
@@ -591076,7 +591079,7 @@ bb114:
         goto bb116;
     }
 bb115:
-#line 76 "rt/regex_runtime.w"
+#line 77 "rt/regex_runtime.w"
     _55 = (uint32_t*)((uint32_t*)(_3));
     _56 = _55;
     (*_56) = (*_4).compile_options;
@@ -591092,13 +591095,15 @@ bb116:
         goto bb118;
     }
 bb117:
+#line 79 "rt/regex_runtime.w"
     _58 = (uint32_t*)((uint32_t*)(_3));
     _59 = _58;
+#line 78 "rt/regex_runtime.w"
     (*_59) = (*_4).top_backref;
     _50 = (*_4).top_backref;
     goto bb112;
 bb118:
-#line 79 "rt/regex_runtime.w"
+#line 80 "rt/regex_runtime.w"
     _60 = (_49 == 3);
     if (_60 == 1) {
         goto bb119;
@@ -591107,14 +591112,15 @@ bb118:
         goto bb120;
     }
 bb119:
-#line 80 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _61 = (uint32_t*)((uint32_t*)(_3));
     _62 = _61;
+#line 80 "rt/regex_runtime.w"
     (*_62) = (*_4).bsr_convention;
     _50 = (*_4).bsr_convention;
     goto bb112;
 bb120:
-#line 82 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _63 = (_49 == 4);
     if (_63 == 1) {
         goto bb121;
@@ -591123,15 +591129,15 @@ bb120:
         goto bb122;
     }
 bb121:
-#line 83 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _64 = (uint32_t*)((uint32_t*)(_3));
     _65 = _64;
-#line 82 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     (*_65) = (*_4).top_bracket;
     _50 = (*_4).top_bracket;
     goto bb112;
 bb122:
-#line 85 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _66 = (_49 == 21);
     if (_66 == 1) {
         goto bb123;
@@ -591140,11 +591146,12 @@ bb122:
         goto bb124;
     }
 bb123:
-#line 86 "rt/regex_runtime.w"
+#line 87 "rt/regex_runtime.w"
     _67 = (uint32_t*)((uint32_t*)(_3));
     _68 = _67;
+#line 86 "rt/regex_runtime.w"
     (*_68) = (*_4).limit_depth;
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _69 = ((*_4).limit_depth == 4294967295);
     if (_69 == 1) {
         goto bb125;
@@ -591153,7 +591160,7 @@ bb123:
         goto bb126;
     }
 bb124:
-#line 92 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _73 = (_49 == 26);
     if (_73 == 1) {
         goto bb132;
@@ -591162,11 +591169,11 @@ bb124:
         goto bb133;
     }
 bb125:
-#line 89 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _70 = 1;
     goto bb127;
 bb126:
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _70 = 0;
     goto bb127;
 bb127:
@@ -591178,30 +591185,30 @@ bb127:
         goto bb129;
     }
 bb128:
-#line 90 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _0 = -55;
     return _0;
 bb129:
-#line 88 "rt/regex_runtime.w"
+#line 89 "rt/regex_runtime.w"
     _72 = (__typeof__(_72)){0};
     goto bb130;
 bb130:
-#line 85 "rt/regex_runtime.w"
+#line 86 "rt/regex_runtime.w"
     _50 = _72;
     goto bb112;
 bb131:
-#line 90 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _72 = (__typeof__(_72)){0};
     goto bb130;
 bb132:
-#line 93 "rt/regex_runtime.w"
+#line 94 "rt/regex_runtime.w"
     _74 = (uint32_t*)((uint32_t*)(_3));
     _75 = _74;
     (*_75) = (*_4).extra_options;
     _50 = (*_4).extra_options;
     goto bb112;
 bb133:
-#line 96 "rt/regex_runtime.w"
+#line 97 "rt/regex_runtime.w"
     _76 = (_49 == 6);
     if (_76 == 1) {
         goto bb134;
@@ -591210,12 +591217,14 @@ bb133:
         goto bb135;
     }
 bb134:
-#line 97 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     /* StorageLive(_77); */
     _77 = 0;
 #line 100 "rt/regex_runtime.w"
     _78 = ((uint32_t)((*_4).flags));
+#line 101 "rt/regex_runtime.w"
     _79 = ((uint32_t)(16));
+#line 100 "rt/regex_runtime.w"
     _80 = (_78 & _79);
     _81 = (_80 != 0);
     if (_81 == 1) {
@@ -591234,11 +591243,11 @@ bb135:
         goto bb149;
     }
 bb136:
-#line 101 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _82 = 1;
     goto bb138;
 bb137:
-#line 99 "rt/regex_runtime.w"
+#line 100 "rt/regex_runtime.w"
     _82 = 0;
     goto bb138;
 bb138:
@@ -591250,18 +591259,16 @@ bb138:
         goto bb140;
     }
 bb139:
-#line 102 "rt/regex_runtime.w"
+#line 103 "rt/regex_runtime.w"
     _77 = 1;
     goto bb141;
 bb140:
-#line 104 "rt/regex_runtime.w"
+#line 105 "rt/regex_runtime.w"
     /* StorageLive(_84); */
     _84 = 0;
-#line 107 "rt/regex_runtime.w"
-    _85 = ((uint32_t)((*_4).flags));
 #line 108 "rt/regex_runtime.w"
+    _85 = ((uint32_t)((*_4).flags));
     _86 = ((uint32_t)(512));
-#line 107 "rt/regex_runtime.w"
     _87 = (_85 & _86);
     _88 = (_87 != 0);
     if (_88 == 1) {
@@ -591271,11 +591278,12 @@ bb140:
         goto bb143;
     }
 bb141:
-#line 116 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _91 = (uint32_t*)((uint32_t*)(_3));
     _92 = _91;
+#line 116 "rt/regex_runtime.w"
     (*_92) = _77;
-#line 97 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     _50 = _77;
     goto bb112;
 bb142:
@@ -591283,7 +591291,6 @@ bb142:
     _89 = 1;
     goto bb144;
 bb143:
-#line 107 "rt/regex_runtime.w"
     _89 = 0;
     goto bb144;
 bb144:
@@ -591295,11 +591302,11 @@ bb144:
         goto bb146;
     }
 bb145:
-#line 109 "rt/regex_runtime.w"
+#line 110 "rt/regex_runtime.w"
     _84 = 2;
     goto bb147;
 bb146:
-#line 111 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _84 = 0;
     goto bb147;
 bb147:
@@ -591307,14 +591314,14 @@ bb147:
     _77 = _84;
     goto bb141;
 bb148:
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     /* StorageLive(_94); */
     _94 = 0;
-#line 121 "rt/regex_runtime.w"
-    _95 = ((uint32_t)((*_4).flags));
 #line 122 "rt/regex_runtime.w"
+    _95 = ((uint32_t)((*_4).flags));
+#line 123 "rt/regex_runtime.w"
     _96 = ((uint32_t)(16));
-#line 121 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     _97 = (_95 & _96);
     _98 = (_97 != 0);
     if (_98 == 1) {
@@ -591324,7 +591331,7 @@ bb148:
         goto bb151;
     }
 bb149:
-#line 131 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     _103 = (_49 == 7);
     if (_103 == 1) {
         goto bb156;
@@ -591333,11 +591340,11 @@ bb149:
         goto bb157;
     }
 bb150:
-#line 123 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _99 = 1;
     goto bb152;
 bb151:
-#line 121 "rt/regex_runtime.w"
+#line 122 "rt/regex_runtime.w"
     _99 = 0;
     goto bb152;
 bb152:
@@ -591349,11 +591356,11 @@ bb152:
         goto bb154;
     }
 bb153:
-#line 124 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     _94 = (*_4).first_codeunit;
     goto bb155;
 bb154:
-#line 126 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _94 = 0;
     goto bb155;
 bb155:
@@ -591361,16 +591368,17 @@ bb155:
     _101 = (uint32_t*)((uint32_t*)(_3));
     _102 = _101;
     (*_102) = _94;
-#line 119 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _50 = _94;
     goto bb112;
 bb156:
-#line 133 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     /* StorageLive(_104); */
     { __typeof__(0) __tmp = 0; memcpy(&(_104), &__tmp, sizeof(_104) < sizeof(__tmp) ? sizeof(_104) : sizeof(__tmp)); }
-#line 134 "rt/regex_runtime.w"
     _105 = ((uint32_t)((*_4).flags));
+#line 135 "rt/regex_runtime.w"
     _106 = ((uint32_t)(64));
+#line 134 "rt/regex_runtime.w"
     _107 = (_105 & _106);
     _108 = (_107 != 0);
     if (_108 == 1) {
@@ -591380,7 +591388,7 @@ bb156:
         goto bb159;
     }
 bb157:
-#line 141 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _117 = (_49 == 24);
     if (_117 == 1) {
         goto bb164;
@@ -591389,10 +591397,11 @@ bb157:
         goto bb165;
     }
 bb158:
-#line 134 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _109 = 1;
     goto bb160;
 bb159:
+#line 134 "rt/regex_runtime.w"
     _109 = 0;
     goto bb160;
 bb160:
@@ -591404,12 +591413,11 @@ bb160:
         goto bb162;
     }
 bb161:
-#line 137 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     _111 = 0;
-#line 136 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     _112 = (&(*_4).start_bitmap[_111]);
     _113 = (uint8_t*)((uint8_t*)(_112));
-#line 135 "rt/regex_runtime.w"
     _104 = _113;
     goto bb163;
 bb162:
@@ -591418,12 +591426,12 @@ bb162:
     _104 = _114;
     goto bb163;
 bb163:
-#line 140 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _115 = (uint8_t**)((uint8_t**)(_3));
     _116 = _115;
-#line 139 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     (*_116) = _104;
-#line 133 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     { __typeof__(_104) __tmp = _104; memcpy(&(_50), &__tmp, sizeof(_50) < sizeof(__tmp) ? sizeof(_50) : sizeof(__tmp)); }
     goto bb112;
 bb164:
@@ -591444,13 +591452,11 @@ bb165:
         goto bb168;
     }
 bb166:
-#line 144 "rt/regex_runtime.w"
     _123 = ((uint64_t)(_122));
 #line 143 "rt/regex_runtime.w"
     _124 = (_121 * _123);
     _125 = ((uint64_t)(_124));
     _126 = (_118 + _125);
-#line 142 "rt/regex_runtime.w"
     _127 = (uint64_t*)((uint64_t*)(_3));
     _128 = _127;
     (*_128) = _126;
@@ -591469,7 +591475,7 @@ bb167:
         goto bb170;
     }
 bb168:
-#line 148 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _137 = (_49 == 8);
     if (_137 == 1) {
         goto bb172;
@@ -591485,9 +591491,9 @@ bb170:
     _134 = 0;
     goto bb171;
 bb171:
-#line 145 "rt/regex_runtime.w"
     _135 = (uint32_t*)((uint32_t*)(_3));
     _136 = _135;
+#line 146 "rt/regex_runtime.w"
     (*_136) = _134;
     _50 = _134;
     goto bb112;
@@ -591495,7 +591501,6 @@ bb172:
 #line 150 "rt/regex_runtime.w"
     _138 = ((uint32_t)((*_4).flags));
     _139 = ((uint32_t)(2048));
-#line 149 "rt/regex_runtime.w"
     _140 = (_138 & _139);
     _141 = (_140 != 0);
     if (_141 == 1) {
@@ -591505,7 +591510,7 @@ bb172:
         goto bb175;
     }
 bb173:
-#line 151 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _145 = (_49 == 25);
     if (_145 == 1) {
         goto bb177;
@@ -591518,18 +591523,17 @@ bb174:
     _142 = 1;
     goto bb176;
 bb175:
-#line 149 "rt/regex_runtime.w"
     _142 = 0;
     goto bb176;
 bb176:
+#line 149 "rt/regex_runtime.w"
     _143 = (uint32_t*)((uint32_t*)(_3));
     _144 = _143;
-#line 148 "rt/regex_runtime.w"
     (*_144) = _142;
     _50 = _142;
     goto bb112;
 bb177:
-#line 152 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _146 = (uint32_t*)((uint32_t*)(_3));
     _147 = _146;
     (*_147) = (*_4).limit_heap;
@@ -591551,7 +591555,7 @@ bb178:
         goto bb187;
     }
 bb179:
-#line 156 "rt/regex_runtime.w"
+#line 157 "rt/regex_runtime.w"
     _149 = 1;
     goto bb181;
 bb180:
@@ -591559,7 +591563,6 @@ bb180:
     _149 = 0;
     goto bb181;
 bb181:
-#line 154 "rt/regex_runtime.w"
     _150 = (_149 != 0);
     if (_150 == 1) {
         goto bb182;
@@ -591568,27 +591571,27 @@ bb181:
         goto bb183;
     }
 bb182:
-#line 158 "rt/regex_runtime.w"
+#line 159 "rt/regex_runtime.w"
     _0 = -55;
     return _0;
 bb183:
-#line 154 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb184;
 bb184:
-#line 152 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _50 = _151;
     goto bb112;
 bb185:
-#line 158 "rt/regex_runtime.w"
+#line 159 "rt/regex_runtime.w"
     _151 = (__typeof__(_151)){0};
     goto bb184;
 bb186:
-#line 163 "rt/regex_runtime.w"
+#line 164 "rt/regex_runtime.w"
     _153 = ((uint32_t)((*_4).flags));
 #line 165 "rt/regex_runtime.w"
     _154 = ((uint32_t)(1024));
-#line 163 "rt/regex_runtime.w"
+#line 164 "rt/regex_runtime.w"
     _155 = (_153 & _154);
     _156 = (_155 != 0);
     if (_156 == 1) {
@@ -591611,20 +591614,21 @@ bb188:
     _157 = 1;
     goto bb190;
 bb189:
-#line 163 "rt/regex_runtime.w"
+#line 164 "rt/regex_runtime.w"
     _157 = 0;
     goto bb190;
 bb190:
-#line 162 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _158 = (uint32_t*)((uint32_t*)(_3));
     _159 = _158;
     (*_159) = _157;
     _50 = _157;
     goto bb112;
 bb191:
-#line 166 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _161 = (uint64_t*)((uint64_t*)(_3));
     _162 = _161;
+#line 166 "rt/regex_runtime.w"
     (*_162) = 0;
     _50 = 0;
     goto bb112;
@@ -591638,6 +591642,7 @@ bb192:
         goto bb194;
     }
 bb193:
+#line 169 "rt/regex_runtime.w"
     /* StorageLive(_164); */
     _164 = 0;
 #line 170 "rt/regex_runtime.w"
@@ -591663,7 +591668,7 @@ bb194:
         goto bb202;
     }
 bb195:
-#line 171 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _169 = 1;
     goto bb197;
 bb196:
@@ -591683,7 +591688,7 @@ bb198:
     _164 = 1;
     goto bb200;
 bb199:
-#line 173 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _164 = 0;
     goto bb200;
 bb200:
@@ -591691,7 +591696,7 @@ bb200:
     _171 = (uint32_t*)((uint32_t*)(_3));
     _172 = _171;
     (*_172) = _164;
-#line 168 "rt/regex_runtime.w"
+#line 169 "rt/regex_runtime.w"
     _50 = _164;
     goto bb112;
 bb201:
@@ -591710,7 +591715,7 @@ bb201:
         goto bb204;
     }
 bb202:
-#line 187 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _183 = (_49 == 13);
     if (_183 == 1) {
         goto bb209;
@@ -591719,14 +591724,14 @@ bb202:
         goto bb210;
     }
 bb203:
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _179 = 1;
     goto bb205;
 bb204:
+#line 178 "rt/regex_runtime.w"
     _179 = 0;
     goto bb205;
 bb205:
-#line 177 "rt/regex_runtime.w"
     _180 = (_179 != 0);
     if (_180 == 1) {
         goto bb206;
@@ -591739,11 +591744,11 @@ bb206:
     _174 = (*_4).last_codeunit;
     goto bb208;
 bb207:
-#line 181 "rt/regex_runtime.w"
+#line 182 "rt/regex_runtime.w"
     _174 = 0;
     goto bb208;
 bb208:
-#line 183 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _181 = (uint32_t*)((uint32_t*)(_3));
     _182 = _181;
     (*_182) = _174;
@@ -591751,11 +591756,11 @@ bb208:
     _50 = _174;
     goto bb112;
 bb209:
-#line 188 "rt/regex_runtime.w"
-    _184 = ((uint32_t)((*_4).flags));
 #line 189 "rt/regex_runtime.w"
+    _184 = ((uint32_t)((*_4).flags));
+#line 191 "rt/regex_runtime.w"
     _185 = ((uint32_t)(8192));
-#line 188 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _186 = (_184 & _185);
     _187 = (_186 != 0);
     if (_187 == 1) {
@@ -591774,17 +591779,17 @@ bb210:
         goto bb215;
     }
 bb211:
-#line 190 "rt/regex_runtime.w"
+#line 191 "rt/regex_runtime.w"
     _188 = 1;
     goto bb213;
 bb212:
-#line 188 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _188 = 0;
     goto bb213;
 bb213:
+#line 188 "rt/regex_runtime.w"
     _189 = (uint32_t*)((uint32_t*)(_3));
     _190 = _189;
-#line 187 "rt/regex_runtime.w"
     (*_190) = _188;
     _50 = _188;
     goto bb112;
@@ -591792,7 +591797,6 @@ bb214:
 #line 193 "rt/regex_runtime.w"
     _192 = (uint32_t*)((uint32_t*)(_3));
     _193 = _192;
-#line 192 "rt/regex_runtime.w"
     (*_193) = (*_4).limit_match;
 #line 195 "rt/regex_runtime.w"
     _194 = ((*_4).limit_match == 4294967295);
@@ -591803,7 +591807,7 @@ bb214:
         goto bb217;
     }
 bb215:
-#line 198 "rt/regex_runtime.w"
+#line 200 "rt/regex_runtime.w"
     _198 = (_49 == 15);
     if (_198 == 1) {
         goto bb223;
@@ -591812,7 +591816,7 @@ bb215:
         goto bb224;
     }
 bb216:
-#line 196 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _195 = 1;
     goto bb218;
 bb217:
@@ -591836,7 +591840,7 @@ bb220:
     _197 = (__typeof__(_197)){0};
     goto bb221;
 bb221:
-#line 192 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _50 = _197;
     goto bb112;
 bb222:
@@ -591844,7 +591848,7 @@ bb222:
     _197 = (__typeof__(_197)){0};
     goto bb221;
 bb223:
-#line 200 "rt/regex_runtime.w"
+#line 202 "rt/regex_runtime.w"
     _199 = (uint32_t*)((uint32_t*)(_3));
     _200 = _199;
     (*_200) = (*_4).max_lookbehind;
@@ -591863,12 +591867,11 @@ bb225:
 #line 204 "rt/regex_runtime.w"
     _202 = (uint32_t*)((uint32_t*)(_3));
     _203 = _202;
-#line 203 "rt/regex_runtime.w"
     (*_203) = (*_4).minlength;
     _50 = (*_4).minlength;
     goto bb112;
 bb226:
-#line 206 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _204 = (_49 == 18);
     if (_204 == 1) {
         goto bb227;
@@ -591880,12 +591883,11 @@ bb227:
 #line 208 "rt/regex_runtime.w"
     _205 = (uint32_t*)((uint32_t*)(_3));
     _206 = _205;
-#line 207 "rt/regex_runtime.w"
     (*_206) = (*_4).name_entry_size;
     _50 = (*_4).name_entry_size;
     goto bb112;
 bb228:
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _207 = (_49 == 17);
     if (_207 == 1) {
         goto bb229;
@@ -591894,14 +591896,15 @@ bb228:
         goto bb230;
     }
 bb229:
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _208 = (uint32_t*)((uint32_t*)(_3));
     _209 = _208;
+#line 211 "rt/regex_runtime.w"
     (*_209) = (*_4).name_count;
     _50 = (*_4).name_count;
     goto bb112;
 bb230:
-#line 214 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _210 = (_49 == 19);
     if (_210 == 1) {
         goto bb231;
@@ -591910,7 +591913,7 @@ bb230:
         goto bb232;
     }
 bb231:
-#line 215 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _211 = (int8_t*)((int8_t*)(_4));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb233;
@@ -591926,23 +591929,24 @@ bb232:
 bb233:
 #line 217 "rt/regex_runtime.w"
     _213 = ((uint64_t)(_212));
-#line 215 "rt/regex_runtime.w"
+#line 216 "rt/regex_runtime.w"
     _214 = (_211 + _213);
     _215 = (uint8_t*)((uint8_t*)(_214));
+#line 215 "rt/regex_runtime.w"
     _216 = (uint8_t**)((uint8_t**)(_3));
     _217 = _216;
     (*_217) = _215;
     { __typeof__(_215) __tmp = _215; memcpy(&(_50), &__tmp, sizeof(_50) < sizeof(__tmp) ? sizeof(_50) : sizeof(__tmp)); }
     goto bb112;
 bb234:
-#line 220 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _219 = (uint32_t*)((uint32_t*)(_3));
     _220 = _219;
     (*_220) = (*_4).newline_convention;
     _50 = (*_4).newline_convention;
     goto bb112;
 bb235:
-#line 222 "rt/regex_runtime.w"
+#line 224 "rt/regex_runtime.w"
     _221 = (_49 == 22);
     if (_221 == 1) {
         goto bb236;
@@ -591960,7 +591964,7 @@ bb236:
 bb237:
     goto bb238;
 bb238:
-#line 227 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _0 = -34;
     return _0;
 bb239:
@@ -592143,7 +592147,7 @@ bb409: ;
 bb410: ;
 }
 
-int32_t pcre2_callout_enumerate_8__359(pcre2_real_code_8* _1, with_fn_836 _2, c_void* _3) {
+int32_t pcre2_callout_enumerate_8__359(pcre2_real_code_8* _1, with_fn_839 _2, c_void* _3) {
     int32_t _0 __attribute__((unused)) = {0};
     pcre2_real_code_8* _4 __attribute__((unused)) = {0};
     pcre2_callout_enumerate_block_8 _5 __attribute__((unused)) = {0};
@@ -593927,6 +593931,7 @@ int32_t pcre2_callout_enumerate_8__359(pcre2_real_code_8* _1, with_fn_836 _2, c_
     uint8_t* _1909 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 230 "rt/regex_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
@@ -593937,8 +593942,8 @@ bb0:
     /* StorageLive(_5); */
 #line 238 "rt/regex_runtime.w"
     /* StorageLive(_6); */
-    /* StorageLive(_7); */
 #line 239 "rt/regex_runtime.w"
+    /* StorageLive(_7); */
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_8), &__tmp, sizeof(_8) < sizeof(__tmp) ? sizeof(_8) : sizeof(__tmp)); }
     if (_8 == 1) {
         goto bb1;
@@ -593947,9 +593952,11 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 240 "rt/regex_runtime.w"
     _9 = 1;
     goto bb3;
 bb2:
+#line 239 "rt/regex_runtime.w"
     _9 = 0;
     goto bb3;
 bb3:
@@ -593961,7 +593968,7 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 240 "rt/regex_runtime.w"
+#line 241 "rt/regex_runtime.w"
     _0 = -51;
     /* drop(_5); */
     return _0;
@@ -593988,7 +593995,7 @@ bb8:
     _15 = 1;
     goto bb10;
 bb9:
-#line 241 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _15 = 0;
     goto bb10;
 bb10:
@@ -594002,7 +594009,7 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 244 "rt/regex_runtime.w"
+#line 245 "rt/regex_runtime.w"
     _17 = 1;
     goto bb13;
 bb12:
@@ -594018,18 +594025,18 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 245 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     _0 = -31;
     /* drop(_5); */
     return _0;
 bb15:
     goto bb16;
 bb16:
-#line 247 "rt/regex_runtime.w"
-    _19 = ((uint32_t)((*_4).flags));
 #line 249 "rt/regex_runtime.w"
+    _19 = ((uint32_t)((*_4).flags));
+#line 250 "rt/regex_runtime.w"
     _20 = ((uint32_t)(1));
-#line 247 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _21 = (_19 & _20);
     _22 = (_21 == 0);
     if (_22 == 1) {
@@ -594045,11 +594052,10 @@ bb18:
     _23 = 1;
     goto bb20;
 bb19:
-#line 247 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _23 = 0;
     goto bb20;
 bb20:
-#line 246 "rt/regex_runtime.w"
     _24 = (_23 != 0);
     if (_24 == 1) {
         goto bb21;
@@ -594066,14 +594072,14 @@ bb22:
     goto bb23;
 bb23:
     _5.version = 0;
-#line 251 "rt/regex_runtime.w"
-    _25 = (uint8_t*)((uint8_t*)(_4));
 #line 252 "rt/regex_runtime.w"
+    _25 = (uint8_t*)((uint8_t*)(_4));
+#line 253 "rt/regex_runtime.w"
     _26 = ((uint64_t)((*_4).code_start));
-#line 251 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _27 = (_25 + _26);
     _28 = (uint8_t*)((uint8_t*)(_27));
-#line 250 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _6 = _28;
     goto bb25;
 bb24:
@@ -594088,6 +594094,7 @@ bb25:
         goto bb27;
     }
 bb26:
+#line 254 "rt/regex_runtime.w"
     /* StorageLive(_30); */
     goto bb28;
 bb27:
@@ -594117,11 +594124,11 @@ bb30:
 bb31:
     goto bb30;
 bb32:
+#line 257 "rt/regex_runtime.w"
     _0 = 0;
     /* drop(_5); */
     return _0;
 bb33:
-#line 257 "rt/regex_runtime.w"
     _34 = (_31 == 29);
     if (_34 == 1) {
         goto bb35;
@@ -594130,20 +594137,19 @@ bb33:
         goto bb36;
     }
 bb34:
-#line 255 "rt/regex_runtime.w"
     _32 = (__typeof__(_32)){0};
     goto bb31;
 bb35:
-#line 257 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _36 = (*_6);
     _37 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_36]));
+#line 257 "rt/regex_runtime.w"
     _38 = ((uint64_t)(_37));
     _39 = (_6 + _38);
     _6 = _39;
-#line 259 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     /* StorageLive(_40); */
     _40 = 0;
-#line 260 "rt/regex_runtime.w"
     _41 = (_7 != 0);
     if (_41 == 1) {
         goto bb37;
@@ -594161,7 +594167,7 @@ bb36:
         goto bb50;
     }
 bb37:
-#line 262 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _42 = -1;
     _43 = (_6[_42] >= 192);
     if (_43 == 1) {
@@ -594173,7 +594179,7 @@ bb37:
 bb38:
     goto bb39;
 bb39:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _47 = (_40 != 0);
     if (_47 == 1) {
         goto bb46;
@@ -594182,6 +594188,7 @@ bb39:
         goto bb47;
     }
 bb40:
+#line 263 "rt/regex_runtime.w"
     _44 = 1;
     goto bb42;
 bb41:
@@ -594205,7 +594212,6 @@ bb44:
     _46 = 0;
     goto bb45;
 bb45:
-#line 260 "rt/regex_runtime.w"
     _40 = _46;
     goto bb39;
 bb46:
@@ -594213,18 +594219,20 @@ bb46:
     _50 = -1;
     _51 = ((int32_t)(_6[_50]));
     _52 = ((uint32_t)(_51));
+#line 267 "rt/regex_runtime.w"
     _53 = ((uint32_t)(63));
+#line 266 "rt/regex_runtime.w"
     _54 = (_52 & _53);
-#line 265 "rt/regex_runtime.w"
     _55 = _54;
     _56 = ((uint32_t)(__with_global__pcre2_utf8_table4__2595[_55]));
     _57 = ((uint64_t)(_56));
+#line 265 "rt/regex_runtime.w"
     _58 = (_6 + _57);
     _6 = _58;
     _48 = _58;
     goto bb48;
 bb47:
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _48 = (__typeof__(_48)){0};
     goto bb48;
 bb48:
@@ -594234,16 +594242,15 @@ bb48:
 bb49:
 #line 271 "rt/regex_runtime.w"
     _61 = (*_6);
-#line 270 "rt/regex_runtime.w"
     _62 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_61]));
     _63 = ((uint64_t)(_62));
     _64 = (_6 + _63);
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _6 = _64;
-#line 273 "rt/regex_runtime.w"
+#line 274 "rt/regex_runtime.w"
     /* StorageLive(_65); */
     _65 = 0;
-#line 276 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _66 = (_7 != 0);
     if (_66 == 1) {
         goto bb51;
@@ -594252,7 +594259,7 @@ bb49:
         goto bb52;
     }
 bb50:
-#line 291 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _84 = (_31 == 31);
     if (_84 == 1) {
         goto bb63;
@@ -594263,7 +594270,6 @@ bb50:
 bb51:
 #line 281 "rt/regex_runtime.w"
     _67 = -1;
-#line 279 "rt/regex_runtime.w"
     _68 = (_6[_67] >= 192);
     if (_68 == 1) {
         goto bb54;
@@ -594274,7 +594280,7 @@ bb51:
 bb52:
     goto bb53;
 bb53:
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _72 = (_65 != 0);
     if (_72 == 1) {
         goto bb60;
@@ -594283,11 +594289,11 @@ bb53:
         goto bb61;
     }
 bb54:
-#line 281 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _69 = 1;
     goto bb56;
 bb55:
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _69 = 0;
     goto bb56;
 bb56:
@@ -594299,53 +594305,52 @@ bb56:
         goto bb58;
     }
 bb57:
-#line 282 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _71 = 1;
     goto bb59;
 bb58:
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _71 = 0;
     goto bb59;
 bb59:
+#line 279 "rt/regex_runtime.w"
     _65 = _71;
     goto bb53;
 bb60:
 #line 287 "rt/regex_runtime.w"
     _75 = -1;
-#line 286 "rt/regex_runtime.w"
     _76 = ((int32_t)(_6[_75]));
     _77 = ((uint32_t)(_76));
-#line 287 "rt/regex_runtime.w"
+#line 288 "rt/regex_runtime.w"
     _78 = ((uint32_t)(63));
-#line 286 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _79 = (_77 & _78);
     _80 = _79;
+#line 286 "rt/regex_runtime.w"
     _81 = ((uint32_t)(__with_global__pcre2_utf8_table4__2595[_80]));
     _82 = ((uint64_t)(_81));
-#line 285 "rt/regex_runtime.w"
     _83 = (_6 + _82);
+#line 285 "rt/regex_runtime.w"
     _6 = _83;
     _73 = _83;
     goto bb62;
 bb61:
-#line 284 "rt/regex_runtime.w"
     _73 = (__typeof__(_73)){0};
     goto bb62;
 bb62:
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _32 = _73;
     goto bb31;
 bb63:
 #line 295 "rt/regex_runtime.w"
     _86 = (*_6);
-#line 294 "rt/regex_runtime.w"
     _87 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_86]));
     _88 = ((uint64_t)(_87));
-#line 293 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _89 = (_6 + _88);
-#line 292 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _6 = _89;
-#line 297 "rt/regex_runtime.w"
+#line 298 "rt/regex_runtime.w"
     /* StorageLive(_90); */
     _90 = 0;
 #line 300 "rt/regex_runtime.w"
@@ -594366,8 +594371,9 @@ bb64:
         goto bb78;
     }
 bb65:
-#line 301 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _92 = -1;
+#line 301 "rt/regex_runtime.w"
     _93 = (_6[_92] >= 192);
     if (_93 == 1) {
         goto bb68;
@@ -594378,7 +594384,7 @@ bb65:
 bb66:
     goto bb67;
 bb67:
-#line 303 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _97 = (_90 != 0);
     if (_97 == 1) {
         goto bb74;
@@ -594407,10 +594413,11 @@ bb71:
     _96 = 1;
     goto bb73;
 bb72:
-#line 300 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _96 = 0;
     goto bb73;
 bb73:
+#line 300 "rt/regex_runtime.w"
     _90 = _96;
     goto bb67;
 bb74:
@@ -594418,23 +594425,25 @@ bb74:
     _100 = -1;
     _101 = ((int32_t)(_6[_100]));
     _102 = ((uint32_t)(_101));
+#line 308 "rt/regex_runtime.w"
     _103 = ((uint32_t)(63));
+#line 307 "rt/regex_runtime.w"
     _104 = (_102 & _103);
     _105 = _104;
 #line 306 "rt/regex_runtime.w"
     _106 = ((uint32_t)(__with_global__pcre2_utf8_table4__2595[_105]));
-#line 305 "rt/regex_runtime.w"
     _107 = ((uint64_t)(_106));
     _108 = (_6 + _107);
+#line 305 "rt/regex_runtime.w"
     _6 = _108;
     _98 = _108;
     goto bb76;
 bb75:
-#line 303 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _98 = (__typeof__(_98)){0};
     goto bb76;
 bb76:
-#line 292 "rt/regex_runtime.w"
+#line 293 "rt/regex_runtime.w"
     _32 = _98;
     goto bb31;
 bb77:
@@ -594442,13 +594451,12 @@ bb77:
     _111 = (*_6);
     _112 = ((uint32_t)(__with_global__pcre2_OP_lengths_8__2586[_111]));
     _113 = ((uint64_t)(_112));
-#line 310 "rt/regex_runtime.w"
     _114 = (_6 + _113);
+#line 310 "rt/regex_runtime.w"
     _6 = _114;
-#line 313 "rt/regex_runtime.w"
+#line 314 "rt/regex_runtime.w"
     /* StorageLive(_115); */
     _115 = 0;
-#line 314 "rt/regex_runtime.w"
     _116 = (_7 != 0);
     if (_116 == 1) {
         goto bb79;
@@ -602696,7 +602704,7 @@ bb0:
     /* StorageLive(_5); */
 #line 10 "rt/regex_runtime.w"
     /* StorageLive(_6); */
-#line 12 "rt/regex_runtime.w"
+#line 11 "rt/regex_runtime.w"
     /* StorageLive(_7); */
 #line 13 "rt/regex_runtime.w"
     /* StorageLive(_8); */
@@ -602706,7 +602714,7 @@ bb0:
     /* StorageLive(_10); */
 #line 17 "rt/regex_runtime.w"
     /* StorageLive(_11); */
-#line 19 "rt/regex_runtime.w"
+#line 18 "rt/regex_runtime.w"
     /* StorageLive(_12); */
 #line 21 "rt/regex_runtime.w"
     /* StorageLive(_13); */
@@ -602733,6 +602741,7 @@ bb2:
     _17 = 0;
     goto bb3;
 bb3:
+#line 25 "rt/regex_runtime.w"
     _18 = (_17 != 0);
     if (_18 == 1) {
         goto bb4;
@@ -602827,7 +602836,7 @@ bb15:
     _31 = _35;
     goto bb12;
 bb16:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _37 = 1;
     goto bb18;
 bb17:
@@ -602879,22 +602888,20 @@ bb24:
         goto bb35;
     }
 bb25:
-#line 53 "rt/regex_runtime.w"
+#line 52 "rt/regex_runtime.w"
     _41 = 1;
     goto bb27;
 bb26:
     _41 = 0;
     goto bb27;
 bb27:
-#line 52 "rt/regex_runtime.w"
     _30 = _41;
     goto bb24;
 bb28:
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     _43 = 1;
     goto bb30;
 bb29:
-#line 55 "rt/regex_runtime.w"
     _43 = 0;
     goto bb30;
 bb30:
@@ -602914,10 +602921,11 @@ bb32:
     _45 = 0;
     goto bb33;
 bb33:
+#line 54 "rt/regex_runtime.w"
     _30 = _45;
     goto bb24;
 bb34:
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _0 = -51;
     return _0;
 bb35:
@@ -602934,11 +602942,9 @@ bb36:
 bb37:
     goto bb36;
 bb38:
-#line 61 "rt/regex_runtime.w"
     _48 = 1;
     goto bb40;
 bb39:
-#line 60 "rt/regex_runtime.w"
     _48 = 0;
     goto bb40;
 bb40:
@@ -602967,10 +602973,11 @@ bb45:
     _52 = ((uint64_t)(1088));
 #line 62 "rt/regex_runtime.w"
     _53 = (_51 + _52);
+#line 61 "rt/regex_runtime.w"
     _9 = _53;
 #line 65 "rt/regex_runtime.w"
     _54 = (uint8_t*)((uint8_t*)(0));
-#line 64 "rt/regex_runtime.w"
+#line 63 "rt/regex_runtime.w"
     _11 = _54;
 #line 66 "rt/regex_runtime.w"
     _8 = 0;
@@ -602987,7 +602994,7 @@ bb46:
 bb47:
 #line 71 "rt/regex_runtime.w"
     _58 = _8;
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _59 = (_1[_58] == 0);
     if (_59 == 1) {
         goto bb52;
@@ -603016,7 +603023,7 @@ bb51:
         goto bb48;
     }
 bb52:
-#line 72 "rt/regex_runtime.w"
+#line 71 "rt/regex_runtime.w"
     _60 = 1;
     goto bb54;
 bb53:
@@ -603167,7 +603174,6 @@ bb81:
     _81 = 1;
     goto bb83;
 bb82:
-#line 84 "rt/regex_runtime.w"
     _81 = 0;
     goto bb83;
 bb83:
@@ -603241,7 +603247,7 @@ bb92:
 #line 107 "rt/regex_runtime.w"
     _103 = (_7 + _102);
     _7 = _103;
-#line 108 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _8 = 0;
     goto bb93;
 bb93:
@@ -603324,7 +603330,7 @@ bb103:
     /* generic_call: should be resolved before C backend */ abort();
     goto bb104;
 bb104:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _129 = ((int64_t)(_128));
     _130 = with_memset(_127, 0, _129);
     goto bb105;
@@ -603747,10 +603753,10 @@ bb13:
     _34 = 1;
     goto bb15;
 bb14:
-#line 162 "rt/regex_runtime.w"
     _34 = 0;
     goto bb15;
 bb15:
+#line 162 "rt/regex_runtime.w"
     _30 = _34;
     goto bb12;
 bb16:
@@ -603761,7 +603767,6 @@ bb17:
     _36 = 0;
     goto bb18;
 bb18:
-#line 164 "rt/regex_runtime.w"
     _37 = (_36 != 0);
     if (_37 == 1) {
         goto bb19;
@@ -603770,7 +603775,6 @@ bb18:
         goto bb20;
     }
 bb19:
-#line 165 "rt/regex_runtime.w"
     _38 = 1;
     goto bb21;
 bb20:
@@ -603886,6 +603890,7 @@ bb43:
 bb44:
     goto bb45;
 bb45:
+#line 173 "rt/regex_runtime.w"
     _49 = ((*_6).version != 3080202);
     if (_49 == 1) {
         goto bb47;
@@ -603900,7 +603905,7 @@ bb47:
     _50 = 1;
     goto bb49;
 bb48:
-#line 172 "rt/regex_runtime.w"
+#line 173 "rt/regex_runtime.w"
     _50 = 0;
     goto bb49;
 bb49:
@@ -603912,13 +603917,12 @@ bb49:
         goto bb51;
     }
 bb50:
-#line 175 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _0 = -32;
     return _0;
 bb51:
     goto bb52;
 bb52:
-#line 176 "rt/regex_runtime.w"
     _52 = ((uint64_t)(2049));
     _53 = ((uint64_t)(524288));
     _54 = (_52 | _53);
@@ -603980,7 +603984,7 @@ bb63:
         goto bb65;
     }
 bb64:
-#line 178 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _5 = (*_6).number_of_codes;
     goto bb66;
 bb65:
@@ -603991,24 +603995,22 @@ bb66:
 bb67:
 #line 181 "rt/regex_runtime.w"
     _62 = ((uint64_t)(_61));
-#line 180 "rt/regex_runtime.w"
     _63 = (_3 + _62);
-#line 179 "rt/regex_runtime.w"
+#line 180 "rt/regex_runtime.w"
     _25 = _63;
-#line 183 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _64 = ((uint64_t)(1088));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb68;
 bb68:
-#line 184 "rt/regex_runtime.w"
     _66 = ((uint64_t)(_65));
 #line 183 "rt/regex_runtime.w"
     _67 = (_64 + _66);
     _68 = (*_8).malloc(_67, (*_8).memory_data);
     goto bb69;
 bb69:
-#line 182 "rt/regex_runtime.w"
     _69 = (uint8_t*)((uint8_t*)(_68));
+#line 182 "rt/regex_runtime.w"
     _27 = _69;
 #line 187 "rt/regex_runtime.w"
     { __typeof__((_27 == 0)) __tmp = (_27 == 0); memcpy(&(_70), &__tmp, sizeof(_70) < sizeof(__tmp) ? sizeof(_70) : sizeof(__tmp)); }
@@ -604043,9 +604045,9 @@ bb74:
 bb75:
 #line 189 "rt/regex_runtime.w"
     _73 = (int8_t*)((int8_t*)(_27));
-#line 190 "rt/regex_runtime.w"
-    _74 = (int8_t*)((int8_t*)(_25));
 #line 191 "rt/regex_runtime.w"
+    _74 = (int8_t*)((int8_t*)(_25));
+#line 192 "rt/regex_runtime.w"
     _75 = ((int64_t)(1088));
     _76 = with_memcpy(_73, _74, _75);
     goto bb77;
@@ -604054,22 +604056,23 @@ bb76:
 bb77:
 #line 193 "rt/regex_runtime.w"
     _77 = (512 + 320);
-#line 192 "rt/regex_runtime.w"
     _78 = (_77 + 256);
     _79 = ((int64_t)(_78));
     _80 = ((uint64_t)(_79));
+#line 192 "rt/regex_runtime.w"
     _81 = (_27 + _80);
     _82 = (uint64_t*)((uint64_t*)(_81));
     _83 = _82;
     (*_83) = _5;
-#line 197 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _84 = (512 + 320);
     _85 = (_84 + 256);
-#line 196 "rt/regex_runtime.w"
     _86 = ((int64_t)(_85));
+#line 197 "rt/regex_runtime.w"
     _87 = ((uint64_t)(_86));
-#line 195 "rt/regex_runtime.w"
+#line 196 "rt/regex_runtime.w"
     _88 = (_25 + _87);
+#line 195 "rt/regex_runtime.w"
     _25 = _88;
 #line 198 "rt/regex_runtime.w"
     _28 = 0;
@@ -604092,7 +604095,6 @@ bb79:
 #line 204 "rt/regex_runtime.w"
     _96 = ((uint64_t)(72));
     _97 = (_25 + _96);
-#line 203 "rt/regex_runtime.w"
     _98 = (int8_t*)((int8_t*)(_97));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb84;
@@ -604117,7 +604119,7 @@ bb83:
         goto bb80;
     }
 bb84:
-#line 205 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _100 = ((int64_t)(_99));
     _101 = with_memcpy(_95, _98, _100);
     goto bb85;
@@ -604134,11 +604136,11 @@ bb86:
         goto bb88;
     }
 bb87:
-#line 208 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     _104 = 1;
     goto bb89;
 bb88:
-#line 206 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _104 = 0;
     goto bb89;
 bb89:
@@ -604156,15 +604158,16 @@ bb90:
 bb91:
     goto bb92;
 bb92:
-#line 211 "rt/regex_runtime.w"
+#line 212 "rt/regex_runtime.w"
     _106 = (pcre2_memctl*)((pcre2_memctl*)(_4));
     _107 = _pcre2_memctl_malloc_8__1092(_92, _106);
     goto bb94;
 bb93:
     goto bb92;
 bb94:
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _108 = (pcre2_real_code_8*)((pcre2_real_code_8*)(_107));
+#line 210 "rt/regex_runtime.w"
     _26 = _108;
 #line 215 "rt/regex_runtime.w"
     { __typeof__((_26 == 0)) __tmp = (_26 == 0); memcpy(&(_109), &__tmp, sizeof(_109) < sizeof(__tmp) ? sizeof(_109) : sizeof(__tmp)); }
@@ -604194,12 +604197,12 @@ bb98:
 bb99:
     goto bb100;
 bb100:
-#line 229 "rt/regex_runtime.w"
+#line 230 "rt/regex_runtime.w"
     _121 = (uint8_t*)((uint8_t*)(_26));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb110;
 bb101:
-#line 218 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _29 = 0;
     goto bb102;
 bb102:
@@ -604225,7 +604228,6 @@ bb105:
     _114 = 1;
     goto bb107;
 bb106:
-#line 219 "rt/regex_runtime.w"
     _114 = 0;
     goto bb107;
 bb107:
@@ -604250,7 +604252,6 @@ bb109:
 bb110:
 #line 230 "rt/regex_runtime.w"
     _123 = ((uint64_t)(_122));
-#line 229 "rt/regex_runtime.w"
     _124 = (_121 + _123);
     _125 = (int8_t*)((int8_t*)(_124));
     /* generic_call: should be resolved before C backend */ abort();
@@ -604320,7 +604321,7 @@ bb118:
         goto bb124;
     }
 bb119:
-#line 243 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _148 = (_137 != 0);
     if (_148 == 1) {
         goto bb129;
@@ -604329,13 +604330,14 @@ bb119:
         goto bb130;
     }
 bb120:
-#line 239 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _141 = 1;
     goto bb122;
 bb121:
     _141 = 0;
     goto bb122;
 bb122:
+#line 239 "rt/regex_runtime.w"
     _137 = _141;
     goto bb119;
 bb123:
@@ -604363,7 +604365,6 @@ bb127:
     _147 = 0;
     goto bb128;
 bb128:
-#line 241 "rt/regex_runtime.w"
     _137 = _147;
     goto bb119;
 bb129:
@@ -604383,7 +604384,7 @@ bb130:
         goto bb136;
     }
 bb131:
-#line 251 "rt/regex_runtime.w"
+#line 252 "rt/regex_runtime.w"
     _154 = (_136 != 0);
     if (_154 == 1) {
         goto bb141;
@@ -604392,15 +604393,15 @@ bb131:
         goto bb142;
     }
 bb132:
-#line 247 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _149 = 1;
     goto bb134;
 bb133:
-#line 246 "rt/regex_runtime.w"
+#line 248 "rt/regex_runtime.w"
     _149 = 0;
     goto bb134;
 bb134:
-#line 245 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     _136 = _149;
     goto bb131;
 bb135:
@@ -604435,27 +604436,26 @@ bb142:
 bb143:
 #line 255 "rt/regex_runtime.w"
     _156 = (uint8_t*)((uint8_t*)(_27));
-#line 254 "rt/regex_runtime.w"
     (*_26).tables = _156;
-#line 255 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     { __typeof__(0) __tmp = 0; memcpy(&((*_26).executable_jit), &__tmp, sizeof((*_26).executable_jit) < sizeof(__tmp) ? sizeof((*_26).executable_jit) : sizeof(__tmp)); }
 #line 257 "rt/regex_runtime.w"
     _157 = ((*_26).flags | 262144);
     (*_26).flags = _157;
-#line 258 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _158 = _28;
+#line 258 "rt/regex_runtime.w"
     _1[_158] = _26;
 #line 260 "rt/regex_runtime.w"
     _159 = ((uint64_t)(_92));
     _160 = (_25 + _159);
-#line 259 "rt/regex_runtime.w"
     _25 = _160;
-#line 260 "rt/regex_runtime.w"
+#line 261 "rt/regex_runtime.w"
     _161 = (_28 + 1);
     _28 = _161;
     goto bb78;
 bb144:
-#line 253 "rt/regex_runtime.w"
+#line 254 "rt/regex_runtime.w"
     _0 = -62;
     return _0;
 bb145:
@@ -604605,10 +604605,11 @@ int32_t pcre2_serialize_get_number_of_codes_8__382(uint8_t* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
+#line 264 "rt/regex_runtime.w"
     /* StorageLive(_2); */
 #line 265 "rt/regex_runtime.w"
     _3 = (pcre2_serialized_data*)((pcre2_serialized_data*)(_1));
-#line 263 "rt/regex_runtime.w"
+#line 264 "rt/regex_runtime.w"
     _2 = _3;
 #line 266 "rt/regex_runtime.w"
     { __typeof__((_2 == 0)) __tmp = (_2 == 0); memcpy(&(_4), &__tmp, sizeof(_4) < sizeof(__tmp) ? sizeof(_4) : sizeof(__tmp)); }
@@ -604633,12 +604634,13 @@ bb3:
         goto bb5;
     }
 bb4:
+#line 268 "rt/regex_runtime.w"
     _0 = -51;
     return _0;
 bb5:
     goto bb6;
 bb6:
-#line 268 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _7 = ((*_2).magic != 1347564115);
     if (_7 == 1) {
         goto bb8;
@@ -604649,11 +604651,9 @@ bb6:
 bb7:
     goto bb6;
 bb8:
-#line 269 "rt/regex_runtime.w"
     _8 = 1;
     goto bb10;
 bb9:
-#line 268 "rt/regex_runtime.w"
     _8 = 0;
     goto bb10;
 bb10:
@@ -604665,13 +604665,13 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 269 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _0 = -31;
     return _0;
 bb12:
     goto bb13;
 bb13:
-#line 270 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _10 = ((*_2).version != 3080202);
     if (_10 == 1) {
         goto bb15;
@@ -604682,11 +604682,9 @@ bb13:
 bb14:
     goto bb13;
 bb15:
-#line 271 "rt/regex_runtime.w"
     _11 = 1;
     goto bb17;
 bb16:
-#line 270 "rt/regex_runtime.w"
     _11 = 0;
     goto bb17;
 bb17:
@@ -604698,19 +604696,19 @@ bb17:
         goto bb19;
     }
 bb18:
-#line 271 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _0 = -32;
     return _0;
 bb19:
     goto bb20;
 bb20:
-#line 273 "rt/regex_runtime.w"
-    _13 = ((uint64_t)(2049));
 #line 275 "rt/regex_runtime.w"
+    _13 = ((uint64_t)(2049));
+#line 276 "rt/regex_runtime.w"
     _14 = ((uint64_t)(524288));
-#line 273 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _15 = (_13 | _14);
-#line 272 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _16 = ((*_2).config != _15);
     if (_16 == 1) {
         goto bb22;
@@ -604721,11 +604719,11 @@ bb20:
 bb21:
     goto bb20;
 bb22:
-#line 276 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _17 = 1;
     goto bb24;
 bb23:
-#line 272 "rt/regex_runtime.w"
+#line 273 "rt/regex_runtime.w"
     _17 = 0;
     goto bb24;
 bb24:
@@ -604737,19 +604735,19 @@ bb24:
         goto bb26;
     }
 bb25:
-#line 277 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _0 = -32;
     return _0;
 bb26:
     goto bb27;
 bb27:
-#line 279 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _0 = (*_2).number_of_codes;
     return _0;
 bb28:
     goto bb27;
 bb29:
-#line 280 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 }
@@ -604768,7 +604766,7 @@ void pcre2_serialize_free_8__383(uint8_t* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     { __typeof__((_1 != 0)) __tmp = (_1 != 0); memcpy(&(_2), &__tmp, sizeof(_2) < sizeof(__tmp) ? sizeof(_2) : sizeof(__tmp)); }
     if (_2 == 1) {
         goto bb1;
@@ -604777,11 +604775,11 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 284 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _3 = 1;
     goto bb3;
 bb2:
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     _3 = 0;
     goto bb3;
 bb3:
@@ -604804,9 +604802,9 @@ bb6:
 bb7:
 #line 286 "rt/regex_runtime.w"
     _7 = ((uint64_t)(_6));
-#line 285 "rt/regex_runtime.w"
     _8 = (_1 - _7);
     _9 = (pcre2_memctl*)((pcre2_memctl*)(_8));
+#line 285 "rt/regex_runtime.w"
     _5 = _9;
     (*_5).free(_5, (*_5).memory_data);
     goto bb8;
@@ -605059,11 +605057,11 @@ bb0:
     { uint8_t __with_arr_tmp[1] = {205}; memcpy(_12, __with_arr_tmp, sizeof(_12)); }
 #line 16 "rt/regex_runtime.w"
     memcpy(_11, _12, sizeof(_11));
-#line 18 "rt/regex_runtime.w"
+#line 17 "rt/regex_runtime.w"
     /* StorageLive(_13); */
 #line 19 "rt/regex_runtime.w"
     /* StorageLive(_14); */
-#line 22 "rt/regex_runtime.w"
+#line 21 "rt/regex_runtime.w"
     _15 = 0;
 #line 20 "rt/regex_runtime.w"
     _16 = (&_13[_15]);
@@ -605089,7 +605087,7 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 27 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _24 = 1;
     goto bb3;
 bb2:
@@ -605099,27 +605097,26 @@ bb2:
 bb3:
 #line 24 "rt/regex_runtime.w"
     _19 = _24;
-#line 28 "rt/regex_runtime.w"
+#line 27 "rt/regex_runtime.w"
     /* StorageLive(_25); */
-#line 29 "rt/regex_runtime.w"
+#line 28 "rt/regex_runtime.w"
     _26 = ((uint32_t)(_3));
 #line 30 "rt/regex_runtime.w"
     _27 = ((uint32_t)(16));
-#line 31 "rt/regex_runtime.w"
     _28 = ((uint32_t)(4));
-#line 30 "rt/regex_runtime.w"
+#line 29 "rt/regex_runtime.w"
     _29 = (_27 | _28);
     _30 = ((uint32_t)(_29));
-#line 32 "rt/regex_runtime.w"
+#line 31 "rt/regex_runtime.w"
     _31 = ((uint32_t)(8));
-#line 30 "rt/regex_runtime.w"
+#line 29 "rt/regex_runtime.w"
     _32 = (_30 | _31);
     _33 = ((uint32_t)(_32));
-#line 29 "rt/regex_runtime.w"
-    _34 = (_26 & _33);
 #line 28 "rt/regex_runtime.w"
+    _34 = (_26 & _33);
+#line 27 "rt/regex_runtime.w"
     _25 = _34;
-#line 33 "rt/regex_runtime.w"
+#line 32 "rt/regex_runtime.w"
     /* StorageLive(_35); */
     _35 = 0;
 #line 34 "rt/regex_runtime.w"
@@ -605192,9 +605189,8 @@ bb15:
     _35 = _42;
     goto bb9;
 bb16:
-#line 41 "rt/regex_runtime.w"
-    _44 = 0;
 #line 40 "rt/regex_runtime.w"
+    _44 = 0;
     _45 = (&_11[_44]);
     _46 = (uint8_t*)((uint8_t*)(_45));
     _7 = _46;
@@ -605243,7 +605239,7 @@ bb23:
         goto bb29;
     }
 bb24:
-#line 51 "rt/regex_runtime.w"
+#line 49 "rt/regex_runtime.w"
     _56 = (_47 != 0);
     if (_56 == 1) {
         goto bb34;
@@ -605252,22 +605248,21 @@ bb24:
         goto bb35;
     }
 bb25:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _51 = 1;
     goto bb27;
 bb26:
     _51 = 0;
     goto bb27;
 bb27:
-#line 44 "rt/regex_runtime.w"
+#line 43 "rt/regex_runtime.w"
     _47 = _51;
     goto bb24;
 bb28:
-#line 48 "rt/regex_runtime.w"
+#line 47 "rt/regex_runtime.w"
     _53 = 1;
     goto bb30;
 bb29:
-#line 47 "rt/regex_runtime.w"
     _53 = 0;
     goto bb30;
 bb30:
@@ -605279,7 +605274,7 @@ bb30:
         goto bb32;
     }
 bb31:
-#line 49 "rt/regex_runtime.w"
+#line 48 "rt/regex_runtime.w"
     _55 = 1;
     goto bb33;
 bb32:
@@ -605287,10 +605282,11 @@ bb32:
     _55 = 0;
     goto bb33;
 bb33:
+#line 45 "rt/regex_runtime.w"
     _47 = _55;
     goto bb24;
 bb34:
-#line 52 "rt/regex_runtime.w"
+#line 51 "rt/regex_runtime.w"
     { __typeof__((_5 != 0)) __tmp = (_5 != 0); memcpy(&(_57), &__tmp, sizeof(_57) < sizeof(__tmp) ? sizeof(_57) : sizeof(__tmp)); }
     if (_57 == 1) {
         goto bb37;
@@ -605301,17 +605297,14 @@ bb34:
 bb35:
     goto bb36;
 bb36:
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     /* StorageLive(_60); */
 #line 57 "rt/regex_runtime.w"
     /* StorageLive(_61); */
-#line 58 "rt/regex_runtime.w"
     _62 = ((uint32_t)(_3));
 #line 60 "rt/regex_runtime.w"
     _63 = ((uint32_t)(1));
-#line 61 "rt/regex_runtime.w"
     _64 = ((uint32_t)(2));
-#line 60 "rt/regex_runtime.w"
     _65 = (_63 | _64);
     _66 = ((uint32_t)(_65));
 #line 61 "rt/regex_runtime.w"
@@ -605319,24 +605312,28 @@ bb36:
 #line 60 "rt/regex_runtime.w"
     _68 = (_66 | _67);
     _69 = ((uint32_t)(_68));
-#line 62 "rt/regex_runtime.w"
+#line 61 "rt/regex_runtime.w"
     _70 = ((uint32_t)(80));
 #line 60 "rt/regex_runtime.w"
     _71 = (_69 | _70);
     _72 = ((uint32_t)(_71));
-#line 63 "rt/regex_runtime.w"
+#line 62 "rt/regex_runtime.w"
     _73 = ((uint32_t)(16));
+#line 63 "rt/regex_runtime.w"
     _74 = ((uint32_t)(4));
+#line 62 "rt/regex_runtime.w"
     _75 = (_73 | _74);
     _76 = ((uint32_t)(_75));
+#line 63 "rt/regex_runtime.w"
     _77 = ((uint32_t)(8));
+#line 62 "rt/regex_runtime.w"
     _78 = (_76 | _77);
     _79 = ((uint32_t)(_78));
 #line 60 "rt/regex_runtime.w"
     _80 = (_72 | _79);
     _81 = (~(_80));
     _82 = ((uint32_t)(_81));
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _83 = (_62 & _82);
     _84 = (_83 != 0);
     if (_84 == 1) {
@@ -605350,6 +605347,7 @@ bb37:
     _58 = 1;
     goto bb39;
 bb38:
+#line 51 "rt/regex_runtime.w"
     _58 = 0;
     goto bb39;
 bb39:
@@ -605361,7 +605359,7 @@ bb39:
         goto bb41;
     }
 bb40:
-#line 54 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     (*_5) = 0;
     goto bb42;
 bb41:
@@ -605377,7 +605375,7 @@ bb44:
     _85 = 1;
     goto bb46;
 bb45:
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _85 = 0;
     goto bb46;
 bb46:
@@ -605396,7 +605394,7 @@ bb47:
         goto bb51;
     }
 bb48:
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _88 = ((uint32_t)(_25));
 #line 71 "rt/regex_runtime.w"
     _89 = (~(_25));
@@ -605406,7 +605404,7 @@ bb48:
 #line 71 "rt/regex_runtime.w"
     _92 = (_90 + _91);
     _93 = ((uint32_t)(_92));
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _94 = (_88 & _93);
     _95 = (_94 != _25);
     if (_95 == 1) {
@@ -605416,7 +605414,7 @@ bb48:
         goto bb54;
     }
 bb49:
-#line 73 "rt/regex_runtime.w"
+#line 72 "rt/regex_runtime.w"
     _99 = (_61 != 0);
     if (_99 == 1) {
         goto bb59;
@@ -605429,10 +605427,10 @@ bb50:
     _87 = 1;
     goto bb52;
 bb51:
+#line 66 "rt/regex_runtime.w"
     _87 = 0;
     goto bb52;
 bb52:
-#line 66 "rt/regex_runtime.w"
     _61 = _87;
     goto bb49;
 bb53:
@@ -605440,7 +605438,7 @@ bb53:
     _96 = 1;
     goto bb55;
 bb54:
-#line 68 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _96 = 0;
     goto bb55;
 bb55:
@@ -605456,11 +605454,10 @@ bb56:
     _98 = 1;
     goto bb58;
 bb57:
-#line 68 "rt/regex_runtime.w"
+#line 67 "rt/regex_runtime.w"
     _98 = 0;
     goto bb58;
 bb58:
-#line 67 "rt/regex_runtime.w"
     _61 = _98;
     goto bb49;
 bb59:
@@ -605471,7 +605468,7 @@ bb59:
         goto bb63;
     }
 bb60:
-#line 75 "rt/regex_runtime.w"
+#line 74 "rt/regex_runtime.w"
     _101 = (_25 == 0);
     if (_101 == 1) {
         goto bb65;
@@ -605480,6 +605477,7 @@ bb60:
         goto bb66;
     }
 bb61:
+#line 75 "rt/regex_runtime.w"
     _105 = (_60 != 0);
     if (_105 == 1) {
         goto bb71;
@@ -605502,6 +605500,7 @@ bb65:
     _102 = 1;
     goto bb67;
 bb66:
+#line 74 "rt/regex_runtime.w"
     _102 = 0;
     goto bb67;
 bb67:
@@ -605513,6 +605512,7 @@ bb67:
         goto bb69;
     }
 bb68:
+#line 75 "rt/regex_runtime.w"
     _104 = 1;
     goto bb70;
 bb69:
@@ -605520,11 +605520,13 @@ bb69:
     _104 = 0;
     goto bb70;
 bb70:
+#line 73 "rt/regex_runtime.w"
     _60 = _104;
     goto bb61;
 bb71:
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     (*_5) = 0;
+#line 77 "rt/regex_runtime.w"
     _0 = -34;
     return _0;
 bb72:
@@ -605562,7 +605564,7 @@ bb78:
 bb79:
     goto bb80;
 bb80:
-#line 80 "rt/regex_runtime.w"
+#line 79 "rt/regex_runtime.w"
     { __typeof__((_9 == 0)) __tmp = (_9 == 0); memcpy(&(_112), &__tmp, sizeof(_112) < sizeof(__tmp) ? sizeof(_112) : sizeof(__tmp)); }
     if (_112 == 1) {
         goto bb82;
@@ -605579,6 +605581,7 @@ bb82:
     _113 = 1;
     goto bb84;
 bb83:
+#line 79 "rt/regex_runtime.w"
     _113 = 0;
     goto bb84;
 bb84:
@@ -605602,7 +605605,7 @@ bb87:
 #line 83 "rt/regex_runtime.w"
     /* StorageLive(_118); */
     _118 = 0;
-#line 85 "rt/regex_runtime.w"
+#line 84 "rt/regex_runtime.w"
     _119 = (_19 != 0);
     if (_119 == 1) {
         goto bb88;
@@ -605642,6 +605645,7 @@ bb92:
     _124 = 0;
     goto bb93;
 bb93:
+#line 85 "rt/regex_runtime.w"
     _125 = (_124 != 0);
     if (_125 == 1) {
         goto bb94;
@@ -605650,21 +605654,20 @@ bb93:
         goto bb95;
     }
 bb94:
-#line 88 "rt/regex_runtime.w"
+#line 87 "rt/regex_runtime.w"
     _126 = 1;
     goto bb96;
 bb95:
-#line 86 "rt/regex_runtime.w"
+#line 85 "rt/regex_runtime.w"
     _126 = 0;
     goto bb96;
 bb96:
-#line 85 "rt/regex_runtime.w"
     _118 = _126;
     goto bb90;
 bb97:
 #line 89 "rt/regex_runtime.w"
     /* StorageLive(_128); */
-#line 93 "rt/regex_runtime.w"
+#line 92 "rt/regex_runtime.w"
     _129 = (&_128);
     _130 = (uint64_t*)((uint64_t*)(_129));
     _131 = _pcre2_valid_utf_8__1102(_7, _8, _130);
@@ -605701,6 +605704,7 @@ bb102:
     _133 = 0;
     goto bb103;
 bb103:
+#line 94 "rt/regex_runtime.w"
     _134 = (_133 != 0);
     if (_134 == 1) {
         goto bb104;
@@ -605813,7 +605817,7 @@ bb124:
 #line 116 "rt/regex_runtime.w"
     /* StorageLive(_150); */
     _150 = 0;
-#line 118 "rt/regex_runtime.w"
+#line 117 "rt/regex_runtime.w"
     /* StorageLive(_151); */
 #line 119 "rt/regex_runtime.w"
     { __typeof__((_4 == 0)) __tmp = (_4 == 0); memcpy(&(_152), &__tmp, sizeof(_152) < sizeof(__tmp) ? sizeof(_152) : sizeof(__tmp)); }
@@ -605876,11 +605880,10 @@ bb134:
     _149 = _151;
     goto bb144;
 bb135:
-#line 122 "rt/regex_runtime.w"
+#line 121 "rt/regex_runtime.w"
     _155 = 1;
     goto bb137;
 bb136:
-#line 121 "rt/regex_runtime.w"
     _155 = 0;
     goto bb137;
 bb137:
@@ -605888,11 +605891,10 @@ bb137:
     _151 = _155;
     goto bb134;
 bb138:
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _157 = 1;
     goto bb140;
 bb139:
-#line 124 "rt/regex_runtime.w"
     _157 = 0;
     goto bb140;
 bb140:
@@ -605966,7 +605968,7 @@ bb149:
         goto bb152;
     }
 bb150:
-#line 130 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _10 = _167;
     _161 = _167;
     goto bb147;
@@ -606012,7 +606014,6 @@ bb159:
     }
 bb160:
     (*_5) = 0;
-#line 148 "rt/regex_runtime.w"
     _0 = -44;
     return _0;
 bb161:
@@ -606054,7 +606055,7 @@ bb167:
         goto bb173;
     }
 bb168:
-#line 161 "rt/regex_runtime.w"
+#line 160 "rt/regex_runtime.w"
     _183 = (_174 != 0);
     if (_183 == 1) {
         goto bb178;
@@ -606129,10 +606130,10 @@ bb181:
     _184 = 1;
     goto bb183;
 bb182:
+#line 162 "rt/regex_runtime.w"
     _184 = 0;
     goto bb183;
 bb183:
-#line 162 "rt/regex_runtime.w"
     _173 = _184;
     goto bb180;
 bb184:
@@ -606207,7 +606208,7 @@ bb195:
         goto bb197;
     }
 bb196:
-#line 176 "rt/regex_runtime.w"
+#line 175 "rt/regex_runtime.w"
     _204 = 1;
     goto bb198;
 bb197:
@@ -606269,6 +606270,7 @@ bb205:
         goto bb206;
     }
 bb206:
+#line 185 "rt/regex_runtime.w"
     (*_5) = 0;
 #line 187 "rt/regex_runtime.w"
     _0 = -44;
@@ -606405,7 +606407,7 @@ void pcre2_converted_pattern_free_8__345(uint8_t* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 188 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     { __typeof__((_1 != 0)) __tmp = (_1 != 0); memcpy(&(_2), &__tmp, sizeof(_2) < sizeof(__tmp) ? sizeof(_2) : sizeof(__tmp)); }
     if (_2 == 1) {
         goto bb1;
@@ -606414,11 +606416,11 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 189 "rt/regex_runtime.w"
+#line 190 "rt/regex_runtime.w"
     _3 = 1;
     goto bb3;
 bb2:
-#line 188 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _3 = 0;
     goto bb3;
 bb3:
@@ -607132,7 +607134,7 @@ bb0:
 #line 209 "rt/regex_runtime.w"
     /* StorageLive(_12); */
     { __typeof__(0) __tmp = 0; memcpy(&(_12), &__tmp, sizeof(_12) < sizeof(__tmp) ? sizeof(_12) : sizeof(__tmp)); }
-#line 210 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     /* StorageLive(_13); */
     { __typeof__(0) __tmp = 0; memcpy(&(_13), &__tmp, sizeof(_13) < sizeof(__tmp) ? sizeof(_13) : sizeof(__tmp)); }
 #line 212 "rt/regex_runtime.w"
@@ -607147,7 +607149,7 @@ bb0:
 #line 216 "rt/regex_runtime.w"
     /* StorageLive(_17); */
     _17 = 0;
-#line 218 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     /* StorageLive(_18); */
     _18 = 0;
 #line 220 "rt/regex_runtime.w"
@@ -607173,32 +607175,33 @@ bb0:
 #line 229 "rt/regex_runtime.w"
     /* StorageLive(_26); */
     { __typeof__(0) __tmp = 0; memcpy(&(_26), &__tmp, sizeof(_26) < sizeof(__tmp) ? sizeof(_26) : sizeof(__tmp)); }
-#line 230 "rt/regex_runtime.w"
+#line 232 "rt/regex_runtime.w"
     /* StorageLive(_27); */
     { __typeof__(0) __tmp = 0; memcpy(&(_27), &__tmp, sizeof(_27) < sizeof(__tmp) ? sizeof(_27) : sizeof(__tmp)); }
 #line 233 "rt/regex_runtime.w"
     /* StorageLive(_28); */
     { __typeof__(0) __tmp = 0; memcpy(&(_28), &__tmp, sizeof(_28) < sizeof(__tmp) ? sizeof(_28) : sizeof(__tmp)); }
+#line 234 "rt/regex_runtime.w"
     /* StorageLive(_29); */
     { __typeof__(0) __tmp = 0; memcpy(&(_29), &__tmp, sizeof(_29) < sizeof(__tmp) ? sizeof(_29) : sizeof(__tmp)); }
 #line 235 "rt/regex_runtime.w"
     /* StorageLive(_30); */
     { __typeof__(0) __tmp = 0; memcpy(&(_30), &__tmp, sizeof(_30) < sizeof(__tmp) ? sizeof(_30) : sizeof(__tmp)); }
+#line 236 "rt/regex_runtime.w"
     /* StorageLive(_31); */
     { __typeof__(0) __tmp = 0; memcpy(&(_31), &__tmp, sizeof(_31) < sizeof(__tmp) ? sizeof(_31) : sizeof(__tmp)); }
-#line 236 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     /* StorageLive(_32); */
     { __typeof__(0) __tmp = 0; memcpy(&(_32), &__tmp, sizeof(_32) < sizeof(__tmp) ? sizeof(_32) : sizeof(__tmp)); }
-#line 238 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     /* StorageLive(_33); */
     { __typeof__(0) __tmp = 0; memcpy(&(_33), &__tmp, sizeof(_33) < sizeof(__tmp) ? sizeof(_33) : sizeof(__tmp)); }
-#line 239 "rt/regex_runtime.w"
     /* StorageLive(_34); */
     _34 = 0;
 #line 240 "rt/regex_runtime.w"
     /* StorageLive(_35); */
     _35 = 0;
-#line 241 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     /* StorageLive(_36); */
     { __typeof__(0) __tmp = 0; memcpy(&(_36), &__tmp, sizeof(_36) < sizeof(__tmp) ? sizeof(_36) : sizeof(__tmp)); }
 #line 243 "rt/regex_runtime.w"
@@ -607206,12 +607209,13 @@ bb0:
     _37 = 0;
     /* StorageLive(_38); */
     _38 = 0;
+#line 244 "rt/regex_runtime.w"
     /* StorageLive(_39); */
     _39 = 0;
-#line 244 "rt/regex_runtime.w"
+#line 246 "rt/regex_runtime.w"
     /* StorageLive(_40); */
     { __typeof__(0) __tmp = 0; memcpy(&(_40), &__tmp, sizeof(_40) < sizeof(__tmp) ? sizeof(_40) : sizeof(__tmp)); }
-#line 247 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     /* StorageLive(_41); */
     { __typeof__(0) __tmp = 0; memcpy(&(_41), &__tmp, sizeof(_41) < sizeof(__tmp) ? sizeof(_41) : sizeof(__tmp)); }
 #line 250 "rt/regex_runtime.w"
@@ -607219,22 +607223,22 @@ bb0:
     { __typeof__(0) __tmp = 0; memcpy(&(_42), &__tmp, sizeof(_42) < sizeof(__tmp) ? sizeof(_42) : sizeof(__tmp)); }
     /* StorageLive(_43); */
     { __typeof__(0) __tmp = 0; memcpy(&(_43), &__tmp, sizeof(_43) < sizeof(__tmp) ? sizeof(_43) : sizeof(__tmp)); }
+#line 251 "rt/regex_runtime.w"
     /* StorageLive(_44); */
     _44 = 0;
-#line 252 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     /* StorageLive(_45); */
     { __typeof__(0) __tmp = 0; memcpy(&(_45), &__tmp, sizeof(_45) < sizeof(__tmp) ? sizeof(_45) : sizeof(__tmp)); }
-#line 253 "rt/regex_runtime.w"
     /* StorageLive(_46); */
     _46 = 0;
     /* StorageLive(_47); */
     _47 = 0;
-#line 254 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     /* StorageLive(_48); */
     { __typeof__(0) __tmp = 0; memcpy(&(_48), &__tmp, sizeof(_48) < sizeof(__tmp) ? sizeof(_48) : sizeof(__tmp)); }
-#line 255 "rt/regex_runtime.w"
     /* StorageLive(_49); */
     { __typeof__(0) __tmp = 0; memcpy(&(_49), &__tmp, sizeof(_49) < sizeof(__tmp) ? sizeof(_49) : sizeof(__tmp)); }
+#line 256 "rt/regex_runtime.w"
     /* StorageLive(_50); */
     { __typeof__(0) __tmp = 0; memcpy(&(_50), &__tmp, sizeof(_50) < sizeof(__tmp) ? sizeof(_50) : sizeof(__tmp)); }
 #line 257 "rt/regex_runtime.w"
@@ -607242,49 +607246,51 @@ bb0:
     _51 = 0;
     /* StorageLive(_52); */
     { __typeof__(0) __tmp = 0; memcpy(&(_52), &__tmp, sizeof(_52) < sizeof(__tmp) ? sizeof(_52) : sizeof(__tmp)); }
+#line 258 "rt/regex_runtime.w"
     /* StorageLive(_53); */
     _53 = 0;
-#line 258 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     /* StorageLive(_54); */
     _54 = 0;
-#line 259 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     /* StorageLive(_55); */
     _55 = 0;
-#line 260 "rt/regex_runtime.w"
     /* StorageLive(_56); */
     { __typeof__(0) __tmp = 0; memcpy(&(_56), &__tmp, sizeof(_56) < sizeof(__tmp) ? sizeof(_56) : sizeof(__tmp)); }
+#line 262 "rt/regex_runtime.w"
     /* StorageLive(_57); */
     { __typeof__(0) __tmp = 0; memcpy(&(_57), &__tmp, sizeof(_57) < sizeof(__tmp) ? sizeof(_57) : sizeof(__tmp)); }
     goto bb1;
 bb1:
 #line 263 "rt/regex_runtime.w"
     _11 = _2;
-    _12 = _5;
 #line 264 "rt/regex_runtime.w"
+    _12 = _5;
+#line 265 "rt/regex_runtime.w"
     _13 = _12;
-#line 266 "rt/regex_runtime.w"
-    _58 = ((uint64_t)(_6));
-    _59 = (_12 + _58);
 #line 267 "rt/regex_runtime.w"
+    _58 = ((uint64_t)(_6));
+#line 266 "rt/regex_runtime.w"
+    _59 = (_12 + _58);
+#line 269 "rt/regex_runtime.w"
     _60 = ((int64_t)(1));
     _61 = ((uint64_t)(_60));
 #line 266 "rt/regex_runtime.w"
     _62 = (_59 - _61);
-#line 265 "rt/regex_runtime.w"
     _14 = _62;
-#line 268 "rt/regex_runtime.w"
-    _15 = 0;
 #line 269 "rt/regex_runtime.w"
-    _16 = 0;
+    _15 = 0;
 #line 270 "rt/regex_runtime.w"
-    _17 = 0;
+    _16 = 0;
 #line 271 "rt/regex_runtime.w"
+    _17 = 0;
+#line 273 "rt/regex_runtime.w"
     _18 = 0;
-#line 275 "rt/regex_runtime.w"
+#line 278 "rt/regex_runtime.w"
     _63 = ((uint32_t)(_1));
-#line 277 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _64 = ((uint32_t)(8));
-#line 275 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _65 = (_63 & _64);
     _66 = (_65 != 0);
     if (_66 == 1) {
@@ -607294,7 +607300,7 @@ bb1:
         goto bb166;
     }
 bb2:
-#line 288 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _69 = ((*_21) != 0);
     if (_69 == 1) {
         goto bb170;
@@ -607303,7 +607309,7 @@ bb2:
         goto bb171;
     }
 bb3:
-#line 295 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     { __typeof__((_12 >= _14)) __tmp = (_12 >= _14); memcpy(&(_73), &__tmp, sizeof(_73) < sizeof(__tmp) ? sizeof(_73) : sizeof(__tmp)); }
     if (_73 == 1) {
         goto bb179;
@@ -607312,29 +607318,27 @@ bb3:
         goto bb180;
     }
 bb4:
-#line 302 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _77 = (_21 + 1);
-#line 301 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _21 = _77;
     goto bb2;
 bb5:
     goto bb8;
 bb6:
-#line 305 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _0 = -48;
     return _0;
 bb7:
-#line 307 "rt/regex_runtime.w"
     _33 = _12;
 #line 308 "rt/regex_runtime.w"
     _78 = (_12 + 1);
-#line 307 "rt/regex_runtime.w"
     _12 = _78;
-#line 308 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     (*_33) = (*_21);
     goto bb4;
 bb8:
-#line 312 "rt/regex_runtime.w"
+#line 313 "rt/regex_runtime.w"
     _79 = (_10 > 0);
     if (_79 == 1) {
         goto bb196;
@@ -608421,22 +608425,23 @@ bb163:
 bb164:
     goto bb2;
 bb165:
-#line 278 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _67 = 1;
     goto bb167;
 bb166:
-#line 275 "rt/regex_runtime.w"
+#line 277 "rt/regex_runtime.w"
     _67 = 0;
     goto bb167;
 bb167:
-#line 273 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _19 = _67;
-#line 279 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _20 = 0;
-#line 283 "rt/regex_runtime.w"
+#line 284 "rt/regex_runtime.w"
     (*_7) = _10;
-#line 285 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _68 = (int8_t*)((int8_t*)(WITH_STR_LIT("(*NUL)").ptr));
+#line 285 "rt/regex_runtime.w"
     _21 = _68;
     goto bb2;
 bb168:
@@ -608444,11 +608449,11 @@ bb168:
 bb169:
     goto bb3;
 bb170:
-#line 289 "rt/regex_runtime.w"
+#line 291 "rt/regex_runtime.w"
     _70 = 1;
     goto bb172;
 bb171:
-#line 288 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _70 = 0;
     goto bb172;
 bb172:
@@ -608466,21 +608471,21 @@ bb174:
 bb175:
     goto bb169;
 bb176:
-#line 291 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _72 = (__typeof__(_72)){0};
     goto bb175;
 bb177:
-#line 288 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _72 = (__typeof__(_72)){0};
     goto bb175;
 bb178:
     goto bb4;
 bb179:
-#line 297 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _74 = 1;
     goto bb181;
 bb180:
-#line 295 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _74 = 0;
     goto bb181;
 bb181:
@@ -608502,7 +608507,7 @@ bb185:
     _76 = (__typeof__(_76)){0};
     goto bb184;
 bb186:
-#line 295 "rt/regex_runtime.w"
+#line 297 "rt/regex_runtime.w"
     _76 = (__typeof__(_76)){0};
     goto bb184;
 bb187:
@@ -608524,14 +608529,14 @@ bb194:
 bb195:
     goto bb9;
 bb196:
-#line 312 "rt/regex_runtime.w"
+#line 314 "rt/regex_runtime.w"
     _80 = 1;
     goto bb198;
 bb197:
+#line 313 "rt/regex_runtime.w"
     _80 = 0;
     goto bb198;
 bb198:
-#line 311 "rt/regex_runtime.w"
     _81 = (_80 != 0);
     if (_81 == 1) {
         goto bb199;
@@ -608550,7 +608555,7 @@ bb202:
     _82 = (__typeof__(_82)){0};
     goto bb201;
 bb203:
-#line 311 "rt/regex_runtime.w"
+#line 312 "rt/regex_runtime.w"
     _82 = (__typeof__(_82)){0};
     goto bb201;
 bb204:
@@ -621262,7 +621267,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 3 "rt/regex_runtime.w"
+#line 4 "rt/regex_runtime.w"
     /* StorageLive(_4); */
     _4 = _1;
 #line 6 "rt/regex_runtime.w"
@@ -621330,7 +621335,7 @@ bb6:
 bb7:
     goto bb6;
 bb8:
-#line 25 "rt/regex_runtime.w"
+#line 26 "rt/regex_runtime.w"
     _17 = (_9 >= 192);
     if (_17 == 1) {
         goto bb11;
@@ -621374,13 +621379,11 @@ bb15:
     _20 = 0;
     goto bb16;
 bb16:
-#line 24 "rt/regex_runtime.w"
     _15 = _20;
     goto bb10;
 bb17:
-#line 29 "rt/regex_runtime.w"
-    _22 = ((uint32_t)(_9));
 #line 30 "rt/regex_runtime.w"
+    _22 = ((uint32_t)(_9));
     _23 = ((uint32_t)(32));
 #line 29 "rt/regex_runtime.w"
     _24 = (_22 & _23);
@@ -621394,7 +621397,7 @@ bb17:
 bb18:
     goto bb19;
 bb19:
-#line 118 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     { __typeof__((_4 >= _2)) __tmp = (_4 >= _2); memcpy(&(_235), &__tmp, sizeof(_235) < sizeof(__tmp) ? sizeof(_235) : sizeof(__tmp)); }
     if (_235 == 1) {
         goto bb44;
@@ -621434,8 +621437,9 @@ bb23:
     _33 = ((uint32_t)(_32));
 #line 38 "rt/regex_runtime.w"
     _34 = ((uint32_t)(6));
-#line 36 "rt/regex_runtime.w"
+#line 37 "rt/regex_runtime.w"
     _35 = (_33 << _34);
+#line 36 "rt/regex_runtime.w"
     _36 = ((uint32_t)(_35));
 #line 39 "rt/regex_runtime.w"
     _37 = ((int32_t)((*_28)));
@@ -621482,8 +621486,9 @@ bb28:
         goto bb30;
     }
 bb29:
-#line 45 "rt/regex_runtime.w"
+#line 44 "rt/regex_runtime.w"
     _49 = ((uint32_t)(_9));
+#line 45 "rt/regex_runtime.w"
     _50 = ((uint32_t)(15));
 #line 44 "rt/regex_runtime.w"
     _51 = (_49 & _50);
@@ -621509,12 +621514,11 @@ bb29:
 #line 44 "rt/regex_runtime.w"
     _64 = (_55 | _63);
     _65 = ((uint32_t)(_64));
-#line 53 "rt/regex_runtime.w"
-    _66 = 1;
 #line 52 "rt/regex_runtime.w"
+    _66 = 1;
     _67 = ((int32_t)(_4[_66]));
     _68 = ((uint32_t)(_67));
-#line 54 "rt/regex_runtime.w"
+#line 53 "rt/regex_runtime.w"
     _69 = ((uint32_t)(63));
 #line 52 "rt/regex_runtime.w"
     _70 = (_68 & _69);
@@ -621523,19 +621527,18 @@ bb29:
     _72 = (_65 | _71);
 #line 43 "rt/regex_runtime.w"
     _9 = _72;
-#line 56 "rt/regex_runtime.w"
+#line 55 "rt/regex_runtime.w"
     _73 = ((int64_t)(2));
     _74 = ((uint64_t)(_73));
-#line 55 "rt/regex_runtime.w"
     _75 = (_4 + _74);
     _4 = _75;
     goto bb31;
 bb30:
-#line 58 "rt/regex_runtime.w"
+#line 57 "rt/regex_runtime.w"
     _76 = ((uint32_t)(_9));
-#line 60 "rt/regex_runtime.w"
-    _77 = ((uint32_t)(8));
 #line 58 "rt/regex_runtime.w"
+    _77 = ((uint32_t)(8));
+#line 57 "rt/regex_runtime.w"
     _78 = (_76 & _77);
     _79 = (_78 == 0);
     if (_79 == 1) {
@@ -621578,7 +621581,7 @@ bb35:
 #line 63 "rt/regex_runtime.w"
     _89 = ((int32_t)((*_4)));
     _90 = ((uint32_t)(_89));
-#line 65 "rt/regex_runtime.w"
+#line 64 "rt/regex_runtime.w"
     _91 = ((uint32_t)(63));
 #line 63 "rt/regex_runtime.w"
     _92 = (_90 & _91);
@@ -621595,12 +621598,12 @@ bb35:
     _99 = 1;
     _100 = ((int32_t)(_4[_99]));
     _101 = ((uint32_t)(_100));
-#line 69 "rt/regex_runtime.w"
+#line 68 "rt/regex_runtime.w"
     _102 = ((uint32_t)(63));
 #line 67 "rt/regex_runtime.w"
     _103 = (_101 & _102);
     _104 = ((uint32_t)(_103));
-#line 71 "rt/regex_runtime.w"
+#line 70 "rt/regex_runtime.w"
     _105 = ((uint32_t)(6));
 #line 67 "rt/regex_runtime.w"
     _106 = (_104 << _105);
@@ -621622,12 +621625,15 @@ bb35:
     _117 = ((int64_t)(3));
     _118 = ((uint64_t)(_117));
     _119 = (_4 + _118);
+#line 72 "rt/regex_runtime.w"
     _4 = _119;
     goto bb37;
 bb36:
-#line 75 "rt/regex_runtime.w"
+#line 74 "rt/regex_runtime.w"
     _120 = ((uint32_t)(_9));
+#line 75 "rt/regex_runtime.w"
     _121 = ((uint32_t)(4));
+#line 74 "rt/regex_runtime.w"
     _122 = (_120 & _121);
     _123 = (_122 == 0);
     if (_123 == 1) {
@@ -621639,6 +621645,7 @@ bb36:
 bb37:
     goto bb31;
 bb38:
+#line 75 "rt/regex_runtime.w"
     _124 = 1;
     goto bb40;
 bb39:
@@ -621654,14 +621661,16 @@ bb40:
         goto bb42;
     }
 bb41:
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _126 = ((uint32_t)(_9));
+#line 77 "rt/regex_runtime.w"
     _127 = ((uint32_t)(3));
+#line 76 "rt/regex_runtime.w"
     _128 = (_126 & _127);
     _129 = ((uint32_t)(_128));
-#line 78 "rt/regex_runtime.w"
-    _130 = ((uint32_t)(24));
 #line 77 "rt/regex_runtime.w"
+    _130 = ((uint32_t)(24));
+#line 76 "rt/regex_runtime.w"
     _131 = (_129 << _130);
     _132 = ((uint32_t)(_131));
 #line 78 "rt/regex_runtime.w"
@@ -621670,50 +621679,51 @@ bb41:
     _135 = ((uint32_t)(63));
     _136 = (_134 & _135);
     _137 = ((uint32_t)(_136));
-#line 79 "rt/regex_runtime.w"
     _138 = ((uint32_t)(18));
-#line 78 "rt/regex_runtime.w"
     _139 = (_137 << _138);
     _140 = ((uint32_t)(_139));
-#line 77 "rt/regex_runtime.w"
+#line 76 "rt/regex_runtime.w"
     _141 = (_132 | _140);
+#line 75 "rt/regex_runtime.w"
     _142 = ((uint32_t)(_141));
 #line 80 "rt/regex_runtime.w"
     _143 = 1;
+#line 79 "rt/regex_runtime.w"
     _144 = ((int32_t)(_4[_143]));
     _145 = ((uint32_t)(_144));
+#line 80 "rt/regex_runtime.w"
     _146 = ((uint32_t)(63));
+#line 79 "rt/regex_runtime.w"
     _147 = (_145 & _146);
     _148 = ((uint32_t)(_147));
-#line 81 "rt/regex_runtime.w"
-    _149 = ((uint32_t)(12));
 #line 80 "rt/regex_runtime.w"
+    _149 = ((uint32_t)(12));
+#line 79 "rt/regex_runtime.w"
     _150 = (_148 << _149);
     _151 = ((uint32_t)(_150));
-#line 77 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _152 = (_142 | _151);
     _153 = ((uint32_t)(_152));
-#line 83 "rt/regex_runtime.w"
-    _154 = 2;
 #line 82 "rt/regex_runtime.w"
+    _154 = 2;
+#line 81 "rt/regex_runtime.w"
     _155 = ((int32_t)(_4[_154]));
     _156 = ((uint32_t)(_155));
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _157 = ((uint32_t)(63));
-#line 82 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _158 = (_156 & _157);
     _159 = ((uint32_t)(_158));
-#line 84 "rt/regex_runtime.w"
+#line 83 "rt/regex_runtime.w"
     _160 = ((uint32_t)(6));
-#line 82 "rt/regex_runtime.w"
+#line 81 "rt/regex_runtime.w"
     _161 = (_159 << _160);
     _162 = ((uint32_t)(_161));
-#line 77 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _163 = (_153 | _162);
     _164 = ((uint32_t)(_163));
-#line 86 "rt/regex_runtime.w"
-    _165 = 3;
 #line 85 "rt/regex_runtime.w"
+    _165 = 3;
     _166 = ((int32_t)(_4[_165]));
     _167 = ((uint32_t)(_166));
 #line 86 "rt/regex_runtime.w"
@@ -621721,123 +621731,123 @@ bb41:
 #line 85 "rt/regex_runtime.w"
     _169 = (_167 & _168);
     _170 = ((uint32_t)(_169));
-#line 77 "rt/regex_runtime.w"
+#line 75 "rt/regex_runtime.w"
     _171 = (_164 | _170);
-#line 76 "rt/regex_runtime.w"
     _9 = _171;
-#line 89 "rt/regex_runtime.w"
+#line 88 "rt/regex_runtime.w"
     _172 = ((int64_t)(4));
     _173 = ((uint64_t)(_172));
-#line 88 "rt/regex_runtime.w"
+#line 87 "rt/regex_runtime.w"
     _174 = (_4 + _173);
     _4 = _174;
     goto bb43;
 bb42:
-#line 92 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _175 = ((uint32_t)(_9));
-#line 93 "rt/regex_runtime.w"
     _176 = ((uint32_t)(1));
-#line 92 "rt/regex_runtime.w"
     _177 = (_175 & _176);
     _178 = ((uint32_t)(_177));
-#line 94 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _179 = ((uint32_t)(30));
-#line 92 "rt/regex_runtime.w"
+#line 91 "rt/regex_runtime.w"
     _180 = (_178 << _179);
     _181 = ((uint32_t)(_180));
-#line 95 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _182 = ((int32_t)((*_4)));
     _183 = ((uint32_t)(_182));
-#line 96 "rt/regex_runtime.w"
-    _184 = ((uint32_t)(63));
 #line 95 "rt/regex_runtime.w"
+    _184 = ((uint32_t)(63));
+#line 93 "rt/regex_runtime.w"
     _185 = (_183 & _184);
     _186 = ((uint32_t)(_185));
-#line 98 "rt/regex_runtime.w"
+#line 96 "rt/regex_runtime.w"
     _187 = ((uint32_t)(24));
-#line 95 "rt/regex_runtime.w"
+#line 93 "rt/regex_runtime.w"
     _188 = (_186 << _187);
     _189 = ((uint32_t)(_188));
-#line 92 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _190 = (_181 | _189);
     _191 = ((uint32_t)(_190));
-#line 100 "rt/regex_runtime.w"
+#line 99 "rt/regex_runtime.w"
     _192 = 1;
+#line 98 "rt/regex_runtime.w"
     _193 = ((int32_t)(_4[_192]));
+#line 97 "rt/regex_runtime.w"
     _194 = ((uint32_t)(_193));
-#line 101 "rt/regex_runtime.w"
-    _195 = ((uint32_t)(63));
 #line 100 "rt/regex_runtime.w"
+    _195 = ((uint32_t)(63));
+#line 97 "rt/regex_runtime.w"
     _196 = (_194 & _195);
     _197 = ((uint32_t)(_196));
-#line 102 "rt/regex_runtime.w"
-    _198 = ((uint32_t)(18));
 #line 100 "rt/regex_runtime.w"
+    _198 = ((uint32_t)(18));
+#line 97 "rt/regex_runtime.w"
     _199 = (_197 << _198);
     _200 = ((uint32_t)(_199));
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _201 = (_191 | _200);
     _202 = ((uint32_t)(_201));
-#line 104 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _203 = 2;
-#line 103 "rt/regex_runtime.w"
     _204 = ((int32_t)(_4[_203]));
     _205 = ((uint32_t)(_204));
-#line 104 "rt/regex_runtime.w"
-    _206 = ((uint32_t)(63));
 #line 103 "rt/regex_runtime.w"
+    _206 = ((uint32_t)(63));
+#line 102 "rt/regex_runtime.w"
     _207 = (_205 & _206);
     _208 = ((uint32_t)(_207));
-#line 105 "rt/regex_runtime.w"
+#line 104 "rt/regex_runtime.w"
     _209 = ((uint32_t)(12));
-#line 103 "rt/regex_runtime.w"
+#line 102 "rt/regex_runtime.w"
     _210 = (_208 << _209);
     _211 = ((uint32_t)(_210));
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _212 = (_202 | _211);
     _213 = ((uint32_t)(_212));
-#line 108 "rt/regex_runtime.w"
-    _214 = 3;
 #line 107 "rt/regex_runtime.w"
+    _214 = 3;
+#line 105 "rt/regex_runtime.w"
     _215 = ((int32_t)(_4[_214]));
     _216 = ((uint32_t)(_215));
-#line 108 "rt/regex_runtime.w"
-    _217 = ((uint32_t)(63));
 #line 107 "rt/regex_runtime.w"
+    _217 = ((uint32_t)(63));
+#line 105 "rt/regex_runtime.w"
     _218 = (_216 & _217);
     _219 = ((uint32_t)(_218));
-#line 109 "rt/regex_runtime.w"
+#line 108 "rt/regex_runtime.w"
     _220 = ((uint32_t)(6));
-#line 107 "rt/regex_runtime.w"
+#line 105 "rt/regex_runtime.w"
     _221 = (_219 << _220);
     _222 = ((uint32_t)(_221));
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _223 = (_213 | _222);
     _224 = ((uint32_t)(_223));
-#line 111 "rt/regex_runtime.w"
+#line 109 "rt/regex_runtime.w"
     _225 = 4;
     _226 = ((int32_t)(_4[_225]));
     _227 = ((uint32_t)(_226));
+#line 111 "rt/regex_runtime.w"
     _228 = ((uint32_t)(63));
+#line 109 "rt/regex_runtime.w"
     _229 = (_227 & _228);
     _230 = ((uint32_t)(_229));
-#line 91 "rt/regex_runtime.w"
+#line 90 "rt/regex_runtime.w"
     _231 = (_224 | _230);
     _9 = _231;
-#line 114 "rt/regex_runtime.w"
+#line 113 "rt/regex_runtime.w"
     _232 = ((int64_t)(5));
     _233 = ((uint64_t)(_232));
     _234 = (_4 + _233);
+#line 111 "rt/regex_runtime.w"
     _4 = _234;
     goto bb43;
 bb43:
     goto bb37;
 bb44:
-#line 119 "rt/regex_runtime.w"
+#line 116 "rt/regex_runtime.w"
     _236 = 1;
     goto bb46;
 bb45:
-#line 118 "rt/regex_runtime.w"
     _236 = 0;
     goto bb46;
 bb46:
@@ -621849,22 +621859,23 @@ bb46:
         goto bb48;
     }
 bb47:
-#line 119 "rt/regex_runtime.w"
+#line 118 "rt/regex_runtime.w"
     _0 = 1;
     return _0;
 bb48:
     goto bb49;
 bb49:
-#line 120 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     /* StorageLive(_238); */
     _238 = 0;
     goto bb51;
 bb50:
     goto bb49;
 bb51:
-#line 122 "rt/regex_runtime.w"
+#line 120 "rt/regex_runtime.w"
     _239 = (171 / 32);
     _240 = (_239 + 1);
+#line 119 "rt/regex_runtime.w"
     _241 = (_238 < _240);
     if (_241 == 1) {
         goto bb54;
@@ -621873,21 +621884,23 @@ bb51:
         goto bb55;
     }
 bb52:
-#line 124 "rt/regex_runtime.w"
+#line 123 "rt/regex_runtime.w"
     _244 = _238;
+#line 122 "rt/regex_runtime.w"
     _6[_244] = 0;
-#line 125 "rt/regex_runtime.w"
+#line 124 "rt/regex_runtime.w"
     _245 = (_238 + 1);
+#line 123 "rt/regex_runtime.w"
     _238 = _245;
     goto bb51;
 bb53:
     goto bb57;
 bb54:
-#line 123 "rt/regex_runtime.w"
+#line 121 "rt/regex_runtime.w"
     _242 = 1;
     goto bb56;
 bb55:
-#line 121 "rt/regex_runtime.w"
+#line 119 "rt/regex_runtime.w"
     _242 = 0;
     goto bb56;
 bb56:
@@ -621906,37 +621919,35 @@ bb57:
         goto bb59;
     }
 bb58:
-#line 126 "rt/regex_runtime.w"
+#line 125 "rt/regex_runtime.w"
     /* StorageLive(_246); */
-#line 129 "rt/regex_runtime.w"
+#line 126 "rt/regex_runtime.w"
     _248 = 0;
-#line 128 "rt/regex_runtime.w"
     _249 = (&__with_global__pcre2_ucd_records_8__2612[_248]);
     _250 = (ucd_record*)((ucd_record*)(_249));
-#line 131 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _253 = ((int32_t)(_9));
     _254 = (_253 / 128);
     _255 = _254;
-#line 130 "rt/regex_runtime.w"
     _256 = ((int32_t)(__with_global__pcre2_ucd_stage1_8__2613[_255]));
     _257 = (_256 * 128);
-#line 133 "rt/regex_runtime.w"
+#line 130 "rt/regex_runtime.w"
     _258 = ((int32_t)(_9));
     _259 = (_258 % 128);
-#line 130 "rt/regex_runtime.w"
+#line 129 "rt/regex_runtime.w"
     _260 = (_257 + _259);
     _261 = _260;
-#line 129 "rt/regex_runtime.w"
+#line 128 "rt/regex_runtime.w"
     _262 = ((uint32_t)(__with_global__pcre2_ucd_stage2_8__2614[_261]));
     _263 = ((uint64_t)(_262));
-#line 128 "rt/regex_runtime.w"
-    _264 = (_250 + _263);
 #line 126 "rt/regex_runtime.w"
+    _264 = (_250 + _263);
+#line 125 "rt/regex_runtime.w"
     _246 = _264;
-#line 134 "rt/regex_runtime.w"
+#line 133 "rt/regex_runtime.w"
     /* StorageLive(_265); */
     _265 = (*_246).script;
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _266 = (_265 == 98);
     if (_266 == 1) {
         goto bb60;
@@ -621949,7 +621960,7 @@ bb59:
     _0 = (__typeof__(_0)){0};
     return _0;
 bb60:
-#line 135 "rt/regex_runtime.w"
+#line 134 "rt/regex_runtime.w"
     _267 = 1;
     goto bb62;
 bb61:
@@ -621964,14 +621975,14 @@ bb62:
         goto bb64;
     }
 bb63:
-#line 137 "rt/regex_runtime.w"
+#line 135 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb64:
     goto bb65;
 bb65:
     /* StorageLive(_269); */
-#line 138 "rt/regex_runtime.w"
+#line 137 "rt/regex_runtime.w"
     _270 = ((int32_t)((*_246).scriptx_bidiclass));
     _271 = (_270 & 1023);
     _272 = (_271 != 0);
@@ -621984,9 +621995,11 @@ bb65:
 bb66:
     goto bb65;
 bb67:
+#line 138 "rt/regex_runtime.w"
     _273 = 1;
     goto bb69;
 bb68:
+#line 137 "rt/regex_runtime.w"
     _273 = 0;
     goto bb69;
 bb69:
@@ -622005,9 +622018,10 @@ bb70:
         goto bb74;
     }
 bb71:
-#line 141 "rt/regex_runtime.w"
+#line 139 "rt/regex_runtime.w"
     /* StorageLive(_276); */
     _276 = 0;
+#line 141 "rt/regex_runtime.w"
     _277 = (_265 != 106);
     if (_277 == 1) {
         goto bb76;
@@ -622025,22 +622039,21 @@ bb72:
         goto bb92;
     }
 bb73:
-#line 139 "rt/regex_runtime.w"
+#line 138 "rt/regex_runtime.w"
     _275 = 1;
     goto bb75;
 bb74:
     _275 = 0;
     goto bb75;
 bb75:
-#line 138 "rt/regex_runtime.w"
     _269 = _275;
     goto bb72;
 bb76:
-#line 142 "rt/regex_runtime.w"
+#line 141 "rt/regex_runtime.w"
     _278 = 1;
     goto bb78;
 bb77:
-#line 141 "rt/regex_runtime.w"
+#line 140 "rt/regex_runtime.w"
     _278 = 0;
     goto bb78;
 bb78:
@@ -622052,7 +622065,7 @@ bb78:
         goto bb80;
     }
 bb79:
-#line 143 "rt/regex_runtime.w"
+#line 142 "rt/regex_runtime.w"
     _280 = (_265 != 99);
     if (_280 == 1) {
         goto bb82;
@@ -622063,7 +622076,7 @@ bb79:
 bb80:
     goto bb81;
 bb81:
-#line 145 "rt/regex_runtime.w"
+#line 143 "rt/regex_runtime.w"
     _284 = (_276 != 0);
     if (_284 == 1) {
         goto bb88;
@@ -622072,10 +622085,10 @@ bb81:
         goto bb89;
     }
 bb82:
-#line 143 "rt/regex_runtime.w"
     _281 = 1;
     goto bb84;
 bb83:
+#line 142 "rt/regex_runtime.w"
     _281 = 0;
     goto bb84;
 bb84:
@@ -622087,46 +622100,48 @@ bb84:
         goto bb86;
     }
 bb85:
+#line 143 "rt/regex_runtime.w"
     _283 = 1;
     goto bb87;
 bb86:
+#line 142 "rt/regex_runtime.w"
     _283 = 0;
     goto bb87;
 bb87:
+#line 141 "rt/regex_runtime.w"
     _276 = _283;
     goto bb81;
 bb88:
-#line 145 "rt/regex_runtime.w"
+#line 144 "rt/regex_runtime.w"
     _285 = 1;
     goto bb90;
 bb89:
+#line 143 "rt/regex_runtime.w"
     _285 = 0;
     goto bb90;
 bb90:
-#line 144 "rt/regex_runtime.w"
     _269 = _285;
     goto bb72;
 bb91:
-#line 147 "rt/regex_runtime.w"
+#line 145 "rt/regex_runtime.w"
     /* StorageLive(_287); */
+#line 147 "rt/regex_runtime.w"
     _288 = 0;
+#line 146 "rt/regex_runtime.w"
     _289 = (&_7[_288]);
     _290 = (uint32_t*)((uint32_t*)(_289));
     _291 = (int8_t*)((int8_t*)(_290));
-#line 149 "rt/regex_runtime.w"
+#line 147 "rt/regex_runtime.w"
     _293 = 0;
-#line 148 "rt/regex_runtime.w"
     _294 = (&__with_global__pcre2_ucd_script_sets_8__2610[_293]);
     _295 = (uint32_t*)((uint32_t*)(_294));
-#line 149 "rt/regex_runtime.w"
     _296 = ((int32_t)((*_246).scriptx_bidiclass));
     _297 = (_296 & 1023);
     _298 = ((int64_t)(_297));
     _299 = ((uint64_t)(_298));
-#line 148 "rt/regex_runtime.w"
     _300 = (_295 + _299);
     _301 = (int8_t*)((int8_t*)(_300));
-#line 150 "rt/regex_runtime.w"
+#line 149 "rt/regex_runtime.w"
     _302 = ((uint64_t)(4));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb94;
@@ -622144,40 +622159,42 @@ bb93:
 bb94:
 #line 150 "rt/regex_runtime.w"
     _304 = ((uint64_t)(_303));
+#line 149 "rt/regex_runtime.w"
     _305 = (_302 * _304);
     _306 = ((int64_t)(_305));
     _307 = with_memcpy(_291, _301, _306);
     goto bb95;
 bb95:
-#line 153 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _308 = 0;
     _309 = (&_7[_308]);
     _310 = (uint32_t*)((uint32_t*)(_309));
-#line 154 "rt/regex_runtime.w"
+#line 152 "rt/regex_runtime.w"
     _311 = (98 / 32);
     _312 = (_311 + 1);
+#line 151 "rt/regex_runtime.w"
     _313 = ((int64_t)(_312));
     _314 = ((uint64_t)(_313));
-#line 153 "rt/regex_runtime.w"
+#line 150 "rt/regex_runtime.w"
     _315 = (_310 + _314);
     _316 = (int8_t*)((int8_t*)(_315));
-#line 156 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _317 = ((uint64_t)(2));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb96;
 bb96:
-#line 157 "rt/regex_runtime.w"
+#line 154 "rt/regex_runtime.w"
     _319 = ((uint64_t)(_318));
-#line 156 "rt/regex_runtime.w"
+#line 153 "rt/regex_runtime.w"
     _320 = (_317 * _319);
     _321 = ((int64_t)(_320));
     _322 = with_memset(_316, 0, _321);
     goto bb97;
 bb97:
-#line 161 "rt/regex_runtime.w"
+#line 155 "rt/regex_runtime.w"
     /* StorageLive(_323); */
     _323 = 0;
-#line 162 "rt/regex_runtime.w"
+#line 158 "rt/regex_runtime.w"
     _324 = (_265 != 99);
     if (_324 == 1) {
         goto bb98;
@@ -622186,11 +622203,11 @@ bb97:
         goto bb99;
     }
 bb98:
-#line 163 "rt/regex_runtime.w"
+#line 159 "rt/regex_runtime.w"
     _325 = 1;
     goto bb100;
 bb99:
-#line 162 "rt/regex_runtime.w"
+#line 158 "rt/regex_runtime.w"
     _325 = 0;
     goto bb100;
 bb100:
@@ -622202,7 +622219,7 @@ bb100:
         goto bb102;
     }
 bb101:
-#line 165 "rt/regex_runtime.w"
+#line 162 "rt/regex_runtime.w"
     _327 = (_265 != 106);
     if (_327 == 1) {
         goto bb104;
@@ -622213,7 +622230,7 @@ bb101:
 bb102:
     goto bb103;
 bb103:
-#line 166 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _331 = (_323 != 0);
     if (_331 == 1) {
         goto bb110;
@@ -622222,10 +622239,11 @@ bb103:
         goto bb111;
     }
 bb104:
-#line 165 "rt/regex_runtime.w"
+#line 163 "rt/regex_runtime.w"
     _328 = 1;
     goto bb106;
 bb105:
+#line 162 "rt/regex_runtime.w"
     _328 = 0;
     goto bb106;
 bb106:
@@ -622237,39 +622255,40 @@ bb106:
         goto bb108;
     }
 bb107:
+#line 163 "rt/regex_runtime.w"
     _330 = 1;
     goto bb109;
 bb108:
+#line 162 "rt/regex_runtime.w"
     _330 = 0;
     goto bb109;
 bb109:
-#line 164 "rt/regex_runtime.w"
     _323 = _330;
     goto bb103;
 bb110:
-#line 169 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _332 = ((uint32_t)(_265));
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _333 = ((uint32_t)(32));
-#line 169 "rt/regex_runtime.w"
+#line 167 "rt/regex_runtime.w"
     _334 = (_332 / _333);
     _335 = _334;
-#line 170 "rt/regex_runtime.w"
+#line 168 "rt/regex_runtime.w"
     _336 = ((uint32_t)(1));
-#line 171 "rt/regex_runtime.w"
     _337 = ((uint32_t)(_265));
+#line 169 "rt/regex_runtime.w"
     _338 = ((uint32_t)(32));
+#line 168 "rt/regex_runtime.w"
     _339 = (_337 % _338);
     _340 = ((uint32_t)(_339));
-#line 170 "rt/regex_runtime.w"
     _341 = (_336 << _340);
-#line 168 "rt/regex_runtime.w"
+#line 166 "rt/regex_runtime.w"
     _342 = (_7[_335] | _341);
     _343 = ((uint32_t)(_265));
     _344 = ((uint32_t)(32));
     _345 = (_343 / _344);
     _346 = _345;
-#line 167 "rt/regex_runtime.w"
+#line 165 "rt/regex_runtime.w"
     _7[_346] = _342;
     goto bb112;
 bb111:
@@ -622284,9 +622303,9 @@ bb113:
         goto bb115;
     }
 bb114:
-#line 172 "rt/regex_runtime.w"
+#line 171 "rt/regex_runtime.w"
     _347 = _5;
-#line 174 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _349 = (_347 == 0);
     if (_349 == 1) {
         goto bb117;
@@ -622301,7 +622320,7 @@ bb116:
 bb117:
     goto bb119;
 bb118:
-#line 209 "rt/regex_runtime.w"
+#line 205 "rt/regex_runtime.w"
     _371 = (_347 == 2);
     if (_371 == 1) {
         goto bb137;
@@ -622317,9 +622336,9 @@ bb119:
         goto bb121;
     }
 bb120:
-#line 176 "rt/regex_runtime.w"
+#line 174 "rt/regex_runtime.w"
     _350 = _265;
-#line 177 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _352 = (_350 == 30);
     if (_352 == 1) {
         goto bb123;
@@ -622328,18 +622347,18 @@ bb120:
         goto bb124;
     }
 bb121:
-#line 176 "rt/regex_runtime.w"
+#line 172 "rt/regex_runtime.w"
     _348 = (__typeof__(_348)){0};
     goto bb116;
 bb122:
     goto bb121;
 bb123:
-#line 177 "rt/regex_runtime.w"
+#line 176 "rt/regex_runtime.w"
     _5 = 2;
     _351 = 2;
     goto bb122;
 bb124:
-#line 178 "rt/regex_runtime.w"
+#line 177 "rt/regex_runtime.w"
     _353 = (_350 == 27);
     if (_353 == 1) {
         goto bb125;
@@ -622348,12 +622367,12 @@ bb124:
         goto bb126;
     }
 bb125:
-#line 179 "rt/regex_runtime.w"
+#line 178 "rt/regex_runtime.w"
     _5 = 3;
     _351 = 3;
     goto bb122;
 bb126:
-#line 182 "rt/regex_runtime.w"
+#line 179 "rt/regex_runtime.w"
     _354 = (_350 == 28);
     if (_354 == 1) {
         goto bb127;
@@ -622362,12 +622381,12 @@ bb126:
         goto bb128;
     }
 bb127:
-#line 183 "rt/regex_runtime.w"
+#line 181 "rt/regex_runtime.w"
     _5 = 3;
     _351 = 3;
     goto bb122;
 bb128:
-#line 187 "rt/regex_runtime.w"
+#line 183 "rt/regex_runtime.w"
     _355 = (_350 == 29);
     if (_355 == 1) {
         goto bb129;
@@ -622376,12 +622395,12 @@ bb128:
         goto bb130;
     }
 bb129:
-#line 188 "rt/regex_runtime.w"
+#line 184 "rt/regex_runtime.w"
     _5 = 4;
     _351 = 4;
     goto bb122;
 bb130:
-#line 191 "rt/regex_runtime.w"
+#line 188 "rt/regex_runtime.w"
     _356 = (_350 == 22);
     if (_356 == 1) {
         goto bb131;
@@ -622390,46 +622409,47 @@ bb130:
         goto bb132;
     }
 bb131:
-#line 192 "rt/regex_runtime.w"
+#line 189 "rt/regex_runtime.w"
     _5 = 5;
     _351 = 5;
     goto bb122;
 bb132:
     goto bb133;
 bb133:
-#line 198 "rt/regex_runtime.w"
+#line 194 "rt/regex_runtime.w"
     _357 = 0;
-#line 196 "rt/regex_runtime.w"
     _358 = (&_6[_357]);
     _359 = (uint32_t*)((uint32_t*)(_358));
+#line 193 "rt/regex_runtime.w"
     _360 = (int8_t*)((int8_t*)(_359));
-#line 198 "rt/regex_runtime.w"
+#line 195 "rt/regex_runtime.w"
     _361 = 0;
     _362 = (&_7[_361]);
     _363 = (uint32_t*)((uint32_t*)(_362));
     _364 = (int8_t*)((int8_t*)(_363));
-#line 199 "rt/regex_runtime.w"
+#line 197 "rt/regex_runtime.w"
     _365 = ((uint64_t)(6));
     /* generic_call: should be resolved before C backend */ abort();
     goto bb134;
 bb134:
-#line 200 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _367 = ((uint64_t)(_366));
-#line 199 "rt/regex_runtime.w"
+#line 197 "rt/regex_runtime.w"
     _368 = (_365 * _367);
+#line 196 "rt/regex_runtime.w"
     _369 = ((int64_t)(_368));
     _370 = with_memcpy(_360, _364, _369);
     goto bb135;
 bb135:
-#line 203 "rt/regex_runtime.w"
+#line 198 "rt/regex_runtime.w"
     _5 = 1;
-#line 195 "rt/regex_runtime.w"
+#line 193 "rt/regex_runtime.w"
     _351 = 1;
     goto bb122;
 bb136:
     goto bb119;
 bb137:
-#line 210 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _372 = (_265 != 30);
     if (_372 == 1) {
         goto bb139;
@@ -622438,7 +622458,7 @@ bb137:
         goto bb140;
     }
 bb138:
-#line 257 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _440 = (_347 == 3);
     if (_440 == 1) {
         goto bb188;
@@ -622447,10 +622467,11 @@ bb138:
         goto bb189;
     }
 bb139:
-#line 210 "rt/regex_runtime.w"
+#line 207 "rt/regex_runtime.w"
     _373 = 1;
     goto bb141;
 bb140:
+#line 206 "rt/regex_runtime.w"
     _373 = 0;
     goto bb141;
 bb141:
@@ -622462,20 +622483,22 @@ bb141:
         goto bb143;
     }
 bb142:
-#line 211 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     /* StorageLive(_376); */
     _376 = 0;
-#line 215 "rt/regex_runtime.w"
+#line 211 "rt/regex_runtime.w"
     _377 = (29 / 32);
     _378 = _377;
+#line 210 "rt/regex_runtime.w"
     _379 = ((uint32_t)(_7[_378]));
+#line 212 "rt/regex_runtime.w"
     _380 = ((uint32_t)(1));
     _381 = (29 % 32);
     _382 = ((uint32_t)(_381));
     _383 = (_380 << _382);
     _384 = ((uint32_t)(_383));
+#line 210 "rt/regex_runtime.w"
     _385 = (_379 & _384);
-#line 214 "rt/regex_runtime.w"
     _386 = (_385 != 0);
     if (_386 == 1) {
         goto bb145;
@@ -622484,18 +622507,18 @@ bb142:
         goto bb146;
     }
 bb143:
-#line 209 "rt/regex_runtime.w"
+#line 206 "rt/regex_runtime.w"
     _375 = (__typeof__(_375)){0};
     goto bb144;
 bb144:
     _348 = _375;
     goto bb116;
 bb145:
-#line 217 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _387 = 1;
     goto bb147;
 bb146:
-#line 214 "rt/regex_runtime.w"
+#line 210 "rt/regex_runtime.w"
     _387 = 0;
     goto bb147;
 bb147:
@@ -622507,27 +622530,26 @@ bb147:
         goto bb149;
     }
 bb148:
-#line 220 "rt/regex_runtime.w"
+#line 215 "rt/regex_runtime.w"
     _389 = (_376 | 1);
-#line 219 "rt/regex_runtime.w"
     _376 = _389;
     goto bb150;
 bb149:
     goto bb150;
 bb150:
-#line 222 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _390 = (27 / 32);
     _391 = _390;
     _392 = ((uint32_t)(_7[_391]));
-#line 224 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _393 = ((uint32_t)(1));
-#line 225 "rt/regex_runtime.w"
+#line 221 "rt/regex_runtime.w"
     _394 = (27 % 32);
     _395 = ((uint32_t)(_394));
-#line 224 "rt/regex_runtime.w"
+#line 220 "rt/regex_runtime.w"
     _396 = (_393 << _395);
     _397 = ((uint32_t)(_396));
-#line 222 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _398 = (_392 & _397);
     _399 = (_398 != 0);
     if (_399 == 1) {
@@ -622537,11 +622559,11 @@ bb150:
         goto bb152;
     }
 bb151:
-#line 225 "rt/regex_runtime.w"
+#line 222 "rt/regex_runtime.w"
     _400 = 1;
     goto bb153;
 bb152:
-#line 222 "rt/regex_runtime.w"
+#line 219 "rt/regex_runtime.w"
     _400 = 0;
     goto bb153;
 bb153:
@@ -622553,26 +622575,25 @@ bb153:
         goto bb155;
     }
 bb154:
-#line 227 "rt/regex_runtime.w"
+#line 225 "rt/regex_runtime.w"
     _402 = (_376 | 2);
+#line 224 "rt/regex_runtime.w"
     _376 = _402;
     goto bb156;
 bb155:
     goto bb156;
 bb156:
-#line 230 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _403 = (28 / 32);
     _404 = _403;
     _405 = ((uint32_t)(_7[_404]));
-#line 232 "rt/regex_runtime.w"
+#line 228 "rt/regex_runtime.w"
     _406 = ((uint32_t)(1));
-#line 233 "rt/regex_runtime.w"
     _407 = (28 % 32);
     _408 = ((uint32_t)(_407));
-#line 232 "rt/regex_runtime.w"
     _409 = (_406 << _408);
     _410 = ((uint32_t)(_409));
-#line 230 "rt/regex_runtime.w"
+#line 227 "rt/regex_runtime.w"
     _411 = (_405 & _410);
     _412 = (_411 != 0);
     if (_412 == 1) {
@@ -622582,11 +622603,11 @@ bb156:
         goto bb158;
     }
 bb157:
-#line 233 "rt/regex_runtime.w"
+#line 230 "rt/regex_runtime.w"
     _413 = 1;
     goto bb159;
 bb158:
-#line 230 "rt/regex_runtime.w"
+#line 226 "rt/regex_runtime.w"
     _413 = 0;
     goto bb159;
 bb159:
@@ -622598,27 +622619,23 @@ bb159:
         goto bb161;
     }
 bb160:
-#line 235 "rt/regex_runtime.w"
+#line 233 "rt/regex_runtime.w"
     _415 = (_376 | 4);
+#line 232 "rt/regex_runtime.w"
     _376 = _415;
     goto bb162;
 bb161:
     goto bb162;
 bb162:
-#line 238 "rt/regex_runtime.w"
+#line 235 "rt/regex_runtime.w"
     _416 = (22 / 32);
     _417 = _416;
-#line 236 "rt/regex_runtime.w"
     _418 = ((uint32_t)(_7[_417]));
-#line 238 "rt/regex_runtime.w"
     _419 = ((uint32_t)(1));
-#line 239 "rt/regex_runtime.w"
     _420 = (22 % 32);
     _421 = ((uint32_t)(_420));
-#line 238 "rt/regex_runtime.w"
     _422 = (_419 << _421);
     _423 = ((uint32_t)(_422));
-#line 236 "rt/regex_runtime.w"
     _424 = (_418 & _423);
     _425 = (_424 != 0);
     if (_425 == 1) {
@@ -622628,11 +622645,11 @@ bb162:
         goto bb164;
     }
 bb163:
-#line 239 "rt/regex_runtime.w"
+#line 236 "rt/regex_runtime.w"
     _426 = 1;
     goto bb165;
 bb164:
-#line 236 "rt/regex_runtime.w"
+#line 234 "rt/regex_runtime.w"
     _426 = 0;
     goto bb165;
 bb165:
@@ -622644,15 +622661,15 @@ bb165:
         goto bb167;
     }
 bb166:
-#line 242 "rt/regex_runtime.w"
+#line 239 "rt/regex_runtime.w"
     _428 = (_376 | 8);
-#line 241 "rt/regex_runtime.w"
+#line 238 "rt/regex_runtime.w"
     _376 = _428;
     goto bb168;
 bb167:
     goto bb168;
 bb168:
-#line 243 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _429 = (_376 == 0);
     if (_429 == 1) {
         goto bb169;
@@ -622661,11 +622678,11 @@ bb168:
         goto bb170;
     }
 bb169:
-#line 244 "rt/regex_runtime.w"
+#line 242 "rt/regex_runtime.w"
     _430 = 1;
     goto bb171;
 bb170:
-#line 243 "rt/regex_runtime.w"
+#line 240 "rt/regex_runtime.w"
     _430 = 0;
     goto bb171;
 bb171:
@@ -622677,13 +622694,13 @@ bb171:
         goto bb173;
     }
 bb172:
-#line 246 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb173:
     goto bb174;
 bb174:
-#line 250 "rt/regex_runtime.w"
+#line 244 "rt/regex_runtime.w"
     _432 = (_376 == 1);
     if (_432 == 1) {
         goto bb176;
@@ -622694,9 +622711,11 @@ bb174:
 bb175:
     goto bb174;
 bb176:
+#line 245 "rt/regex_runtime.w"
     _433 = 1;
     goto bb178;
 bb177:
+#line 244 "rt/regex_runtime.w"
     _433 = 0;
     goto bb178;
 bb178:
@@ -622708,12 +622727,12 @@ bb178:
         goto bb180;
     }
 bb179:
-#line 251 "rt/regex_runtime.w"
+#line 249 "rt/regex_runtime.w"
     _5 = 4;
     _435 = 4;
     goto bb181;
 bb180:
-#line 253 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _436 = (_376 == 6);
     if (_436 == 1) {
         goto bb182;
@@ -622722,14 +622741,15 @@ bb180:
         goto bb183;
     }
 bb181:
-#line 211 "rt/regex_runtime.w"
+#line 209 "rt/regex_runtime.w"
     _375 = _435;
     goto bb144;
 bb182:
-#line 253 "rt/regex_runtime.w"
+#line 251 "rt/regex_runtime.w"
     _437 = 1;
     goto bb184;
 bb183:
+#line 250 "rt/regex_runtime.w"
     _437 = 0;
     goto bb184;
 bb184:
@@ -622741,62 +622761,63 @@ bb184:
         goto bb186;
     }
 bb185:
-#line 255 "rt/regex_runtime.w"
+#line 253 "rt/regex_runtime.w"
     _5 = 3;
     _439 = 3;
     goto bb187;
 bb186:
-#line 253 "rt/regex_runtime.w"
+#line 250 "rt/regex_runtime.w"
     _439 = (__typeof__(_439)){0};
     goto bb187;
 bb187:
-#line 250 "rt/regex_runtime.w"
+#line 243 "rt/regex_runtime.w"
     _435 = _439;
     goto bb181;
 bb188:
-#line 258 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _441 = (30 / 32);
     _442 = _441;
+#line 256 "rt/regex_runtime.w"
     _443 = ((uint32_t)(_7[_442]));
-#line 259 "rt/regex_runtime.w"
+#line 257 "rt/regex_runtime.w"
     _444 = ((uint32_t)(1));
     _445 = (30 % 32);
     _446 = ((uint32_t)(_445));
     _447 = (_444 << _446);
     _448 = ((uint32_t)(_447));
-#line 258 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _449 = (_443 & _448);
     _450 = ((uint32_t)(_449));
-#line 260 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _451 = (27 / 32);
     _452 = _451;
     _453 = ((uint32_t)(_7[_452]));
-#line 262 "rt/regex_runtime.w"
+#line 259 "rt/regex_runtime.w"
     _454 = ((uint32_t)(1));
     _455 = (27 % 32);
     _456 = ((uint32_t)(_455));
     _457 = (_454 << _456);
     _458 = ((uint32_t)(_457));
-#line 260 "rt/regex_runtime.w"
+#line 258 "rt/regex_runtime.w"
     _459 = (_453 & _458);
     _460 = ((uint32_t)(_459));
-#line 258 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _461 = (_450 + _460);
     _462 = ((uint32_t)(_461));
-#line 263 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _463 = (28 / 32);
     _464 = _463;
     _465 = ((uint32_t)(_7[_464]));
-#line 264 "rt/regex_runtime.w"
+#line 262 "rt/regex_runtime.w"
     _466 = ((uint32_t)(1));
     _467 = (28 % 32);
     _468 = ((uint32_t)(_467));
     _469 = (_466 << _468);
     _470 = ((uint32_t)(_469));
-#line 263 "rt/regex_runtime.w"
+#line 260 "rt/regex_runtime.w"
     _471 = (_465 & _470);
     _472 = ((uint32_t)(_471));
-#line 258 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _473 = (_462 + _472);
     _474 = (_473 == 0);
     if (_474 == 1) {
@@ -622806,7 +622827,7 @@ bb188:
         goto bb191;
     }
 bb189:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _478 = (_347 == 4);
     if (_478 == 1) {
         goto bb197;
@@ -622815,11 +622836,11 @@ bb189:
         goto bb198;
     }
 bb190:
-#line 266 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _475 = 1;
     goto bb192;
 bb191:
-#line 258 "rt/regex_runtime.w"
+#line 256 "rt/regex_runtime.w"
     _475 = 0;
     goto bb192;
 bb192:
@@ -622831,51 +622852,52 @@ bb192:
         goto bb194;
     }
 bb193:
-#line 266 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb194:
-#line 258 "rt/regex_runtime.w"
+#line 255 "rt/regex_runtime.w"
     _477 = (__typeof__(_477)){0};
     goto bb195;
 bb195:
     { __typeof__(_477) __tmp = _477; memcpy(&(_348), &__tmp, sizeof(_348) < sizeof(__tmp) ? sizeof(_348) : sizeof(__tmp)); }
     goto bb116;
 bb196:
-#line 266 "rt/regex_runtime.w"
+#line 263 "rt/regex_runtime.w"
     _477 = (__typeof__(_477)){0};
     goto bb195;
 bb197:
-#line 270 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _479 = (30 / 32);
     _480 = _479;
-#line 269 "rt/regex_runtime.w"
     _481 = ((uint32_t)(_7[_480]));
-#line 271 "rt/regex_runtime.w"
+#line 267 "rt/regex_runtime.w"
     _482 = ((uint32_t)(1));
+#line 268 "rt/regex_runtime.w"
     _483 = (30 % 32);
     _484 = ((uint32_t)(_483));
+#line 267 "rt/regex_runtime.w"
     _485 = (_482 << _484);
     _486 = ((uint32_t)(_485));
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _487 = (_481 & _486);
     _488 = ((uint32_t)(_487));
-#line 273 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _489 = (29 / 32);
     _490 = _489;
     _491 = ((uint32_t)(_7[_490]));
-#line 275 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _492 = ((uint32_t)(1));
-#line 276 "rt/regex_runtime.w"
+#line 271 "rt/regex_runtime.w"
     _493 = (29 % 32);
     _494 = ((uint32_t)(_493));
-#line 275 "rt/regex_runtime.w"
+#line 270 "rt/regex_runtime.w"
     _495 = (_492 << _494);
     _496 = ((uint32_t)(_495));
-#line 273 "rt/regex_runtime.w"
+#line 269 "rt/regex_runtime.w"
     _497 = (_491 & _496);
     _498 = ((uint32_t)(_497));
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _499 = (_488 + _498);
     _500 = (_499 == 0);
     if (_500 == 1) {
@@ -622885,7 +622907,7 @@ bb197:
         goto bb200;
     }
 bb198:
-#line 284 "rt/regex_runtime.w"
+#line 279 "rt/regex_runtime.w"
     _504 = (_347 == 5);
     if (_504 == 1) {
         goto bb206;
@@ -622894,11 +622916,11 @@ bb198:
         goto bb207;
     }
 bb199:
-#line 279 "rt/regex_runtime.w"
+#line 272 "rt/regex_runtime.w"
     _501 = 1;
     goto bb201;
 bb200:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _501 = 0;
     goto bb201;
 bb201:
@@ -622910,52 +622932,48 @@ bb201:
         goto bb203;
     }
 bb202:
-#line 281 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb203:
-#line 269 "rt/regex_runtime.w"
+#line 266 "rt/regex_runtime.w"
     _503 = (__typeof__(_503)){0};
     goto bb204;
 bb204:
     { __typeof__(_503) __tmp = _503; memcpy(&(_348), &__tmp, sizeof(_348) < sizeof(__tmp) ? sizeof(_348) : sizeof(__tmp)); }
     goto bb116;
 bb205:
-#line 281 "rt/regex_runtime.w"
+#line 275 "rt/regex_runtime.w"
     _503 = (__typeof__(_503)){0};
     goto bb204;
 bb206:
-#line 285 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _505 = (30 / 32);
     _506 = _505;
     _507 = ((uint32_t)(_7[_506]));
-#line 286 "rt/regex_runtime.w"
+#line 283 "rt/regex_runtime.w"
     _508 = ((uint32_t)(1));
-#line 287 "rt/regex_runtime.w"
     _509 = (30 % 32);
     _510 = ((uint32_t)(_509));
-#line 286 "rt/regex_runtime.w"
     _511 = (_508 << _510);
     _512 = ((uint32_t)(_511));
-#line 285 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _513 = (_507 & _512);
     _514 = ((uint32_t)(_513));
-#line 288 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _515 = (22 / 32);
     _516 = _515;
     _517 = ((uint32_t)(_7[_516]));
-#line 289 "rt/regex_runtime.w"
     _518 = ((uint32_t)(1));
-#line 291 "rt/regex_runtime.w"
+#line 286 "rt/regex_runtime.w"
     _519 = (22 % 32);
     _520 = ((uint32_t)(_519));
-#line 289 "rt/regex_runtime.w"
+#line 285 "rt/regex_runtime.w"
     _521 = (_518 << _520);
     _522 = ((uint32_t)(_521));
-#line 288 "rt/regex_runtime.w"
     _523 = (_517 & _522);
     _524 = ((uint32_t)(_523));
-#line 285 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _525 = (_514 + _524);
     _526 = (_525 == 0);
     if (_526 == 1) {
@@ -622965,7 +622983,7 @@ bb206:
         goto bb209;
     }
 bb207:
-#line 299 "rt/regex_runtime.w"
+#line 292 "rt/regex_runtime.w"
     _530 = (_347 == 1);
     if (_530 == 1) {
         goto bb215;
@@ -622974,14 +622992,15 @@ bb207:
         goto bb116;
     }
 bb208:
-#line 293 "rt/regex_runtime.w"
+#line 287 "rt/regex_runtime.w"
     _527 = 1;
     goto bb210;
 bb209:
-#line 285 "rt/regex_runtime.w"
+#line 281 "rt/regex_runtime.w"
     _527 = 0;
     goto bb210;
 bb210:
+#line 280 "rt/regex_runtime.w"
     _528 = (_527 != 0);
     if (_528 == 1) {
         goto bb211;
@@ -622990,30 +623009,32 @@ bb210:
         goto bb212;
     }
 bb211:
-#line 295 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb212:
-#line 285 "rt/regex_runtime.w"
+#line 280 "rt/regex_runtime.w"
     _529 = (__typeof__(_529)){0};
     goto bb213;
 bb213:
     { __typeof__(_529) __tmp = _529; memcpy(&(_348), &__tmp, sizeof(_348) < sizeof(__tmp) ? sizeof(_348) : sizeof(__tmp)); }
     goto bb116;
 bb214:
-#line 295 "rt/regex_runtime.w"
+#line 289 "rt/regex_runtime.w"
     _529 = (__typeof__(_529)){0};
     goto bb213;
 bb215:
-#line 300 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _287 = 0;
+#line 295 "rt/regex_runtime.w"
     /* StorageLive(_531); */
     _531 = 0;
     goto bb216;
 bb216:
-#line 302 "rt/regex_runtime.w"
+#line 299 "rt/regex_runtime.w"
     _532 = (171 / 32);
     _533 = (_532 + 1);
+#line 298 "rt/regex_runtime.w"
     _534 = (_531 < _533);
     if (_534 == 1) {
         goto bb219;
@@ -623022,15 +623043,14 @@ bb216:
         goto bb220;
     }
 bb217:
-#line 305 "rt/regex_runtime.w"
+#line 301 "rt/regex_runtime.w"
     _537 = _531;
-#line 304 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _538 = ((uint32_t)(_6[_537]));
-#line 306 "rt/regex_runtime.w"
+#line 302 "rt/regex_runtime.w"
     _539 = _531;
-#line 305 "rt/regex_runtime.w"
     _540 = ((uint32_t)(_7[_539]));
-#line 304 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _541 = (_538 & _540);
     _542 = (_541 != 0);
     if (_542 == 1) {
@@ -623040,9 +623060,9 @@ bb217:
         goto bb223;
     }
 bb218:
-#line 313 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _546 = (_287 != 0);
-#line 312 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _547 = (!(_546));
     if (_547 == 1) {
         goto bb229;
@@ -623051,14 +623071,15 @@ bb218:
         goto bb230;
     }
 bb219:
-#line 303 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _535 = 1;
     goto bb221;
 bb220:
-#line 302 "rt/regex_runtime.w"
+#line 298 "rt/regex_runtime.w"
     _535 = 0;
     goto bb221;
 bb221:
+#line 297 "rt/regex_runtime.w"
     _536 = (_535 != 0);
     if (_536 == 1) {
         goto bb217;
@@ -623067,11 +623088,11 @@ bb221:
         goto bb218;
     }
 bb222:
-#line 307 "rt/regex_runtime.w"
+#line 303 "rt/regex_runtime.w"
     _543 = 1;
     goto bb224;
 bb223:
-#line 304 "rt/regex_runtime.w"
+#line 300 "rt/regex_runtime.w"
     _543 = 0;
     goto bb224;
 bb224:
@@ -623083,25 +623104,24 @@ bb224:
         goto bb226;
     }
 bb225:
-#line 308 "rt/regex_runtime.w"
+#line 304 "rt/regex_runtime.w"
     _287 = 1;
     goto bb218;
 bb226:
     goto bb227;
 bb227:
-#line 311 "rt/regex_runtime.w"
+#line 307 "rt/regex_runtime.w"
     _545 = (_531 + 1);
-#line 310 "rt/regex_runtime.w"
     _531 = _545;
     goto bb216;
 bb228:
     goto bb227;
 bb229:
-#line 314 "rt/regex_runtime.w"
+#line 309 "rt/regex_runtime.w"
     _548 = 1;
     goto bb231;
 bb230:
-#line 312 "rt/regex_runtime.w"
+#line 308 "rt/regex_runtime.w"
     _548 = 0;
     goto bb231;
 bb231:
@@ -623113,7 +623133,7 @@ bb231:
         goto bb233;
     }
 bb232:
-#line 314 "rt/regex_runtime.w"
+#line 311 "rt/regex_runtime.w"
     _0 = 0;
     return _0;
 bb233:
@@ -623130,6 +623150,7 @@ bb236:
         goto bb238;
     }
 bb237:
+#line 314 "rt/regex_runtime.w"
     _550 = _265;
     _552 = (_550 == 30);
     if (_552 == 1) {
@@ -623139,7 +623160,7 @@ bb237:
         goto bb241;
     }
 bb238:
-#line 300 "rt/regex_runtime.w"
+#line 294 "rt/regex_runtime.w"
     _348 = (__typeof__(_348)){0};
     goto bb116;
 bb239:
@@ -624041,11 +624062,11 @@ uint8_t* regex_to_cstr__61(with_str _1) {
     int64_t _6 __attribute__((unused)) = {0};
     int64_t _7 __attribute__((unused)) = {0};
     bool _8 __attribute__((unused)) = {0};
-    int32_t _9 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
     int64_t _10 __attribute__((unused)) = {0};
-    int64_t _11 __attribute__((unused)) = {0};
+    uint8_t* _11 __attribute__((unused)) = {0};
     uint8_t* _12 __attribute__((unused)) = {0};
-    uint8_t* _13 __attribute__((unused)) = {0};
+    int32_t _13 __attribute__((unused)) = {0};
     int64_t _14 __attribute__((unused)) = {0};
     int64_t _15 __attribute__((unused)) = {0};
     int64_t _16 __attribute__((unused)) = {0};
@@ -624075,7 +624096,12 @@ bb3:
     _7 = ((_1).len);
     goto bb6;
 bb4:
-    _9 = with_str_byte_at(_1, (int64_t)(_6));
+#line 55 "rt/regex_runtime.w"
+    _9 = ((int64_t)(_2));
+    _10 = (_9 + _6);
+    _11 = (uint8_t*)((uint8_t*)(_10));
+    _12 = _11;
+    _13 = with_str_byte_at(_1, (int64_t)(_6));
     goto bb7;
 bb5:
 #line 57 "rt/regex_runtime.w"
@@ -624093,11 +624119,7 @@ bb6:
     }
 bb7:
 #line 55 "rt/regex_runtime.w"
-    _10 = ((int64_t)(_2));
-    _11 = (_10 + _6);
-    _12 = (uint8_t*)((uint8_t*)(_11));
-    _13 = _12;
-    (*_13) = _9;
+    (*_12) = _13;
 #line 56 "rt/regex_runtime.w"
     _14 = (_6 + 1);
     _6 = _14;

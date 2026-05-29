@@ -152,6 +152,12 @@ type RtSysInfo:
 // FD-to-HANDLE mapping table.
 let FD_TABLE_SIZE: i32 = 64
 var fd_table: [64]i64 = [0 as i64; 64]
+// Tracks whether fd 0/1/2 have been mapped to their std handles. The table is
+// initialized lazily on first use (see win32_lookup_fd) so that stdout/stderr
+// work for any program from its first write -- previously the table was only
+// filled as a side effect of the first rt_getenv call, so a program that wrote
+// output before reading an env var silently produced nothing.
+var fd_table_initialized: i32 = 0
 
 // Static buffer for GetEnvironmentVariableA fallback.
 var env_buf: [8192]u8 = [0 as u8; 8192]
@@ -232,6 +238,8 @@ fn win32_alloc_fd(h: i64) -> i32:
     return -24
 
 fn win32_lookup_fd(fd: i32) -> i64:
+    if fd_table_initialized == 0:
+        win32_init_fd_table()
     if fd < 0 or fd >= FD_TABLE_SIZE:
         return INVALID_HANDLE_VALUE
     fd_table[fd as i64]
@@ -241,8 +249,12 @@ fn win32_free_fd(fd: i32):
         return
     fd_table[fd as i64] = 0
 
-// Pre-fill fd 0,1,2 with std handles.
+// Pre-fill fd 0,1,2 with std handles. Idempotent: safe to call from multiple
+// lazy-init sites (win32_lookup_fd, rt_getenv).
 fn win32_init_fd_table():
+    if fd_table_initialized != 0:
+        return
+    fd_table_initialized = 1
     fd_table[0] = GetStdHandle(STD_INPUT_HANDLE)
     fd_table[1] = GetStdHandle(STD_OUTPUT_HANDLE)
     fd_table[2] = GetStdHandle(STD_ERROR_HANDLE)

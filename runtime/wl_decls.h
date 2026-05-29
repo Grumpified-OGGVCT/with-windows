@@ -382,16 +382,5 @@ with_str with_cimport_struct_field_anon_field_type(int64_t session, int32_t idx,
 with_str with_cimport_typedef_anon_field_name(int64_t session, int32_t idx, int32_t field);
 with_str with_cimport_typedef_anon_field_type(int64_t session, int32_t idx, int32_t field);
 int32_t with_cimport_typedef_anon_field_is_bitfield(int64_t session, int32_t idx, int32_t field);
-with_str with_regex_error_message(int32_t code);
-const int8_t * with_regex_compile(with_str pattern, int32_t options, int32_t * err_code, int32_t * err_offset);
-const int8_t * with_regex_code_copy(const int8_t * code);
-void with_regex_code_free(const int8_t * code);
-int32_t with_regex_capture_count(const int8_t * code);
-const int32_t * with_regex_match_spans_alloc(const int8_t * code, with_str text, int32_t * out_count);
-const int32_t * with_regex_match_spans_alloc_at(const int8_t * code, with_str text, int32_t start_offset, int32_t * out_count);
-int32_t with_regex_capture_name_count(const int8_t * code);
-with_str with_regex_capture_name_at(const int8_t * code, int32_t index);
-int32_t with_regex_group_name_to_index(const int8_t * code, with_str name);
-with_str with_regex_substitute(const int8_t * code, with_str text, with_str repl, int32_t replace_all);
 
 #endif

@@ -12,9 +12,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <errno.h>
+#include <process.h>
 #include <bcrypt.h>
 #pragma comment(lib, "bcrypt.lib")
 #include <sys/stat.h>
+#include "rt_trace.h"
+#include "rt_debug.h"
 
 // with_str layout must match with_runtime.h
 typedef struct {
@@ -62,8 +67,51 @@ static void win32_init_fd_table(void) {
     }
 }
 
+// The With fs runtime (rt/rt_core.w) is modeled on POSIX errno semantics:
+// e.g. fs_mkdir_component treats -EEXIST (-17) as "already exists, ok".
+// Windows APIs report Win32 error codes (ERROR_ALREADY_EXISTS == 183), which
+// do NOT match POSIX errno. Returning raw Win32 codes silently breaks every
+// errno comparison in the runtime. Translate to POSIX errno so all 22 rt_*
+// fs wrappers speak the contract the runtime expects.
+static int32_t win32_to_errno(DWORD e) {
+    switch (e) {
+        case ERROR_SUCCESS:                return 0;
+        case ERROR_FILE_NOT_FOUND:         return ENOENT;
+        case ERROR_PATH_NOT_FOUND:         return ENOENT;
+        case ERROR_TOO_MANY_OPEN_FILES:    return EMFILE;
+        case ERROR_ACCESS_DENIED:          return EACCES;
+        case ERROR_INVALID_HANDLE:         return EBADF;
+        case ERROR_NOT_ENOUGH_MEMORY:      return ENOMEM;
+        case ERROR_OUTOFMEMORY:            return ENOMEM;
+        case ERROR_INVALID_DRIVE:          return ENOENT;
+        case ERROR_WRITE_PROTECT:          return EROFS;
+        case ERROR_NOT_SAME_DEVICE:        return EXDEV;
+        case ERROR_WRITE_FAULT:            return EIO;
+        case ERROR_READ_FAULT:             return EIO;
+        case ERROR_SHARING_VIOLATION:      return EACCES;
+        case ERROR_LOCK_VIOLATION:         return EACCES;
+        case ERROR_HANDLE_DISK_FULL:       return ENOSPC;
+        case ERROR_DISK_FULL:              return ENOSPC;
+        case ERROR_FILE_EXISTS:            return EEXIST;
+        case ERROR_ALREADY_EXISTS:         return EEXIST;
+        case ERROR_INVALID_PARAMETER:      return EINVAL;
+        case ERROR_DIR_NOT_EMPTY:          return ENOTEMPTY;
+        case ERROR_FILENAME_EXCED_RANGE:   return ENAMETOOLONG;
+        case ERROR_BUFFER_OVERFLOW:        return ENAMETOOLONG;
+        case ERROR_DIRECTORY:              return ENOTDIR;
+        case ERROR_PRIVILEGE_NOT_HELD:     return EPERM;
+        case ERROR_NEGATIVE_SEEK:          return EINVAL;
+        case ERROR_SEEK_ON_DEVICE:         return EINVAL;
+        case ERROR_BROKEN_PIPE:            return EPIPE;
+        case ERROR_BAD_PATHNAME:           return ENOENT;
+        case ERROR_BAD_NETPATH:            return ENOENT;
+        case ERROR_INVALID_NAME:           return ENOENT;
+        default:                           return EIO;
+    }
+}
+
 static int32_t win32_last_error(void) {
-    return (int32_t)GetLastError();
+    return win32_to_errno(GetLastError());
 }
 
 static int64_t cstr_len(const uint8_t *s) {
@@ -81,35 +129,48 @@ static with_str rt_owned_str(const char *s) {
 }
 
 static int rt_errno(void) {
-    int err = (int)GetLastError();
-    return err == 0 ? EIO : err;
+    DWORD err = GetLastError();
+    return err == 0 ? EIO : win32_to_errno(err);
 }
 
 // ── I/O ────────────────────────────────────────────────────────────
 
 __declspec(dllexport) int64_t rt_write(int32_t fd, const uint8_t *buf, uint64_t len) {
+    RT_TRACE_ENTER("rt_write(fd=%d, len=%llu)", fd, (unsigned long long)len);
     win32_init_fd_table();
-    if (len == 0) return 0;
+    if (len == 0) { RT_TRACE_EXIT("rt_write -> 0 (len=0)"); return 0; }
     if (len > 0x7fffffff) len = 0x7fffffff;
     HANDLE h = win32_lookup(fd);
-    if (h == INVALID_HANDLE_VALUE || h == NULL) return -(int64_t)ERROR_INVALID_PARAMETER;
+    if (h == INVALID_HANDLE_VALUE || h == NULL) { RT_TRACE_EXIT("rt_write -> -INVALID_PARAM"); return -(int64_t)ERROR_INVALID_PARAMETER; }
     DWORD written = 0;
-    if (!WriteFile(h, buf, (DWORD)len, &written, NULL)) return -(int64_t)win32_last_error();
+    if (!WriteFile(h, buf, (DWORD)len, &written, NULL)) {
+        int64_t rc = -(int64_t)win32_last_error();
+        RT_TRACE_EXIT("rt_write -> %lld (WriteFile failed)", (long long)rc);
+        return rc;
+    }
+    RT_TRACE_EXIT("rt_write -> %lld", (long long)written);
     return (int64_t)written;
 }
 
 __declspec(dllexport) int64_t rt_read(int32_t fd, uint8_t *buf, uint64_t len) {
+    RT_TRACE_ENTER("rt_read(fd=%d, len=%llu)", fd, (unsigned long long)len);
     win32_init_fd_table();
-    if (len == 0) return 0;
+    if (len == 0) { RT_TRACE_EXIT("rt_read -> 0 (len=0)"); return 0; }
     if (len > 0x7fffffff) len = 0x7fffffff;
     HANDLE h = win32_lookup(fd);
-    if (h == INVALID_HANDLE_VALUE || h == NULL) return -(int64_t)ERROR_INVALID_PARAMETER;
+    if (h == INVALID_HANDLE_VALUE || h == NULL) { RT_TRACE_EXIT("rt_read -> -INVALID_PARAM"); return -(int64_t)ERROR_INVALID_PARAMETER; }
     DWORD read_n = 0;
-    if (!ReadFile(h, buf, (DWORD)len, &read_n, NULL)) return -(int64_t)win32_last_error();
+    if (!ReadFile(h, buf, (DWORD)len, &read_n, NULL)) {
+        int64_t rc = -(int64_t)win32_last_error();
+        RT_TRACE_EXIT("rt_read -> %lld (ReadFile failed)", (long long)rc);
+        return rc;
+    }
+    RT_TRACE_EXIT("rt_read -> %lld", (long long)read_n);
     return (int64_t)read_n;
 }
 
 __declspec(dllexport) int32_t rt_open(const uint8_t *path, int32_t flags, int32_t mode) {
+    RT_TRACE_ENTER("rt_open(path=%.100s, flags=0x%x, mode=0%o)", (const char *)path, flags, mode);
     (void)mode;
     win32_init_fd_table();
     DWORD access = 0;
@@ -128,14 +189,15 @@ __declspec(dllexport) int32_t rt_open(const uint8_t *path, int32_t flags, int32_
     }
 
     HANDLE h = CreateFileA((const char *)path, access, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                             NULL, disposition, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) return -win32_last_error();
+                              NULL, disposition, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) { int32_t rc = -win32_last_error(); RT_TRACE_EXIT("rt_open -> %d (CreateFile failed)", rc); return rc; }
     int32_t fd = win32_alloc_fd(h);
-    if (fd < 0) { CloseHandle(h); return -win32_last_error(); }
+    if (fd < 0) { CloseHandle(h); RT_TRACE_EXIT("rt_open -> %d (fd alloc failed)", fd); return -win32_last_error(); }
     if ((flags & 0x800) != 0) {
         LARGE_INTEGER li; li.QuadPart = 0;
         SetFilePointerEx(h, li, NULL, FILE_END);
     }
+    RT_TRACE_EXIT("rt_open -> %d", fd);
     return fd;
 }
 
@@ -168,26 +230,40 @@ __declspec(dllexport) int64_t rt_seek(int32_t fd, int64_t offset, int32_t whence
 // ── Memory ────────────────────────────────────────────────────────
 
 __declspec(dllexport) uint8_t *rt_mmap(uint64_t size) {
-    void *p = VirtualAlloc(NULL, (SIZE_T)size, MEM_COMMIT | MEM_RESERVE | MEM_TOP_DOWN, PAGE_READWRITE);
+    RT_TRACE_ENTER("rt_mmap(size=%llu)", (unsigned long long)size);
+    void *p = VirtualAlloc(NULL, (SIZE_T)size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    RT_TRACE_EXIT("rt_mmap -> %p", p);
     return (uint8_t *)p;
 }
 
 __declspec(dllexport) void rt_munmap(uint8_t *ptr, uint64_t size) {
+    RT_TRACE_ENTER("rt_munmap(ptr=%p, size=%llu)", (void*)ptr, (unsigned long long)size);
     (void)size;
     if (ptr != NULL) VirtualFree(ptr, 0, MEM_RELEASE);
+    RT_TRACE_EXIT("rt_munmap -> void");
 }
 
 __declspec(dllexport) void rt_exit(int32_t code) {
+    RT_TRACE_ENTER("rt_exit(code=%d)", code);
     ExitProcess((UINT)code);
+    RT_TRACE_EXIT("rt_exit -> NEVER");
 }
 
 // ── Clock / Sleep / PID ──────────────────────────────────────────
 
 __declspec(dllexport) int64_t rt_clock_ns(void) {
+    RT_TRACE_ENTER("rt_clock_ns()");
     LARGE_INTEGER freq, ctr;
-    if (!QueryPerformanceFrequency(&freq) || freq.QuadPart <= 0) return 0;
-    if (!QueryPerformanceCounter(&ctr)) return 0;
-    return (ctr.QuadPart * 1000000000LL) / freq.QuadPart;
+    if (!QueryPerformanceFrequency(&freq) || freq.QuadPart <= 0) { RT_TRACE_EXIT("rt_clock_ns -> 0 (no freq)"); return 0; }
+    if (!QueryPerformanceCounter(&ctr)) { RT_TRACE_EXIT("rt_clock_ns -> 0 (no ctr)"); return 0; }
+    /* Split seconds and sub-second remainder to avoid int64 overflow.
+       ctr.QuadPart * 1e9 overflows INT64_MAX after only ~920s of uptime
+       at a 10 MHz QPC frequency, wrapping the result negative. */
+    int64_t secs = ctr.QuadPart / freq.QuadPart;
+    int64_t rem  = ctr.QuadPart % freq.QuadPart;
+    int64_t ns = secs * 1000000000LL + (rem * 1000000000LL) / freq.QuadPart;
+    RT_TRACE_EXIT("rt_clock_ns -> %lld", (long long)ns);
+    return ns;
 }
 
 __declspec(dllexport) int32_t rt_nanosleep(int64_t ns) {
@@ -208,13 +284,18 @@ static int saved_argc = 0;
 static const uint8_t * const *saved_argv = NULL;
 
 __declspec(dllexport) void rt_store_args(int32_t argc, const uint8_t * const *argv) {
+    rt_debug_install();  // first rt_* call -> earliest safe hook for the crash handler
+    RT_TRACE_ENTER("rt_store_args(argc=%d)", argc);
     saved_argc = argc;
     saved_argv = argv;
+    RT_TRACE_EXIT("rt_store_args -> void");
 }
 
 __declspec(dllexport) const uint8_t *rt_getenv(const uint8_t *name) {
+    RT_TRACE_ENTER("rt_getenv(%.100s)", (const char *)name);
     static char env_buf[8192];
     DWORD n = GetEnvironmentVariableA((const char *)name, env_buf, sizeof(env_buf));
+    RT_TRACE_EXIT("rt_getenv -> %s", (n > 0 && n <= sizeof(env_buf)) ? env_buf : "(null)");
     if (n == 0 || n > sizeof(env_buf)) return NULL;
     return (const uint8_t *)env_buf;
 }
@@ -279,7 +360,7 @@ __declspec(dllexport) int32_t rt_symlink(const uint8_t *target, const uint8_t *l
                     (target_attrs & FILE_ATTRIBUTE_DIRECTORY)) ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0;
     // Windows requires developer mode or admin for symlinks
     if (!CreateSymbolicLinkA((const char *)link_path, (const char *)target, flags)) {
-        if (GetLastError() == ERROR_PRIVILEGE_NOT_HELD) return -(int32_t)ERROR_PRIVILEGE_NOT_HELD;
+        if (GetLastError() == ERROR_PRIVILEGE_NOT_HELD) return -EPERM;
         return -win32_last_error();
     }
     return 0;
@@ -289,7 +370,7 @@ __declspec(dllexport) int32_t rt_access(const uint8_t *path, int32_t mode) {
     DWORD attrs = GetFileAttributesA((const char *)path);
     if (attrs == INVALID_FILE_ATTRIBUTES) return -win32_last_error();
     if (mode == 0) return 0; // F_OK: file exists, we already know
-    if ((mode & 2) != 0 && (attrs & FILE_ATTRIBUTE_READONLY)) return -(int32_t)ERROR_ACCESS_DENIED;
+    if ((mode & 2) != 0 && (attrs & FILE_ATTRIBUTE_READONLY)) return -EACCES;
     return 0;
 }
 
@@ -539,3 +620,106 @@ __declspec(dllexport) int32_t rt_raise(int32_t sig) {
     (void)sig;
     return 0; // No POSIX raise on Windows
 }
+
+// ── POSIX shims for the cross-platform compat surface ──────────────
+// Process spawning is now provided natively by rt/compat_runtime_windows.w
+// (CreateProcessA), so the fork()/waitpid()/setpgid() stubs that previously
+// existed only to let the POSIX fork/execv compat_runtime.w *link* on Windows
+// have been REMOVED. Those stubs returned ENOSYS, which made with_exec_argv
+// (and therefore every build/run/link that spawns the linker) fail silently --
+// exactly the "No Silent Fallbacks" anti-pattern in AGENTS.md. Removing them
+// means any lingering reference fails loudly at link time instead.
+//
+// The shims kept below back other POSIX surfaces still emitted by the
+// cross-platform modules (signals, rlimit, env, Darwin libc globals).
+
+#include <process.h>
+#include <errno.h>
+
+int sigaction(int sig, const void *act, void *oldact) { (void)sig; (void)act; (void)oldact; return 0; }
+int sigprocmask(int how, const void *set, void *oldset) { (void)how; (void)set; (void)oldset; return 0; }
+int kill(int pid, int sig) { (void)pid; (void)sig; errno = ENOSYS; return -1; }
+int setenv(const char *name, const char *value, int overwrite) { (void)overwrite; return SetEnvironmentVariableA(name, value) ? 0 : -1; }
+int getrlimit(int resource, void *rlim) { (void)resource; (void)rlim; return 0; }
+int setrlimit(int resource, const void *rlim) { (void)resource; (void)rlim; return 0; }
+int *__error(void) { return &errno; }
+int __open(const char *path, int flags, ...) { (void)path; (void)flags; errno = ENOSYS; return -1; }
+
+void *rt_libc_stdin(void)  { return stdin; }
+void *rt_libc_stdout(void) { return stdout; }
+void *rt_libc_stderr(void) { return stderr; }
+
+// Darwin stdio global variables (referenced by std.libc module)
+void *__stdinp;
+void *__stdoutp;
+void *__stderrp;
+
+// ── Fiber stubs (for when fiber_stubs.obj isn't linked) ────────────
+// fiber_runtime calls these but they're defined in fiber_stubs
+
+int32_t with_fiber_in_fiber(void) { return 0; }
+void with_fiber_panic_capture(uint8_t *buf, int32_t size) { (void)buf; (void)size; }
+int32_t with_runtime_take_panicked_fiber(int32_t *fid, const char **msg, int32_t *len) { (void)fid; (void)msg; (void)len; return 0; }
+void with_runtime_core_init(void) {}
+void with_runtime_core_shutdown(void) {}
+int32_t with_runtime_core_has_fibers(void) { return 0; }
+void with_runtime_core_run_one_step(void) {}
+void with_fiber_set_result(int64_t val) { (void)val; }
+int32_t with_runtime_fiber_is_completed(int32_t fid) { (void)fid; return 0; }
+void with_fiber_yield(void) {}
+int32_t with_runtime_take_completed_fiber(int32_t fid, const char **msg, int32_t *mlen, int32_t *cret) { (void)fid; (void)msg; (void)mlen; (void)cret; return 0; }
+int32_t with_runtime_current_cancel_requested(void) { return 0; }
+int32_t with_runtime_request_cancel(int32_t fid) { (void)fid; return 0; }
+void with_runtime_current_set_cancelled_return(void) {}
+int32_t with_runtime_completed_cancelled_return(int32_t fid) { (void)fid; return 0; }
+void with_runtime_current_set_cancel_requested(void) {}
+int pthread_self(void) { return (int)GetCurrentThreadId(); }
+
+// ── Allocator A/B bisection toggle (DIAGNOSTIC, off by default) ────
+// The real allocator lives in rt_core.w and is the canonical owner of
+// these symbols. This CRT-malloc shim is NOT a fallback: it is an
+// explicit, opt-in bisection switch. Build a SECOND binary with
+// -DRT_ALLOC_OVERRIDE to swap rt_core's freelist for plain malloc. If
+// a crash present in the default build disappears under the toggle,
+// the fault is inside rt_core's allocator. The default build must use
+// rt_core so the crash handler catches the real fault. Never ship the
+// override; it exists only to localize bugs.
+#ifdef RT_ALLOC_OVERRIDE
+
+__declspec(dllexport) uint8_t *with_alloc(int64_t size) {
+    RT_TRACE_ENTER("with_alloc(size=%lld)", (long long)size);
+    void *p = malloc((size_t)(size > 0 ? size : 1));
+    RT_TRACE_EXIT("with_alloc -> %p", p);
+    return (uint8_t *)p;
+}
+
+__declspec(dllexport) uint8_t *with_alloc_zeroed(int64_t count, int64_t size) {
+    RT_TRACE_ENTER("with_alloc_zeroed(count=%lld, size=%lld)", (long long)count, (long long)size);
+    int64_t total = count * size;
+    void *p = calloc((size_t)(total > 0 ? total : 1), 1);
+    RT_TRACE_EXIT("with_alloc_zeroed -> %p", p);
+    return (uint8_t *)p;
+}
+
+__declspec(dllexport) uint8_t *with_realloc(uint8_t *old, int64_t old_size, int64_t new_size) {
+    RT_TRACE_ENTER("with_realloc(old=%p, old=%lld, new=%lld)", (void*)old, (long long)old_size, (long long)new_size);
+    (void)old_size;
+    void *p = realloc(old, (size_t)(new_size > 0 ? new_size : 1));
+    RT_TRACE_EXIT("with_realloc -> %p", p);
+    return (uint8_t *)p;
+}
+
+__declspec(dllexport) void with_free(uint8_t *ptr) {
+    RT_TRACE_ENTER("with_free(%p)", (void*)ptr);
+    free(ptr);
+    RT_TRACE_EXIT("with_free -> void");
+}
+
+__declspec(dllexport) void with_free_sized(uint8_t *ptr, int64_t size) {
+    RT_TRACE_ENTER("with_free_sized(%p, %lld)", (void*)ptr, (long long)size);
+    (void)size;
+    free(ptr);
+    RT_TRACE_EXIT("with_free_sized -> void");
+}
+
+#endif // RT_ALLOC_OVERRIDE

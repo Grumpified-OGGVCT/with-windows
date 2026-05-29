@@ -21,14 +21,14 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo PASS: with.obj
 
-rem All runtime implementation files: skip with_runtime.h, use with_types.h
+rem All runtime implementation files: use normal with_runtime.h, no hacks
 for %%f in (rt_core panic_runtime regex_runtime compat_runtime fiber_stubs fiber_runtime channel_runtime) do (
   echo === Compiling %%f_emitted.c ===
   clang -c -O2 -target x86_64-pc-windows-msvc ^
     -w -Wno-everything ^
+    -fms-compatibility -fms-extensions ^
+    -Wno-incompatible-pointer-types ^
     -U stdout -U stderr ^
-    -DWITH_RUNTIME_H ^
-    -include "%CD%\runtime\with_types.h" ^
     -I "%CD%\runtime" ^
     -I "%CD%" ^
     "%CD%\%%f_emitted.c" ^

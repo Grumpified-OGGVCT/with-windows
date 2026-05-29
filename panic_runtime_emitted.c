@@ -18,25 +18,7 @@
 #include <windows.h>
 #include <sys/stat.h>
 #endif
-#ifdef _WIN32
-#undef stdout
-#undef stderr
-#endif
-
-// Minimal type definitions (match with_runtime.h, no conflicting fn decls)
-typedef struct { const char *ptr; int64_t len; } with_str;
-typedef struct { void *ptr; int64_t len; int64_t cap; int64_t elem_size; } with_vec;
-typedef struct { bool has_value; int32_t value; } with_option_i32;
-typedef struct { bool has_value; int64_t value; } with_option_i64;
-typedef struct { bool has_value; with_str value; } with_option_str;
-#define WITH_STR_LIT(s) ((with_str){(s), (int64_t)(sizeof(s) - 1)})
-#define with_len(v) ((v).len)
-#define with_is_empty(v) (((v).len == 0) ? 1 : 0)
-
-// Regex declarations needed by runtime modules
-with_str with_regex_error_message(int32_t code);
-with_str with_regex_capture_name_at(const char *code, int32_t index);
-with_str with_regex_substitute(const char *code, with_str text, with_str repl, int32_t replace_all);
+#include "with_runtime.h"
 
 /* Extra runtime declarations */
 #define fmt_buf_new with_fmt_buf_new
@@ -79,6 +61,7 @@ extern void with_fiber_await(int32_t);
 #endif
 extern void with_fiber_panic_capture(uint8_t*, int32_t);
 
+typedef struct CStr CStr;
 typedef struct RegexFlags RegexFlags;
 typedef struct RegexError RegexError;
 typedef struct Regex Regex;
@@ -90,7 +73,12 @@ typedef struct Result_RegexFlags__RegexError_ Result_RegexFlags__RegexError_;
 typedef struct Option_Captures_ Option_Captures_;
 typedef struct Option_Match_ Option_Match_;
 
-typedef with_str (*with_fn_177)(const Captures*);
+typedef with_str (*with_fn_180)(const Captures*);
+
+struct CStr {
+    int8_t* ptr;
+    int64_t len;
+};
 
 struct RegexFlags {
     int32_t options;
@@ -168,101 +156,102 @@ struct Option_Match_ {
 extern with_str str_from_byte(int32_t _1);
 extern void _exit(int32_t _1);
 
-int32_t fence__137(int32_t _1);
+int32_t fence__139(int32_t _1);
 int64_t string_len__47(with_str _1);
 int64_t view_len__48(const with_str* _1);
 bool view_is_empty__50(const with_str* _1);
 bool view_eq__52(const with_str* _1, const with_str* _2);
-bool string_eq__53(with_str _1, with_str _2);
-int32_t string_cmp__54(with_str _1, with_str _2);
-bool is_alpha__62(int32_t _1);
-bool is_digit__64(int32_t _1);
-bool is_space__65(int32_t _1);
-bool is_alnum__66(int32_t _1);
-bool is_upper__67(int32_t _1);
-bool is_lower__68(int32_t _1);
-bool is_xdigit__69(int32_t _1);
-bool is_print__70(int32_t _1);
-int32_t to_lower__71(int32_t _1);
-int32_t to_upper__72(int32_t _1);
-int64_t string_to_int__73(with_str _1);
-with_vec lines__74(with_str _1);
-int32_t parse__79(with_str _1);
-void print__95(with_str _1);
-void eprint__96(with_str _1);
-void write__97(with_str _1);
-void ewrite__98(with_str _1);
-void print_i32__99(int32_t _1);
-void print_i64__100(int64_t _1);
-void print_bool__101(bool _1);
-void assert__102(bool _1, with_str _2, with_str _3);
-void require__107(bool _1, with_str _2, with_str _3);
-void check__108(bool _1, with_str _2, with_str _3);
-with_str i32_to_string__113(const int32_t* _1);
-with_str i64_to_string__114(const int64_t* _1);
-with_str u32_to_string__115(const uint32_t* _1);
-with_str u64_to_string__116(const uint64_t* _1);
-with_str bool_to_string__117(const bool* _1);
-with_str int_to_string__118(int64_t _1);
-RegexFlags regex_make_flags__207(int32_t _1, int32_t _2);
-with_str regex_error_message__208(int32_t _1);
-Result_RegexFlags__RegexError_ regex_compile_flags__209(with_str _1);
-Regex Regex_clone__216(const Regex* _1);
-void Regex_drop__221(Regex* _1);
-bool Regex_is_global__223(const Regex* _1);
-Result_Regex__RegexError_ Regex_compile__225(with_str _1);
-Result_Regex__RegexError_ Regex_compile_flags__227(with_str _1, with_str _2);
-int8_t* Regex___literal_code__232(int8_t** _1, with_str _2, int32_t _3);
-with_str Regex_pattern__236(const Regex* _1);
-int32_t Regex_num_captures__238(const Regex* _1);
-Option_i32_ Regex_capture_index__240(const Regex* _1, with_str _2);
-with_vec Regex_capture_names__245(const Regex* _1);
-Option_Captures_ Regex_captures__248(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_at__250(const Regex* _1, with_str _2, int32_t _3);
-bool Regex_is_match__254(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_match_op__257(const Regex* _1, with_str _2);
-Option_Match_ Regex_find__263(const Regex* _1, with_str _2);
-Option_Match_ Regex_find_at__265(const Regex* _1, with_str _2, int32_t _3);
-with_vec Regex_find_all__267(const Regex* _1, with_str _2);
-with_vec Regex_captures_all__270(const Regex* _1, with_str _2);
-with_str regex_expand_numbered_capture__271(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
-bool regex_is_name_start__272(int32_t _1);
-bool regex_is_name_continue__274(int32_t _1);
-with_str regex_expand_replacement__275(const Captures* _1, with_str _2);
-with_str Regex_replace_impl__282(const Regex* _1, with_str _2, with_str _3, bool _4);
-with_str Regex_replace__284(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_all__285(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_fn__287(const Regex* _1, with_str _2, with_fn_177 _3);
-with_str Regex_replace_all_fn__290(const Regex* _1, with_str _2, with_fn_177 _3);
-with_vec Regex_split__292(const Regex* _1, with_str _2);
-with_vec Regex_splitn__294(const Regex* _1, with_str _2, int32_t _3);
-Option_Match_ Captures_get__295(const Captures* _1, int32_t _2);
-int32_t Captures_len__297(const Captures* _1);
-Option_Match_ Captures_by_name__299(const Captures* _1, with_str _2);
-Option_Match_ Captures_name__300(const Captures* _1, with_str _2);
-with_str Captures_text__301(const Captures* _1, int32_t _2);
-with_str Captures_name_text__303(const Captures* _1, with_str _2);
-with_str Regex_capture_text__306(const Regex* _1, with_str _2, int32_t _3);
-with_str Regex_capture_name_text__308(const Regex* _1, with_str _2, with_str _3);
-bool i32_eq__329(int32_t _1, int32_t _2);
-bool bool_eq__330(bool _1, bool _2);
-int32_t i32_default__331();
-bool bool_default__332();
-bool str_eq__333(with_str _1, with_str _2);
-bool i64_eq__334(int64_t _1, int64_t _2);
-with_str i32_debug_str__335(int32_t _1);
-with_str bool_debug_str__336(bool _1);
-with_str str_debug_str__339(with_str _1);
-int64_t i32_hash_value__341(int32_t _1);
-int64_t i64_hash_value__342(int64_t _1);
-int64_t bool_hash_value__343(bool _1);
-int64_t str_hash_value__344(with_str _1);
+int64_t CStr_len__54(const CStr* _1);
+bool string_eq__57(with_str _1, with_str _2);
+int32_t string_cmp__58(with_str _1, with_str _2);
+bool is_alpha__66(int32_t _1);
+bool is_digit__68(int32_t _1);
+bool is_space__69(int32_t _1);
+bool is_alnum__70(int32_t _1);
+bool is_upper__71(int32_t _1);
+bool is_lower__72(int32_t _1);
+bool is_xdigit__73(int32_t _1);
+bool is_print__74(int32_t _1);
+int32_t to_lower__75(int32_t _1);
+int32_t to_upper__76(int32_t _1);
+int64_t string_to_int__77(with_str _1);
+with_vec lines__78(with_str _1);
+int32_t parse__83(with_str _1);
+void print__99(with_str _1);
+void eprint__100(with_str _1);
+void write__101(with_str _1);
+void ewrite__102(with_str _1);
+void print_i32__103(int32_t _1);
+void print_i64__104(int64_t _1);
+void print_bool__105(bool _1);
+void assert__106(bool _1, with_str _2, with_str _3);
+void require__111(bool _1, with_str _2, with_str _3);
+void check__112(bool _1, with_str _2, with_str _3);
+with_str i32_to_string__115(const int32_t* _1);
+with_str i64_to_string__116(const int64_t* _1);
+with_str u32_to_string__117(const uint32_t* _1);
+with_str u64_to_string__118(const uint64_t* _1);
+with_str bool_to_string__119(const bool* _1);
+with_str int_to_string__120(int64_t _1);
+RegexFlags regex_make_flags__209(int32_t _1, int32_t _2);
+with_str regex_error_message__210(int32_t _1);
+Result_RegexFlags__RegexError_ regex_compile_flags__211(with_str _1);
+Regex Regex_clone__218(const Regex* _1);
+void Regex_drop__223(Regex* _1);
+bool Regex_is_global__225(const Regex* _1);
+Result_Regex__RegexError_ Regex_compile__227(with_str _1);
+Result_Regex__RegexError_ Regex_compile_flags__229(with_str _1, with_str _2);
+int8_t* Regex___literal_code__234(int8_t** _1, with_str _2, int32_t _3);
+with_str Regex_pattern__238(const Regex* _1);
+int32_t Regex_num_captures__240(const Regex* _1);
+Option_i32_ Regex_capture_index__242(const Regex* _1, with_str _2);
+with_vec Regex_capture_names__247(const Regex* _1);
+Option_Captures_ Regex_captures__250(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_at__252(const Regex* _1, with_str _2, int32_t _3);
+bool Regex_is_match__256(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_match_op__259(const Regex* _1, with_str _2);
+Option_Match_ Regex_find__265(const Regex* _1, with_str _2);
+Option_Match_ Regex_find_at__267(const Regex* _1, with_str _2, int32_t _3);
+with_vec Regex_find_all__269(const Regex* _1, with_str _2);
+with_vec Regex_captures_all__272(const Regex* _1, with_str _2);
+with_str regex_expand_numbered_capture__273(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
+bool regex_is_name_start__274(int32_t _1);
+bool regex_is_name_continue__276(int32_t _1);
+with_str regex_expand_replacement__277(const Captures* _1, with_str _2);
+with_str Regex_replace_impl__284(const Regex* _1, with_str _2, with_str _3, bool _4);
+with_str Regex_replace__286(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_all__287(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_fn__289(const Regex* _1, with_str _2, with_fn_180 _3);
+with_str Regex_replace_all_fn__292(const Regex* _1, with_str _2, with_fn_180 _3);
+with_vec Regex_split__294(const Regex* _1, with_str _2);
+with_vec Regex_splitn__296(const Regex* _1, with_str _2, int32_t _3);
+Option_Match_ Captures_get__297(const Captures* _1, int32_t _2);
+int32_t Captures_len__299(const Captures* _1);
+Option_Match_ Captures_by_name__301(const Captures* _1, with_str _2);
+Option_Match_ Captures_name__302(const Captures* _1, with_str _2);
+with_str Captures_text__303(const Captures* _1, int32_t _2);
+with_str Captures_name_text__305(const Captures* _1, with_str _2);
+with_str Regex_capture_text__308(const Regex* _1, with_str _2, int32_t _3);
+with_str Regex_capture_name_text__310(const Regex* _1, with_str _2, with_str _3);
+bool i32_eq__331(int32_t _1, int32_t _2);
+bool bool_eq__332(bool _1, bool _2);
+int32_t i32_default__333();
+bool bool_default__334();
+bool str_eq__335(with_str _1, with_str _2);
+bool i64_eq__336(int64_t _1, int64_t _2);
+with_str i32_debug_str__337(int32_t _1);
+with_str bool_debug_str__338(bool _1);
+with_str str_debug_str__341(with_str _1);
+int64_t i32_hash_value__343(int32_t _1);
+int64_t i64_hash_value__344(int64_t _1);
+int64_t bool_hash_value__345(bool _1);
+int64_t str_hash_value__346(with_str _1);
 uint8_t* str_data__18(with_str _1);
 with_str panic_render__20(with_str _1, with_str _2, int32_t _3);
 void with_panic(with_str _1, with_str _2, int32_t _3);
 
 
-int32_t fence__137(int32_t _1) {
+int32_t fence__139(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -319,7 +308,16 @@ bb0:
     return _0;
 }
 
-bool string_eq__53(with_str _1, with_str _2) {
+int64_t CStr_len__54(const CStr* _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+    /* StorageLive(_1); */
+    _0 = (*_1).len;
+    return _0;
+}
+
+bool string_eq__57(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -336,7 +334,7 @@ bb1:
 bb2: ;
 }
 
-int32_t string_cmp__54(with_str _1, with_str _2) {
+int32_t string_cmp__58(with_str _1, with_str _2) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -464,7 +462,7 @@ bb23: ;
 bb24: ;
 }
 
-bool is_alpha__62(int32_t _1) {
+bool is_alpha__66(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -517,7 +515,7 @@ bb6:
     goto bb4;
 }
 
-bool is_digit__64(int32_t _1) {
+bool is_digit__68(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -542,7 +540,7 @@ bb2:
     return _0;
 }
 
-bool is_space__65(int32_t _1) {
+bool is_space__69(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -623,7 +621,7 @@ bb10:
     return _0;
 }
 
-bool is_alnum__66(int32_t _1) {
+bool is_alnum__70(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -631,7 +629,7 @@ bool is_alnum__66(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _3 = is_alpha__62(_1);
+    _3 = is_alpha__66(_1);
     goto bb1;
 bb1:
     _2 = _3;
@@ -642,7 +640,7 @@ bb1:
         goto bb2;
     }
 bb2:
-    _4 = is_digit__64(_1);
+    _4 = is_digit__68(_1);
     goto bb4;
 bb3:
     _0 = _2;
@@ -652,7 +650,7 @@ bb4:
     goto bb3;
 }
 
-bool is_upper__67(int32_t _1) {
+bool is_upper__71(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -677,7 +675,7 @@ bb2:
     return _0;
 }
 
-bool is_lower__68(int32_t _1) {
+bool is_lower__72(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -702,7 +700,7 @@ bb2:
     return _0;
 }
 
-bool is_xdigit__69(int32_t _1) {
+bool is_xdigit__73(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -783,7 +781,7 @@ bb10:
     goto bb8;
 }
 
-bool is_print__70(int32_t _1) {
+bool is_print__74(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -808,7 +806,7 @@ bb2:
     return _0;
 }
 
-int32_t to_lower__71(int32_t _1) {
+int32_t to_lower__75(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -849,7 +847,7 @@ bb5:
     return _0;
 }
 
-int32_t to_upper__72(int32_t _1) {
+int32_t to_upper__76(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -890,7 +888,7 @@ bb5:
     return _0;
 }
 
-int64_t string_to_int__73(with_str _1) {
+int64_t string_to_int__77(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -903,7 +901,7 @@ bb1:
     return _0;
 }
 
-with_vec lines__74(with_str _1) {
+with_vec lines__78(with_str _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -928,7 +926,7 @@ bb4: ;
 bb5: ;
 }
 
-int32_t parse__79(with_str _1) {
+int32_t parse__83(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -937,7 +935,7 @@ int32_t parse__79(with_str _1) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = string_to_int__73(_1);
+    _3 = string_to_int__77(_1);
     goto bb1;
 bb1:
     _2 = _3;
@@ -947,12 +945,12 @@ bb1:
 bb2: ;
 }
 
-void print__95(with_str _1) {
+void print__99(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 31 "rt/panic_runtime.w"
+#line 29 "rt/panic_runtime.w"
     /* StorageLive(_1); */
     with_println_str(_1);
     goto bb1;
@@ -960,7 +958,7 @@ bb1:
     return;
 }
 
-void eprint__96(with_str _1) {
+void eprint__100(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -973,7 +971,7 @@ bb1:
     return;
 }
 
-void write__97(with_str _1) {
+void write__101(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -985,7 +983,7 @@ bb1:
     return;
 }
 
-void ewrite__98(with_str _1) {
+void ewrite__102(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -997,7 +995,7 @@ bb1:
     return;
 }
 
-void print_i32__99(int32_t _1) {
+void print_i32__103(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1009,7 +1007,7 @@ bb1:
     return;
 }
 
-void print_i64__100(int64_t _1) {
+void print_i64__104(int64_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1021,7 +1019,7 @@ bb1:
     return;
 }
 
-void print_bool__101(bool _1) {
+void print_bool__105(bool _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1033,7 +1031,7 @@ bb1:
     return;
 }
 
-void assert__102(bool _1, with_str _2, with_str _3) {
+void assert__106(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1060,7 +1058,7 @@ bb4:
     goto bb3;
 }
 
-void require__107(bool _1, with_str _2, with_str _3) {
+void require__111(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1087,7 +1085,7 @@ bb4:
     goto bb3;
 }
 
-void check__108(bool _1, with_str _2, with_str _3) {
+void check__112(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1114,7 +1112,7 @@ bb4:
     goto bb3;
 }
 
-with_str i32_to_string__113(const int32_t* _1) {
+with_str i32_to_string__115(const int32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
@@ -1131,7 +1129,7 @@ bb2: ;
 bb3: ;
 }
 
-with_str i64_to_string__114(const int64_t* _1) {
+with_str i64_to_string__116(const int64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1145,7 +1143,7 @@ bb1:
 bb2: ;
 }
 
-with_str u32_to_string__115(const uint32_t* _1) {
+with_str u32_to_string__117(const uint32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1159,7 +1157,7 @@ bb1:
 bb2: ;
 }
 
-with_str u64_to_string__116(const uint64_t* _1) {
+with_str u64_to_string__118(const uint64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1173,7 +1171,7 @@ bb1:
 bb2: ;
 }
 
-with_str bool_to_string__117(const bool* _1) {
+with_str bool_to_string__119(const bool* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1187,7 +1185,7 @@ bb1:
 bb2: ;
 }
 
-with_str int_to_string__118(int64_t _1) {
+with_str int_to_string__120(int64_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1200,7 +1198,7 @@ bb1:
     return _0;
 }
 
-RegexFlags regex_make_flags__207(int32_t _1, int32_t _2) {
+RegexFlags regex_make_flags__209(int32_t _1, int32_t _2) {
     RegexFlags _0 __attribute__((unused)) = {0};
     RegexFlags _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -1212,7 +1210,7 @@ bb0:
     return _0;
 }
 
-with_str regex_error_message__208(int32_t _1) {
+with_str regex_error_message__210(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1225,7 +1223,7 @@ bb1:
     return _0;
 }
 
-Result_RegexFlags__RegexError_ regex_compile_flags__209(with_str _1) {
+Result_RegexFlags__RegexError_ regex_compile_flags__211(with_str _1) {
     Result_RegexFlags__RegexError_ _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -1273,7 +1271,7 @@ bb2:
     _8 = with_str_byte_at(_1, (int64_t)(_4));
     goto bb5;
 bb3:
-    _28 = regex_make_flags__207(_2, _3);
+    _28 = regex_make_flags__209(_2, _3);
     goto bb28;
 bb4:
     _6 = (_4 < _5);
@@ -1428,7 +1426,7 @@ bb56: ;
 bb57: ;
 }
 
-Regex Regex_clone__216(const Regex* _1) {
+Regex Regex_clone__218(const Regex* _1) {
     Regex _0 __attribute__((unused)) = {0};
     int8_t* _2 __attribute__((unused)) = {0};
     int8_t* _3 __attribute__((unused)) = {0};
@@ -1468,7 +1466,7 @@ bb7: ;
 bb8: ;
 }
 
-void Regex_drop__221(Regex* _1) {
+void Regex_drop__223(Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1516,7 +1514,7 @@ bb11: ;
 bb12: ;
 }
 
-bool Regex_is_global__223(const Regex* _1) {
+bool Regex_is_global__225(const Regex* _1) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1529,20 +1527,20 @@ bb0:
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile__225(with_str _1) {
+Result_Regex__RegexError_ Regex_compile__227(with_str _1) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_Regex__RegexError_ _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _2 = Regex_compile_flags__227(_1, WITH_STR_LIT(""));
+    _2 = Regex_compile_flags__229(_1, WITH_STR_LIT(""));
     goto bb1;
 bb1:
     _0 = _2;
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile_flags__227(with_str _1, with_str _2) {
+Result_Regex__RegexError_ Regex_compile_flags__229(with_str _1, with_str _2) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _3 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _4 __attribute__((unused)) = {0};
@@ -1570,7 +1568,7 @@ Result_Regex__RegexError_ Regex_compile_flags__227(with_str _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = regex_compile_flags__209(_2);
+    _3 = regex_compile_flags__211(_2);
     goto bb1;
 bb1:
     _4 = _3;
@@ -1616,7 +1614,7 @@ bb5:
         goto bb7;
     }
 bb6:
-    _16 = regex_error_message__208(_8);
+    _16 = regex_error_message__210(_8);
     goto bb9;
 bb7:
     goto bb8;
@@ -1669,7 +1667,7 @@ bb37: ;
 bb38: ;
 }
 
-int8_t* Regex___literal_code__232(int8_t** _1, with_str _2, int32_t _3) {
+int8_t* Regex___literal_code__234(int8_t** _1, with_str _2, int32_t _3) {
     int8_t* _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -1746,7 +1744,7 @@ bb9:
         goto bb11;
     }
 bb10:
-    _17 = regex_error_message__208(_9);
+    _17 = regex_error_message__210(_9);
     goto bb13;
 bb11:
     goto bb12;
@@ -1778,7 +1776,7 @@ bb27: ;
 bb28: ;
 }
 
-with_str Regex_pattern__236(const Regex* _1) {
+with_str Regex_pattern__238(const Regex* _1) {
     with_str _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -1787,7 +1785,7 @@ bb0:
     return _0;
 }
 
-int32_t Regex_num_captures__238(const Regex* _1) {
+int32_t Regex_num_captures__240(const Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -1796,7 +1794,7 @@ bb0:
     return _0;
 }
 
-Option_i32_ Regex_capture_index__240(const Regex* _1, with_str _2) {
+Option_i32_ Regex_capture_index__242(const Regex* _1, with_str _2) {
     Option_i32_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -1856,7 +1854,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_capture_names__245(const Regex* _1) {
+with_vec Regex_capture_names__247(const Regex* _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -1940,14 +1938,14 @@ bb24: ;
 bb25: ;
 }
 
-Option_Captures_ Regex_captures__248(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures__250(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures_at__250(_1, _2, 0);
+    _3 = Regex_captures_at__252(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -1955,7 +1953,7 @@ bb1:
 bb2: ;
 }
 
-Option_Captures_ Regex_captures_at__250(const Regex* _1, with_str _2, int32_t _3) {
+Option_Captures_ Regex_captures_at__252(const Regex* _1, with_str _2, int32_t _3) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2117,26 +2115,28 @@ bb48: ;
 bb49: ;
 }
 
-bool Regex_is_match__254(const Regex* _1, with_str _2) {
+bool Regex_is_match__256(const Regex* _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
-    bool _4 __attribute__((unused)) = {0};
+    Option_Captures_ _4 __attribute__((unused)) = {0};
+    int32_t _5 __attribute__((unused)) = {0};
+    bool _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures__248(_1, _2);
+    _3 = Regex_captures__250(_1, _2);
     goto bb1;
 bb1:
-    _4 = ((_3).tag == 0);
-    goto bb2;
-bb2:
-    _0 = _4;
+    _4 = _3;
+    _5 = (_4).tag;
+    _6 = (_5 == 0);
+    _0 = _6;
     return _0;
-bb3: ;
+bb2: ;
 }
 
-Option_Captures_ Regex_captures_match_op__257(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures_match_op__259(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2188,7 +2188,7 @@ Option_Captures_ Regex_captures_match_op__257(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _6 = Regex_is_global__223(_1);
+    _6 = Regex_is_global__225(_1);
     goto bb1;
 bb1:
     _7 = (!(_6));
@@ -2238,7 +2238,7 @@ bb7:
         goto bb9;
     }
 bb8:
-    _14 = Regex_captures__248(_1, _2);
+    _14 = Regex_captures__250(_1, _2);
     goto bb11;
 bb9:
     goto bb10;
@@ -2288,7 +2288,7 @@ bb17:
 bb18:
     /* StorageLive(_25); */
     _25 = (*(*_1).global_pos);
-    _26 = Regex_captures_at__250(_1, _2, _25);
+    _26 = Regex_captures_at__252(_1, _2, _25);
     goto bb19;
 bb19:
     _27 = _26;
@@ -2306,7 +2306,7 @@ bb20:
 bb21:
     /* StorageLive(_30); */
     _30 = _27.payload0;
-    _31 = Captures_get__295(&(_30), 0);
+    _31 = Captures_get__297(&(_30), 0);
     goto bb23;
 bb22:
     _47 = (_27).tag;
@@ -2462,14 +2462,14 @@ bb106: ;
 bb107: ;
 }
 
-Option_Match_ Regex_find__263(const Regex* _1, with_str _2) {
+Option_Match_ Regex_find__265(const Regex* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_find_at__265(_1, _2, 0);
+    _3 = Regex_find_at__267(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -2477,7 +2477,7 @@ bb1:
 bb2: ;
 }
 
-Option_Match_ Regex_find_at__265(const Regex* _1, with_str _2, int32_t _3) {
+Option_Match_ Regex_find_at__267(const Regex* _1, with_str _2, int32_t _3) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -2492,7 +2492,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures_at__250(_1, _2, _3);
+    _4 = Regex_captures_at__252(_1, _2, _3);
     goto bb1;
 bb1:
     _5 = _4;
@@ -2510,7 +2510,7 @@ bb2:
 bb3:
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__295(&(_8), 0);
+    _9 = Captures_get__297(&(_8), 0);
     goto bb5;
 bb4:
     _10 = (_5).tag;
@@ -2535,7 +2535,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_find_all__267(const Regex* _1, with_str _2) {
+with_vec Regex_find_all__269(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -2572,7 +2572,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_find_at__265(_1, _2, _5);
+    _9 = Regex_find_at__267(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_3); */
@@ -2667,7 +2667,7 @@ bb30: ;
 bb31: ;
 }
 
-with_vec Regex_captures_all__270(const Regex* _1, with_str _2) {
+with_vec Regex_captures_all__272(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -2710,7 +2710,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_captures_at__250(_1, _2, _5);
+    _9 = Regex_captures_at__252(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_13); */
@@ -2740,7 +2740,7 @@ bb7:
 bb8:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__295(&(_13), 0);
+    _14 = Captures_get__297(&(_13), 0);
     goto bb10;
 bb9:
     _27 = (_10).tag;
@@ -2842,7 +2842,7 @@ bb39: ;
 bb40: ;
 }
 
-with_str regex_expand_numbered_capture__271(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
+with_str regex_expand_numbered_capture__273(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
     with_str _0 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     int64_t _6 __attribute__((unused)) = {0};
@@ -2882,7 +2882,7 @@ bb2:
     _9 = with_str_byte_at(_2, (int64_t)(_6));
     goto bb4;
 bb3:
-    _13 = Captures_get__295(_1, _5);
+    _13 = Captures_get__297(_1, _5);
     goto bb5;
 bb4:
     _10 = (_9 - 48);
@@ -2931,7 +2931,7 @@ bb18: ;
 bb19: ;
 }
 
-bool regex_is_name_start__272(int32_t _1) {
+bool regex_is_name_start__274(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -2998,7 +2998,7 @@ bb8:
     return _0;
 }
 
-bool regex_is_name_continue__274(int32_t _1) {
+bool regex_is_name_continue__276(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3008,7 +3008,7 @@ bool regex_is_name_continue__274(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _3 = regex_is_name_start__272(_1);
+    _3 = regex_is_name_start__274(_1);
     goto bb1;
 bb1:
     _2 = _3;
@@ -3039,7 +3039,7 @@ bb5:
     goto bb3;
 }
 
-with_str regex_expand_replacement__275(const Captures* _1, with_str _2) {
+with_str regex_expand_replacement__277(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -3262,7 +3262,7 @@ bb27:
     _29 = _38;
     goto bb26;
 bb28:
-    _39 = regex_expand_numbered_capture__271(_1, _2, _27, _29);
+    _39 = regex_expand_numbered_capture__273(_1, _2, _27, _29);
     goto bb36;
 bb29:
     _33 = (_29 < _32);
@@ -3317,7 +3317,7 @@ bb38:
 bb39:
     goto bb40;
 bb40:
-    _63 = regex_is_name_start__272(_18);
+    _63 = regex_is_name_start__274(_18);
     goto bb59;
 bb41:
     _45 = ((_2).len);
@@ -3371,7 +3371,7 @@ bb51:
     goto bb40;
 bb52:
     _52 = _54;
-    _55 = Captures_name__300(_1, _52);
+    _55 = Captures_name__302(_1, _52);
     goto bb53;
 bb53:
     _56 = _55;
@@ -3459,14 +3459,14 @@ bb68:
         goto bb65;
     }
 bb69:
-    _71 = regex_is_name_continue__274(_70);
+    _71 = regex_is_name_continue__276(_70);
     goto bb70;
 bb70:
     _67 = _71;
     goto bb68;
 bb71:
     _73 = _74;
-    _75 = Captures_name__300(_1, _73);
+    _75 = Captures_name__302(_1, _73);
     goto bb72;
 bb72:
     _76 = _75;
@@ -3590,7 +3590,7 @@ bb164: ;
 bb165: ;
 }
 
-with_str Regex_replace_impl__282(const Regex* _1, with_str _2, with_str _3, bool _4) {
+with_str Regex_replace_impl__284(const Regex* _1, with_str _2, with_str _3, bool _4) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _5 __attribute__((unused)) = {0};
     int32_t _6 __attribute__((unused)) = {0};
@@ -3659,7 +3659,7 @@ bb1:
     _7 = ((_2).len);
     goto bb4;
 bb2:
-    _10 = Regex_captures_at__250(_1, _2, _6);
+    _10 = Regex_captures_at__252(_1, _2, _6);
     goto bb5;
 bb3:
     /* drop(_14); */
@@ -3688,7 +3688,7 @@ bb6:
 bb7:
     /* StorageLive(_14); */
     _14 = _11.payload0;
-    _15 = Captures_get__295(&(_14), 0);
+    _15 = Captures_get__297(&(_14), 0);
     goto bb9;
 bb8:
     _52 = (_11).tag;
@@ -3728,7 +3728,7 @@ bb12:
 bb13:
     _23 = with_str_concat(_5, _22);
     _24 = (const Captures*)(&_14);
-    _25 = regex_expand_replacement__275(_24, _3);
+    _25 = regex_expand_replacement__277(_24, _3);
     goto bb14;
 bb14:
     _26 = with_str_concat(_23, _25);
@@ -3918,7 +3918,7 @@ bb114: ;
 bb115: ;
 }
 
-with_str Regex_replace__284(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace__286(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -3928,7 +3928,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_is_global__223(_1);
+    _4 = Regex_is_global__225(_1);
     goto bb1;
 bb1:
     if (_4 == 1) {
@@ -3954,7 +3954,7 @@ bb7: ;
 bb8: ;
 }
 
-with_str Regex_replace_all__285(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace_all__287(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
@@ -3973,7 +3973,7 @@ bb4: ;
 bb5: ;
 }
 
-with_str Regex_replace_fn__287(const Regex* _1, with_str _2, with_fn_177 _3) {
+with_str Regex_replace_fn__289(const Regex* _1, with_str _2, with_fn_180 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4017,7 +4017,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__250(_1, _2, _5);
+    _9 = Regex_captures_at__252(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4046,7 +4046,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__295(&(_13), 0);
+    _14 = Captures_get__297(&(_13), 0);
     goto bb9;
 bb8:
     _31 = (_10).tag;
@@ -4149,7 +4149,7 @@ bb49: ;
 bb50: ;
 }
 
-with_str Regex_replace_all_fn__290(const Regex* _1, with_str _2, with_fn_177 _3) {
+with_str Regex_replace_all_fn__292(const Regex* _1, with_str _2, with_fn_180 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4212,7 +4212,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__250(_1, _2, _5);
+    _9 = Regex_captures_at__252(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4241,7 +4241,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__295(&(_13), 0);
+    _14 = Captures_get__297(&(_13), 0);
     goto bb9;
 bb8:
     _46 = (_10).tag;
@@ -4444,14 +4444,14 @@ bb103: ;
 bb104: ;
 }
 
-with_vec Regex_split__292(const Regex* _1, with_str _2) {
+with_vec Regex_split__294(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_splitn__294(_1, _2, 0);
+    _3 = Regex_splitn__296(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -4459,7 +4459,7 @@ bb1:
 bb2: ;
 }
 
-with_vec Regex_splitn__294(const Regex* _1, with_str _2, int32_t _3) {
+with_vec Regex_splitn__296(const Regex* _1, with_str _2, int32_t _3) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
     with_vec _5 __attribute__((unused)) = {0};
@@ -4562,7 +4562,7 @@ bb9:
 bb10:
     goto bb11;
 bb11:
-    _20 = Regex_find_at__265(_1, _2, _6);
+    _20 = Regex_find_at__267(_1, _2, _6);
     goto bb16;
 bb12:
     _18 = with_str_slice(_2, _16, _17);
@@ -4717,7 +4717,7 @@ bb84: ;
 bb85: ;
 }
 
-Option_Match_ Captures_get__295(const Captures* _1, int32_t _2) {
+Option_Match_ Captures_get__297(const Captures* _1, int32_t _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
@@ -4871,7 +4871,7 @@ bb48: ;
 bb49: ;
 }
 
-int32_t Captures_len__297(const Captures* _1) {
+int32_t Captures_len__299(const Captures* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -4890,7 +4890,7 @@ bb2: ;
 bb3: ;
 }
 
-Option_Match_ Captures_by_name__299(const Captures* _1, with_str _2) {
+Option_Match_ Captures_by_name__301(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -4940,7 +4940,7 @@ bb6:
 bb7:
     goto bb8;
 bb8:
-    _10 = Captures_get__295(_1, _6);
+    _10 = Captures_get__297(_1, _6);
     goto bb10;
 bb9:
     goto bb8;
@@ -4958,14 +4958,14 @@ bb18: ;
 bb19: ;
 }
 
-Option_Match_ Captures_name__300(const Captures* _1, with_str _2) {
+Option_Match_ Captures_name__302(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_by_name__299(_1, _2);
+    _3 = Captures_by_name__301(_1, _2);
     goto bb1;
 bb1:
     _0 = _3;
@@ -4973,7 +4973,7 @@ bb1:
 bb2: ;
 }
 
-with_str Captures_text__301(const Captures* _1, int32_t _2) {
+with_str Captures_text__303(const Captures* _1, int32_t _2) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     Option_Match_ _4 __attribute__((unused)) = {0};
@@ -4985,7 +4985,7 @@ with_str Captures_text__301(const Captures* _1, int32_t _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_get__295(_1, _2);
+    _3 = Captures_get__297(_1, _2);
     goto bb1;
 bb1:
     _4 = _3;
@@ -5017,7 +5017,7 @@ bb5:
     goto bb2;
 }
 
-with_str Captures_name_text__303(const Captures* _1, with_str _2) {
+with_str Captures_name_text__305(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5072,7 +5072,7 @@ bb6:
     goto bb7;
 bb7:
     _3 = _9;
-    _12 = Captures_name__300(_1, _3);
+    _12 = Captures_name__302(_1, _3);
     goto bb10;
 bb8:
     _11 = with_str_slice(_2, 1, _10);
@@ -5114,7 +5114,7 @@ bb17: ;
 bb18: ;
 }
 
-with_str Regex_capture_text__306(const Regex* _1, with_str _2, int32_t _3) {
+with_str Regex_capture_text__308(const Regex* _1, with_str _2, int32_t _3) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -5133,7 +5133,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures__248(_1, _2);
+    _4 = Regex_captures__250(_1, _2);
     goto bb1;
 bb1:
     _5 = _4;
@@ -5151,7 +5151,7 @@ bb2:
 bb3:
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__295(&(_8), _3);
+    _9 = Captures_get__297(&(_8), _3);
     goto bb5;
 bb4:
     _15 = (_5).tag;
@@ -5196,7 +5196,7 @@ bb11: ;
 bb12: ;
 }
 
-with_str Regex_capture_name_text__308(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_capture_name_text__310(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -5258,7 +5258,7 @@ bb6:
     goto bb7;
 bb7:
     _4 = _10;
-    _13 = Regex_captures__248(_1, _2);
+    _13 = Regex_captures__250(_1, _2);
     goto bb10;
 bb8:
     _12 = with_str_slice(_3, 1, _11);
@@ -5282,7 +5282,7 @@ bb11:
 bb12:
     /* StorageLive(_17); */
     _17 = _14.payload0;
-    _18 = Captures_name__300(&(_17), _4);
+    _18 = Captures_name__302(&(_17), _4);
     goto bb14;
 bb13:
     _24 = (_14).tag;
@@ -5335,7 +5335,7 @@ bb28: ;
 }
 
 
-bool i32_eq__329(int32_t _1, int32_t _2) {
+bool i32_eq__331(int32_t _1, int32_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5347,7 +5347,7 @@ bb0:
     return _0;
 }
 
-bool bool_eq__330(bool _1, bool _2) {
+bool bool_eq__332(bool _1, bool _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5359,7 +5359,7 @@ bb0:
     return _0;
 }
 
-int32_t i32_default__331() {
+int32_t i32_default__333() {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -5367,7 +5367,7 @@ bb0:
     return _0;
 }
 
-bool bool_default__332() {
+bool bool_default__334() {
     bool _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -5375,7 +5375,7 @@ bb0:
     return _0;
 }
 
-bool str_eq__333(with_str _1, with_str _2) {
+bool str_eq__335(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5387,7 +5387,7 @@ bb0:
     return _0;
 }
 
-bool i64_eq__334(int64_t _1, int64_t _2) {
+bool i64_eq__336(int64_t _1, int64_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5399,7 +5399,7 @@ bb0:
     return _0;
 }
 
-with_str i32_debug_str__335(int32_t _1) {
+with_str i32_debug_str__337(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -5412,7 +5412,7 @@ bb1:
     return _0;
 }
 
-with_str bool_debug_str__336(bool _1) {
+with_str bool_debug_str__338(bool _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -5435,7 +5435,7 @@ bb3:
     return _0;
 }
 
-with_str str_debug_str__339(with_str _1) {
+with_str str_debug_str__341(with_str _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
@@ -5448,7 +5448,7 @@ bb0:
     return _0;
 }
 
-int64_t i32_hash_value__341(int32_t _1) {
+int64_t i32_hash_value__343(int32_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -5463,7 +5463,7 @@ bb0:
     return _0;
 }
 
-int64_t i64_hash_value__342(int64_t _1) {
+int64_t i64_hash_value__344(int64_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -5476,7 +5476,7 @@ bb0:
     return _0;
 }
 
-int64_t bool_hash_value__343(bool _1) {
+int64_t bool_hash_value__345(bool _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -5499,7 +5499,7 @@ bb3:
     return _0;
 }
 
-int64_t str_hash_value__344(with_str _1) {
+int64_t str_hash_value__346(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};

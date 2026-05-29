@@ -18,25 +18,7 @@
 #include <windows.h>
 #include <sys/stat.h>
 #endif
-#ifdef _WIN32
-#undef stdout
-#undef stderr
-#endif
-
-// Minimal type definitions (match with_runtime.h, no conflicting fn decls)
-typedef struct { const char *ptr; int64_t len; } with_str;
-typedef struct { void *ptr; int64_t len; int64_t cap; int64_t elem_size; } with_vec;
-typedef struct { bool has_value; int32_t value; } with_option_i32;
-typedef struct { bool has_value; int64_t value; } with_option_i64;
-typedef struct { bool has_value; with_str value; } with_option_str;
-#define WITH_STR_LIT(s) ((with_str){(s), (int64_t)(sizeof(s) - 1)})
-#define with_len(v) ((v).len)
-#define with_is_empty(v) (((v).len == 0) ? 1 : 0)
-
-// Regex declarations needed by runtime modules
-with_str with_regex_error_message(int32_t code);
-with_str with_regex_capture_name_at(const char *code, int32_t index);
-with_str with_regex_substitute(const char *code, with_str text, with_str repl, int32_t replace_all);
+#include "with_runtime.h"
 
 /* Extra runtime declarations */
 #define fmt_buf_new with_fmt_buf_new
@@ -79,6 +61,7 @@ extern void with_fiber_await(int32_t);
 #endif
 extern void with_fiber_panic_capture(uint8_t*, int32_t);
 
+typedef struct CStr CStr;
 typedef struct RegexFlags RegexFlags;
 typedef struct RegexError RegexError;
 typedef struct Regex Regex;
@@ -91,7 +74,12 @@ typedef struct Result_RegexFlags__RegexError_ Result_RegexFlags__RegexError_;
 typedef struct Option_Captures_ Option_Captures_;
 typedef struct Option_Match_ Option_Match_;
 
-typedef with_str (*with_fn_179)(const Captures*);
+typedef with_str (*with_fn_182)(const Captures*);
+
+struct CStr {
+    int8_t* ptr;
+    int64_t len;
+};
 
 struct RegexFlags {
     int32_t options;
@@ -178,95 +166,96 @@ extern with_str str_from_byte(int32_t _1);
 extern void _exit(int32_t _1);
 extern void abort(void);
 
-int32_t fence__188(int32_t _1);
+int32_t fence__190(int32_t _1);
 int64_t string_len__97(with_str _1);
 int64_t view_len__98(const with_str* _1);
 bool view_is_empty__100(const with_str* _1);
 bool view_eq__102(const with_str* _1, const with_str* _2);
-bool string_eq__103(with_str _1, with_str _2);
-int32_t string_cmp__104(with_str _1, with_str _2);
-bool is_alpha__111(int32_t _1);
-bool is_digit__113(int32_t _1);
-bool is_space__114(int32_t _1);
-bool is_alnum__115(int32_t _1);
-bool is_upper__116(int32_t _1);
-bool is_lower__117(int32_t _1);
-bool is_xdigit__118(int32_t _1);
-bool is_print__119(int32_t _1);
-int32_t to_lower__120(int32_t _1);
-int32_t to_upper__121(int32_t _1);
-int64_t string_to_int__122(with_str _1);
-with_vec lines__123(with_str _1);
-int32_t parse__127(with_str _1);
-void print__146(with_str _1);
-void eprint__147(with_str _1);
-void write__148(with_str _1);
-void ewrite__149(with_str _1);
-void print_i32__150(int32_t _1);
-void print_i64__151(int64_t _1);
-void print_bool__152(bool _1);
-void assert__153(bool _1, with_str _2, with_str _3);
-void require__158(bool _1, with_str _2, with_str _3);
-void check__159(bool _1, with_str _2, with_str _3);
-with_str i32_to_string__164(const int32_t* _1);
-with_str i64_to_string__165(const int64_t* _1);
-with_str u32_to_string__166(const uint32_t* _1);
-with_str u64_to_string__167(const uint64_t* _1);
-with_str bool_to_string__168(const bool* _1);
-with_str int_to_string__169(int64_t _1);
-RegexFlags regex_make_flags__258(int32_t _1, int32_t _2);
-with_str regex_error_message__259(int32_t _1);
-Result_RegexFlags__RegexError_ regex_compile_flags__260(with_str _1);
-Regex Regex_clone__267(const Regex* _1);
-void Regex_drop__272(Regex* _1);
-bool Regex_is_global__274(const Regex* _1);
-Result_Regex__RegexError_ Regex_compile__276(with_str _1);
-Result_Regex__RegexError_ Regex_compile_flags__278(with_str _1, with_str _2);
-int8_t* Regex___literal_code__283(int8_t** _1, with_str _2, int32_t _3);
-with_str Regex_pattern__287(const Regex* _1);
-int32_t Regex_num_captures__289(const Regex* _1);
-Option_i32_ Regex_capture_index__291(const Regex* _1, with_str _2);
-with_vec Regex_capture_names__296(const Regex* _1);
-Option_Captures_ Regex_captures__298(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_at__300(const Regex* _1, with_str _2, int32_t _3);
-bool Regex_is_match__303(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_match_op__306(const Regex* _1, with_str _2);
-Option_Match_ Regex_find__312(const Regex* _1, with_str _2);
-Option_Match_ Regex_find_at__314(const Regex* _1, with_str _2, int32_t _3);
-with_vec Regex_find_all__316(const Regex* _1, with_str _2);
-with_vec Regex_captures_all__319(const Regex* _1, with_str _2);
-with_str regex_expand_numbered_capture__320(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
-bool regex_is_name_start__321(int32_t _1);
-bool regex_is_name_continue__323(int32_t _1);
-with_str regex_expand_replacement__324(const Captures* _1, with_str _2);
-with_str Regex_replace_impl__331(const Regex* _1, with_str _2, with_str _3, bool _4);
-with_str Regex_replace__333(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_all__334(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_fn__336(const Regex* _1, with_str _2, with_fn_179 _3);
-with_str Regex_replace_all_fn__339(const Regex* _1, with_str _2, with_fn_179 _3);
-with_vec Regex_split__341(const Regex* _1, with_str _2);
-with_vec Regex_splitn__343(const Regex* _1, with_str _2, int32_t _3);
-Option_Match_ Captures_get__344(const Captures* _1, int32_t _2);
-int32_t Captures_len__346(const Captures* _1);
-Option_Match_ Captures_by_name__348(const Captures* _1, with_str _2);
-Option_Match_ Captures_name__349(const Captures* _1, with_str _2);
-with_str Captures_text__350(const Captures* _1, int32_t _2);
-with_str Captures_name_text__352(const Captures* _1, with_str _2);
-with_str Regex_capture_text__355(const Regex* _1, with_str _2, int32_t _3);
-with_str Regex_capture_name_text__357(const Regex* _1, with_str _2, with_str _3);
-bool i32_eq__378(int32_t _1, int32_t _2);
-bool bool_eq__379(bool _1, bool _2);
-int32_t i32_default__380();
-bool bool_default__381();
-bool str_eq__382(with_str _1, with_str _2);
-bool i64_eq__383(int64_t _1, int64_t _2);
-with_str i32_debug_str__384(int32_t _1);
-with_str bool_debug_str__385(bool _1);
-with_str str_debug_str__388(with_str _1);
-int64_t i32_hash_value__390(int32_t _1);
-int64_t i64_hash_value__391(int64_t _1);
-int64_t bool_hash_value__392(bool _1);
-int64_t str_hash_value__393(with_str _1);
+int64_t CStr_len__104(const CStr* _1);
+bool string_eq__107(with_str _1, with_str _2);
+int32_t string_cmp__108(with_str _1, with_str _2);
+bool is_alpha__115(int32_t _1);
+bool is_digit__117(int32_t _1);
+bool is_space__118(int32_t _1);
+bool is_alnum__119(int32_t _1);
+bool is_upper__120(int32_t _1);
+bool is_lower__121(int32_t _1);
+bool is_xdigit__122(int32_t _1);
+bool is_print__123(int32_t _1);
+int32_t to_lower__124(int32_t _1);
+int32_t to_upper__125(int32_t _1);
+int64_t string_to_int__126(with_str _1);
+with_vec lines__127(with_str _1);
+int32_t parse__131(with_str _1);
+void print__150(with_str _1);
+void eprint__151(with_str _1);
+void write__152(with_str _1);
+void ewrite__153(with_str _1);
+void print_i32__154(int32_t _1);
+void print_i64__155(int64_t _1);
+void print_bool__156(bool _1);
+void assert__157(bool _1, with_str _2, with_str _3);
+void require__162(bool _1, with_str _2, with_str _3);
+void check__163(bool _1, with_str _2, with_str _3);
+with_str i32_to_string__166(const int32_t* _1);
+with_str i64_to_string__167(const int64_t* _1);
+with_str u32_to_string__168(const uint32_t* _1);
+with_str u64_to_string__169(const uint64_t* _1);
+with_str bool_to_string__170(const bool* _1);
+with_str int_to_string__171(int64_t _1);
+RegexFlags regex_make_flags__260(int32_t _1, int32_t _2);
+with_str regex_error_message__261(int32_t _1);
+Result_RegexFlags__RegexError_ regex_compile_flags__262(with_str _1);
+Regex Regex_clone__269(const Regex* _1);
+void Regex_drop__274(Regex* _1);
+bool Regex_is_global__276(const Regex* _1);
+Result_Regex__RegexError_ Regex_compile__278(with_str _1);
+Result_Regex__RegexError_ Regex_compile_flags__280(with_str _1, with_str _2);
+int8_t* Regex___literal_code__285(int8_t** _1, with_str _2, int32_t _3);
+with_str Regex_pattern__289(const Regex* _1);
+int32_t Regex_num_captures__291(const Regex* _1);
+Option_i32_ Regex_capture_index__293(const Regex* _1, with_str _2);
+with_vec Regex_capture_names__298(const Regex* _1);
+Option_Captures_ Regex_captures__300(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_at__302(const Regex* _1, with_str _2, int32_t _3);
+bool Regex_is_match__305(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_match_op__308(const Regex* _1, with_str _2);
+Option_Match_ Regex_find__314(const Regex* _1, with_str _2);
+Option_Match_ Regex_find_at__316(const Regex* _1, with_str _2, int32_t _3);
+with_vec Regex_find_all__318(const Regex* _1, with_str _2);
+with_vec Regex_captures_all__321(const Regex* _1, with_str _2);
+with_str regex_expand_numbered_capture__322(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
+bool regex_is_name_start__323(int32_t _1);
+bool regex_is_name_continue__325(int32_t _1);
+with_str regex_expand_replacement__326(const Captures* _1, with_str _2);
+with_str Regex_replace_impl__333(const Regex* _1, with_str _2, with_str _3, bool _4);
+with_str Regex_replace__335(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_all__336(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_fn__338(const Regex* _1, with_str _2, with_fn_182 _3);
+with_str Regex_replace_all_fn__341(const Regex* _1, with_str _2, with_fn_182 _3);
+with_vec Regex_split__343(const Regex* _1, with_str _2);
+with_vec Regex_splitn__345(const Regex* _1, with_str _2, int32_t _3);
+Option_Match_ Captures_get__346(const Captures* _1, int32_t _2);
+int32_t Captures_len__348(const Captures* _1);
+Option_Match_ Captures_by_name__350(const Captures* _1, with_str _2);
+Option_Match_ Captures_name__351(const Captures* _1, with_str _2);
+with_str Captures_text__352(const Captures* _1, int32_t _2);
+with_str Captures_name_text__354(const Captures* _1, with_str _2);
+with_str Regex_capture_text__357(const Regex* _1, with_str _2, int32_t _3);
+with_str Regex_capture_name_text__359(const Regex* _1, with_str _2, with_str _3);
+bool i32_eq__380(int32_t _1, int32_t _2);
+bool bool_eq__381(bool _1, bool _2);
+int32_t i32_default__382();
+bool bool_default__383();
+bool str_eq__384(with_str _1, with_str _2);
+bool i64_eq__385(int64_t _1, int64_t _2);
+with_str i32_debug_str__386(int32_t _1);
+with_str bool_debug_str__387(bool _1);
+with_str str_debug_str__390(with_str _1);
+int64_t i32_hash_value__392(int32_t _1);
+int64_t i64_hash_value__393(int64_t _1);
+int64_t bool_hash_value__394(bool _1);
+int64_t str_hash_value__395(with_str _1);
 with_str make_str__37(uint8_t* _1, int64_t _2);
 int32_t fiber_report_unhandled_panics__42();
 void with_runtime_init();
@@ -284,13 +273,13 @@ int32_t with_fiber_was_cancelled_return(int32_t _1);
 void with_fiber_request_cancel_self();
 
 
-int32_t fence__188(int32_t _1) {
+int32_t fence__190(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 28 "rt/fiber_runtime.w"
+#line 27 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 33 "rt/fiber_runtime.w"
+#line 32 "rt/fiber_runtime.w"
     _0 = 0;
     /* drop(_1); */
     return _0;
@@ -350,26 +339,38 @@ bb0:
     return _0;
 }
 
-bool string_eq__103(with_str _1, with_str _2) {
+int64_t CStr_len__104(const CStr* _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 40 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
+#line 41 "rt/fiber_runtime.w"
+    _0 = (*_1).len;
+    return _0;
+}
+
+bool string_eq__107(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 40 "rt/fiber_runtime.w"
+#line 42 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     _3 = with_str_eq(_1, _2);
     goto bb1;
 bb1:
-#line 41 "rt/fiber_runtime.w"
+#line 43 "rt/fiber_runtime.w"
     _4 = (_3 != 0);
+#line 44 "rt/fiber_runtime.w"
     _0 = _4;
     return _0;
 bb2: ;
 }
 
-int32_t string_cmp__104(with_str _1, with_str _2) {
+int32_t string_cmp__108(with_str _1, with_str _2) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -391,23 +392,23 @@ int32_t string_cmp__104(with_str _1, with_str _2) {
     bool _20 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 43 "rt/fiber_runtime.w"
+#line 46 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 45 "rt/fiber_runtime.w"
+#line 49 "rt/fiber_runtime.w"
     /* StorageLive(_3); */
     _4 = ((_1).len);
     goto bb1;
 bb1:
     _3 = _4;
-#line 46 "rt/fiber_runtime.w"
+#line 50 "rt/fiber_runtime.w"
     /* StorageLive(_5); */
     _6 = ((_2).len);
     goto bb2;
 bb2:
     _5 = _6;
-#line 48 "rt/fiber_runtime.w"
     /* StorageLive(_7); */
+#line 51 "rt/fiber_runtime.w"
     _8 = (_3 < _5);
     if (_8 == 1) {
         goto bb3;
@@ -416,16 +417,15 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 49 "rt/fiber_runtime.w"
     _9 = _3;
     goto bb5;
 bb4:
-#line 48 "rt/fiber_runtime.w"
+#line 50 "rt/fiber_runtime.w"
     _9 = _5;
     goto bb5;
 bb5:
     _7 = _9;
-#line 49 "rt/fiber_runtime.w"
+#line 52 "rt/fiber_runtime.w"
     /* StorageLive(_10); */
     _10 = 0;
     goto bb6;
@@ -438,12 +438,11 @@ bb6:
         goto bb8;
     }
 bb7:
-#line 50 "rt/fiber_runtime.w"
     /* StorageLive(_12); */
     _13 = with_str_byte_at(_1, (int64_t)(_10));
     goto bb9;
 bb8:
-#line 53 "rt/fiber_runtime.w"
+#line 56 "rt/fiber_runtime.w"
     _19 = (_3 < _5);
     if (_19 == 1) {
         goto bb15;
@@ -452,14 +451,14 @@ bb8:
         goto bb16;
     }
 bb9:
-#line 50 "rt/fiber_runtime.w"
+#line 52 "rt/fiber_runtime.w"
     _12 = _13;
+#line 53 "rt/fiber_runtime.w"
     /* StorageLive(_14); */
     _15 = with_str_byte_at(_2, (int64_t)(_10));
     goto bb10;
 bb10:
     _14 = _15;
-#line 51 "rt/fiber_runtime.w"
     _16 = (_12 != _14);
     if (_16 == 1) {
         goto bb11;
@@ -468,25 +467,28 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 52 "rt/fiber_runtime.w"
+#line 55 "rt/fiber_runtime.w"
     _17 = (_12 - _14);
+#line 54 "rt/fiber_runtime.w"
     _0 = _17;
     return _0;
 bb12:
     goto bb13;
 bb13:
+#line 55 "rt/fiber_runtime.w"
     _18 = (_10 + 1);
     _10 = _18;
     goto bb6;
 bb14:
     goto bb13;
 bb15:
-#line 53 "rt/fiber_runtime.w"
+#line 56 "rt/fiber_runtime.w"
     _0 = -1;
     return _0;
 bb16:
     goto bb17;
 bb17:
+#line 58 "rt/fiber_runtime.w"
     _20 = (_3 > _5);
     if (_20 == 1) {
         goto bb19;
@@ -510,7 +512,7 @@ bb23: ;
 bb24: ;
 }
 
-bool is_alpha__111(int32_t _1) {
+bool is_alpha__115(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -521,9 +523,9 @@ bool is_alpha__111(int32_t _1) {
     bool _8 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 56 "rt/fiber_runtime.w"
+#line 62 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 58 "rt/fiber_runtime.w"
+#line 63 "rt/fiber_runtime.w"
     _4 = (_1 >= 65);
     _3 = _4;
     if (_3 == 1) {
@@ -545,7 +547,7 @@ bb2:
         goto bb3;
     }
 bb3:
-#line 59 "rt/fiber_runtime.w"
+#line 64 "rt/fiber_runtime.w"
     _7 = (_1 >= 97);
     _6 = _7;
     if (_6 == 1) {
@@ -555,30 +557,28 @@ bb3:
         goto bb6;
     }
 bb4:
-#line 60 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb5:
-#line 59 "rt/fiber_runtime.w"
     _8 = (_1 <= 122);
     _6 = _8;
     goto bb6;
 bb6:
-#line 58 "rt/fiber_runtime.w"
+#line 63 "rt/fiber_runtime.w"
     _2 = _6;
     goto bb4;
 }
 
-bool is_digit__113(int32_t _1) {
+bool is_digit__117(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 63 "rt/fiber_runtime.w"
+#line 67 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 64 "rt/fiber_runtime.w"
+#line 68 "rt/fiber_runtime.w"
     _3 = (_1 >= 48);
     _2 = _3;
     if (_2 == 1) {
@@ -592,12 +592,12 @@ bb1:
     _2 = _4;
     goto bb2;
 bb2:
-#line 66 "rt/fiber_runtime.w"
+#line 69 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-bool is_space__114(int32_t _1) {
+bool is_space__118(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -612,9 +612,9 @@ bool is_space__114(int32_t _1) {
     bool _12 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 68 "rt/fiber_runtime.w"
+#line 72 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 70 "rt/fiber_runtime.w"
+#line 74 "rt/fiber_runtime.w"
     _7 = (_1 == 32);
     _6 = _7;
     if (_6 == 1) {
@@ -648,9 +648,9 @@ bb4:
         goto bb5;
     }
 bb5:
-#line 71 "rt/fiber_runtime.w"
+#line 75 "rt/fiber_runtime.w"
     _10 = (_1 == 13);
-#line 70 "rt/fiber_runtime.w"
+#line 74 "rt/fiber_runtime.w"
     _4 = _10;
     goto bb6;
 bb6:
@@ -662,9 +662,9 @@ bb6:
         goto bb7;
     }
 bb7:
-#line 71 "rt/fiber_runtime.w"
+#line 75 "rt/fiber_runtime.w"
     _11 = (_1 == 12);
-#line 70 "rt/fiber_runtime.w"
+#line 74 "rt/fiber_runtime.w"
     _3 = _11;
     goto bb8;
 bb8:
@@ -676,49 +676,18 @@ bb8:
         goto bb9;
     }
 bb9:
-#line 71 "rt/fiber_runtime.w"
+#line 76 "rt/fiber_runtime.w"
     _12 = (_1 == 11);
-#line 70 "rt/fiber_runtime.w"
+#line 74 "rt/fiber_runtime.w"
     _2 = _12;
     goto bb10;
 bb10:
-#line 71 "rt/fiber_runtime.w"
-    _0 = _2;
-    return _0;
-}
-
-bool is_alnum__115(int32_t _1) {
-    bool _0 __attribute__((unused)) = {0};
-    bool _2 __attribute__((unused)) = {0};
-    bool _3 __attribute__((unused)) = {0};
-    bool _4 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 75 "rt/fiber_runtime.w"
-    /* StorageLive(_1); */
-    _3 = is_alpha__111(_1);
-    goto bb1;
-bb1:
 #line 76 "rt/fiber_runtime.w"
-    _2 = _3;
-    if (_2 == 1) {
-        goto bb3;
-    }
-    else {
-        goto bb2;
-    }
-bb2:
-    _4 = is_digit__113(_1);
-    goto bb4;
-bb3:
     _0 = _2;
     return _0;
-bb4:
-    _2 = _4;
-    goto bb3;
 }
 
-bool is_upper__116(int32_t _1) {
+bool is_alnum__119(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -727,7 +696,38 @@ bool is_upper__116(int32_t _1) {
 bb0:
 #line 79 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
+    _3 = is_alpha__115(_1);
+    goto bb1;
+bb1:
+    _2 = _3;
+    if (_2 == 1) {
+        goto bb3;
+    }
+    else {
+        goto bb2;
+    }
+bb2:
+    _4 = is_digit__117(_1);
+    goto bb4;
+bb3:
 #line 82 "rt/fiber_runtime.w"
+    _0 = _2;
+    return _0;
+bb4:
+#line 79 "rt/fiber_runtime.w"
+    _2 = _4;
+    goto bb3;
+}
+
+bool is_upper__120(int32_t _1) {
+    bool _0 __attribute__((unused)) = {0};
+    bool _2 __attribute__((unused)) = {0};
+    bool _3 __attribute__((unused)) = {0};
+    bool _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 83 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
     _3 = (_1 >= 65);
     _2 = _3;
     if (_2 == 1) {
@@ -737,24 +737,26 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 84 "rt/fiber_runtime.w"
     _4 = (_1 <= 90);
+#line 83 "rt/fiber_runtime.w"
     _2 = _4;
     goto bb2;
 bb2:
+#line 84 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-bool is_lower__117(int32_t _1) {
+bool is_lower__121(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 83 "rt/fiber_runtime.w"
+#line 87 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 84 "rt/fiber_runtime.w"
     _3 = (_1 >= 97);
     _2 = _3;
     if (_2 == 1) {
@@ -764,18 +766,16 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 85 "rt/fiber_runtime.w"
     _4 = (_1 <= 122);
-#line 84 "rt/fiber_runtime.w"
     _2 = _4;
     goto bb2;
 bb2:
-#line 86 "rt/fiber_runtime.w"
+#line 88 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-bool is_xdigit__118(int32_t _1) {
+bool is_xdigit__122(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -790,9 +790,9 @@ bool is_xdigit__118(int32_t _1) {
     bool _12 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 87 "rt/fiber_runtime.w"
+#line 89 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 88 "rt/fiber_runtime.w"
+#line 90 "rt/fiber_runtime.w"
     _5 = (_1 >= 48);
     _4 = _5;
     if (_4 == 1) {
@@ -802,7 +802,9 @@ bb0:
         goto bb2;
     }
 bb1:
+#line 91 "rt/fiber_runtime.w"
     _6 = (_1 <= 57);
+#line 90 "rt/fiber_runtime.w"
     _4 = _6;
     goto bb2;
 bb2:
@@ -814,6 +816,7 @@ bb2:
         goto bb3;
     }
 bb3:
+#line 91 "rt/fiber_runtime.w"
     _8 = (_1 >= 65);
     _7 = _8;
     if (_7 == 1) {
@@ -823,6 +826,7 @@ bb3:
         goto bb6;
     }
 bb4:
+#line 90 "rt/fiber_runtime.w"
     _2 = _3;
     if (_2 == 1) {
         goto bb8;
@@ -831,13 +835,17 @@ bb4:
         goto bb7;
     }
 bb5:
+#line 92 "rt/fiber_runtime.w"
     _9 = (_1 <= 70);
+#line 91 "rt/fiber_runtime.w"
     _7 = _9;
     goto bb6;
 bb6:
+#line 90 "rt/fiber_runtime.w"
     _3 = _7;
     goto bb4;
 bb7:
+#line 92 "rt/fiber_runtime.w"
     _11 = (_1 >= 97);
     _10 = _11;
     if (_10 == 1) {
@@ -847,29 +855,30 @@ bb7:
         goto bb10;
     }
 bb8:
-#line 89 "rt/fiber_runtime.w"
+#line 94 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb9:
     _12 = (_1 <= 102);
-#line 88 "rt/fiber_runtime.w"
+#line 92 "rt/fiber_runtime.w"
     _10 = _12;
     goto bb10;
 bb10:
+#line 90 "rt/fiber_runtime.w"
     _2 = _10;
     goto bb8;
 }
 
-bool is_print__119(int32_t _1) {
+bool is_print__123(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 92 "rt/fiber_runtime.w"
+#line 96 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 94 "rt/fiber_runtime.w"
+#line 97 "rt/fiber_runtime.w"
     _3 = (_1 >= 32);
     _2 = _3;
     if (_2 == 1) {
@@ -887,7 +896,7 @@ bb2:
     return _0;
 }
 
-int32_t to_lower__120(int32_t _1) {
+int32_t to_lower__124(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -896,9 +905,9 @@ int32_t to_lower__120(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 96 "rt/fiber_runtime.w"
+#line 100 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 97 "rt/fiber_runtime.w"
+#line 103 "rt/fiber_runtime.w"
     _3 = (_1 >= 65);
     _2 = _3;
     if (_2 == 1) {
@@ -908,9 +917,7 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 98 "rt/fiber_runtime.w"
     _4 = (_1 <= 90);
-#line 97 "rt/fiber_runtime.w"
     _2 = _4;
     goto bb2;
 bb2:
@@ -921,21 +928,19 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 98 "rt/fiber_runtime.w"
     _6 = (_1 + 32);
     _5 = _6;
     goto bb5;
 bb4:
-#line 97 "rt/fiber_runtime.w"
     _5 = _1;
     goto bb5;
 bb5:
-#line 99 "rt/fiber_runtime.w"
+#line 104 "rt/fiber_runtime.w"
     _0 = _5;
     return _0;
 }
 
-int32_t to_upper__121(int32_t _1) {
+int32_t to_upper__125(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -944,9 +949,9 @@ int32_t to_upper__121(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 103 "rt/fiber_runtime.w"
+#line 106 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 104 "rt/fiber_runtime.w"
+#line 107 "rt/fiber_runtime.w"
     _3 = (_1 >= 97);
     _2 = _3;
     if (_2 == 1) {
@@ -956,9 +961,9 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 105 "rt/fiber_runtime.w"
+#line 108 "rt/fiber_runtime.w"
     _4 = (_1 <= 122);
-#line 104 "rt/fiber_runtime.w"
+#line 107 "rt/fiber_runtime.w"
     _2 = _4;
     goto bb2;
 bb2:
@@ -969,36 +974,35 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 105 "rt/fiber_runtime.w"
+#line 108 "rt/fiber_runtime.w"
     _6 = (_1 - 32);
     _5 = _6;
     goto bb5;
 bb4:
-#line 104 "rt/fiber_runtime.w"
+#line 107 "rt/fiber_runtime.w"
     _5 = _1;
     goto bb5;
 bb5:
-#line 106 "rt/fiber_runtime.w"
+#line 108 "rt/fiber_runtime.w"
     _0 = _5;
     return _0;
 }
 
-int64_t string_to_int__122(with_str _1) {
+int64_t string_to_int__126(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 107 "rt/fiber_runtime.w"
+#line 109 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_parse_i64(_1);
     goto bb1;
 bb1:
-#line 109 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_vec lines__123(with_str _1) {
+with_vec lines__127(with_str _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -1006,17 +1010,18 @@ with_vec lines__123(with_str _1) {
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 110 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
+#line 111 "rt/fiber_runtime.w"
     /* StorageLive(_2); */
     _3 = (with_vec){0, 0, 0, 0};
     _2 = _3;
-#line 110 "rt/fiber_runtime.w"
+#line 112 "rt/fiber_runtime.w"
     _4 = (void*)(&_2);
     with_lines_out(_4, _1);
     goto bb1;
 bb1:
     /* drop(_2); */
-#line 111 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb2: ;
@@ -1025,32 +1030,34 @@ bb4: ;
 bb5: ;
 }
 
-int32_t parse__127(with_str _1) {
+int32_t parse__131(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 113 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 112 "rt/fiber_runtime.w"
     /* StorageLive(_2); */
-    _3 = string_to_int__122(_1);
+    _3 = string_to_int__126(_1);
     goto bb1;
 bb1:
     _2 = _3;
+#line 114 "rt/fiber_runtime.w"
     _4 = ((int32_t)(_2));
+#line 115 "rt/fiber_runtime.w"
     _0 = _4;
     return _0;
 bb2: ;
 }
 
-void print__146(with_str _1) {
+void print__150(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 19 "rt/fiber_runtime.w"
+#line 18 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_println_str(_1);
     goto bb1;
@@ -1058,12 +1065,12 @@ bb1:
     return;
 }
 
-void eprint__147(with_str _1) {
+void eprint__151(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 24 "rt/fiber_runtime.w"
+#line 21 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_eprint(_1);
     goto bb1;
@@ -1071,7 +1078,7 @@ bb1:
     return;
 }
 
-void write__148(with_str _1) {
+void write__152(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1084,12 +1091,12 @@ bb1:
     return;
 }
 
-void ewrite__149(with_str _1) {
+void ewrite__153(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 33 "rt/fiber_runtime.w"
+#line 32 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_ewrite(_1);
     goto bb1;
@@ -1097,12 +1104,12 @@ bb1:
     return;
 }
 
-void print_i32__150(int32_t _1) {
+void print_i32__154(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 37 "rt/fiber_runtime.w"
+#line 35 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_println_i32(_1);
     goto bb1;
@@ -1110,12 +1117,12 @@ bb1:
     return;
 }
 
-void print_i64__151(int64_t _1) {
+void print_i64__155(int64_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 40 "rt/fiber_runtime.w"
+#line 39 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_println_i64(_1);
     goto bb1;
@@ -1123,12 +1130,12 @@ bb1:
     return;
 }
 
-void print_bool__152(bool _1) {
+void print_bool__156(bool _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 43 "rt/fiber_runtime.w"
+#line 42 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     with_println_bool(_1);
     goto bb1;
@@ -1136,13 +1143,13 @@ bb1:
     return;
 }
 
-void assert__153(bool _1, with_str _2, with_str _3) {
+void assert__157(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 46 "rt/fiber_runtime.w"
+#line 44 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
@@ -1165,17 +1172,17 @@ bb4:
     goto bb3;
 }
 
-void require__158(bool _1, with_str _2, with_str _3) {
+void require__162(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 51 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
 #line 52 "rt/fiber_runtime.w"
-    /* StorageLive(_1); */
-    /* StorageLive(_2); */
-    /* StorageLive(_3); */
-#line 53 "rt/fiber_runtime.w"
     _4 = (!(_1));
     if (_4 == 1) {
         goto bb1;
@@ -1194,17 +1201,17 @@ bb4:
     goto bb3;
 }
 
-void check__159(bool _1, with_str _2, with_str _3) {
+void check__163(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 58 "rt/fiber_runtime.w"
+#line 55 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 60 "rt/fiber_runtime.w"
+#line 58 "rt/fiber_runtime.w"
     _4 = (!(_1));
     if (_4 == 1) {
         goto bb1;
@@ -1223,15 +1230,15 @@ bb4:
     goto bb3;
 }
 
-with_str i32_to_string__164(const int32_t* _1) {
+with_str i32_to_string__166(const int32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 71 "rt/fiber_runtime.w"
+#line 68 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 74 "rt/fiber_runtime.w"
+#line 71 "rt/fiber_runtime.w"
     _2 = ((int64_t)((*_1)));
     _3 = with_i64_to_str(_2);
     goto bb1;
@@ -1242,14 +1249,30 @@ bb2: ;
 bb3: ;
 }
 
-with_str i64_to_string__165(const int64_t* _1) {
+with_str i64_to_string__167(const int64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 75 "rt/fiber_runtime.w"
+#line 72 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i64_to_str((*_1));
+    goto bb1;
+bb1:
+#line 75 "rt/fiber_runtime.w"
+    _0 = _2;
+    return _0;
+bb2: ;
+}
+
+with_str u32_to_string__168(const uint32_t* _1) {
+    with_str _0 __attribute__((unused)) = {0};
+    with_str _2 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 76 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
+    _2 = with_fmt_u32((*_1));
     goto bb1;
 bb1:
 #line 77 "rt/fiber_runtime.w"
@@ -1258,88 +1281,72 @@ bb1:
 bb2: ;
 }
 
-with_str u32_to_string__166(const uint32_t* _1) {
+with_str u64_to_string__169(const uint64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-    /* StorageLive(_1); */
-    _2 = with_fmt_u32((*_1));
-    goto bb1;
-bb1:
-#line 80 "rt/fiber_runtime.w"
-    _0 = _2;
-    return _0;
-bb2: ;
-}
-
-with_str u64_to_string__167(const uint64_t* _1) {
-    with_str _0 __attribute__((unused)) = {0};
-    with_str _2 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 82 "rt/fiber_runtime.w"
+#line 79 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_fmt_u64((*_1));
     goto bb1;
 bb1:
-#line 83 "rt/fiber_runtime.w"
+#line 82 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb2: ;
 }
 
-with_str bool_to_string__168(const bool* _1) {
+with_str bool_to_string__170(const bool* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 84 "rt/fiber_runtime.w"
+#line 83 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_bool_to_str((*_1));
     goto bb1;
 bb1:
-#line 87 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb2: ;
 }
 
-with_str int_to_string__169(int64_t _1) {
+with_str int_to_string__171(int64_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 88 "rt/fiber_runtime.w"
+#line 87 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i64_to_str(_1);
     goto bb1;
 bb1:
-#line 89 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-RegexFlags regex_make_flags__258(int32_t _1, int32_t _2) {
+RegexFlags regex_make_flags__260(int32_t _1, int32_t _2) {
     RegexFlags _0 __attribute__((unused)) = {0};
     RegexFlags _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 43 "rt/fiber_runtime.w"
+#line 44 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 45 "rt/fiber_runtime.w"
+#line 46 "rt/fiber_runtime.w"
     _3 = (RegexFlags){.options = _1, .flags = _2};
 #line 48 "rt/fiber_runtime.w"
     _0 = _3;
     return _0;
 }
 
-with_str regex_error_message__259(int32_t _1) {
+with_str regex_error_message__261(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 49 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_regex_error_message(_1);
     goto bb1;
@@ -1349,7 +1356,7 @@ bb1:
     return _0;
 }
 
-Result_RegexFlags__RegexError_ regex_compile_flags__260(with_str _1) {
+Result_RegexFlags__RegexError_ regex_compile_flags__262(with_str _1) {
     Result_RegexFlags__RegexError_ _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -1395,13 +1402,15 @@ bb1:
     _5 = ((_1).len);
     goto bb4;
 bb2:
+#line 54 "rt/fiber_runtime.w"
     /* StorageLive(_7); */
     _8 = with_str_byte_at(_1, (int64_t)(_4));
     goto bb5;
 bb3:
-    _28 = regex_make_flags__258(_2, _3);
+    _28 = regex_make_flags__260(_2, _3);
     goto bb28;
 bb4:
+#line 53 "rt/fiber_runtime.w"
     _6 = (_4 < _5);
     if (_6 == 1) {
         goto bb2;
@@ -1410,8 +1419,9 @@ bb4:
         goto bb3;
     }
 bb5:
+#line 54 "rt/fiber_runtime.w"
     _7 = _8;
-#line 55 "rt/fiber_runtime.w"
+#line 56 "rt/fiber_runtime.w"
     _9 = (_7 == 103);
     if (_9 == 1) {
         goto bb6;
@@ -1422,11 +1432,10 @@ bb5:
 bb6:
 #line 58 "rt/fiber_runtime.w"
     _10 = (_3 | 1);
-#line 56 "rt/fiber_runtime.w"
     _3 = _10;
     goto bb8;
 bb7:
-#line 59 "rt/fiber_runtime.w"
+#line 60 "rt/fiber_runtime.w"
     _11 = (_7 == 105);
     if (_11 == 1) {
         goto bb9;
@@ -1442,11 +1451,10 @@ bb8:
 bb9:
 #line 62 "rt/fiber_runtime.w"
     _12 = (_2 | 8);
-#line 60 "rt/fiber_runtime.w"
     _2 = _12;
     goto bb11;
 bb10:
-#line 62 "rt/fiber_runtime.w"
+#line 63 "rt/fiber_runtime.w"
     _13 = (_7 == 109);
     if (_13 == 1) {
         goto bb12;
@@ -1459,7 +1467,6 @@ bb11:
 bb12:
 #line 64 "rt/fiber_runtime.w"
     _14 = (_2 | 1024);
-#line 63 "rt/fiber_runtime.w"
     _2 = _14;
     goto bb14;
 bb13:
@@ -1476,11 +1483,10 @@ bb14:
 bb15:
 #line 67 "rt/fiber_runtime.w"
     _16 = (_2 | 32);
-#line 66 "rt/fiber_runtime.w"
     _2 = _16;
     goto bb17;
 bb16:
-#line 67 "rt/fiber_runtime.w"
+#line 68 "rt/fiber_runtime.w"
     _17 = (_7 == 120);
     if (_17 == 1) {
         goto bb18;
@@ -1493,11 +1499,10 @@ bb17:
 bb18:
 #line 70 "rt/fiber_runtime.w"
     _18 = (_2 | 128);
-#line 68 "rt/fiber_runtime.w"
     _2 = _18;
     goto bb20;
 bb19:
-#line 70 "rt/fiber_runtime.w"
+#line 71 "rt/fiber_runtime.w"
     _19 = (_7 == 85);
     if (_19 == 1) {
         goto bb21;
@@ -1508,12 +1513,12 @@ bb19:
 bb20:
     goto bb17;
 bb21:
-#line 71 "rt/fiber_runtime.w"
+#line 72 "rt/fiber_runtime.w"
     _20 = (_2 | 262144);
     _2 = _20;
     goto bb23;
 bb22:
-#line 72 "rt/fiber_runtime.w"
+#line 74 "rt/fiber_runtime.w"
     _21 = (_7 == 117);
     if (_21 == 1) {
         goto bb24;
@@ -1527,15 +1532,15 @@ bb24:
 #line 75 "rt/fiber_runtime.w"
     _22 = (_2 | 524288);
     _23 = (_22 | 131072);
-#line 74 "rt/fiber_runtime.w"
     _2 = _23;
     goto bb26;
 bb25:
 #line 79 "rt/fiber_runtime.w"
     _24 = ((int32_t)(_4));
-#line 76 "rt/fiber_runtime.w"
+#line 77 "rt/fiber_runtime.w"
     _25 = (RegexError){.code = -1000, .offset = _24, .message = WITH_STR_LIT("unknown regex flag")};
     _26 = (Result_RegexFlags__RegexError_){.tag = 1, .payload1 = _25};
+#line 76 "rt/fiber_runtime.w"
     _0 = _26;
     return _0;
 bb26:
@@ -1578,7 +1583,7 @@ bb56: ;
 bb57: ;
 }
 
-Regex Regex_clone__267(const Regex* _1) {
+Regex Regex_clone__269(const Regex* _1) {
     Regex _0 __attribute__((unused)) = {0};
     int8_t* _2 __attribute__((unused)) = {0};
     int8_t* _3 __attribute__((unused)) = {0};
@@ -1589,7 +1594,7 @@ Regex Regex_clone__267(const Regex* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 85 "rt/fiber_runtime.w"
+#line 86 "rt/fiber_runtime.w"
     /* StorageLive(_2); */
     _3 = with_regex_code_copy((*_1).ptr);
     goto bb1;
@@ -1612,7 +1617,7 @@ bb3:
 bb4:
 #line 88 "rt/fiber_runtime.w"
     _7 = (Regex){.ptr = _2, .pattern_text = (*_1).pattern_text, .flags_text = (*_1).flags_text, .options = (*_1).options, .flags = (*_1).flags, .capture_count = (*_1).capture_count, .owned = 1, .global_pos = 0, .global_subject_ptr = 0, .global_subject_len = 0};
-#line 99 "rt/fiber_runtime.w"
+#line 100 "rt/fiber_runtime.w"
     _0 = _7;
     return _0;
 bb5:
@@ -1622,7 +1627,7 @@ bb7: ;
 bb8: ;
 }
 
-void Regex_drop__272(Regex* _1) {
+void Regex_drop__274(Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1632,7 +1637,7 @@ void Regex_drop__272(Regex* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 100 "rt/fiber_runtime.w"
+#line 101 "rt/fiber_runtime.w"
     _3 = ((*_1).owned != 0);
     _2 = _3;
     if (_2 == 1) {
@@ -1642,10 +1647,10 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 101 "rt/fiber_runtime.w"
+#line 103 "rt/fiber_runtime.w"
     _4 = ((int64_t)((*_1).ptr));
     _5 = (_4 != 0);
-#line 100 "rt/fiber_runtime.w"
+#line 101 "rt/fiber_runtime.w"
     _2 = _5;
     goto bb2;
 bb2:
@@ -1673,13 +1678,13 @@ bb11: ;
 bb12: ;
 }
 
-bool Regex_is_global__274(const Regex* _1) {
+bool Regex_is_global__276(const Regex* _1) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 104 "rt/fiber_runtime.w"
+#line 105 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
 #line 106 "rt/fiber_runtime.w"
     _2 = ((*_1).flags & 1);
@@ -1689,13 +1694,13 @@ bb0:
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile__276(with_str _1) {
+Result_Regex__RegexError_ Regex_compile__278(with_str _1) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_Regex__RegexError_ _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _2 = Regex_compile_flags__278(_1, WITH_STR_LIT(""));
+    _2 = Regex_compile_flags__280(_1, WITH_STR_LIT(""));
     goto bb1;
 bb1:
 #line 109 "rt/fiber_runtime.w"
@@ -1703,7 +1708,7 @@ bb1:
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile_flags__278(with_str _1, with_str _2) {
+Result_Regex__RegexError_ Regex_compile_flags__280(with_str _1, with_str _2) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _3 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _4 __attribute__((unused)) = {0};
@@ -1731,7 +1736,7 @@ Result_Regex__RegexError_ Regex_compile_flags__278(with_str _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = regex_compile_flags__260(_2);
+    _3 = regex_compile_flags__262(_2);
     goto bb1;
 bb1:
     _4 = _3;
@@ -1743,20 +1748,20 @@ bb1:
         goto bb4;
     }
 bb2:
-#line 134 "rt/fiber_runtime.w"
+#line 135 "rt/fiber_runtime.w"
     _0 = _5;
     /* drop(_23); */
     return _0;
 bb3:
-#line 109 "rt/fiber_runtime.w"
+#line 110 "rt/fiber_runtime.w"
     /* StorageLive(_7); */
     _7 = _4.payload0;
-#line 110 "rt/fiber_runtime.w"
+#line 111 "rt/fiber_runtime.w"
     /* StorageLive(_8); */
     _8 = 0;
-#line 111 "rt/fiber_runtime.w"
     /* StorageLive(_9); */
     _9 = 0;
+#line 112 "rt/fiber_runtime.w"
     /* StorageLive(_10); */
 #line 113 "rt/fiber_runtime.w"
     _11 = (int32_t*)(&_8);
@@ -1772,9 +1777,9 @@ bb4:
         goto bb2;
     }
 bb5:
-#line 111 "rt/fiber_runtime.w"
+#line 112 "rt/fiber_runtime.w"
     _10 = _13;
-#line 113 "rt/fiber_runtime.w"
+#line 114 "rt/fiber_runtime.w"
     _14 = ((int64_t)(_10));
     _15 = (_14 == 0);
     if (_15 == 1) {
@@ -1784,7 +1789,7 @@ bb5:
         goto bb7;
     }
 bb6:
-    _16 = regex_error_message__259(_8);
+    _16 = regex_error_message__261(_8);
     goto bb9;
 bb7:
     goto bb8;
@@ -1794,23 +1799,23 @@ bb8:
 bb9:
 #line 115 "rt/fiber_runtime.w"
     _17 = (RegexError){.code = _8, .offset = _9, .message = _16};
-#line 114 "rt/fiber_runtime.w"
     _18 = (Result_Regex__RegexError_){.tag = 1, .payload1 = _17};
     _0 = _18;
     return _0;
 bb10:
     goto bb8;
 bb11:
-#line 120 "rt/fiber_runtime.w"
+#line 121 "rt/fiber_runtime.w"
     _20 = (Regex){.ptr = _10, .pattern_text = _1, .flags_text = _2, .options = _7.options, .flags = _7.flags, .capture_count = _19, .owned = 1, .global_pos = 0, .global_subject_ptr = 0, .global_subject_len = 0};
     _21 = (Result_Regex__RegexError_){.tag = 0, .payload0 = _20};
-#line 110 "rt/fiber_runtime.w"
+#line 111 "rt/fiber_runtime.w"
     _5 = _21;
     goto bb2;
 bb12:
 #line 134 "rt/fiber_runtime.w"
     /* StorageLive(_23); */
     _23 = _4.payload1;
+#line 135 "rt/fiber_runtime.w"
     _24 = (Result_Regex__RegexError_){.tag = 1, .payload1 = _23};
     _5 = _24;
     goto bb2;
@@ -1842,7 +1847,7 @@ bb37: ;
 bb38: ;
 }
 
-int8_t* Regex___literal_code__283(int8_t** _1, with_str _2, int32_t _3) {
+int8_t* Regex___literal_code__285(int8_t** _1, with_str _2, int32_t _3) {
     int8_t* _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -1900,19 +1905,20 @@ bb6:
 bb7:
     /* StorageLive(_9); */
     _9 = 0;
+#line 138 "rt/fiber_runtime.w"
     /* StorageLive(_10); */
     _10 = 0;
-#line 138 "rt/fiber_runtime.w"
-    /* StorageLive(_11); */
 #line 139 "rt/fiber_runtime.w"
+    /* StorageLive(_11); */
     _12 = (int32_t*)(&_9);
+#line 140 "rt/fiber_runtime.w"
     _13 = (int32_t*)(&_10);
     _14 = with_regex_compile(_2, _3, _12, _13);
     goto bb9;
 bb8:
     goto bb7;
 bb9:
-#line 138 "rt/fiber_runtime.w"
+#line 139 "rt/fiber_runtime.w"
     _11 = _14;
 #line 140 "rt/fiber_runtime.w"
     _15 = ((int64_t)(_11));
@@ -1924,14 +1930,14 @@ bb9:
         goto bb11;
     }
 bb10:
-    _17 = regex_error_message__259(_9);
+    _17 = regex_error_message__261(_9);
     goto bb13;
 bb11:
     goto bb12;
 bb12:
-#line 142 "rt/fiber_runtime.w"
+#line 143 "rt/fiber_runtime.w"
     (*_1) = _11;
-#line 144 "rt/fiber_runtime.w"
+#line 146 "rt/fiber_runtime.w"
     _0 = _11;
     return _0;
 bb13:
@@ -1960,28 +1966,29 @@ bb27: ;
 bb28: ;
 }
 
-with_str Regex_pattern__287(const Regex* _1) {
+with_str Regex_pattern__289(const Regex* _1) {
     with_str _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 144 "rt/fiber_runtime.w"
+#line 146 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
 #line 147 "rt/fiber_runtime.w"
     _0 = (*_1).pattern_text;
     return _0;
 }
 
-int32_t Regex_num_captures__289(const Regex* _1) {
+int32_t Regex_num_captures__291(const Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-    /* StorageLive(_1); */
 #line 148 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
+#line 149 "rt/fiber_runtime.w"
     _0 = (*_1).capture_count;
     return _0;
 }
 
-Option_i32_ Regex_capture_index__291(const Regex* _1, with_str _2) {
+Option_i32_ Regex_capture_index__293(const Regex* _1, with_str _2) {
     Option_i32_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2019,7 +2026,7 @@ bb4:
     goto bb3;
 bb5:
     _6 = _7;
-#line 155 "rt/fiber_runtime.w"
+#line 156 "rt/fiber_runtime.w"
     _8 = (_6 < 0);
     if (_8 == 1) {
         goto bb6;
@@ -2029,12 +2036,12 @@ bb5:
     }
 bb6:
     _9 = (Option_i32_){.tag = 1};
-#line 156 "rt/fiber_runtime.w"
     _0 = _9;
     return _0;
 bb7:
     goto bb8;
 bb8:
+#line 157 "rt/fiber_runtime.w"
     _10 = (Option_i32_){.tag = 0, .payload0 = _6};
     _0 = _10;
     return _0;
@@ -2045,7 +2052,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_capture_names__296(const Regex* _1) {
+with_vec Regex_capture_names__298(const Regex* _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -2061,13 +2068,12 @@ with_vec Regex_capture_names__296(const Regex* _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-#line 157 "rt/fiber_runtime.w"
+#line 159 "rt/fiber_runtime.w"
     /* StorageLive(_2); */
     _3 = (with_vec){ .ptr = NULL, .len = 0, .cap = 0, .elem_size = sizeof(with_str) };
     goto bb1;
 bb1:
     _2 = _3;
-#line 159 "rt/fiber_runtime.w"
     _4 = ((int64_t)((*_1).ptr));
     _5 = (_4 == 0);
     if (_5 == 1) {
@@ -2084,6 +2090,7 @@ bb2:
 bb3:
     goto bb4;
 bb4:
+#line 162 "rt/fiber_runtime.w"
     /* StorageLive(_6); */
     _7 = with_regex_capture_name_count((*_1).ptr);
     goto bb6;
@@ -2091,12 +2098,12 @@ bb5:
     goto bb4;
 bb6:
     _6 = _7;
-#line 162 "rt/fiber_runtime.w"
+#line 163 "rt/fiber_runtime.w"
     /* StorageLive(_8); */
     _8 = 0;
     goto bb7;
 bb7:
-#line 163 "rt/fiber_runtime.w"
+#line 165 "rt/fiber_runtime.w"
     _9 = (_8 < _6);
     if (_9 == 1) {
         goto bb8;
@@ -2109,13 +2116,14 @@ bb8:
     goto bb10;
 bb9:
     /* drop(_2); */
-#line 166 "rt/fiber_runtime.w"
+#line 167 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb10:
     { with_str __with_tmp = _10; with_vec_push(&(_2), &__with_tmp); }
     goto bb11;
 bb11:
+#line 166 "rt/fiber_runtime.w"
     _12 = (_8 + 1);
     _8 = _12;
     goto bb7;
@@ -2135,23 +2143,24 @@ bb24: ;
 bb25: ;
 }
 
-Option_Captures_ Regex_captures__298(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures__300(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 167 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures_at__300(_1, _2, 0);
+    _3 = Regex_captures_at__302(_1, _2, 0);
     goto bb1;
 bb1:
-#line 169 "rt/fiber_runtime.w"
+#line 170 "rt/fiber_runtime.w"
     _0 = _3;
     return _0;
 bb2: ;
 }
 
-Option_Captures_ Regex_captures_at__300(const Regex* _1, with_str _2, int32_t _3) {
+Option_Captures_ Regex_captures_at__302(const Regex* _1, with_str _2, int32_t _3) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2186,7 +2195,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 171 "rt/fiber_runtime.w"
+#line 172 "rt/fiber_runtime.w"
     _4 = ((int64_t)((*_1).ptr));
     _5 = (_4 == 0);
     if (_5 == 1) {
@@ -2197,7 +2206,7 @@ bb0:
     }
 bb1:
     _6 = (Option_Captures_){.tag = 1};
-#line 172 "rt/fiber_runtime.w"
+#line 173 "rt/fiber_runtime.w"
     _0 = _6;
     return _0;
 bb2:
@@ -2205,9 +2214,8 @@ bb2:
 bb3:
     /* StorageLive(_7); */
     _7 = 0;
-#line 173 "rt/fiber_runtime.w"
     /* StorageLive(_8); */
-#line 175 "rt/fiber_runtime.w"
+#line 176 "rt/fiber_runtime.w"
     _9 = (int32_t*)(&_7);
     _10 = with_regex_match_spans_alloc_at((*_1).ptr, _2, _3, _9);
     goto bb5;
@@ -2216,7 +2224,7 @@ bb4:
 bb5:
 #line 173 "rt/fiber_runtime.w"
     _8 = _10;
-#line 176 "rt/fiber_runtime.w"
+#line 177 "rt/fiber_runtime.w"
     _12 = ((int64_t)(_8));
     _13 = (_12 == 0);
     _11 = _13;
@@ -2227,9 +2235,7 @@ bb5:
         goto bb6;
     }
 bb6:
-#line 177 "rt/fiber_runtime.w"
     _14 = (_7 <= 0);
-#line 176 "rt/fiber_runtime.w"
     _11 = _14;
     goto bb7;
 bb7:
@@ -2241,7 +2247,7 @@ bb7:
     }
 bb8:
     _15 = (Option_Captures_){.tag = 1};
-#line 177 "rt/fiber_runtime.w"
+#line 178 "rt/fiber_runtime.w"
     _0 = _15;
     return _0;
 bb9:
@@ -2254,7 +2260,6 @@ bb11:
     goto bb10;
 bb12:
     _16 = _17;
-#line 178 "rt/fiber_runtime.w"
     /* StorageLive(_18); */
     _18 = 0;
     goto bb13;
@@ -2323,26 +2328,28 @@ bb48: ;
 bb49: ;
 }
 
-bool Regex_is_match__303(const Regex* _1, with_str _2) {
+bool Regex_is_match__305(const Regex* _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
-    bool _4 __attribute__((unused)) = {0};
+    Option_Captures_ _4 __attribute__((unused)) = {0};
+    int32_t _5 __attribute__((unused)) = {0};
+    bool _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures__298(_1, _2);
+    _3 = Regex_captures__300(_1, _2);
     goto bb1;
 bb1:
-    _4 = ((_3).tag == 0);
-    goto bb2;
-bb2:
-    _0 = _4;
+    _4 = _3;
+    _5 = (_4).tag;
+    _6 = (_5 == 0);
+    _0 = _6;
     return _0;
-bb3: ;
+bb2: ;
 }
 
-Option_Captures_ Regex_captures_match_op__306(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures_match_op__308(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2394,7 +2401,7 @@ Option_Captures_ Regex_captures_match_op__306(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _6 = Regex_is_global__274(_1);
+    _6 = Regex_is_global__276(_1);
     goto bb1;
 bb1:
     _7 = (!(_6));
@@ -2444,7 +2451,7 @@ bb7:
         goto bb9;
     }
 bb8:
-    _14 = Regex_captures__298(_1, _2);
+    _14 = Regex_captures__300(_1, _2);
     goto bb11;
 bb9:
     goto bb10;
@@ -2494,7 +2501,7 @@ bb17:
 bb18:
     /* StorageLive(_25); */
     _25 = (*(*_1).global_pos);
-    _26 = Regex_captures_at__300(_1, _2, _25);
+    _26 = Regex_captures_at__302(_1, _2, _25);
     goto bb19;
 bb19:
     _27 = _26;
@@ -2512,7 +2519,7 @@ bb20:
 bb21:
     /* StorageLive(_30); */
     _30 = _27.payload0;
-    _31 = Captures_get__344(&(_30), 0);
+    _31 = Captures_get__346(&(_30), 0);
     goto bb23;
 bb22:
     _47 = (_27).tag;
@@ -2668,14 +2675,14 @@ bb106: ;
 bb107: ;
 }
 
-Option_Match_ Regex_find__312(const Regex* _1, with_str _2) {
+Option_Match_ Regex_find__314(const Regex* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_find_at__314(_1, _2, 0);
+    _3 = Regex_find_at__316(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -2683,7 +2690,7 @@ bb1:
 bb2: ;
 }
 
-Option_Match_ Regex_find_at__314(const Regex* _1, with_str _2, int32_t _3) {
+Option_Match_ Regex_find_at__316(const Regex* _1, with_str _2, int32_t _3) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -2698,7 +2705,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures_at__300(_1, _2, _3);
+    _4 = Regex_captures_at__302(_1, _2, _3);
     goto bb1;
 bb1:
     _5 = _4;
@@ -2716,7 +2723,7 @@ bb2:
 bb3:
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__344(&(_8), 0);
+    _9 = Captures_get__346(&(_8), 0);
     goto bb5;
 bb4:
     _10 = (_5).tag;
@@ -2741,7 +2748,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_find_all__316(const Regex* _1, with_str _2) {
+with_vec Regex_find_all__318(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -2778,7 +2785,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_find_at__314(_1, _2, _5);
+    _9 = Regex_find_at__316(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_3); */
@@ -2873,7 +2880,7 @@ bb30: ;
 bb31: ;
 }
 
-with_vec Regex_captures_all__319(const Regex* _1, with_str _2) {
+with_vec Regex_captures_all__321(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -2916,7 +2923,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_captures_at__300(_1, _2, _5);
+    _9 = Regex_captures_at__302(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_13); */
@@ -2946,7 +2953,7 @@ bb7:
 bb8:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__344(&(_13), 0);
+    _14 = Captures_get__346(&(_13), 0);
     goto bb10;
 bb9:
     _27 = (_10).tag;
@@ -3048,7 +3055,7 @@ bb39: ;
 bb40: ;
 }
 
-with_str regex_expand_numbered_capture__320(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
+with_str regex_expand_numbered_capture__322(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
     with_str _0 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     int64_t _6 __attribute__((unused)) = {0};
@@ -3088,7 +3095,7 @@ bb2:
     _9 = with_str_byte_at(_2, (int64_t)(_6));
     goto bb4;
 bb3:
-    _13 = Captures_get__344(_1, _5);
+    _13 = Captures_get__346(_1, _5);
     goto bb5;
 bb4:
     _10 = (_9 - 48);
@@ -3137,7 +3144,7 @@ bb18: ;
 bb19: ;
 }
 
-bool regex_is_name_start__321(int32_t _1) {
+bool regex_is_name_start__323(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3204,7 +3211,7 @@ bb8:
     return _0;
 }
 
-bool regex_is_name_continue__323(int32_t _1) {
+bool regex_is_name_continue__325(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3214,7 +3221,7 @@ bool regex_is_name_continue__323(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _3 = regex_is_name_start__321(_1);
+    _3 = regex_is_name_start__323(_1);
     goto bb1;
 bb1:
     _2 = _3;
@@ -3245,7 +3252,7 @@ bb5:
     goto bb3;
 }
 
-with_str regex_expand_replacement__324(const Captures* _1, with_str _2) {
+with_str regex_expand_replacement__326(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -3468,7 +3475,7 @@ bb27:
     _29 = _38;
     goto bb26;
 bb28:
-    _39 = regex_expand_numbered_capture__320(_1, _2, _27, _29);
+    _39 = regex_expand_numbered_capture__322(_1, _2, _27, _29);
     goto bb36;
 bb29:
     _33 = (_29 < _32);
@@ -3523,7 +3530,7 @@ bb38:
 bb39:
     goto bb40;
 bb40:
-    _63 = regex_is_name_start__321(_18);
+    _63 = regex_is_name_start__323(_18);
     goto bb59;
 bb41:
     _45 = ((_2).len);
@@ -3577,7 +3584,7 @@ bb51:
     goto bb40;
 bb52:
     _52 = _54;
-    _55 = Captures_name__349(_1, _52);
+    _55 = Captures_name__351(_1, _52);
     goto bb53;
 bb53:
     _56 = _55;
@@ -3665,14 +3672,14 @@ bb68:
         goto bb65;
     }
 bb69:
-    _71 = regex_is_name_continue__323(_70);
+    _71 = regex_is_name_continue__325(_70);
     goto bb70;
 bb70:
     _67 = _71;
     goto bb68;
 bb71:
     _73 = _74;
-    _75 = Captures_name__349(_1, _73);
+    _75 = Captures_name__351(_1, _73);
     goto bb72;
 bb72:
     _76 = _75;
@@ -3796,7 +3803,7 @@ bb164: ;
 bb165: ;
 }
 
-with_str Regex_replace_impl__331(const Regex* _1, with_str _2, with_str _3, bool _4) {
+with_str Regex_replace_impl__333(const Regex* _1, with_str _2, with_str _3, bool _4) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _5 __attribute__((unused)) = {0};
     int32_t _6 __attribute__((unused)) = {0};
@@ -3865,7 +3872,7 @@ bb1:
     _7 = ((_2).len);
     goto bb4;
 bb2:
-    _10 = Regex_captures_at__300(_1, _2, _6);
+    _10 = Regex_captures_at__302(_1, _2, _6);
     goto bb5;
 bb3:
     /* drop(_14); */
@@ -3894,7 +3901,7 @@ bb6:
 bb7:
     /* StorageLive(_14); */
     _14 = _11.payload0;
-    _15 = Captures_get__344(&(_14), 0);
+    _15 = Captures_get__346(&(_14), 0);
     goto bb9;
 bb8:
     _52 = (_11).tag;
@@ -3934,7 +3941,7 @@ bb12:
 bb13:
     _23 = with_str_concat(_5, _22);
     _24 = (const Captures*)(&_14);
-    _25 = regex_expand_replacement__324(_24, _3);
+    _25 = regex_expand_replacement__326(_24, _3);
     goto bb14;
 bb14:
     _26 = with_str_concat(_23, _25);
@@ -4124,7 +4131,7 @@ bb114: ;
 bb115: ;
 }
 
-with_str Regex_replace__333(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace__335(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4134,7 +4141,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_is_global__274(_1);
+    _4 = Regex_is_global__276(_1);
     goto bb1;
 bb1:
     if (_4 == 1) {
@@ -4160,7 +4167,7 @@ bb7: ;
 bb8: ;
 }
 
-with_str Regex_replace_all__334(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace_all__336(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
@@ -4179,7 +4186,7 @@ bb4: ;
 bb5: ;
 }
 
-with_str Regex_replace_fn__336(const Regex* _1, with_str _2, with_fn_179 _3) {
+with_str Regex_replace_fn__338(const Regex* _1, with_str _2, with_fn_182 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4223,7 +4230,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__300(_1, _2, _5);
+    _9 = Regex_captures_at__302(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4252,7 +4259,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__344(&(_13), 0);
+    _14 = Captures_get__346(&(_13), 0);
     goto bb9;
 bb8:
     _31 = (_10).tag;
@@ -4355,7 +4362,7 @@ bb49: ;
 bb50: ;
 }
 
-with_str Regex_replace_all_fn__339(const Regex* _1, with_str _2, with_fn_179 _3) {
+with_str Regex_replace_all_fn__341(const Regex* _1, with_str _2, with_fn_182 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4418,7 +4425,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__300(_1, _2, _5);
+    _9 = Regex_captures_at__302(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4447,7 +4454,7 @@ bb6:
 bb7:
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__344(&(_13), 0);
+    _14 = Captures_get__346(&(_13), 0);
     goto bb9;
 bb8:
     _46 = (_10).tag;
@@ -4650,14 +4657,14 @@ bb103: ;
 bb104: ;
 }
 
-with_vec Regex_split__341(const Regex* _1, with_str _2) {
+with_vec Regex_split__343(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_splitn__343(_1, _2, 0);
+    _3 = Regex_splitn__345(_1, _2, 0);
     goto bb1;
 bb1:
     _0 = _3;
@@ -4665,7 +4672,7 @@ bb1:
 bb2: ;
 }
 
-with_vec Regex_splitn__343(const Regex* _1, with_str _2, int32_t _3) {
+with_vec Regex_splitn__345(const Regex* _1, with_str _2, int32_t _3) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
     with_vec _5 __attribute__((unused)) = {0};
@@ -4768,7 +4775,7 @@ bb9:
 bb10:
     goto bb11;
 bb11:
-    _20 = Regex_find_at__314(_1, _2, _6);
+    _20 = Regex_find_at__316(_1, _2, _6);
     goto bb16;
 bb12:
     _18 = with_str_slice(_2, _16, _17);
@@ -4923,7 +4930,7 @@ bb84: ;
 bb85: ;
 }
 
-Option_Match_ Captures_get__344(const Captures* _1, int32_t _2) {
+Option_Match_ Captures_get__346(const Captures* _1, int32_t _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
@@ -5077,7 +5084,7 @@ bb48: ;
 bb49: ;
 }
 
-int32_t Captures_len__346(const Captures* _1) {
+int32_t Captures_len__348(const Captures* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -5096,7 +5103,7 @@ bb2: ;
 bb3: ;
 }
 
-Option_Match_ Captures_by_name__348(const Captures* _1, with_str _2) {
+Option_Match_ Captures_by_name__350(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5146,7 +5153,7 @@ bb6:
 bb7:
     goto bb8;
 bb8:
-    _10 = Captures_get__344(_1, _6);
+    _10 = Captures_get__346(_1, _6);
     goto bb10;
 bb9:
     goto bb8;
@@ -5164,14 +5171,14 @@ bb18: ;
 bb19: ;
 }
 
-Option_Match_ Captures_name__349(const Captures* _1, with_str _2) {
+Option_Match_ Captures_name__351(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_by_name__348(_1, _2);
+    _3 = Captures_by_name__350(_1, _2);
     goto bb1;
 bb1:
     _0 = _3;
@@ -5179,7 +5186,7 @@ bb1:
 bb2: ;
 }
 
-with_str Captures_text__350(const Captures* _1, int32_t _2) {
+with_str Captures_text__352(const Captures* _1, int32_t _2) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     Option_Match_ _4 __attribute__((unused)) = {0};
@@ -5191,7 +5198,7 @@ with_str Captures_text__350(const Captures* _1, int32_t _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_get__344(_1, _2);
+    _3 = Captures_get__346(_1, _2);
     goto bb1;
 bb1:
     _4 = _3;
@@ -5223,7 +5230,7 @@ bb5:
     goto bb2;
 }
 
-with_str Captures_name_text__352(const Captures* _1, with_str _2) {
+with_str Captures_name_text__354(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5278,7 +5285,7 @@ bb6:
     goto bb7;
 bb7:
     _3 = _9;
-    _12 = Captures_name__349(_1, _3);
+    _12 = Captures_name__351(_1, _3);
     goto bb10;
 bb8:
     _11 = with_str_slice(_2, 1, _10);
@@ -5320,7 +5327,7 @@ bb17: ;
 bb18: ;
 }
 
-with_str Regex_capture_text__355(const Regex* _1, with_str _2, int32_t _3) {
+with_str Regex_capture_text__357(const Regex* _1, with_str _2, int32_t _3) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -5339,7 +5346,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures__298(_1, _2);
+    _4 = Regex_captures__300(_1, _2);
     goto bb1;
 bb1:
     _5 = _4;
@@ -5357,7 +5364,7 @@ bb2:
 bb3:
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__344(&(_8), _3);
+    _9 = Captures_get__346(&(_8), _3);
     goto bb5;
 bb4:
     _15 = (_5).tag;
@@ -5402,7 +5409,7 @@ bb11: ;
 bb12: ;
 }
 
-with_str Regex_capture_name_text__357(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_capture_name_text__359(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -5464,7 +5471,7 @@ bb6:
     goto bb7;
 bb7:
     _4 = _10;
-    _13 = Regex_captures__298(_1, _2);
+    _13 = Regex_captures__300(_1, _2);
     goto bb10;
 bb8:
     _12 = with_str_slice(_3, 1, _11);
@@ -5488,7 +5495,7 @@ bb11:
 bb12:
     /* StorageLive(_17); */
     _17 = _14.payload0;
-    _18 = Captures_name__349(&(_17), _4);
+    _18 = Captures_name__351(&(_17), _4);
     goto bb14;
 bb13:
     _24 = (_14).tag;
@@ -5541,12 +5548,26 @@ bb28: ;
 }
 
 
-bool i32_eq__378(int32_t _1, int32_t _2) {
+bool i32_eq__380(int32_t _1, int32_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 66 "rt/fiber_runtime.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
 #line 67 "rt/fiber_runtime.w"
+    _3 = (_1 == _2);
+    _0 = _3;
+    return _0;
+}
+
+bool bool_eq__381(bool _1, bool _2) {
+    bool _0 __attribute__((unused)) = {0};
+    bool _3 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 68 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
 #line 70 "rt/fiber_runtime.w"
@@ -5555,86 +5576,73 @@ bb0:
     return _0;
 }
 
-bool bool_eq__379(bool _1, bool _2) {
-    bool _0 __attribute__((unused)) = {0};
-    bool _3 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 71 "rt/fiber_runtime.w"
-    /* StorageLive(_1); */
-    /* StorageLive(_2); */
-#line 72 "rt/fiber_runtime.w"
-    _3 = (_1 == _2);
-    _0 = _3;
-    return _0;
-}
-
-int32_t i32_default__380() {
+int32_t i32_default__382() {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 75 "rt/fiber_runtime.w"
+#line 72 "rt/fiber_runtime.w"
     _0 = 0;
     return _0;
 }
 
-bool bool_default__381() {
+bool bool_default__383() {
     bool _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 77 "rt/fiber_runtime.w"
+#line 75 "rt/fiber_runtime.w"
     _0 = false;
     return _0;
 }
 
-bool str_eq__382(with_str _1, with_str _2) {
+bool str_eq__384(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 78 "rt/fiber_runtime.w"
+#line 76 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 80 "rt/fiber_runtime.w"
+#line 77 "rt/fiber_runtime.w"
     { __typeof__(with_str_eq(_1, _2)) __tmp = with_str_eq(_1, _2); memcpy(&(_3), &__tmp, sizeof(_3) < sizeof(__tmp) ? sizeof(_3) : sizeof(__tmp)); }
     _0 = _3;
     return _0;
 }
 
-bool i64_eq__383(int64_t _1, int64_t _2) {
+bool i64_eq__385(int64_t _1, int64_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 82 "rt/fiber_runtime.w"
+#line 79 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 83 "rt/fiber_runtime.w"
+#line 80 "rt/fiber_runtime.w"
     _3 = (_1 == _2);
+#line 81 "rt/fiber_runtime.w"
     _0 = _3;
     return _0;
 }
 
-with_str i32_debug_str__384(int32_t _1) {
+with_str i32_debug_str__386(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 82 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     _2 = with_i32_to_str(_1);
     goto bb1;
 bb1:
-#line 86 "rt/fiber_runtime.w"
+#line 83 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_str bool_debug_str__385(bool _1) {
+with_str bool_debug_str__387(bool _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 87 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     if (_1 == 1) {
         goto bb1;
@@ -5643,76 +5651,74 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 88 "rt/fiber_runtime.w"
+#line 86 "rt/fiber_runtime.w"
     _2 = WITH_STR_LIT("true");
     goto bb3;
 bb2:
-#line 87 "rt/fiber_runtime.w"
     _2 = WITH_STR_LIT("false");
     goto bb3;
 bb3:
-#line 88 "rt/fiber_runtime.w"
+#line 87 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-with_str str_debug_str__388(with_str _1) {
+with_str str_debug_str__390(with_str _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 89 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 90 "rt/fiber_runtime.w"
+#line 88 "rt/fiber_runtime.w"
     _2 = with_str_concat(WITH_STR_LIT("\""), _1);
     _3 = with_str_concat(_2, WITH_STR_LIT("\""));
-#line 91 "rt/fiber_runtime.w"
     _0 = _3;
     return _0;
 }
 
-int64_t i32_hash_value__390(int32_t _1) {
+int64_t i32_hash_value__392(int32_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 92 "rt/fiber_runtime.w"
+#line 89 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 94 "rt/fiber_runtime.w"
+#line 90 "rt/fiber_runtime.w"
     _2 = (1469598103934665603 * 1099511628211);
-#line 96 "rt/fiber_runtime.w"
+#line 92 "rt/fiber_runtime.w"
     _3 = ((int64_t)(_1));
-#line 94 "rt/fiber_runtime.w"
+#line 90 "rt/fiber_runtime.w"
     _4 = (_2 ^ _3);
-#line 96 "rt/fiber_runtime.w"
+#line 92 "rt/fiber_runtime.w"
     _0 = _4;
     return _0;
 }
 
-int64_t i64_hash_value__391(int64_t _1) {
+int64_t i64_hash_value__393(int64_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
+#line 94 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
-#line 97 "rt/fiber_runtime.w"
+#line 95 "rt/fiber_runtime.w"
     _2 = (1469598103934665603 * 1099511628211);
     _3 = (_2 ^ _1);
-#line 99 "rt/fiber_runtime.w"
+#line 96 "rt/fiber_runtime.w"
     _0 = _3;
     return _0;
 }
 
-int64_t bool_hash_value__392(bool _1) {
+int64_t bool_hash_value__394(bool _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 100 "rt/fiber_runtime.w"
+#line 97 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
     if (_1 == 1) {
         goto bb1;
@@ -5721,19 +5727,20 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 103 "rt/fiber_runtime.w"
+#line 99 "rt/fiber_runtime.w"
     _2 = 1;
     goto bb3;
 bb2:
+#line 98 "rt/fiber_runtime.w"
     _2 = 0;
     goto bb3;
 bb3:
-#line 104 "rt/fiber_runtime.w"
+#line 100 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 }
 
-int64_t str_hash_value__393(with_str _1) {
+int64_t str_hash_value__395(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -5745,11 +5752,12 @@ int64_t str_hash_value__393(with_str _1) {
     int64_t _9 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 106 "rt/fiber_runtime.w"
+#line 101 "rt/fiber_runtime.w"
     /* StorageLive(_1); */
+#line 103 "rt/fiber_runtime.w"
     /* StorageLive(_2); */
     _2 = 1469598103934665603;
-#line 107 "rt/fiber_runtime.w"
+#line 104 "rt/fiber_runtime.w"
     /* StorageLive(_3); */
     _3 = 0;
     goto bb1;
@@ -5757,19 +5765,24 @@ bb1:
     _4 = ((_1).len);
     goto bb4;
 bb2:
-#line 109 "rt/fiber_runtime.w"
+#line 106 "rt/fiber_runtime.w"
     _6 = (_2 * 1099511628211);
+#line 107 "rt/fiber_runtime.w"
     _7 = _3;
+#line 106 "rt/fiber_runtime.w"
     _8 = (_6 ^ _1.ptr[_7]);
     _2 = _8;
+#line 108 "rt/fiber_runtime.w"
     _9 = (_3 + 1);
+#line 107 "rt/fiber_runtime.w"
     _3 = _9;
     goto bb1;
 bb3:
+#line 108 "rt/fiber_runtime.w"
     _0 = _2;
     return _0;
 bb4:
-#line 108 "rt/fiber_runtime.w"
+#line 106 "rt/fiber_runtime.w"
     _5 = (_3 < _4);
     if (_5 == 1) {
         goto bb2;
