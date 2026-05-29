@@ -349,6 +349,23 @@ fn Sema.resolve_type_level_arg_expr(self: Sema, node: i32) -> i32:
     if node == 0:
         return 0
     let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_GROUPED:
+        return self.resolve_type_level_arg_expr(self.ast.get_data0(node))
+    if kind == NodeKind.NK_UNARY:
+        let op = self.ast.get_data0(node)
+        let inner = self.resolve_type_level_arg_expr(self.ast.get_data1(node))
+        if inner == 0:
+            return 0
+        if op == UnaryOp.UOP_REF:
+            return self.ensure_exact_type(TypeKind.TY_REF, inner, 0, 0) as i32
+        if op == UnaryOp.UOP_MUT_REF:
+            self.emit_error("`&mut T` is not part of safe With (§15.1); use mut self / *mut T (unsafe) / owned-by-value parameter", node)
+            return self.ensure_exact_type(TypeKind.TY_REF, inner, 1, 0) as i32
+        if op == UnaryOp.UOP_RAW_REF_CONST:
+            return self.ensure_exact_type(TypeKind.TY_PTR, inner, 0, 0) as i32
+        if op == UnaryOp.UOP_RAW_REF_MUT:
+            return self.ensure_exact_type(TypeKind.TY_PTR, inner, 1, 0) as i32
+        return 0
     if kind == NodeKind.NK_IDENT or kind == NodeKind.NK_TYPE_NAMED:
         let sym = self.ast.get_data0(node)
         let prim = self.primitive_type_by_sym(sym)
@@ -1611,6 +1628,174 @@ fn Sema.has_live_await_guard(self: Sema) -> i32:
         i = i - 1
     0
 
+fn Sema.fn_symbol_may_suspend(self: Sema, fn_sym: i32, visiting: HashMap[i32, i32]) -> i32:
+    if fn_sym == 0:
+        return 0
+    if visiting.contains(fn_sym):
+        return 0
+    if not self.fn_decl_nodes.contains(fn_sym):
+        return 0
+    visiting.insert(fn_sym, 1)
+    let fn_node = self.fn_decl_nodes.get(fn_sym).unwrap()
+    let body = self.ast.get_data1(fn_node)
+    let result = self.expr_may_suspend(body, visiting)
+    visiting.remove(fn_sym)
+    result
+
+fn Sema.expr_may_suspend(self: Sema, node: i32, visiting: HashMap[i32, i32]) -> i32:
+    if node == 0:
+        return 0
+    let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_AWAIT or kind == NodeKind.NK_SELECT_AWAIT:
+        return 1
+    if kind == NodeKind.NK_ASYNC_SCOPE:
+        return 1
+    if kind == NodeKind.NK_ASYNC_BLOCK or kind == NodeKind.NK_SPAWN:
+        return 0
+    if kind == NodeKind.NK_CALL:
+        if self.comp_resolved.contains(node):
+            if self.fn_symbol_may_suspend(self.comp_resolved.get(node).unwrap(), visiting) != 0:
+                return 1
+        let callee = self.ast.get_data0(node)
+        if self.ast.kind(callee) == NodeKind.NK_IDENT:
+            if self.fn_symbol_may_suspend(self.ast.get_data0(callee), visiting) != 0:
+                return 1
+        else if self.expr_may_suspend(callee, visiting) != 0:
+            return 1
+        let args_start = self.ast.get_data1(node)
+        let arg_count = self.ast.get_data2(node)
+        for ai in 0..arg_count:
+            if self.expr_may_suspend(self.ast.get_extra(args_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_BLOCK:
+        let extra_start = self.ast.get_data0(node)
+        let stmt_count = self.ast.get_data1(node)
+        for si in 0..stmt_count:
+            if self.expr_may_suspend(self.ast.get_extra(extra_start + si), visiting) != 0:
+                return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_CLOSURE or kind == NodeKind.NK_GROUPED or kind == NodeKind.NK_CAST or kind == NodeKind.NK_DEFER or kind == NodeKind.NK_ERRDEFER or kind == NodeKind.NK_LABEL or kind == NodeKind.NK_COPY_ARG or kind == NodeKind.NK_MOVE_ARG:
+        return self.expr_may_suspend(self.ast.get_data0(node), visiting)
+    if kind == NodeKind.NK_UNARY or kind == NodeKind.NK_RETURN:
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_BINARY or kind == NodeKind.NK_ASSIGN or kind == NodeKind.NK_PIPELINE or kind == NodeKind.NK_RANGE or kind == NodeKind.NK_COMPUTED_FIELD_ACCESS or kind == NodeKind.NK_MATCH_OP or kind == NodeKind.NK_NEG_MATCH_OP:
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_FIELD_ACCESS or kind == NodeKind.NK_INDEX or kind == NodeKind.NK_OPTIONAL_CHAIN:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_MULTI_INDEX:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let spec_start = self.ast.get_data1(node)
+        let spec_count = self.ast.get_data2(node)
+        for mi in 0..spec_count:
+            if self.expr_may_suspend(self.ast.get_extra(spec_start + mi), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_INDEX_SPEC:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node) % INDEX_KIND_SHIFT, visiting)
+    if kind == NodeKind.NK_IF_EXPR:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_WHILE:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_FOR:
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_LET_BINDING or kind == NodeKind.NK_LET_DECL:
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_LET_ELSE:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_TUPLE_DESTRUCTURE:
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_WITH_EXPR or kind == NodeKind.NK_WITH_IMPLICIT:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_WITH_TUPLE:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_TUPLE or kind == NodeKind.NK_ARRAY_LIT:
+        let extra_start = self.ast.get_data0(node)
+        let count = self.ast.get_data1(node)
+        for ai in 0..count:
+            if self.expr_may_suspend(self.ast.get_extra(extra_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_ARRAY_COMPREHENSION:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_STRUCT_LIT:
+        let extra_start = self.ast.get_data1(node)
+        let field_count = self.ast.get_data2(node)
+        for fi in 0..field_count:
+            if self.expr_may_suspend(self.ast.get_extra(extra_start + fi * 2 + 1), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_RECORD_UPDATE:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let extra_start = self.ast.get_data1(node)
+        let field_count = self.ast.get_data2(node)
+        for fi in 0..field_count:
+            if self.expr_may_suspend(self.ast.get_extra(extra_start + fi * 2 + 1), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_ENUM_VARIANT:
+        let extra_start = self.ast.get_data2(node)
+        if extra_start == 0:
+            return 0
+        let arg_count = self.ast.get_extra(extra_start)
+        for ai in 0..arg_count:
+            if self.expr_may_suspend(self.ast.get_extra(extra_start + 1 + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_MATCH:
+        if self.expr_may_suspend(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let arm_start = self.ast.get_data1(node)
+        let arm_count = self.ast.get_data2(node)
+        for ai in 0..arm_count:
+            if self.expr_may_suspend(self.ast.get_extra(arm_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_MATCH_ARM:
+        if self.expr_may_suspend(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_may_suspend(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_FSTRING:
+        let seg_count = self.ast.get_data0(node)
+        let extra_start = self.ast.get_data1(node)
+        var pos = extra_start
+        for si in 0..seg_count:
+            let seg_kind = self.ast.get_extra(pos)
+            let seg_data = self.ast.get_extra(pos + 1)
+            if seg_kind == 1 and self.expr_may_suspend(seg_data, visiting) != 0:
+                return 1
+            pos = pos + 2
+        return 0
+    0
+
 fn Sema.param_is_by_reference(self: Sema, tid: i32) -> i32:
     if tid == 0:
         return 0
@@ -1642,6 +1827,18 @@ fn Sema.expr_is_ephemeral_task(self: Sema, node: i32) -> i32:
                         return 1
         return 0
     0
+
+fn Sema.check_ephemeral_task_arg_escape(self: Sema, arg_node: i32, expected_ty: i32, is_extern_call: i32):
+    if arg_node <= 0:
+        return
+    if self.expr_is_ephemeral_task(arg_node) == 0:
+        return
+    if self.param_is_by_reference(expected_ty) != 0:
+        return
+    if is_extern_call != 0:
+        self.emit_error("ephemeral Task cannot be passed by value to extern function", arg_node)
+        return
+    self.emit_warning("ephemeral Task passed by value may escape", arg_node)
 
 fn Sema.expr_is_ephemeral_value(self: Sema, node: i32) -> i32:
     if node == 0:
@@ -5637,22 +5834,27 @@ fn Sema.is_chan_call(self: Sema, callee: i32) -> i32:
 fn Sema.chan_return_type(self: Sema, callee: i32) -> i32:
     // chan[T](cap) → (Sender[T], Receiver[T])
     // Extract T from the generic call's type argument
-    let type_arg_node = self.ast.get_data1(callee)
-    var elem_type = self.ty_i32 as i32
+    var type_arg_node = self.ast.get_data1(callee)
+    if self.ast.kind(callee) == NodeKind.NK_TYPE_GENERIC:
+        let type_arg_start = self.ast.get_data1(callee)
+        let type_arg_count = self.ast.get_data2(callee)
+        if type_arg_count != 1:
+            self.emit_error("chan expects exactly one element type", callee)
+            return 0
+        type_arg_node = self.ast.get_extra(type_arg_start)
+    var elem_type = 0
     if type_arg_node > 0:
-        // Look up the type from sema's type cache
-        if self.typed_expr_types.contains(type_arg_node):
-            elem_type = self.typed_expr_types.get(type_arg_node).unwrap()
+        let resolved_elem = self.resolve_type_level_arg_expr(type_arg_node)
+        if resolved_elem != 0:
+            elem_type = resolved_elem
         else:
-            // Try to resolve as a named type
-            let ta_kind = self.ast.kind(type_arg_node)
-            if ta_kind == NodeKind.NK_IDENT or ta_kind == NodeKind.NK_TYPE_NAMED:
-                let ta_sym = self.ast.get_data0(type_arg_node)
-                let prim = self.primitive_type_by_sym(ta_sym)
-                if prim != 0:
-                    elem_type = prim as i32
-                else if self.named_types.contains(ta_sym):
-                    elem_type = self.named_types.get(ta_sym).unwrap()
+            self.emit_error("channel element type could not be resolved", type_arg_node)
+            return 0
+    else:
+        self.emit_error("chan expects exactly one element type", callee)
+        return 0
+    if self.type_is_ephemeral_value(elem_type) != 0:
+        self.emit_error("channel element type must be Send", if type_arg_node > 0: type_arg_node else: callee)
     // Build Sender[T] and Receiver[T] types
     let sender_sym = self.pool_intern("Sender")
     let receiver_sym = self.pool_intern("Receiver")
@@ -5758,8 +5960,7 @@ fn Sema.check_callable_value_call(self: Sema, call_name: str, fn_tid: i32, closu
                 else:
                     self.note_auto_ref_call_arg(expected_ty, arg_ty, err_arg_node, node)
         let eph_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
-        if eph_arg_node > 0 and self.expr_is_ephemeral_task(eph_arg_node) != 0 and self.param_is_by_reference(expected_ty) == 0:
-            self.emit_warning("ephemeral Task passed by value may escape", eph_arg_node)
+        self.check_ephemeral_task_arg_escape(eph_arg_node, expected_ty, 0)
 
     if closure_node > 0:
         let capture_count = self.closure_capture_summary_count(closure_node)
@@ -6085,6 +6286,12 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
         if is_closure_arg:
             self.closure_direct_arg_escape_flags.pop()
             self.closure_direct_arg_depth = self.closure_direct_arg_depth - 1
+        if sig_idx >= 0 and self.extern_fn_names.contains(fn_sym) and expected_ty != 0:
+            let callback_expected = self.resolve_alias(expected_ty as TypeId)
+            if self.get_type_kind(callback_expected) == TypeKind.TY_FN:
+                let callback_visiting: HashMap[i32, i32] = HashMap.new()
+                if self.expr_may_suspend(arg_node, callback_visiting) != 0:
+                    self.emit_error("may_suspend in extern C callback", arg_node)
         arg_types.push(arg_ty as i32)
         let iter_idx = self.maybe_register_iter_of_self_borrow(arg_node)
         if iter_idx >= 0:
@@ -6160,8 +6367,7 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
                     else:
                         self.note_auto_ref_call_arg(expected_ty, arg_ty, err_arg_node, node)
             let eph_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
-            if eph_arg_node > 0 and self.expr_is_ephemeral_task(eph_arg_node) != 0 and self.param_is_by_reference(expected_ty) == 0:
-                self.emit_warning("ephemeral Task passed by value may escape", eph_arg_node)
+            self.check_ephemeral_task_arg_escape(eph_arg_node, expected_ty, if self.extern_fn_names.contains(fn_sym): 1 else: 0)
             // Effect enforcement: if the callee may consume/escape this arg, it must be explicitly moved or copied
             let param_eff = self.sig_param_effect(sig_idx, param_i)
             // Transitive effect propagation: if this arg is a param of the current function,
@@ -7626,6 +7832,19 @@ fn Sema.method_expected_arg_type(self: Sema, recv_type: i32, field: i32, arg_ind
         return self.get_generic_inst_arg(resolved as i32, 0)
     0
 
+fn Sema.sender_send_element_type(self: Sema, recv_type: i32, field: i32, arg_index: i32) -> i32:
+    if recv_type == 0 or arg_index != 0:
+        return 0
+    if self.pool_resolve(field) != "send":
+        return 0
+    let resolved = self.resolve_alias(recv_type as TypeId)
+    if self.get_type_kind(resolved) != TypeKind.TY_GENERIC_INST:
+        return 0
+    let owner_sym = self.get_generic_inst_base(resolved as i32)
+    if self.pool_resolve(owner_sym) != "Sender":
+        return 0
+    self.get_generic_inst_arg(resolved as i32, 0)
+
 fn Sema.trait_object_from_type_node(self: Sema, type_node: i32) -> i32:
     if type_node == 0:
         return 0
@@ -7960,6 +8179,10 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
             mc_expected = self.method_expected_arg_type(obj_type as i32, field, ai)
         let mc_arg_ty = if mc_expected != 0: self.check_expr_with_expected(mc_arg_node, mc_expected as TypeId) else: self.check_expr(mc_arg_node)
         arg_types.push(mc_arg_ty as i32)
+        let mc_sender_elem_ty = self.sender_send_element_type(obj_type as i32, field, ai)
+        if mc_sender_elem_ty != 0:
+            if self.type_is_ephemeral_value(mc_sender_elem_ty) != 0 or self.type_is_ephemeral_value(mc_arg_ty as i32) != 0 or self.expr_is_ephemeral_value(mc_arg_node) != 0 or self.expr_is_ephemeral_task(mc_arg_node) != 0:
+                self.emit_error("channel send requires Send value", mc_arg_node)
         if mc_is_closure:
             self.closure_direct_arg_escape_flags.pop()
             self.closure_direct_arg_depth = self.closure_direct_arg_depth - 1
@@ -8631,10 +8854,10 @@ fn Sema.check_intrinsic_call(self: Sema, fn_sym: i32, node: i32, arg_types: Vec[
                 self.emit_error("send() expects channel handle as integer value", self.ast.get_extra(args_start))
                 return 0
         let payload_node = self.ast.get_extra(args_start + 1)
-        if self.expr_is_ephemeral_value(payload_node) != 0 or self.expr_is_ephemeral_task(payload_node) != 0:
+        let payload_ty = arg_types.get(1)
+        if self.expr_is_ephemeral_value(payload_node) != 0 or self.expr_is_ephemeral_task(payload_node) != 0 or self.type_is_ephemeral_value(payload_ty) != 0:
             self.emit_error("channel send requires Send value", payload_node)
             return 0
-        let payload_ty = arg_types.get(1)
         if payload_ty != 0:
             let payload_kind = self.get_type_kind(self.resolve_alias(payload_ty))
             if payload_kind != TypeKind.TY_INT:
