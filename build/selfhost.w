@@ -86,6 +86,19 @@ fn bs_host_platform_runtime_object() -> str:
         return "rt_linux_x86_64.o"
     if host_os == "Macos" and (host_arch == "armv8" or host_arch == "aarch64"):
         return "rt_darwin_aarch64.o"
+    if host_os == "Windows" and host_arch == "x86_64":
+        return "rt_windows_x86_64.o"
+    ""
+
+fn bs_host_compat_runtime_object() -> str:
+    let host_os = os()
+    let host_arch = arch()
+    if host_os == "Linux" and host_arch == "x86_64":
+        return "compat_runtime.o"
+    if host_os == "Macos" and (host_arch == "armv8" or host_arch == "aarch64"):
+        return "compat_runtime.o"
+    if host_os == "Windows" and host_arch == "x86_64":
+        return "compat_runtime_windows.o"
     ""
 
 fn bs_run_cli_capture(ctx: ActionCtx, compiler_path: str, label: str, args: Vec[str], timeout_ms: i32) -> SelfhostRunResult:
@@ -1013,7 +1026,7 @@ fn bs_compile_emit_c_output(ctx: ActionCtx, root: str, case_dir: str, c_path: st
     cc_args |> push(bs_abs(root, c_path))
     cc_args |> push(bs_abs(root, "out/lib/rt_core.o"))
     cc_args |> push(bs_abs(root, "out/lib/" ++ platform_obj))
-    cc_args |> push(bs_abs(root, "out/lib/compat_runtime.o"))
+     cc_args |> push(bs_abs(root, "out/lib/" ++ bs_host_compat_runtime_object()))
     cc_args |> push(bs_abs(root, "out/lib/panic_runtime.o"))
     cc_args |> push(bs_abs(root, "out/lib/fiber_stubs.o"))
     cc_args |> push(bs_abs(root, "out/lib/cimport_stubs.o"))
@@ -1302,7 +1315,7 @@ pub fn run_emit_c_smoke_action(ctx: ActionCtx) -> i32:
     cc_args |> push(bs_abs(root, c_path))
     cc_args |> push(bs_abs(root, "out/lib/rt_core.o"))
     cc_args |> push(bs_abs(root, "out/lib/" ++ platform_obj))
-    cc_args |> push(bs_abs(root, "out/lib/compat_runtime.o"))
+     cc_args |> push(bs_abs(root, "out/lib/" ++ bs_host_compat_runtime_object()))
     cc_args |> push(bs_abs(root, "out/lib/panic_runtime.o"))
     cc_args |> push(bs_abs(root, "out/lib/fiber_stubs.o"))
     cc_args |> push(bs_abs(root, "out/lib/cimport_stubs.o"))
