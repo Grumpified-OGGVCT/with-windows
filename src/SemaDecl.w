@@ -215,7 +215,9 @@ fn Sema.resolve_deferred_non_generic_type_decl(self: Sema, decl: i32):
         return
 
     let extra_start = self.ast.get_data1(decl)
-    let sub_kind = type_decl_sub_kind(self.ast.get_data2(decl))
+    let packed_kind = self.ast.get_data2(decl)
+    let sub_kind = type_decl_sub_kind(packed_kind)
+    let is_ephemeral = type_decl_is_ephemeral(packed_kind)
     let resolved = self.resolve_alias(tid)
 
     if sub_kind == TypeDeclKind.Struct or sub_kind == TypeDeclKind.Union:
@@ -228,8 +230,11 @@ fn Sema.resolve_deferred_non_generic_type_decl(self: Sema, decl: i32):
             let field_base = extra_start + 1 + fi * 3
             let field_type_node = self.ast.get_extra(field_base + 1)
             self.resolve_deferred_value_type_slot(field_slot, field_type_node, "opaque types cannot be stored in struct fields; use a pointer or reference")
+            let field_tid = self.type_extra.get(field_slot as i64)
+            if is_ephemeral == 0 and field_tid != 0 and self.type_is_ephemeral_value(field_tid) != 0:
+                let msg = if sub_kind == TypeDeclKind.Union: "ephemeral values cannot be stored in non-ephemeral unions" else: "ephemeral values cannot be stored in non-ephemeral structs"
+                self.emit_error(msg, field_type_node)
         // Validate bitpacked field types: must be integer, bool, or nested bitpacked
-        let packed_kind = self.ast.get_data2(decl)
         if type_decl_is_bitpacked(packed_kind) != 0:
             for fi in 0..field_count:
                 let bp_field_slot = te_start + fi * 3 + 1
@@ -260,6 +265,9 @@ fn Sema.resolve_deferred_non_generic_type_decl(self: Sema, decl: i32):
                 let payload_slot = type_pos + pi
                 let payload_type_node = self.ast.get_extra(ast_pos + pi)
                 self.resolve_deferred_value_type_slot(payload_slot, payload_type_node, "opaque types cannot be stored in enum payloads by value; use a pointer or reference")
+                let payload_tid = self.type_extra.get(payload_slot as i64)
+                if is_ephemeral == 0 and payload_tid != 0 and self.type_is_ephemeral_value(payload_tid) != 0:
+                    self.emit_error("ephemeral values cannot be stored in enum payloads", payload_type_node)
             ast_pos = ast_pos + payload_count
             type_pos = type_pos + payload_count
         return
@@ -286,6 +294,9 @@ fn Sema.resolve_deferred_non_generic_type_decl(self: Sema, decl: i32):
                 let payload_slot = type_pos + pi
                 let payload_type_node = self.ast.get_extra(ast_pos + pi)
                 self.resolve_deferred_value_type_slot(payload_slot, payload_type_node, "opaque types cannot be stored in enum payloads by value; use a pointer or reference")
+                let payload_tid = self.type_extra.get(payload_slot as i64)
+                if is_ephemeral == 0 and payload_tid != 0 and self.type_is_ephemeral_value(payload_tid) != 0:
+                    self.emit_error("ephemeral values cannot be stored in enum payloads", payload_type_node)
             ast_pos = ast_pos + payload_count
             type_pos = type_pos + payload_count
         return
@@ -306,6 +317,9 @@ fn Sema.resolve_deferred_non_generic_type_decl(self: Sema, decl: i32):
         let value_slot = te_start + 1
         let inner_node = self.ast.get_extra(extra_start)
         self.resolve_deferred_value_type_slot(value_slot, inner_node, "opaque types cannot be wrapped by value in distinct types; use a pointer or reference")
+        let inner_tid = self.type_extra.get(value_slot as i64)
+        if is_ephemeral == 0 and inner_tid != 0 and self.type_is_ephemeral_value(inner_tid) != 0:
+            self.emit_error("ephemeral values cannot be stored in non-ephemeral distinct types", inner_node)
 
 fn Sema.is_local_decl(self: Sema, decl_index: i32) -> i32:
     let limit = self.ast.local_decl_count()
@@ -474,6 +488,9 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
     let packed_kind = self.ast.get_data2(node)
     let sub_kind = type_decl_sub_kind(packed_kind)
     let is_ephemeral = type_decl_is_ephemeral(packed_kind)
+    let is_generic_decl = if self.type_decl_tp_count(node) != 0: 1 else: 0
+    if is_ephemeral != 0:
+        self.ephemeral_types.insert(name, 1)
 
     if sub_kind == TypeDeclKind.Struct:
         let field_count = self.ast.get_extra(extra_start)
@@ -500,6 +517,8 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
             let f_tid = self.resolve_type_expr(f_type_node)
             if self.is_opaque_value_type(f_tid) != 0:
                 self.emit_error("opaque types cannot be stored in struct fields; use a pointer or reference", f_type_node)
+            if is_generic_decl != 0 and not is_ephemeral and f_tid != 0 and self.type_is_ephemeral_value(f_tid as i32) != 0:
+                self.emit_error("ephemeral values cannot be stored in non-ephemeral structs", f_type_node)
             field_names.push(f_name)
             field_tids.push(f_tid as i32)
             field_defaults.push(f_default)
@@ -537,6 +556,8 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
                 let pt_tid = self.resolve_type_expr(pt_node)
                 if self.is_opaque_value_type(pt_tid) != 0:
                     self.emit_error("opaque types cannot be stored in enum payloads by value; use a pointer or reference", pt_node)
+                if is_generic_decl != 0 and not is_ephemeral and pt_tid != 0 and self.type_is_ephemeral_value(pt_tid as i32) != 0:
+                    self.emit_error("ephemeral values cannot be stored in enum payloads", pt_node)
                 payload_tids.push(pt_tid as i32)
         let te_start = self.type_extra.len() as i32
         var payload_cursor = 0
@@ -659,6 +680,8 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
         let inner = self.resolve_type_expr(inner_node)
         if self.is_opaque_value_type(inner) != 0:
             self.emit_error("opaque types cannot be wrapped by value in distinct types; use a pointer or reference", inner_node)
+        if is_generic_decl != 0 and not is_ephemeral and inner != 0 and self.type_is_ephemeral_value(inner as i32) != 0:
+            self.emit_error("ephemeral values cannot be stored in non-ephemeral distinct types", inner_node)
         // Distinct type: treat as single-field struct
         let te_start = self.type_extra.len() as i32
         let val_sym = self.pool_intern("value")
@@ -691,6 +714,8 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
             let f_tid = self.resolve_type_expr(f_type_node)
             if self.is_opaque_value_type(f_tid) != 0:
                 self.emit_error("opaque types cannot be stored in union fields; use a pointer or reference", f_type_node)
+            if is_generic_decl != 0 and not is_ephemeral and f_tid != 0 and self.type_is_ephemeral_value(f_tid as i32) != 0:
+                self.emit_error("ephemeral values cannot be stored in non-ephemeral unions", f_type_node)
             field_names.push(f_name)
             field_tids.push(f_tid as i32)
             field_defaults.push(f_default)
@@ -706,9 +731,6 @@ fn Sema.collect_type_decl(self: Sema, node: i32, is_local: i32):
         let tid = self.add_type(TypeKind.TY_STRUCT, name, te_start, field_count)
         self.record_named_type(name, tid as i32)
         self.type_decl_tids.insert(node, tid as i32)
-
-    if is_ephemeral != 0:
-        self.ephemeral_types.insert(name, 1)
 
     if self.ast.is_must_use_type_node(node) != 0:
         self.must_use_types.insert(name, 1)
@@ -1298,6 +1320,8 @@ fn Sema.collect_let_decl(self: Sema, node: i32, is_local: i32):
         bind_ty = self.resolve_type_expr(type_node)
         if self.is_opaque_value_type(bind_ty) != 0:
             self.emit_error("opaque values cannot be stored by value; use a pointer or reference", type_node)
+        if bind_ty != 0 and self.type_is_ephemeral_value(bind_ty as i32) != 0:
+            self.emit_error("ephemeral values cannot be stored in global storage", type_node)
         if self.type_expr_is_collection_with_ref(type_node) != 0:
             self.emit_error("ephemeral references cannot be stored in generic containers", node)
     self.register_top_level_global_decl(name, bind_ty as i32, is_mut, node, GLOBAL_VALUE_DECL_DEF)
@@ -1376,6 +1400,29 @@ fn Sema.collect_trait_decl(self: Sema, node: i32, is_local: i32):
     if is_local != 0:
         self.local_trait_names.insert(name, 1)
 
+fn Sema.type_decl_type_param_count(self: Sema, type_name: i32) -> i32:
+    if not self.type_decl_nodes.contains(type_name):
+        return 0
+    let td_node = self.type_decl_nodes.get(type_name).unwrap()
+    let td_extra_start = self.ast.get_data1(td_node)
+    let td_packed = self.ast.get_data2(td_node)
+    let td_sub_kind = type_decl_sub_kind(td_packed)
+    if td_sub_kind == TypeDeclKind.Struct:
+        let field_count = self.ast.get_extra(td_extra_start)
+        let after_fields = td_extra_start + 1 + field_count * 4
+        return self.ast.get_extra(after_fields + 2)
+    if td_sub_kind == TypeDeclKind.Alias or td_sub_kind == TypeDeclKind.Distinct:
+        return self.ast.get_extra(td_extra_start + 3)
+    if td_sub_kind == TypeDeclKind.Enum:
+        let variant_count = self.ast.get_extra(td_extra_start)
+        var epos = td_extra_start + 1
+        for vi in 0..variant_count:
+            epos = epos + 1
+            let payload_count = self.ast.get_extra(epos)
+            epos = epos + 1 + payload_count
+        return self.ast.get_extra(epos + 2)
+    0
+
 // Check if a new direct impl overlaps with any existing blanket impl
 fn Sema.check_direct_overlap(self: Sema, type_name: i32, trait_sym: i32, node: i32):
     for bi in 0..self.blanket_trait_syms.len() as i32:
@@ -1385,6 +1432,8 @@ fn Sema.check_direct_overlap(self: Sema, type_name: i32, trait_sym: i32, node: i
         // it only overlaps if this direct impl is for that same base type.
         let target_base = self.blanket_target_base_syms.get(bi as i64)
         if target_base != 0 and target_base != type_name:
+            continue
+        if target_base != 0 and self.type_decl_type_param_count(type_name) == 0:
             continue
         let b_start = self.blanket_bound_starts.get(bi as i64)
         let b_count = self.blanket_bound_counts.get(bi as i64)
@@ -1403,6 +1452,8 @@ fn Sema.check_blanket_overlap(self: Sema, trait_sym: i32, bound_start: i32, boun
         let t_sym = self.impl_type_syms.get(ti as i64)
         // If the blanket targets a specific type, only check that type.
         if target_base != 0 and target_base != t_sym:
+            continue
+        if target_base != 0 and self.type_decl_type_param_count(t_sym) == 0:
             continue
         let t_start = self.impl_starts.get(ti as i64)
         let t_count = self.impl_counts.get(ti as i64)
@@ -1647,6 +1698,41 @@ fn Sema.emit_trait_object_safety_error(self: Sema, trait_sym: i32, method_sym: i
     let method_name = self.pool_resolve(method_sym)
     self.emit_error("trait '" ++ trait_name ++ "' is not object-safe: method '" ++ method_name ++ "' " ++ reason, node)
 
+fn Sema.type_node_mentions_self(self: Sema, type_node: i32) -> i32:
+    if type_node == 0:
+        return 0
+    let kind = self.ast.kind(type_node)
+    if kind == NodeKind.NK_TYPE_NAMED:
+        return if self.ast.get_data0(type_node) == self.syms.self_type: 1 else: 0
+    if kind == NodeKind.NK_TYPE_ASSOC:
+        return if self.ast.get_data0(type_node) == self.syms.self_type: 1 else: 0
+    if kind == NodeKind.NK_TYPE_PTR or kind == NodeKind.NK_TYPE_REF or kind == NodeKind.NK_TYPE_OPTIONAL or kind == NodeKind.NK_TYPE_SLICE or kind == NodeKind.NK_TYPE_ARRAY:
+        return self.type_node_mentions_self(self.ast.get_data0(type_node))
+    if kind == NodeKind.NK_TYPE_TUPLE:
+        let extra_start = self.ast.get_data0(type_node)
+        let elem_count = self.ast.get_data1(type_node)
+        for ei in 0..elem_count:
+            if self.type_node_mentions_self(self.ast.get_extra(extra_start + ei)) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_TYPE_FN:
+        let extra_start = self.ast.get_data0(type_node)
+        let param_count = self.ast.get_data1(type_node)
+        let ret_node = self.ast.get_data2(type_node)
+        for pi in 0..param_count:
+            if self.type_node_mentions_self(self.ast.get_extra(extra_start + pi)) != 0:
+                return 1
+        return self.type_node_mentions_self(ret_node)
+    if kind == NodeKind.NK_TYPE_GENERIC:
+        if self.ast.get_data0(type_node) == self.syms.self_type:
+            return 1
+        let extra_start = self.ast.get_data1(type_node)
+        let arg_count = self.ast.get_data2(type_node)
+        for ai in 0..arg_count:
+            if self.type_node_mentions_self(self.ast.get_extra(extra_start + ai)) != 0:
+                return 1
+    0
+
 fn Sema.ensure_trait_object_safe(self: Sema, trait_sym: i32, node: i32) -> i32:
     let trait_node = self.find_trait_decl_node(trait_sym)
     if trait_node == 0:
@@ -1665,7 +1751,6 @@ fn Sema.ensure_trait_object_safe(self: Sema, trait_sym: i32, node: i32) -> i32:
     pos = pos + 1
 
     let self_name_sym = self.pool_intern("self")
-    let self_type_sym = self.syms.self_type
     for mi in 0..method_count:
         let method_sym = self.ast.get_extra(pos)
         pos = pos + 1
@@ -1688,12 +1773,26 @@ fn Sema.ensure_trait_object_safe(self: Sema, trait_sym: i32, node: i32) -> i32:
             self.emit_trait_object_safety_error(trait_sym, method_sym, "has no self parameter", node)
             return 0
 
+        let first_param_flags = self.ast.fn_param_flags(param_start, 0)
+        if fn_param_is_move_self(first_param_flags) != 0:
+            self.emit_trait_object_safety_error(trait_sym, method_sym, "uses consuming receiver 'move self: Self'; use Box[dyn Trait] for consuming trait-object calls", node)
+            return 0
+        if fn_param_is_ref_self(first_param_flags) == 0 and fn_param_is_mut_self(first_param_flags) == 0:
+            self.emit_trait_object_safety_error(trait_sym, method_sym, "receiver is not object-safe; use 'self: &Self' or 'mut self: Self'", node)
+            return 0
+
         if (method_flags / sema_trait_method_flag_generic()) % 2 == 1:
             self.emit_trait_object_safety_error(trait_sym, method_sym, "is generic", node)
             return 0
 
-        if ret_node != 0 and self.ast.kind(ret_node) == NodeKind.NK_TYPE_NAMED and self.ast.get_data0(ret_node) == self_type_sym:
-            self.emit_trait_object_safety_error(trait_sym, method_sym, "returns Self", node)
+        for pi in 1..param_count:
+            let p_type_node = self.ast.fn_param_type(param_start, pi)
+            if self.type_node_mentions_self(p_type_node) != 0:
+                self.emit_trait_object_safety_error(trait_sym, method_sym, "parameter mentions Self outside the receiver", node)
+                return 0
+
+        if self.type_node_mentions_self(ret_node) != 0:
+            self.emit_trait_object_safety_error(trait_sym, method_sym, "return type mentions Self", node)
             return 0
 
     1
@@ -1755,7 +1854,8 @@ fn Sema.validate_type_expr_with_type_params(self: Sema, node: i32, tp_start: i32
         if not self.lang_trait_syms.contains(trait_sym) and not self.trait_lookup.contains(trait_sym):
             self.emit_error("unknown trait", node)
             return
-        let _ok = self.ensure_trait_object_safe(trait_sym, node)
+        if self.ast.get_data1(node) != TYPE_TRAIT_OBJECT_IMPL:
+            let _ok = self.ensure_trait_object_safe(trait_sym, node)
         return
 
 fn Sema.validate_where_clause(self: Sema, fn_node: i32, tp_start: i32, tp_count: i32):
@@ -2042,6 +2142,7 @@ fn Sema.primitive_type_by_sym(self: Sema, sym: i32) -> i32:
     if with_str_eq(name, "f64") != 0: return self.ty_f64 as i32
     if with_str_eq(name, "bool") != 0: return self.ty_bool as i32
     if with_str_eq(name, "void") != 0: return self.ty_void as i32
+    if with_str_eq(name, "Unit") != 0: return self.ty_void as i32
     if with_str_eq(name, "Never") != 0: return self.ty_never as i32
     if with_str_eq(name, "str") != 0: return self.ty_str as i32
     if with_str_eq(name, "String") != 0: return self.ty_str as i32

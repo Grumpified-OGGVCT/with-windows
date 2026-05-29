@@ -128,6 +128,9 @@ type SemaBuiltinSymbols {
     result: i32,
     hashmap: i32,
     hashset: i32,
+    handle: i32,
+    slotmap: i32,
+    slotmapslot: i32,
     box: i32,
     regex: i32,
     ok: i32,
@@ -417,6 +420,10 @@ type Sema {
     comp_resolved: HashMap[i32, i32],
     // Pipeline method calls: NK_PIPELINE node → method-name symbol.
     pipeline_method_calls: HashMap[i32, i32],
+    // Operator method calls: NK_BINARY node -> resolved function symbol, plus
+    // node -> 1 when the right operand is the receiver.
+    operator_method_calls: HashMap[i32, i32],
+    operator_method_reversed: HashMap[i32, i32],
     // Match value-pattern sidecar: pattern node → symbol compared by value.
     pattern_value_syms: HashMap[i32, i32],
     // Regex literal metadata sidecars, keyed by NK_REGEX_LIT/NK_PAT_REGEX node.
@@ -690,6 +697,9 @@ fn sema_builtin_symbols_zero -> SemaBuiltinSymbols:
         result: 0,
         hashmap: 0,
         hashset: 0,
+        handle: 0,
+        slotmap: 0,
+        slotmapslot: 0,
         box: 0,
         regex: 0,
         ok: 0,
@@ -948,6 +958,8 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         implicit_binding_syms: Vec.new(),
         comp_resolved: sema_new_map_i32_i32(),
         pipeline_method_calls: sema_new_map_i32_i32(),
+        operator_method_calls: sema_new_map_i32_i32(),
+        operator_method_reversed: sema_new_map_i32_i32(),
         pattern_value_syms: sema_new_map_i32_i32(),
         regex_capture_counts: sema_new_map_i32_i32(),
         regex_capture_name_starts: sema_new_map_i32_i32(),
@@ -1103,6 +1115,7 @@ fn Sema.init(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Sema:
     s.register_prim("f64", s.ty_f64)
     s.register_prim("bool", s.ty_bool)
     s.register_prim("void", s.ty_void)
+    s.register_prim("Unit", s.ty_void)
     s.register_prim("Never", s.ty_never)
     s.register_prim("str", s.ty_str)
     s.register_prim("String", s.ty_str)
@@ -1282,6 +1295,9 @@ fn Sema.init_intrinsic_symbols(mut self: Sema):
     self.syms.result = self.pool_intern("Result")
     self.syms.hashmap = self.pool_intern("HashMap")
     self.syms.hashset = self.pool_intern("HashSet")
+    self.syms.handle = self.pool_intern("Handle")
+    self.syms.slotmap = self.pool_intern("SlotMap")
+    self.syms.slotmapslot = self.pool_intern("SlotMapSlot")
     self.syms.box = self.pool_intern("Box")
     self.syms.ok = self.pool_intern("Ok")
     self.syms.err = self.pool_intern("Err")
@@ -3074,6 +3090,8 @@ fn Sema.is_copy(self: Sema, tid: TypeId) -> i32:
     if tk == TypeKind.TY_SLICE:
         return 1
     if tk == TypeKind.TY_GENERIC_INST:
+        if self.get_generic_inst_base(resolved as i32) == self.syms.handle:
+            return 1
         // Generic instances (Vec[T], etc.) are non-Copy by default.
         // Copy iff there is an explicit `impl[T: Copy] Copy for Base[T]` registered.
         // Do NOT call type_implements_trait(copy_trait) here — it just calls is_copy() back.

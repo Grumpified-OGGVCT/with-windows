@@ -160,6 +160,43 @@ fn Sema.builtin_arg_type_compatible(self: Sema, expected: i32, actual: i32) -> i
             return 1
     0
 
+fn Sema.can_auto_ref_arg(self: Sema, expected: i32, actual: i32) -> i32:
+    if expected == 0 or actual == 0:
+        return 0
+    let expected_resolved = self.resolve_alias(expected as TypeId)
+    if self.get_type_kind(expected_resolved) != TypeKind.TY_REF:
+        return 0
+    if self.get_type_d1(expected_resolved) != 0:
+        return 0
+    let pointee = self.get_type_d0(expected_resolved)
+    if pointee == 0:
+        return 0
+    let pointee_resolved = self.resolve_alias(pointee as TypeId)
+    let actual_resolved = self.resolve_alias(actual as TypeId)
+    if pointee_resolved == actual_resolved:
+        return 1
+    let pointee_kind = self.get_type_kind(pointee_resolved)
+    let actual_kind = self.get_type_kind(actual_resolved)
+    if pointee_kind == TypeKind.TY_STRUCT and actual_kind == TypeKind.TY_STRUCT:
+        return if self.get_type_d0(pointee_resolved) == self.get_type_d0(actual_resolved): 1 else: 0
+    if pointee_kind == TypeKind.TY_ENUM and actual_kind == TypeKind.TY_ENUM:
+        return if self.get_type_d0(pointee_resolved) == self.get_type_d0(actual_resolved): 1 else: 0
+    if pointee_kind == TypeKind.TY_GENERIC_INST and actual_kind == TypeKind.TY_GENERIC_INST:
+        return self.types_compatible(pointee, actual)
+    0
+
+fn Sema.call_arg_type_compatible(self: Sema, expected: i32, actual: i32) -> i32:
+    if self.builtin_arg_type_compatible(expected, actual) != 0:
+        return 1
+    self.can_auto_ref_arg(expected, actual)
+
+fn Sema.note_auto_ref_call_arg(self: Sema, expected: i32, actual: i32, arg_node: i32, err_node: i32):
+    if self.can_auto_ref_arg(expected, actual) == 0:
+        return
+    if arg_node <= 0:
+        return
+    self.check_borrow_create(arg_node, BorrowKind.SHARED, if err_node > 0: err_node else: arg_node)
+
 // ── Type expression resolution ───────────────────────────────────
 
 fn Sema.resolve_type_expr(self: Sema, node: i32) -> TypeId:
@@ -167,6 +204,9 @@ fn Sema.resolve_type_expr(self: Sema, node: i32) -> TypeId:
         return 0 as TypeId
 
     let kind = self.ast.kind(node)
+
+    if kind == NodeKind.NK_INDEX:
+        return self.resolve_type_level_arg_expr(node) as TypeId
 
     if kind == NodeKind.NK_TYPE_NAMED:
         let sym = self.ast.get_data0(node)
@@ -268,6 +308,8 @@ fn Sema.resolve_type_expr(self: Sema, node: i32) -> TypeId:
     if kind == NodeKind.NK_TYPE_TUPLE:
         let extra_start = self.ast.get_data0(node)
         let elem_count = self.ast.get_data1(node)
+        if elem_count == 0:
+            return self.ty_void
         let tuple_elems: Vec[i32] = Vec.new()
         for ei in 0..elem_count:
             let e_node = self.ast.get_extra(extra_start + ei)
@@ -289,7 +331,7 @@ fn Sema.resolve_type_expr(self: Sema, node: i32) -> TypeId:
         if not self.lang_trait_syms.contains(trait_sym) and not self.trait_lookup.contains(trait_sym):
             self.emit_error("unknown trait", node)
             return 0 as TypeId
-        if self.ensure_trait_object_safe(trait_sym, node) == 0:
+        if self.ast.get_data1(node) != TYPE_TRAIT_OBJECT_IMPL and self.ensure_trait_object_safe(trait_sym, node) == 0:
             return 0 as TypeId
         return self.ensure_exact_type(TypeKind.TY_TRAIT_OBJ, trait_sym, 0, 0)
 
@@ -302,6 +344,51 @@ fn Sema.resolve_type_expr(self: Sema, node: i32) -> TypeId:
         return self.ty_i32
 
     0 as TypeId
+
+fn Sema.resolve_type_level_arg_expr(self: Sema, node: i32) -> i32:
+    if node == 0:
+        return 0
+    let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_IDENT or kind == NodeKind.NK_TYPE_NAMED:
+        let sym = self.ast.get_data0(node)
+        let prim = self.primitive_type_by_sym(sym)
+        if prim != 0:
+            return prim as i32
+        let subst = self.lookup_generic_subst(sym)
+        if subst != 0:
+            return subst as i32
+        return self.lookup_named_type_visible(sym)
+    if kind == NodeKind.NK_TYPE_GENERIC:
+        return self.resolve_generic_type(node)
+    if kind == NodeKind.NK_INDEX:
+        let base = self.ast.get_data0(node)
+        if self.ast.kind(base) != NodeKind.NK_IDENT:
+            return 0
+        var base_sym = self.ast.get_data0(base)
+        var base_tid = self.lookup_named_type_visible(base_sym)
+        if base_tid == 0:
+            let canonical_base = self.canonical_symbol_by_text(base_sym)
+            if canonical_base != 0 and canonical_base != base_sym:
+                base_sym = canonical_base
+                base_tid = self.lookup_named_type_visible(base_sym)
+        if base_tid == 0:
+            return 0
+        let arg1_node = self.ast.get_data1(node)
+        let arg1_ty = self.resolve_type_level_arg_expr(arg1_node)
+        if arg1_ty == 0:
+            return 0
+        let args: Vec[i32] = Vec.new()
+        args.push(arg1_ty)
+        var arg_count = 1
+        let arg2_node = self.ast.get_data2(node)
+        if arg2_node != 0:
+            let arg2_ty = self.resolve_type_level_arg_expr(arg2_node)
+            if arg2_ty == 0:
+                return 0
+            args.push(arg2_ty)
+            arg_count = 2
+        return self.ensure_generic_inst_type(base_sym, args, arg_count) as i32
+    self.resolve_type_expr(node) as i32
 
 // ── Pass 2: Check function bodies ────────────────────────────────
 
@@ -1698,6 +1785,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
             self.emit_error("Regex type is not available; import std.regex", node)
             return 0 as TypeId
         self.validate_regex_literal(node)
+        self.typed_expr_types.insert(node, regex_ty)
         return regex_ty as TypeId
 
     if kind == NodeKind.NK_FSTRING:
@@ -2429,6 +2517,114 @@ fn Sema.validate_fstring_spec(self: Sema, spec_node: i32, expr_ty: i32, expr_nod
         if not is_numeric:
             self.emit_error("sign '+' requires numeric type", spec_node)
 
+type SemaOperatorCandidate {
+    sig: i32,
+    fn_sym: i32,
+    owner_sym: i32,
+}
+
+fn sema_operator_candidate_none -> SemaOperatorCandidate:
+    SemaOperatorCandidate { sig: -1, fn_sym: 0, owner_sym: 0 }
+
+fn sema_operator_method_name(op: i32) -> str:
+    if op == BinaryOp.OP_ADD: return "add"
+    if op == BinaryOp.OP_SUB: return "sub"
+    if op == BinaryOp.OP_MUL: return "mul"
+    if op == BinaryOp.OP_DIV: return "div"
+    if op == BinaryOp.OP_MOD: return "mod"
+    if op == BinaryOp.OP_EQ: return "eq"
+    if op == BinaryOp.OP_NEQ: return "ne"
+    if op == BinaryOp.OP_LT: return "lt"
+    if op == BinaryOp.OP_GT: return "gt"
+    if op == BinaryOp.OP_LTE: return "le"
+    if op == BinaryOp.OP_GTE: return "ge"
+    if op == BinaryOp.OP_MATMUL: return "matmul"
+    ""
+
+fn sema_operator_symbol_text(op: i32) -> str:
+    if op == BinaryOp.OP_ADD: return "+"
+    if op == BinaryOp.OP_SUB: return "-"
+    if op == BinaryOp.OP_MUL: return "*"
+    if op == BinaryOp.OP_DIV: return "/"
+    if op == BinaryOp.OP_MOD: return "%"
+    if op == BinaryOp.OP_EQ: return "=="
+    if op == BinaryOp.OP_NEQ: return "!="
+    if op == BinaryOp.OP_LT: return "<"
+    if op == BinaryOp.OP_GT: return ">"
+    if op == BinaryOp.OP_LTE: return "<="
+    if op == BinaryOp.OP_GTE: return ">="
+    if op == BinaryOp.OP_MATMUL: return "@"
+    "?"
+
+fn Sema.operator_candidate_for(self: Sema, owner_ty: i32, peer_ty: i32, method_sym: i32) -> SemaOperatorCandidate:
+    if owner_ty == 0 or peer_ty == 0 or method_sym == 0:
+        return sema_operator_candidate_none()
+    let owner_resolved = self.resolve_alias(owner_ty as TypeId)
+    let owner_sym = self.get_type_name(owner_resolved)
+    if owner_sym == 0:
+        return sema_operator_candidate_none()
+    let sig = self.lookup_method_sig(owner_sym, method_sym)
+    if sig < 0:
+        return sema_operator_candidate_none()
+    if self.sig_get_param_count(sig) != 2:
+        return sema_operator_candidate_none()
+    let self_ty = self.sig_param_type(sig, 0)
+    let rhs_ty = self.sig_param_type(sig, 1)
+    if self.call_arg_type_compatible(self_ty, owner_ty) == 0:
+        return sema_operator_candidate_none()
+    if self.call_arg_type_compatible(rhs_ty, peer_ty) == 0:
+        return sema_operator_candidate_none()
+    let fn_sym = self.lookup_method_fn(owner_sym, method_sym)
+    if fn_sym == 0:
+        return sema_operator_candidate_none()
+    SemaOperatorCandidate { sig, fn_sym, owner_sym }
+
+fn Sema.type_has_operator_method(self: Sema, tid: i32, method_sym: i32) -> i32:
+    if tid == 0 or method_sym == 0:
+        return 0
+    let resolved = self.resolve_alias(tid as TypeId)
+    let owner_sym = self.get_type_name(resolved)
+    if owner_sym == 0:
+        return 0
+    if self.lookup_method_sig(owner_sym, method_sym) >= 0:
+        return 1
+    0
+
+fn Sema.check_binary_operator_method(self: Sema, node: i32, op: i32, lhs: i32, rhs: i32) -> i32:
+    let method_name = sema_operator_method_name(op)
+    if method_name.len() == 0:
+        return 0
+    let method_sym = self.pool_intern(method_name)
+    let lhs_candidate = self.operator_candidate_for(lhs, rhs, method_sym)
+    let rhs_candidate = self.operator_candidate_for(rhs, lhs, method_sym)
+    let lhs_ok = if lhs_candidate.sig >= 0: 1 else: 0
+    let rhs_ok = if rhs_candidate.sig >= 0: 1 else: 0
+    if lhs_ok != 0 and rhs_ok != 0 and lhs_candidate.fn_sym != rhs_candidate.fn_sym:
+        let op_text = sema_operator_symbol_text(op)
+        self.emit_error("ambiguous operator '" ++ op_text ++ "': both operand types provide applicable implementations", node)
+        return 0
+    var selected = sema_operator_candidate_none()
+    var reversed = 0
+    if lhs_ok != 0:
+        selected = lhs_candidate
+    else if rhs_ok != 0:
+        selected = rhs_candidate
+        reversed = 1
+    else:
+        let has_named_method = self.type_has_operator_method(lhs, method_sym) != 0 or self.type_has_operator_method(rhs, method_sym) != 0
+        if has_named_method != 0:
+            let op_text2 = sema_operator_symbol_text(op)
+            self.emit_error("operator '" ++ op_text2 ++ "' has no applicable implementation for " ++ self.type_name(lhs) ++ " and " ++ self.type_name(rhs), node)
+        return 0
+    let ret = self.sig_return_type(selected.sig)
+    if op == BinaryOp.OP_EQ or op == BinaryOp.OP_NEQ or op == BinaryOp.OP_LT or op == BinaryOp.OP_GT or op == BinaryOp.OP_LTE or op == BinaryOp.OP_GTE:
+        if self.types_compatible(self.ty_bool as i32, ret) == 0:
+            self.emit_error("comparison operator method must return bool", node)
+            return 0
+    self.operator_method_calls.insert(node, selected.fn_sym)
+    self.operator_method_reversed.insert(node, reversed)
+    ret
+
 fn Sema.check_binary(self: Sema, node: i32) -> i32:
     let op = self.ast.get_data0(node)
     let lhs_node = self.ast.get_data1(node)
@@ -2532,6 +2728,13 @@ fn Sema.check_binary(self: Sema, node: i32) -> i32:
             if bool_int_cmp == 0 and ptr_like_cmp == 0 and ptr_zero_cmp == 0 and ptr_none_cmp == 0 and (lhs_ptr_like or rhs_ptr_like) and self.builtin_arg_type_compatible(lhs, rhs) == 0 and self.builtin_arg_type_compatible(rhs, lhs) == 0:
                 self.emit_error("comparison operands must have compatible types", node)
                 return 0
+            let cmp_method_sym = self.pool_intern(sema_operator_method_name(op))
+            let has_cmp_method = self.type_has_operator_method(lhs as i32, cmp_method_sym) != 0 or self.type_has_operator_method(rhs as i32, cmp_method_sym) != 0
+            if has_cmp_method != 0:
+                let cmp_ret = self.check_binary_operator_method(node, op, lhs as i32, rhs as i32)
+                if cmp_ret == 0:
+                    return 0
+                return cmp_ret
         return self.ty_bool as i32
 
     // Logical operators
@@ -2550,20 +2753,13 @@ fn Sema.check_binary(self: Sema, node: i32) -> i32:
 
     // @ matmul operator — always dispatches to method
     if op == BinaryOp.OP_MATMUL:
-        let lhs_resolved = self.resolve_alias(lhs)
-        let lhs_name = self.get_type_name(lhs_resolved as i32)
         let matmul_sym = self.pool_intern("matmul")
-        if lhs_name != 0:
-            let sig = self.lookup_method_sig(lhs_name, matmul_sym)
-            if sig >= 0:
-                return self.sig_return_type(sig)
-        // Reversed-operand lookup
-        let rhs_resolved = self.resolve_alias(rhs)
-        let rhs_name = self.get_type_name(rhs_resolved as i32)
-        if rhs_name != 0:
-            let sig = self.lookup_method_sig(rhs_name, matmul_sym)
-            if sig >= 0:
-                return self.sig_return_type(sig)
+        let has_matmul_method = self.type_has_operator_method(lhs as i32, matmul_sym) != 0 or self.type_has_operator_method(rhs as i32, matmul_sym) != 0
+        if has_matmul_method != 0:
+            let matmul_ret = self.check_binary_operator_method(node, op, lhs as i32, rhs as i32)
+            if matmul_ret == 0:
+                return 0
+            return matmul_ret
         self.emit_error("@ operator requires a type implementing 'matmul'", node)
         return 0
 
@@ -2588,25 +2784,18 @@ fn Sema.check_binary(self: Sema, node: i32) -> i32:
         let result = self.arithmetic_result_type(lhs, rhs)
         if result != 0:
             return result as i32
-        let lhs_resolved = self.resolve_alias(lhs)
-        let lhs_name = self.get_type_name(lhs_resolved as i32)
         let method_name = if op == BinaryOp.OP_ADD: "add" else:
             if op == BinaryOp.OP_SUB: "sub" else:
             if op == BinaryOp.OP_MUL: "mul" else:
             if op == BinaryOp.OP_DIV: "div" else:
             "mod"
         let method_sym = self.pool_intern(method_name)
-        if lhs_name != 0:
-            let method_sig = self.lookup_method_sig(lhs_name, method_sym)
-            if method_sig >= 0:
-                return self.sig_return_type(method_sig)
-        // Reversed-operand lookup: try RHS type
-        let rhs_resolved = self.resolve_alias(rhs)
-        let rhs_name = self.get_type_name(rhs_resolved as i32)
-        if rhs_name != 0:
-            let rhs_method_sig = self.lookup_method_sig(rhs_name, method_sym)
-            if rhs_method_sig >= 0:
-                return self.sig_return_type(rhs_method_sig)
+        let has_arith_method = self.type_has_operator_method(lhs as i32, method_sym) != 0 or self.type_has_operator_method(rhs as i32, method_sym) != 0
+        if has_arith_method != 0:
+            let method_ret = self.check_binary_operator_method(node, op, lhs as i32, rhs as i32)
+            if method_ret == 0:
+                return 0
+            return method_ret
         self.emit_error("arithmetic operator requires numeric operands", node)
         return 0
 
@@ -3282,22 +3471,56 @@ fn Sema.check_assign(self: Sema, node: i32) -> i32:
     let target = self.ast.get_data0(node)
     let value = self.ast.get_data1(node)
 
+    if self.is_runtime_multi_index_node(target) != 0:
+        let base_expr = self.multi_index_base_expr(target)
+        let base_ty = self.check_multi_index_like_operands(target)
+        var expected_value_type = 0
+
+        if base_ty != 0:
+            let base_resolved = self.resolve_alias(base_ty)
+            let base_name = self.get_type_name(base_resolved as i32)
+            if base_name != 0:
+                let mis_sym = self.pool_intern("multi_index_set")
+                let mis_sig = self.lookup_method_sig(base_name, mis_sym)
+                if mis_sig >= 0:
+                    if self.validate_multi_index_method_sig(mis_sig, mis_sym, 1, target) != 0:
+                        expected_value_type = self.sig_param_type(mis_sig, 3)
+                else:
+                    self.emit_error("type does not support indexed assignment (no multi_index_set method)", target)
+            else:
+                self.emit_error("type does not support indexed assignment (no multi_index_set method)", target)
+
+        let value_type = if expected_value_type != 0: self.check_expr_with_expected(value, expected_value_type as TypeId) else: self.check_expr(value)
+        self.note_place_effect(base_expr, EFF_WRITE)
+
+        let lhs_packed = self.classify_place(base_expr)
+        let lhs_kind = unpack_place_kind(lhs_packed)
+        let lhs_mut_state = unpack_place_mut(lhs_packed)
+        if lhs_kind == PlaceKind.PK_NotPlace:
+            self.emit_warning("cannot assign to a non-place expression", node)
+        else if lhs_mut_state == PlaceMut.PM_ReadOnly:
+            self.emit_error("cannot assign through a read-only place (e.g., dereferenced &T or *const T) (§15.10)", node)
+
+        let assign_root = self.place_root_sym(base_expr)
+        if assign_root != 0 and self.scope_is_view_bound(assign_root) != 0:
+            self.emit_error("cannot mutate through read-only view yielded by iterator (§15.17)", node)
+
+        if lhs_kind != PlaceKind.PK_NotPlace and lhs_mut_state != PlaceMut.PM_ReadOnly:
+            self.check_mutation_against_views(base_expr, node)
+
+        if expected_value_type != 0 and value_type != 0:
+            if self.types_compatible(expected_value_type as TypeId, value_type as TypeId) == 0:
+                if self.arithmetic_result_type(expected_value_type as TypeId, value_type as TypeId) == 0:
+                    self.emit_error("type mismatch in assignment", node)
+
+        self.mark_moved_if_consumed(value)
+        return self.ty_void as i32
+
     let target_type = self.check_expr(target)
     let value_type = if target_type != 0: self.check_expr_with_expected(value, target_type) else: self.check_expr(value)
 
     // If assignment target's root is a parameter, record EFF_WRITE
     self.note_place_effect(target, EFF_WRITE)
-
-    // Multi-index assignment: a[i, j] = value → requires multi_index_set
-    if self.ast.kind(target) == NodeKind.NK_MULTI_INDEX:
-        let mi_base = self.ast.get_data0(target)
-        let mi_base_resolved = self.resolve_alias(target_type)
-        let mi_name = self.get_type_name(mi_base_resolved as i32)
-        if mi_name != 0:
-            let mis_sym = self.pool_intern("multi_index_set")
-            let mis_sig = self.lookup_method_sig(mi_name, mis_sym)
-            if mis_sig < 0:
-                self.emit_error("type does not support indexed assignment (no multi_index_set method)", target)
 
     // Check mutability
     if self.ast.kind(target) == NodeKind.NK_IDENT:
@@ -3693,6 +3916,9 @@ fn Sema.check_index(self: Sema, node: i32) -> i32:
             self.check_expr(index2)
         return 0
 
+    if index2 != 0 and self.index_expr_is_type_level(expr) == 0:
+        return self.check_pair_multi_index(node, arr_type)
+
     let resolved = self.resolve_alias(arr_type)
     let tk = self.get_type_kind(resolved)
     if tk == TypeKind.TY_PTR:
@@ -3748,28 +3974,13 @@ fn Sema.check_index(self: Sema, node: i32) -> i32:
         if self.ast.kind(expr) == NodeKind.NK_IDENT:
             let ci_base_sym = self.ast.get_data0(expr)
             if self.has_named_type_visible(ci_base_sym) != 0:
-                let arg_kind = self.ast.kind(index)
-                var ci_arg_type = 0
-                if arg_kind == NodeKind.NK_IDENT or arg_kind == NodeKind.NK_TYPE_NAMED:
-                    let arg_sym = self.ast.get_data0(index)
-                    let prim = self.primitive_type_by_sym(arg_sym)
-                    if prim != 0:
-                        ci_arg_type = prim
-                    else:
-                        ci_arg_type = self.lookup_named_type_visible(arg_sym)
+                var ci_arg_type = self.resolve_type_level_arg_expr(index)
                 if ci_arg_type > 0:
                     // Check for second type arg (d2 of NodeKind.NK_INDEX) — HashMap[K, V]
                     let ci_index2 = self.ast.get_data2(node)
                     var ci_arg2_type = 0
                     if ci_index2 != 0:
-                        let a2_kind = self.ast.kind(ci_index2)
-                        if a2_kind == NodeKind.NK_IDENT or a2_kind == NodeKind.NK_TYPE_NAMED:
-                            let a2_sym = self.ast.get_data0(ci_index2)
-                            let a2_prim = self.primitive_type_by_sym(a2_sym)
-                            if a2_prim != 0:
-                                ci_arg2_type = a2_prim
-                            else:
-                                ci_arg2_type = self.lookup_named_type_visible(a2_sym)
+                        ci_arg2_type = self.resolve_type_level_arg_expr(ci_index2)
                     let ci_args: Vec[i32] = Vec.new()
                     ci_args.push(ci_arg_type)
                     var ci_arg_count = 1
@@ -3786,32 +3997,125 @@ fn Sema.check_index(self: Sema, node: i32) -> i32:
                     return ci_tid as i32
     0
 
-fn Sema.check_multi_index(self: Sema, node: i32) -> i32:
+fn Sema.is_runtime_multi_index_node(self: Sema, node: i32) -> i32:
+    let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_MULTI_INDEX:
+        return 1
+    if kind == NodeKind.NK_INDEX:
+        if self.ast.get_data2(node) != 0 and self.index_expr_is_type_level(self.ast.get_data0(node)) == 0:
+            return 1
+    0
+
+fn Sema.multi_index_base_expr(self: Sema, node: i32) -> i32:
+    self.ast.get_data0(node)
+
+fn Sema.check_multi_index_part(self: Sema, node: i32, label: str):
+    if node == 0:
+        return
+    let ty = self.check_expr_with_expected(node, self.ty_i64)
+    if ty == 0:
+        return
+    let resolved = self.resolve_alias(ty)
+    if self.get_type_kind(resolved) != TypeKind.TY_INT:
+        self.emit_error("multi-dimensional index " ++ label ++ " must be an integer", node)
+
+fn Sema.check_multi_index_operands(self: Sema, node: i32) -> TypeId:
     let base = self.ast.get_data0(node)
     let specs_start = self.ast.get_data1(node)
     let specs_count = self.ast.get_data2(node)
     let base_ty = self.check_expr(base)
-    // Check each index spec
+    var ellipsis_count = 0
     for si in 0..specs_count:
         let spec = self.ast.get_extra(specs_start + si)
         let d0 = self.ast.get_data0(spec)
         let d1 = self.ast.get_data1(spec)
         let d2 = self.ast.get_data2(spec)
         let kind = d2 / INDEX_KIND_SHIFT
-        if d0 != 0: self.check_expr(d0)
-        if d1 != 0: self.check_expr(d1)
+        if kind == INDEX_ELLIPSIS:
+            ellipsis_count = ellipsis_count + 1
+        if ellipsis_count > 1:
+            self.emit_error("multi-dimensional index may contain at most one ellipsis", spec)
+        self.check_multi_index_part(d0, "start")
+        self.check_multi_index_part(d1, "stop")
         let step = d2 - kind * INDEX_KIND_SHIFT
-        if step != 0: self.check_expr(step)
-    // Look up multi_index method on base type
+        self.check_multi_index_part(step, "step")
+    base_ty
+
+fn Sema.check_pair_multi_index_operands(self: Sema, node: i32, base_ty: TypeId) -> TypeId:
+    self.check_multi_index_part(self.ast.get_data1(node), "start")
+    self.check_multi_index_part(self.ast.get_data2(node), "start")
+    base_ty
+
+fn Sema.check_multi_index_like_operands(self: Sema, node: i32) -> TypeId:
+    if self.ast.kind(node) == NodeKind.NK_MULTI_INDEX:
+        return self.check_multi_index_operands(node)
+    if self.ast.kind(node) == NodeKind.NK_INDEX:
+        let base_ty = self.check_expr(self.ast.get_data0(node))
+        return self.check_pair_multi_index_operands(node, base_ty)
+    0 as TypeId
+
+fn Sema.check_multi_index_method(self: Sema, node: i32, base_ty: TypeId) -> i32:
+    if base_ty == 0:
+        return 0
     let base_resolved = self.resolve_alias(base_ty)
     let base_name = self.get_type_name(base_resolved as i32)
     if base_name != 0:
         let mi_sym = self.pool_intern("multi_index")
         let mi_sig = self.lookup_method_sig(base_name, mi_sym)
         if mi_sig >= 0:
-            return self.sig_return_type(mi_sig)
+            if self.validate_multi_index_method_sig(mi_sig, mi_sym, 0, node) != 0:
+                return self.sig_return_type(mi_sig)
+            return 0
     self.emit_error("type does not support multi-dimensional indexing", node)
     0
+
+fn Sema.check_pair_multi_index(self: Sema, node: i32, base_ty: TypeId) -> i32:
+    let checked_base_ty = self.check_pair_multi_index_operands(node, base_ty)
+    self.check_multi_index_method(node, checked_base_ty)
+
+fn Sema.is_index_spec_slice_ref_type(self: Sema, tid: i32) -> i32:
+    if tid == 0:
+        return 0
+    let ref_resolved = self.resolve_alias(tid as TypeId)
+    if self.get_type_kind(ref_resolved) != TypeKind.TY_REF:
+        return 0
+    let slice_tid = self.get_type_d0(ref_resolved)
+    let slice_resolved = self.resolve_alias(slice_tid as TypeId)
+    if self.get_type_kind(slice_resolved) != TypeKind.TY_SLICE:
+        return 0
+    let elem_tid = self.get_type_d0(slice_resolved)
+    let elem_resolved = self.resolve_alias(elem_tid as TypeId)
+    if self.get_type_kind(elem_resolved) != TypeKind.TY_STRUCT:
+        return 0
+    let elem_name = self.get_type_d0(elem_resolved)
+    if self.pool_resolve(elem_name) == "IndexSpec":
+        return 1
+    0
+
+fn Sema.validate_multi_index_method_sig(self: Sema, sig_idx: i32, method_sym: i32, is_set: i32, node: i32) -> i32:
+    let method_name = self.pool_resolve(method_sym)
+    let expected_count = if is_set != 0: 4 else: 3
+    if self.sig_get_param_count(sig_idx) != expected_count:
+        let value_text = if is_set != 0: ", value" else: ""
+        self.emit_error("method `" ++ method_name ++ "` must have signature `(self, specs: &[IndexSpec], count: i32" ++ value_text ++ ")`", node)
+        return 0
+    if self.is_index_spec_slice_ref_type(self.sig_param_type(sig_idx, 1)) == 0:
+        self.emit_error("method `" ++ method_name ++ "` second parameter must be `&[IndexSpec]`", node)
+        return 0
+    let count_ty = self.resolve_alias(self.sig_param_type(sig_idx, 2) as TypeId)
+    if count_ty != self.ty_i32:
+        self.emit_error("method `" ++ method_name ++ "` count parameter must be `i32`", node)
+        return 0
+    if is_set != 0:
+        let ret_ty = self.resolve_alias(self.sig_return_type(sig_idx) as TypeId)
+        if ret_ty != self.ty_void:
+            self.emit_error("method `" ++ method_name ++ "` must return void", node)
+            return 0
+    1
+
+fn Sema.check_multi_index(self: Sema, node: i32) -> i32:
+    let base_ty = self.check_multi_index_operands(node)
+    self.check_multi_index_method(node, base_ty)
 
 fn Sema.check_slice(self: Sema, node: i32) -> i32:
     let expr = self.ast.get_data0(node)
@@ -4613,6 +4917,17 @@ fn Sema.check_pattern(self: Sema, node: i32, subject_type: i32):
         if resolved_kind == TypeKind.TY_GENERIC_INST and payload_count > 0:
             let gi_base = self.get_generic_inst_base(resolved)
             gi_payload_types = self.resolve_generic_enum_payload(resolved, gi_base, v_name, payload_count)
+        var unit_elided_payload_pattern = 0
+        if bind_count == 0 and payload_count == 1:
+            var only_payload_ty = self.type_extra.get(payload_start as i64)
+            if gi_payload_types.len() as i32 > 0 and gi_payload_types.get(0) != 0:
+                only_payload_ty = gi_payload_types.get(0)
+            if self.type_is_unit(only_payload_ty) != 0:
+                unit_elided_payload_pattern = 1
+        if unit_elided_payload_pattern == 0 and bind_count != payload_count:
+            let v_text = self.pool_resolve(v_name)
+            self.emit_error(f"variant pattern '{v_text}' expects {payload_count} payload pattern(s), found {bind_count}", node)
+            return
         for bi in 0..bind_count:
             let inner_pat = self.ast.get_extra(v_extra + bi)
             var inner_ty = if bi < payload_count: self.type_extra.get((payload_start + bi) as i64) else: 0
@@ -5004,11 +5319,23 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
             return 1
         if field == self.syms.contains or field == self.syms.remove or field == self.syms.len:
             return 1
+    if owner_sym == self.syms.slotmap:
+        if field == self.syms.new or field == self.syms.insert or field == self.syms.get:
+            return 1
+        if field == self.syms.slot or field == self.syms.get_disjoint:
+            return 1
+        if field == self.syms.remove or field == self.syms.replace:
+            return 1
+        if field == self.syms.contains or field == self.syms.len:
+            return 1
+    if owner_sym == self.syms.slotmapslot:
+        if field == self.syms.get or self.pool_resolve(field) == "set":
+            return 1
     if owner_sym == self.syms.option:
-        if field == self.syms.unwrap or field == self.syms.is_some or field == self.syms.is_none or field == self.syms.filter:
+        if field == self.syms.unwrap or field == self.syms.is_some or field == self.syms.is_none or field == self.syms.filter or self.pool_resolve(field) == "unwrap_or":
             return 1
     if owner_sym == self.syms.result:
-        if field == self.syms.unwrap or field == self.syms.is_ok or field == self.syms.is_err:
+        if field == self.syms.unwrap or field == self.syms.is_ok or field == self.syms.is_err or self.pool_resolve(field) == "unwrap_or":
             return 1
     if owner_sym == self.syms.vecslot or owner_sym == self.syms.vecrange:
         if field == self.syms.get or self.pool_resolve(field) == "set" or self.pool_resolve(field) == "len":
@@ -5041,6 +5368,9 @@ fn Sema.pipeline_method_exists(self: Sema, recv_type: i32, method: i32) -> i32:
 fn Sema.check_tuple(self: Sema, node: i32) -> i32:
     let extra_start = self.ast.get_data0(node)
     let elem_count = self.ast.get_data1(node)
+    if elem_count == 0:
+        self.typed_expr_types.insert(node, self.ty_void as i32)
+        return self.ty_void as i32
     var expected_tuple = 0
     var expected_elem_start = 0
     if self.has_expected_type != 0 and self.expected_expr_type != 0:
@@ -5201,6 +5531,8 @@ fn Sema.check_let_else(self: Sema, node: i32) -> i32:
     let value = self.ast.get_data1(node)
     let else_body = self.ast.get_data2(node)
     let val_type = self.check_expr(value)
+    if val_type != 0 and val_type != self.ty_void:
+        self.typed_expr_types.insert(value, val_type as i32)
     self.check_pattern(pattern, val_type as i32)
     self.check_expr(else_body)
     self.ty_void as i32
@@ -5374,6 +5706,33 @@ fn Sema.transmute_target_type(self: Sema, callee: i32) -> i32:
         self.ast.get_data1(callee)
     self.resolve_type_expr(tp_node) as i32
 
+fn Sema.type_is_unit(self: Sema, tid: i32) -> i32:
+    if tid == 0:
+        return 0
+    let resolved = self.resolve_alias(tid as TypeId)
+    if resolved == self.ty_void:
+        return 1
+    if self.get_type_kind(resolved) == TypeKind.TY_TUPLE and self.get_type_d1(resolved) == 0:
+        return 1
+    0
+
+fn Sema.store_unit_elided_call_arg(self: Sema, call_node: i32):
+    let args: Vec[i32] = Vec.new()
+    args.push(0)
+    self.store_resolved_call_args(call_node, args)
+
+fn Sema.try_unit_elide_call_arg(self: Sema, call_node: i32, arg_count: i32, expected_ty: i32) -> i32:
+    if arg_count != 0:
+        return 0
+    if self.ast.has_call_named_args(call_node) != 0:
+        return 0
+    if self.has_resolved_call_args(call_node) != 0:
+        return 0
+    if self.type_is_unit(expected_ty) == 0:
+        return 0
+    self.store_unit_elided_call_arg(call_node)
+    1
+
 fn Sema.check_callable_value_call(self: Sema, call_name: str, fn_tid: i32, closure_node: i32, node: i32, extra_start: i32, arg_count: i32, param_offset: i32, has_resolved: i32, arg_types: Vec[i32]) -> i32:
     let expected = self.get_type_d1(fn_tid)
     let actual = arg_count + param_offset
@@ -5393,10 +5752,11 @@ fn Sema.check_callable_value_call(self: Sema, call_name: str, fn_tid: i32, closu
         if expected_ty != 0 and arg_ty != 0:
             let exp_resolved = self.resolve_alias(expected_ty)
             if self.type_is_dyn_object(exp_resolved) == 0:
-                if self.types_compatible(expected_ty, arg_ty) == 0:
-                    if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
-                        let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
-                        self.emit_argument_type_mismatch(call_name, 0, ai, param_i, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
+                if self.call_arg_type_compatible(expected_ty, arg_ty) == 0:
+                    self.emit_argument_type_mismatch(call_name, 0, ai, param_i, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                else:
+                    self.note_auto_ref_call_arg(expected_ty, arg_ty, err_arg_node, node)
         let eph_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
         if eph_arg_node > 0 and self.expr_is_ephemeral_task(eph_arg_node) != 0 and self.param_is_by_reference(expected_ty) == 0:
             self.emit_warning("ephemeral Task passed by value may escape", eph_arg_node)
@@ -5513,7 +5873,16 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
     let sig_idx_raw = if self.generic_fn_nodes.contains(fn_sym): -1 else: self.get_sig(fn_sym)
     let sig_idx = if sig_idx_raw >= 0 and self.is_ci_visible(fn_sym) == 0: -1 else: sig_idx_raw
     let variant_expected_ty = if self.variant_lookup.contains(fn_sym) and self.is_ci_visible(fn_sym) != 0: self.expected_variant_constructor_type(fn_sym) else: 0
-    let variant_payload_tys = if variant_expected_ty != 0: self.enum_variant_payload_types(variant_expected_ty, fn_sym) else: Vec.new()
+    let imported_variant_owner_for_call = if self.imported_variant_owners.contains(fn_sym): self.imported_variant_owners.get(fn_sym).unwrap() else: 0
+    let variant_payload_owner = if variant_expected_ty != 0:
+        variant_expected_ty
+    else if imported_variant_owner_for_call != 0:
+        imported_variant_owner_for_call
+    else if self.variant_type_ids.contains(fn_sym):
+        self.variant_type_ids.get(fn_sym).unwrap()
+    else:
+        0
+    let variant_payload_tys = if variant_payload_owner != 0: self.enum_variant_payload_types(variant_payload_owner, fn_sym) else: Vec.new()
 
     // Resolve named arguments: reorder args to match parameter order, fill defaults
     var resolved_extra_start = extra_start
@@ -5648,6 +6017,33 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
                                 self.mark_resolved_call_arg_default(node, pi - param_offset)
                         resolved_arg_count = param_count - param_offset
 
+    if self.has_resolved_call_args(node) == 0 and self.ast.has_call_named_args(node) == 0 and arg_count == 0:
+        if sig_idx >= 0:
+            let sig_param_count = self.sig_get_param_count(sig_idx)
+            if sig_param_count - param_offset == 1:
+                let expected_unit_ty = self.sig_param_type(sig_idx, param_offset)
+                if self.try_unit_elide_call_arg(node, arg_count, expected_unit_ty) != 0:
+                    resolved_arg_count = 1
+        else if callable_value_tid != 0:
+            let callable_param_count = self.get_type_d1(callable_value_tid as TypeId)
+            if callable_param_count - param_offset == 1:
+                let expected_callable_ty = self.callable_fn_param_type(callable_value_tid as TypeId, param_offset)
+                if self.try_unit_elide_call_arg(node, arg_count, expected_callable_ty) != 0:
+                    resolved_arg_count = 1
+        else if variant_payload_tys.len() as i32 == 1:
+            let expected_variant_unit_ty = variant_payload_tys.get(0)
+            if self.try_unit_elide_call_arg(node, arg_count, expected_variant_unit_ty) != 0:
+                resolved_arg_count = 1
+        else if self.generic_fn_nodes.contains(fn_sym):
+            let gen_fn_node = self.generic_fn_nodes.get(fn_sym).unwrap()
+            let gen_meta = self.ast.find_fn_meta(gen_fn_node)
+            if gen_meta >= 0 and self.ast.fn_meta_param_count(gen_meta) == 1:
+                let gen_param_start = self.ast.fn_meta_param_start(gen_meta)
+                let gen_param_ty_node = self.ast.fn_param_type(gen_param_start, 0)
+                let gen_expected_ty = if gen_param_ty_node != 0: self.resolve_type_expr(gen_param_ty_node) as i32 else: 0
+                if self.try_unit_elide_call_arg(node, arg_count, gen_expected_ty) != 0:
+                    resolved_arg_count = 1
+
     // Check all arguments (with contextual expected-type propagation when
     // calling a known function signature).
     let has_resolved = self.has_resolved_call_args(node)
@@ -5757,11 +6153,12 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
             if expected_ty != 0 and arg_ty != 0:
                 let exp_resolved = self.resolve_alias(expected_ty)
                 if self.type_is_dyn_object(exp_resolved) == 0:
-                    if self.types_compatible(expected_ty, arg_ty) == 0:
-                        if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
-                            let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
-                            if not (self.ci_syms.contains(fn_sym) and self.try_ci_coercion(arg_ty, expected_ty) != 0):
-                                self.emit_argument_type_mismatch(self.safe_symbol_text(fn_sym), fn_sym, ai, param_i, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                    let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
+                    if self.call_arg_type_compatible(expected_ty, arg_ty) == 0:
+                        if not (self.ci_syms.contains(fn_sym) and self.try_ci_coercion(arg_ty, expected_ty) != 0):
+                            self.emit_argument_type_mismatch(self.safe_symbol_text(fn_sym), fn_sym, ai, param_i, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                    else:
+                        self.note_auto_ref_call_arg(expected_ty, arg_ty, err_arg_node, node)
             let eph_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
             if eph_arg_node > 0 and self.expr_is_ephemeral_task(eph_arg_node) != 0 and self.param_is_by_reference(expected_ty) == 0:
                 self.emit_warning("ephemeral Task passed by value may escape", eph_arg_node)
@@ -5813,20 +6210,36 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
     // Generic function
     if self.generic_fn_nodes.contains(fn_sym):
         let fn_node = self.generic_fn_nodes.get(fn_sym).unwrap()
-        let ret = self.check_generic_call(fn_sym, fn_node, arg_types, arg_count, node)
+        let ret = self.check_generic_call(fn_sym, fn_node, arg_types, resolved_arg_count, node)
         self.comp_resolved.insert(node, fn_sym)
         self.typed_expr_types.insert(node, ret)
         return ret
 
     // Enum variant constructor
     if self.variant_lookup.contains(fn_sym):
-        let inferred_variant_ty = self.infer_generic_enum_variant_type(fn_sym, arg_types, arg_count)
-        let imported_variant_ty = if self.imported_variant_owners.contains(fn_sym): self.imported_variant_owners.get(fn_sym).unwrap() else: 0
+        let inferred_variant_ty = self.infer_generic_enum_variant_type(fn_sym, arg_types, resolved_arg_count)
+        let imported_variant_ty = imported_variant_owner_for_call
         let variant_tid = self.variant_type_ids.get(fn_sym).unwrap()
         var final_variant_ty: TypeId = if variant_expected_ty != 0: variant_expected_ty as TypeId else:
             if imported_variant_ty != 0: imported_variant_ty as TypeId else: variant_tid as TypeId
         if inferred_variant_ty != 0:
             final_variant_ty = self.preferred_compatible_type(final_variant_ty, inferred_variant_ty as TypeId)
+        let final_payload_tys = self.enum_variant_payload_types(final_variant_ty as i32, fn_sym)
+        let expected_payload_count = final_payload_tys.len() as i32
+        if resolved_arg_count != expected_payload_count:
+            let variant_name = self.pool_resolve(fn_sym)
+            self.emit_error(f"enum variant constructor '{variant_name}' expects {expected_payload_count} argument(s), found {resolved_arg_count}", node)
+        for ai in 0..resolved_arg_count:
+            if ai >= expected_payload_count:
+                break
+            let expected_ty = final_payload_tys.get(ai as i64)
+            let arg_ty = arg_types.get(ai as i64)
+            if expected_ty != 0 and arg_ty != 0:
+                if self.types_compatible(expected_ty, arg_ty) == 0:
+                    if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
+                        let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
+                        let variant_name2 = self.pool_resolve(fn_sym)
+                        self.emit_argument_type_mismatch(variant_name2, fn_sym, ai, ai, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
         let resolved_variant_sym = self.qualified_enum_variant_sym(final_variant_ty as i32, fn_sym)
         self.comp_resolved.insert(node, resolved_variant_sym)
         self.typed_expr_types.insert(node, final_variant_ty as i32)
@@ -6524,6 +6937,8 @@ fn Sema.select_trait_impl(self: Sema, type_sym: i32, trait_sym: i32) -> i32:
             let target_base = self.blanket_target_base_syms.get(bi as i64)
             if target_base != 0 and target_base != type_sym:
                 continue
+            if target_base != 0 and self.type_decl_type_param_count(type_sym) == 0:
+                continue
             // Check if type_sym satisfies all bounds
             let b_start = self.blanket_bound_starts.get(bi as i64)
             let b_count = self.blanket_bound_counts.get(bi as i64)
@@ -6845,9 +7260,11 @@ fn Sema.check_generic_method_call(self: Sema, owner_sym: i32, owner_type: i32, m
         let expected_ty = self.resolve_type_node_with_current_subst(self.ast.fn_param_type(param_start, pi3), concrete_owner)
         let actual_ty = arg_types.get(ai3 as i64)
         if expected_ty != 0 and actual_ty != 0:
-            if self.types_compatible(expected_ty, actual_ty) == 0:
-                if self.arithmetic_result_type(expected_ty, actual_ty) == 0:
-                    self.emit_argument_type_mismatch(self.safe_symbol_text(method_fn_sym), method_fn_sym, ai3, pi3, expected_ty, actual_ty, self.ast.get_extra(extra_start + ai3))
+            let gen_method_arg = self.ast.get_extra(extra_start + ai3)
+            if self.call_arg_type_compatible(expected_ty, actual_ty) == 0:
+                self.emit_argument_type_mismatch(self.safe_symbol_text(method_fn_sym), method_fn_sym, ai3, pi3, expected_ty, actual_ty, gen_method_arg)
+            else:
+                self.note_auto_ref_call_arg(expected_ty, actual_ty, gen_method_arg, node)
 
     let ret_node = self.ast.fn_meta_ret(meta)
     let ret_ty = self.resolve_type_node_with_current_subst(ret_node, concrete_owner)
@@ -7032,6 +7449,41 @@ fn Sema.ensure_vec_str_type(self: Sema) -> i32:
     args.push(self.ty_str as i32)
     self.ensure_generic_inst_type(self.syms.vec, args, 1) as i32
 
+fn Sema.ensure_handle_type_for(self: Sema, elem_ty: i32) -> i32:
+    let found = self.find_generic_inst(self.syms.handle, elem_ty)
+    if found != 0:
+        return found
+    let args: Vec[i32] = Vec.new()
+    args.push(elem_ty)
+    self.ensure_generic_inst_type(self.syms.handle, args, 1) as i32
+
+fn Sema.ensure_slotmapslot_type_for(self: Sema, elem_ty: i32) -> i32:
+    let found = self.find_generic_inst(self.syms.slotmapslot, elem_ty)
+    if found != 0:
+        return found
+    let args: Vec[i32] = Vec.new()
+    args.push(elem_ty)
+    self.ensure_generic_inst_type(self.syms.slotmapslot, args, 1) as i32
+
+fn Sema.ensure_option_ref_type_for(self: Sema, elem_ty: i32) -> i32:
+    let ref_ty = self.ensure_exact_type(TypeKind.TY_REF, elem_ty, 0, 0) as i32
+    if ref_ty == 0:
+        return 0
+    let found = self.find_generic_inst(self.syms.option, ref_ty)
+    if found != 0:
+        return found
+    let args: Vec[i32] = Vec.new()
+    args.push(ref_ty)
+    self.ensure_generic_inst_type(self.syms.option, args, 1) as i32
+
+fn Sema.ensure_option_type_for(self: Sema, elem_ty: i32) -> i32:
+    let found = self.find_generic_inst(self.syms.option, elem_ty)
+    if found != 0:
+        return found
+    let args: Vec[i32] = Vec.new()
+    args.push(elem_ty)
+    self.ensure_generic_inst_type(self.syms.option, args, 1) as i32
+
 fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_sym: i32, field: i32) -> i32:
     if recv_type == 0:
         return 0
@@ -7050,10 +7502,39 @@ fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_s
     if owner_sym == self.syms.hashset:
         if field == self.syms.new:
             return self.generic_constructor_return_type(owner_sym, recv_type)
+    if owner_sym == self.syms.slotmap:
+        if field == self.syms.new:
+            return self.generic_constructor_return_type(owner_sym, recv_type)
+        if tk == TypeKind.TY_GENERIC_INST:
+            let elem_ty = self.get_generic_inst_arg(resolved as i32, 0)
+            if field == self.syms.insert:
+                return self.ensure_handle_type_for(elem_ty)
+            if field == self.syms.get:
+                return self.ensure_option_ref_type_for(elem_ty)
+            if field == self.syms.slot:
+                return self.ensure_slotmapslot_type_for(elem_ty)
+            if field == self.syms.get_disjoint:
+                let slot_ty = self.ensure_slotmapslot_type_for(elem_ty)
+                let elems: Vec[i32] = Vec.new()
+                elems.push(slot_ty)
+                elems.push(slot_ty)
+                return self.ensure_tuple_type(elems, 2) as i32
+            if field == self.syms.remove or field == self.syms.replace:
+                return self.ensure_option_type_for(elem_ty)
+            if field == self.syms.contains:
+                return self.ty_bool as i32
+            if field == self.syms.len:
+                return self.ty_i64 as i32
+    if owner_sym == self.syms.slotmapslot:
+        if tk == TypeKind.TY_GENERIC_INST:
+            if field == self.syms.get:
+                return self.get_generic_inst_arg(resolved as i32, 0)
+            if method_name == "set":
+                return self.ty_void as i32
     if owner_sym == self.syms.option:
         if field == self.syms.is_some or field == self.syms.is_none:
             return self.ty_bool as i32
-        if field == self.syms.unwrap:
+        if field == self.syms.unwrap or method_name == "unwrap_or":
             if tk == TypeKind.TY_GENERIC_INST:
                 return self.get_generic_inst_arg(resolved as i32, 0)
         if field == self.syms.filter:
@@ -7061,7 +7542,7 @@ fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_s
     if owner_sym == self.syms.result:
         if field == self.syms.is_ok or field == self.syms.is_err:
             return self.ty_bool as i32
-        if field == self.syms.unwrap:
+        if field == self.syms.unwrap or method_name == "unwrap_or":
             if tk == TypeKind.TY_GENERIC_INST:
                 return self.get_generic_inst_arg(resolved as i32, 0)
     if self.pool_resolve(owner_sym) == "Atomic":
@@ -7140,6 +7621,8 @@ fn Sema.method_expected_arg_type(self: Sema, recv_type: i32, field: i32, arg_ind
         if field == self.syms.insert and arg_index == 1:
             return self.get_generic_inst_arg(resolved as i32, 1)
     if owner_name == "Sender" and method_name == "send" and arg_index == 0:
+        return self.get_generic_inst_arg(resolved as i32, 0)
+    if (owner_sym == self.syms.option or owner_sym == self.syms.result) and method_name == "unwrap_or" and arg_index == 0:
         return self.get_generic_inst_arg(resolved as i32, 0)
     0
 
@@ -7439,8 +7922,28 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     let arg_types: Vec[i32] = Vec.new()
     // docs/mut.md Rev 8 §15.8 — see check_call.
     let mc_iter_borrow_idxs: Vec[i32] = Vec.new()
-    for ai in 0..arg_count:
-        let mc_arg_node = self.ast.get_extra(extra_start + ai)
+    var mc_resolved_arg_count = arg_count
+    if self.has_resolved_call_args(node) == 0 and self.ast.has_call_named_args(node) == 0 and arg_count == 0:
+        var mc_unit_expected = self.atomic_method_expected_arg_type(mc_order_type, field, 0)
+        if mc_unit_expected == 0:
+            mc_unit_expected = self.method_expected_arg_type(obj_type as i32, field, 0)
+        if mc_unit_expected == 0 and self.static_receiver_type_is_known(expr) != 0 and self.enum_has_variant(obj_type, field) != 0:
+            let mc_payload_tys = self.enum_variant_payload_types(obj_type, field)
+            if mc_payload_tys.len() as i32 == 1:
+                mc_unit_expected = mc_payload_tys.get(0)
+        if self.try_unit_elide_call_arg(node, arg_count, mc_unit_expected) != 0:
+            mc_resolved_arg_count = 1
+    let mc_has_resolved_args = self.has_resolved_call_args(node)
+    for ai in 0..mc_resolved_arg_count:
+        let mc_arg_node = if mc_has_resolved_args != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
+        if mc_arg_node == 0:
+            arg_types.push(0)
+            continue
+        if mc_arg_node < 0:
+            let mc_bind_sym = 0 - mc_arg_node
+            arg_types.push(self.scope_lookup(mc_bind_sym) as i32)
+            continue
+
         let mc_is_closure = self.ast.kind(mc_arg_node) == NodeKind.NK_CLOSURE
         var mc_closure_arg_escapes = 0
         if mc_is_closure and mc_sig_idx_for_effect >= 0:
@@ -7469,9 +7972,9 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
         mc_ibi = mc_ibi - 1
 
     // docs/mut.md Rev 8 §9.2 — closure capture conflict detection.
-    self.check_closure_capture_conflicts(extra_start, arg_count, 0, node)
+    self.check_closure_capture_conflicts(extra_start, mc_resolved_arg_count, mc_has_resolved_args, node)
 
-    let inferred_pending_receiver = self.infer_pending_generic_method_receiver(expr, field, arg_types, arg_count, node)
+    let inferred_pending_receiver = self.infer_pending_generic_method_receiver(expr, field, arg_types, mc_resolved_arg_count, node)
     if inferred_pending_receiver != 0:
         obj_type = inferred_pending_receiver as TypeId
 
@@ -7483,7 +7986,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     if field == self.syms.cancel or field == self.syms.is_done:
         if self.expr_is_task_value(expr) == 0 and self.expr_is_scoped_task_value(expr) == 0:
             return 0
-        if arg_count != 0:
+        if mc_resolved_arg_count != 0:
             self.emit_error("task method expects zero arguments", node)
             return 0
         if field == self.syms.cancel:
@@ -7494,7 +7997,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
         if self.ast.kind(expr) != NodeKind.NK_IDENT or self.is_active_async_scope_symbol(self.ast.get_data0(expr)) == 0:
             self.emit_error("track() is only available inside async scope", node)
             return 0
-        if arg_count <= 0:
+        if mc_resolved_arg_count <= 0:
             self.emit_error("track() requires a Task value", node)
             return 0
         let task_arg = self.ast.get_extra(extra_start)
@@ -7511,7 +8014,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     var recv_type = self.auto_deref_ref_ptr_type(resolved)
     let dyn_trait_sym = self.dyn_trait_symbol_for_type(obj_type as i32)
     if dyn_trait_sym != 0:
-        let dyn_ret = self.check_dyn_trait_method_call(dyn_trait_sym, field, arg_types, extra_start, arg_count, node)
+        let dyn_ret = self.check_dyn_trait_method_call(dyn_trait_sym, field, arg_types, extra_start, mc_resolved_arg_count, node)
         if dyn_ret != 0:
             return dyn_ret
         return 0
@@ -7519,7 +8022,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     let enum_accessor_variant = self.enum_accessor_variant_for_method(recv_type as i32, field)
     if enum_accessor_variant != 0:
         let enum_accessor_kind = self.enum_accessor_kind_for_method(recv_type as i32, field)
-        if arg_count != 0:
+        if mc_resolved_arg_count != 0:
             self.emit_error("enum accessor method expects zero arguments", node)
             return 0
         let enum_payloads = self.enum_variant_payload_types(recv_type as i32, enum_accessor_variant)
@@ -7646,11 +8149,11 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     if self.static_receiver_type_is_known(expr) != 0 and self.enum_has_variant(obj_type, field) != 0:
         let payload_tys = self.enum_variant_payload_types(obj_type, field)
         let expected = payload_tys.len() as i32
-        if arg_count != expected:
+        if mc_resolved_arg_count != expected:
             let owner_name = self.type_name(obj_type)
             let variant_name = self.pool_resolve(field)
-            self.emit_error(f"enum variant constructor '{owner_name}.{variant_name}' expects {expected} argument(s), found {arg_count}", node)
-        for ai in 0..arg_count:
+            self.emit_error(f"enum variant constructor '{owner_name}.{variant_name}' expects {expected} argument(s), found {mc_resolved_arg_count}", node)
+        for ai in 0..mc_resolved_arg_count:
             if ai >= expected:
                 break
             let expected_ty = payload_tys.get(ai as i64)
@@ -7660,7 +8163,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
                         let owner_name = self.type_name(obj_type)
                         let variant_name = self.pool_resolve(field)
-                        self.emit_argument_type_mismatch(owner_name ++ "." ++ variant_name, field, ai, ai, expected_ty, arg_ty, self.ast.get_extra(extra_start + ai))
+                        let err_arg_node = if mc_has_resolved_args != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
+                        self.emit_argument_type_mismatch(owner_name ++ "." ++ variant_name, field, ai, ai, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
         return obj_type as i32
 
     if self.static_receiver_type_is_known(expr) != 0 and self.pool_resolve(field) == "from_int":
@@ -7686,7 +8190,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     if type_name_sym != 0:
         let generic_method_fn = self.lookup_generic_method_fn(type_name_sym, field)
         if generic_method_fn != 0:
-            let generic_ret = self.check_generic_method_call(type_name_sym, recv_type as i32, generic_method_fn, is_static_receiver, arg_types, extra_start, arg_count, node)
+            let generic_ret = self.check_generic_method_call(type_name_sym, recv_type as i32, generic_method_fn, is_static_receiver, arg_types, extra_start, mc_resolved_arg_count, node)
             return generic_ret
 
     if type_name_sym != 0:
@@ -7709,7 +8213,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                     let mc_sig_pc = self.sig_get_param_count(sig_idx)
                     // sig params include self as first param; user args start at index 1
                     let mc_sig_poff = if mc_sig_pc > 0: 1 else: 0
-                    for mc_ai in 0..arg_count:
+                    for mc_ai in 0..mc_resolved_arg_count:
                         let mc_sig_pi = mc_ai + mc_sig_poff
                         if mc_sig_pi >= mc_sig_pc:
                             break
@@ -7721,14 +8225,16 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                         if exp_ty != 0 and arg_ty != 0:
                             let exp_r = self.resolve_alias(exp_ty)
                             if self.type_is_dyn_object(exp_r) == 0:
-                                if self.types_compatible(exp_ty, arg_ty) == 0:
-                                    if self.arithmetic_result_type(exp_ty, arg_ty) == 0:
-                                        self.emit_argument_type_mismatch(mc_method_name, method_fn_sym, mc_ai, mc_sig_pi, exp_ty, arg_ty, self.ast.get_extra(extra_start + mc_ai))
+                                let mc_err_arg = if mc_has_resolved_args != 0: self.get_resolved_call_arg(node, mc_ai) else: self.ast.get_extra(extra_start + mc_ai)
+                                if self.call_arg_type_compatible(exp_ty, arg_ty) == 0:
+                                    self.emit_argument_type_mismatch(mc_method_name, method_fn_sym, mc_ai, mc_sig_pi, exp_ty, arg_ty, if mc_err_arg > 0: mc_err_arg else: node)
+                                else:
+                                    self.note_auto_ref_call_arg(exp_ty, arg_ty, mc_err_arg, node)
                 let mc_subst_ret = self.substitute_method_return_for_generic_inst(recv_type, type_name_sym, field, method_fn_sym, mc_ret)
                 if mc_subst_ret != 0:
-                    self.record_call_view_origins(node, sig_idx, 1, expr, extra_start, arg_count, 0)
+                    self.record_call_view_origins(node, sig_idx, 1, expr, extra_start, mc_resolved_arg_count, mc_has_resolved_args)
                     return mc_subst_ret
-            self.record_call_view_origins(node, sig_idx, 1, expr, extra_start, arg_count, 0)
+            self.record_call_view_origins(node, sig_idx, 1, expr, extra_start, mc_resolved_arg_count, mc_has_resolved_args)
             return mc_ret
 
     // For TypeKind.TY_GENERIC_INST receivers without a registered signature,
@@ -7736,7 +8242,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     if self.get_type_kind(recv_type) == TypeKind.TY_GENERIC_INST:
         let mc_call_name = self.pool_resolve(type_name_sym) ++ "." ++ self.pool_resolve(field)
         let mc_method_name_raw = self.pool_resolve(field)
-        if (type_name_sym == self.syms.vec or type_name_sym == self.syms.hashmap or type_name_sym == self.syms.hashset or self.pool_resolve(type_name_sym) == "Atomic") and field == self.syms.new:
+        if (type_name_sym == self.syms.vec or type_name_sym == self.syms.hashmap or type_name_sym == self.syms.hashset or type_name_sym == self.syms.slotmap or self.pool_resolve(type_name_sym) == "Atomic") and field == self.syms.new:
             return recv_type as i32
         if type_name_sym == self.syms.vec and mc_method_name_raw == "with_capacity":
             return recv_type as i32
@@ -7794,6 +8300,46 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 if elem_ty != 0 and a0_ty != 0:
                     if self.builtin_arg_type_compatible(elem_ty, a0_ty) == 0:
                             self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, elem_ty, a0_ty, self.ast.get_extra(extra_start))
+        else if type_name_sym == self.syms.slotmap:
+            let sm_elem_ty = self.get_generic_inst_arg(recv_type, 0)
+            let sm_handle_ty = self.ensure_handle_type_for(sm_elem_ty)
+            if field == self.syms.insert:
+                if arg_count >= 1:
+                    let a0_ty = arg_types.get(0)
+                    if sm_elem_ty != 0 and a0_ty != 0:
+                        if self.builtin_arg_type_compatible(sm_elem_ty, a0_ty) == 0:
+                            self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, sm_elem_ty, a0_ty, self.ast.get_extra(extra_start))
+            else if field == self.syms.get or field == self.syms.slot or field == self.syms.remove or field == self.syms.contains:
+                if arg_count >= 1:
+                    let h_ty = arg_types.get(0)
+                    if sm_handle_ty != 0 and h_ty != 0:
+                        if self.builtin_arg_type_compatible(sm_handle_ty, h_ty) == 0:
+                            self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, sm_handle_ty, h_ty, self.ast.get_extra(extra_start))
+            else if field == self.syms.replace:
+                if arg_count >= 1:
+                    let h_ty2 = arg_types.get(0)
+                    if sm_handle_ty != 0 and h_ty2 != 0:
+                        if self.builtin_arg_type_compatible(sm_handle_ty, h_ty2) == 0:
+                            self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, sm_handle_ty, h_ty2, self.ast.get_extra(extra_start))
+                if arg_count >= 2:
+                    let v_ty = arg_types.get(1)
+                    if sm_elem_ty != 0 and v_ty != 0:
+                        if self.builtin_arg_type_compatible(sm_elem_ty, v_ty) == 0:
+                            self.emit_argument_type_mismatch(mc_call_name, 0, 1, 1, sm_elem_ty, v_ty, self.ast.get_extra(extra_start + 1))
+            else if field == self.syms.get_disjoint:
+                for sm_hi in 0..2:
+                    if arg_count > sm_hi:
+                        let h_ty3 = arg_types.get(sm_hi as i64)
+                        if sm_handle_ty != 0 and h_ty3 != 0:
+                            if self.builtin_arg_type_compatible(sm_handle_ty, h_ty3) == 0:
+                                self.emit_argument_type_mismatch(mc_call_name, 0, sm_hi, sm_hi, sm_handle_ty, h_ty3, self.ast.get_extra(extra_start + sm_hi))
+        else if type_name_sym == self.syms.slotmapslot:
+            if mc_method_name_raw == "set" and arg_count >= 1:
+                let slot_elem_ty = self.get_generic_inst_arg(recv_type, 0)
+                let set_arg_ty = arg_types.get(0)
+                if slot_elem_ty != 0 and set_arg_ty != 0:
+                    if self.builtin_arg_type_compatible(slot_elem_ty, set_arg_ty) == 0:
+                        self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, slot_elem_ty, set_arg_ty, self.ast.get_extra(extra_start))
         // Return types for builtin generic methods
         if type_name_sym == self.syms.vec:
             if field == self.syms.push:
@@ -7966,13 +8512,48 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.ty_bool as i32
             if field == self.syms.len:
                 return self.ty_i64 as i32
+        if type_name_sym == self.syms.slotmap:
+            let sm_elem_ret_ty = self.get_generic_inst_arg(recv_type, 0)
+            if field == self.syms.insert:
+                return self.ensure_handle_type_for(sm_elem_ret_ty)
+            if field == self.syms.get:
+                return self.ensure_option_ref_type_for(sm_elem_ret_ty)
+            if field == self.syms.slot:
+                return self.ensure_slotmapslot_type_for(sm_elem_ret_ty)
+            if field == self.syms.get_disjoint:
+                let sm_slot_ty = self.ensure_slotmapslot_type_for(sm_elem_ret_ty)
+                let sm_tuple_elems: Vec[i32] = Vec.new()
+                sm_tuple_elems.push(sm_slot_ty)
+                sm_tuple_elems.push(sm_slot_ty)
+                return self.ensure_tuple_type(sm_tuple_elems, 2) as i32
+            if field == self.syms.remove or field == self.syms.replace:
+                return self.ensure_option_type_for(sm_elem_ret_ty)
+            if field == self.syms.contains:
+                return self.ty_bool as i32
+            if field == self.syms.len:
+                return self.ty_i64 as i32
+        if type_name_sym == self.syms.slotmapslot:
+            if field == self.syms.get:
+                return self.get_generic_inst_arg(recv_type, 0)
+            if mc_method_name_raw == "set":
+                return self.ty_void as i32
         if type_name_sym == self.syms.option:
             if field == self.syms.unwrap:
+                return self.get_generic_inst_arg(recv_type, 0)
+            if mc_method_name_raw == "unwrap_or":
+                if mc_resolved_arg_count != 1:
+                    self.emit_error("Option.unwrap_or() expects exactly one argument", node)
+                    return 0
                 return self.get_generic_inst_arg(recv_type, 0)
             if field == self.syms.is_some or field == self.syms.is_none:
                 return self.ty_bool as i32
         if type_name_sym == self.syms.result:
             if field == self.syms.unwrap:
+                return self.get_generic_inst_arg(recv_type, 0)
+            if mc_method_name_raw == "unwrap_or":
+                if mc_resolved_arg_count != 1:
+                    self.emit_error("Result.unwrap_or() expects exactly one argument", node)
+                    return 0
                 return self.get_generic_inst_arg(recv_type, 0)
             if field == self.syms.is_ok or field == self.syms.is_err:
                 return self.ty_bool as i32
@@ -9063,7 +9644,7 @@ fn Sema.place_root_sym(self: Sema, node: i32) -> i32:
     let kind = self.ast.kind(node)
     if kind == NodeKind.NK_IDENT:
         return self.ast.get_data0(node)
-    if kind == NodeKind.NK_FIELD_ACCESS or kind == NodeKind.NK_COMPUTED_FIELD_ACCESS or kind == NodeKind.NK_INDEX or kind == NodeKind.NK_GROUPED:
+    if kind == NodeKind.NK_FIELD_ACCESS or kind == NodeKind.NK_COMPUTED_FIELD_ACCESS or kind == NodeKind.NK_INDEX or kind == NodeKind.NK_MULTI_INDEX or kind == NodeKind.NK_GROUPED:
         return self.place_root_sym(self.ast.get_data0(node))
     // &x.field — strip the reference operator to get the underlying place's root
     if kind == NodeKind.NK_UNARY:
@@ -9524,16 +10105,20 @@ fn Sema.type_is_ephemeral_value(self: Sema, tid: i32) -> i32:
             if self.type_is_ephemeral_value(self.type_extra.get((te_start + ei) as i64)) != 0:
                 return 1
         return 0
+    if tk == TypeKind.TY_GENERIC_INST:
+        let base_sym = self.get_type_d0(resolved)
+        if self.ephemeral_types.contains(base_sym):
+            return 1
+        let arg_count = self.get_type_d2(resolved)
+        let arg_start = self.get_type_d1(resolved)
+        for ai in 0..arg_count:
+            if self.type_is_ephemeral_value(self.type_extra.get((arg_start + ai) as i64)) != 0:
+                return 1
+        return 0
     if tk == TypeKind.TY_STRUCT:
         let st_name = self.get_type_d0(resolved)
         if self.ephemeral_types.contains(st_name):
             return 1
-        let te_start = self.get_type_d1(resolved)
-        let field_count = self.get_type_d2(resolved)
-        for fi in 0..field_count:
-            let ft = self.type_extra.get((te_start + fi * 3 + 1) as i64)
-            if self.type_is_ephemeral_value(ft) != 0:
-                return 1
         return 0
     0
 

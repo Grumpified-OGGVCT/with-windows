@@ -91,6 +91,8 @@ fn Codegen.mir_sema_type_to_llvm(self: Codegen, sema_ty: i32) -> i64:
     if tk == TypeKind.TY_STR:
         let str_sym = self.intern.intern("str")
         return self.resolve_named_type(str_sym)
+    if tk == TypeKind.TY_VOID:
+        return wl_void_type(self.context)
     if tk == TypeKind.TY_STRUCT or tk == TypeKind.TY_ENUM:
         let name_sym = self.mir_input.mir_get_type_d0(resolved)
         if name_sym != 0:
@@ -223,6 +225,11 @@ fn Codegen.regex_literal_global(self: Codegen, name: str, ty: i64, init: i64) ->
     gv
 
 fn Codegen.gen_regex_literal_value(self: Codegen, body: MirBody, const_id: i32, regex_ty: i64) -> i64:
+    if regex_ty == 0 or wl_get_type_kind(regex_ty) != wl_struct_type_kind() or wl_count_struct_elem_types(regex_ty) < 10:
+        self.had_error = 1
+        let regex_kind = if regex_ty != 0: wl_get_type_kind(regex_ty) else: -1
+        with_eprint(f"error: regex literal requires the concrete Regex struct type, got llvm kind {regex_kind} type {self.llvm_type_mangle(regex_ty)}")
+        return wl_get_undef(wl_i32_type(self.context))
     let ptr_ty = wl_ptr_type(self.context)
     let i32_ty = wl_i32_type(self.context)
     let i64_ty = wl_i64_type(self.context)
@@ -347,11 +354,18 @@ fn Codegen.mir_build_raw_fn_type(self: Codegen, sema_ty: i32) -> i64:
             param_types.push(self.type_fallback())
     wl_function_type(llvm_ret, vec_data_i64(&param_types), param_count, 0)
 
+fn Codegen.mir_storage_type_for_value(self: Codegen, ty: i64) -> i64:
+    if ty == 0:
+        return self.type_fallback()
+    if wl_get_type_kind(ty) == wl_void_type_kind():
+        return wl_i32_type(self.context)
+    ty
+
 fn Codegen.mir_get_or_create_local_ptr(self: Codegen, local_id: i32, ty: i64) -> i64:
     let existing = self.mir_local_ptrs.get(local_id)
     if existing.is_some():
         return existing.unwrap() as i64
-    let alloc_ty = if ty != 0: ty else: self.type_fallback()
+    let alloc_ty = self.mir_storage_type_for_value(ty)
     let ptr = self.create_entry_alloca(alloc_ty)
     self.mir_local_ptrs.insert(local_id, ptr)
     ptr
@@ -624,7 +638,7 @@ fn Codegen.mir_place_ptr(self: Codegen, body: MirBody, place_id: i32, create_bas
     if cur_ptr == 0:
         if create_base:
             cur_ptr = self.mir_get_or_create_local_ptr(base_local, create_type)
-            let alloc_ty = if create_type != 0: create_type else: self.type_fallback()
+            let alloc_ty = self.mir_storage_type_for_value(create_type)
             self.mir_local_types.insert(base_local, alloc_ty)
             let _ = self.mir_try_init_const_local(body, base_local, cur_ptr, alloc_ty)
         else:
@@ -955,7 +969,13 @@ fn Codegen.mir_const_value(self: Codegen, body: MirBody, const_id: i32, expected
         return wl_const_int(wl_i32_type(self.context), 0, 0)
 
     if ck == ConstKind.CK_REGEX_LIT:
-        let regex_ty = if materialize_ty != 0: materialize_ty else: self.resolve_named_type(self.intern.intern("Regex"))
+        var regex_ty: i64 = 0
+        if const_id >= 0 and const_id < body.const_types.len() as i32:
+            let regex_sema_ty = body.const_types.get(const_id as i64)
+            if regex_sema_ty > 0:
+                regex_ty = self.mir_sema_type_to_llvm(regex_sema_ty)
+        if regex_ty == 0:
+            regex_ty = self.resolve_named_type(self.intern.intern("Regex"))
         return self.gen_regex_literal_value(body, const_id, regex_ty)
 
     if ck == ConstKind.CK_CLOSURE:
@@ -2273,8 +2293,10 @@ fn Codegen.mir_eval_rvalue(self: Codegen, body: MirBody, rval_id: i32, dest_ty: 
             let agg_count = body.agg_field_counts.get(agg_fields_id as i64)
             var struct_ty = dest_ty
             if struct_ty == 0 and dest_sema_ty > 0:
-                struct_ty = self.mir_sema_type_to_llvm(dest_sema_ty)
-            if struct_ty == 0 and self.current_ret_type != 0 and wl_get_type_kind(self.current_ret_type) == wl_struct_type_kind():
+                let sema_struct_ty = self.mir_sema_type_to_llvm(dest_sema_ty)
+                if sema_struct_ty != 0 and wl_get_type_kind(sema_struct_ty) != wl_void_type_kind():
+                    struct_ty = sema_struct_ty
+            if (struct_ty == 0 or wl_get_type_kind(struct_ty) == wl_void_type_kind()) and self.current_ret_type != 0 and wl_get_type_kind(self.current_ret_type) == wl_struct_type_kind():
                 struct_ty = self.current_ret_type
             if self.debug_mir_codegen_enabled():
                 with_eprint(f"[mir-agg] fn={self.intern.resolve(self.current_function_name_sym)} count={agg_count} dest_ty_kind={if dest_ty != 0: wl_get_type_kind(dest_ty) else: -1} dest_ty_fields={if dest_ty != 0 and wl_get_type_kind(dest_ty) == wl_struct_type_kind(): wl_count_struct_elem_types(dest_ty) else: -1}")
@@ -2316,10 +2338,17 @@ fn Codegen.mir_eval_rvalue(self: Codegen, body: MirBody, rval_id: i32, dest_ty: 
                 // Store payload in field 1 if any
                 if agg_count > 0 and wl_count_struct_elem_types(struct_ty) > 1:
                     let ev_payload_ty = self.mir_enum_variant_payload_llvm_type(dest_sema_ty, ev_tag)
+                    let ev_payload_sema = self.mir_enum_payload_sema_type(dest_sema_ty, ev_tag, 0)
+                    let ev_payload_resolved = if ev_payload_sema > 0: self.mir_input.mir_resolve_alias(ev_payload_sema) else: 0
+                    let ev_payload_is_unit = if ev_payload_resolved > 0 and self.mir_input.mir_get_type_kind(ev_payload_resolved) == TypeKind.TY_VOID: 1 else: 0
                     if ev_payload_ty == 0:
+                        if ev_payload_is_unit != 0:
+                            return wl_build_load(self.builder, struct_ty, ev_alloca)
                         with_eprint(f"error: aggregate enum payload missing destination payload type fn={self.intern.resolve(self.current_function_name_sym)} variant={ev_tag}")
                         self.had_error = 1
                         return wl_get_undef(fallback_ty)
+                    if wl_get_type_kind(ev_payload_ty) == wl_void_type_kind() or self.abi_size_of(ev_payload_ty) == 0:
+                        return wl_build_load(self.builder, struct_ty, ev_alloca)
                     let ev_data_ptr = wl_build_struct_gep(self.builder, struct_ty, ev_alloca, 1)
                     if agg_count > 1 and wl_get_type_kind(ev_payload_ty) == wl_struct_type_kind():
                         let ev_payload_ptr = wl_build_bitcast(self.builder, ev_data_ptr, wl_ptr_type(self.context))
@@ -2342,7 +2371,7 @@ fn Codegen.mir_eval_rvalue(self: Codegen, body: MirBody, rval_id: i32, dest_ty: 
                 // Fall through to bitpacked handler below
                 0
             else if struct_ty == 0 or wl_get_type_kind(struct_ty) != wl_struct_type_kind():
-                with_eprint(f"error: aggregate rvalue missing destination struct type fn={self.intern.resolve(self.current_function_name_sym)} count={agg_count}")
+                with_eprint(f"error: aggregate rvalue missing destination struct type fn={self.intern.resolve(self.current_function_name_sym)} count={agg_count} dest_sema={dest_sema_ty} current_ret={self.llvm_type_mangle(self.current_ret_type)}")
                 self.had_error = 1
                 return wl_get_undef(fallback_ty)
             // Check if this struct is bitpacked (stored as iN)
@@ -3029,6 +3058,76 @@ fn Codegen.mir_intrinsic_map_handle(self: Codegen, body: MirBody, args_id: i32) 
                                 return wl_build_extract_value(self.builder, loaded, 0)
     self.mir_extract_map_ptr(recv)
 
+fn Codegen.mir_extract_single_ptr_struct(self: Codegen, recv: i64) -> i64:
+    let recv_ty = wl_type_of(recv)
+    if wl_get_type_kind(recv_ty) == wl_pointer_type_kind():
+        let pointee_ty = wl_get_element_type(recv_ty)
+        if pointee_ty != 0 and wl_get_type_kind(pointee_ty) == wl_struct_type_kind():
+            let loaded = wl_build_load(self.builder, pointee_ty, recv)
+            return wl_build_extract_value(self.builder, loaded, 0)
+        return recv
+    if wl_get_type_kind(recv_ty) == wl_struct_type_kind():
+        return wl_build_extract_value(self.builder, recv, 0)
+    recv
+
+fn Codegen.mir_intrinsic_slotmap_handle(self: Codegen, body: MirBody, args_id: i32) -> i64:
+    let arg_start = body.call_arg_starts.get(args_id as i64)
+    let recv_op = body.call_arg_operands.get(arg_start as i64)
+    let recv = self.mir_intrinsic_arg(body, args_id, 0)
+    let recv_sema = self.mir_operand_sema_type(body, recv_op)
+    if recv_sema > 0:
+        let recv_resolved = self.mir_input.mir_resolve_alias(recv_sema)
+        let recv_tk = self.mir_input.mir_get_type_kind(recv_resolved)
+        if recv_tk == TypeKind.TY_REF or recv_tk == TypeKind.TY_PTR:
+            let pointee_sema = self.mir_input.mir_get_type_d0(recv_resolved)
+            if pointee_sema > 0:
+                let pointee_resolved = self.mir_input.mir_resolve_alias(pointee_sema)
+                if self.mir_input.mir_get_type_kind(pointee_resolved) == TypeKind.TY_GENERIC_INST:
+                    let base_sym = self.sema_sym_to_codegen_sym(self.mir_input.mir_get_type_d0(pointee_resolved))
+                    if base_sym == self.sym_slotmap:
+                        let pointee_ty = self.mir_sema_type_to_llvm(pointee_resolved)
+                        if pointee_ty != 0 and wl_get_type_kind(wl_type_of(recv)) == wl_pointer_type_kind():
+                            let loaded = wl_build_load(self.builder, pointee_ty, recv)
+                            if wl_get_type_kind(wl_type_of(loaded)) == wl_struct_type_kind():
+                                return wl_build_extract_value(self.builder, loaded, 0)
+    self.mir_extract_single_ptr_struct(recv)
+
+fn Codegen.mir_slotmap_elem_type_from_recv(self: Codegen, body: MirBody, args_id: i32) -> i64:
+    let arg_start = body.call_arg_starts.get(args_id as i64)
+    let recv_op = body.call_arg_operands.get(arg_start as i64)
+    let recv_sema = self.mir_operand_sema_type(body, recv_op)
+    var resolved = self.mir_input.mir_resolve_alias(recv_sema)
+    let tk = self.mir_input.mir_get_type_kind(resolved)
+    if tk == TypeKind.TY_REF or tk == TypeKind.TY_PTR:
+        resolved = self.mir_input.mir_resolve_alias(self.mir_input.mir_get_type_d0(resolved))
+    if self.mir_input.mir_get_type_kind(resolved) == TypeKind.TY_GENERIC_INST:
+        let base_sym = self.sema_sym_to_codegen_sym(self.mir_input.mir_get_type_d0(resolved))
+        if base_sym == self.sym_slotmap:
+            let te_start = self.mir_input.mir_get_type_d1(resolved)
+            let elem_tid = self.mir_input.mir_get_type_extra(te_start)
+            let elem_ty = self.mir_sema_type_to_llvm(elem_tid)
+            if elem_ty != 0:
+                return elem_ty
+    self.type_fallback()
+
+fn Codegen.mir_slotmapslot_elem_type_from_recv(self: Codegen, body: MirBody, args_id: i32) -> i64:
+    let arg_start = body.call_arg_starts.get(args_id as i64)
+    let recv_op = body.call_arg_operands.get(arg_start as i64)
+    let recv_sema = self.mir_operand_sema_type(body, recv_op)
+    var resolved = self.mir_input.mir_resolve_alias(recv_sema)
+    let tk = self.mir_input.mir_get_type_kind(resolved)
+    if tk == TypeKind.TY_REF or tk == TypeKind.TY_PTR:
+        resolved = self.mir_input.mir_resolve_alias(self.mir_input.mir_get_type_d0(resolved))
+    if self.mir_input.mir_get_type_kind(resolved) == TypeKind.TY_GENERIC_INST:
+        let base_sym = self.sema_sym_to_codegen_sym(self.mir_input.mir_get_type_d0(resolved))
+        if base_sym == self.sym_slotmapslot:
+            let te_start = self.mir_input.mir_get_type_d1(resolved)
+            let elem_tid = self.mir_input.mir_get_type_extra(te_start)
+            let elem_ty = self.mir_sema_type_to_llvm(elem_tid)
+            if elem_ty != 0:
+                return elem_ty
+    self.type_fallback()
+
 fn Codegen.mir_intrinsic_dest_sema_type(self: Codegen, body: MirBody, dest_place: i32) -> i32:
     if dest_place < 0 or dest_place >= body.place_locals.len() as i32:
         return 0
@@ -3361,6 +3460,128 @@ fn Codegen.mir_struct_sym_from_sema_type(self: Codegen, sema_ty: i32) -> i32:
         if self.struct_type_map.get(mono_sym).is_some():
             return mono_sym
     0
+
+fn Codegen.mir_multi_index_failure_value(self: Codegen, body: MirBody, dest_place: i32) -> i64:
+    let dest_ty = self.mir_dest_llvm_type(body, dest_place)
+    if dest_ty != 0 and dest_ty != wl_void_type(self.context):
+        return wl_get_undef(dest_ty)
+    wl_get_undef(wl_i32_type(self.context))
+
+fn Codegen.mir_build_multi_index_specs_ref(self: Codegen, body: MirBody, args_id: i32, mi_node: i32, is_set: i32) -> i64:
+    let _ = is_set
+    let mi_kind = self.pool.kind(mi_node)
+    let specs_start = if mi_kind == NodeKind.NK_MULTI_INDEX: self.pool.get_data1(mi_node) else: 0
+    let specs_count = if mi_kind == NodeKind.NK_INDEX: 2 else: self.pool.get_data2(mi_node)
+    let ctx = self.context
+    let spec_fields: Vec[i64] = Vec.new()
+    spec_fields.push(wl_i32_type(ctx))
+    spec_fields.push(wl_i64_type(ctx))
+    spec_fields.push(wl_i64_type(ctx))
+    spec_fields.push(wl_i64_type(ctx))
+    spec_fields.push(wl_i1_type(ctx))
+    spec_fields.push(wl_i1_type(ctx))
+    spec_fields.push(wl_i1_type(ctx))
+    let spec_ty = wl_struct_type(ctx, vec_data_i64(&spec_fields), 7, 0)
+    let arr_ty = wl_array_type(spec_ty, specs_count as i64)
+    let arr_ptr = self.create_entry_alloca(arr_ty)
+    let zero_i32 = wl_const_int(wl_i32_type(ctx), 0, 0)
+    let i64_ty = wl_i64_type(ctx)
+
+    for si in 0..specs_count:
+        var d0 = 0
+        var d1 = 0
+        var kind = INDEX_SCALAR
+        var step_node = 0
+        if mi_kind == NodeKind.NK_INDEX:
+            d0 = if si == 0: self.pool.get_data1(mi_node) else: self.pool.get_data2(mi_node)
+        else:
+            let spec_node = self.pool.get_extra(specs_start + si)
+            d0 = self.pool.get_data0(spec_node)
+            d1 = self.pool.get_data1(spec_node)
+            let d2 = self.pool.get_data2(spec_node)
+            kind = d2 / INDEX_KIND_SHIFT
+            step_node = d2 - kind * INDEX_KIND_SHIFT
+        let elem_indices: Vec[i64] = Vec.new()
+        elem_indices.push(zero_i32)
+        elem_indices.push(wl_const_int(wl_i32_type(ctx), si as i64, 0))
+        let elem_ptr = wl_build_gep(self.builder, arr_ty, arr_ptr, vec_data_i64(&elem_indices), 2)
+        wl_build_store(self.builder, wl_const_int(wl_i32_type(ctx), kind as i64, 0), wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 0))
+        let arg_base = 1 + si * 3
+        let start_val = self.coerce_value_to_type(self.mir_intrinsic_arg(body, args_id, arg_base), i64_ty)
+        let stop_val = self.coerce_value_to_type(self.mir_intrinsic_arg(body, args_id, arg_base + 1), i64_ty)
+        let step_val = self.coerce_value_to_type(self.mir_intrinsic_arg(body, args_id, arg_base + 2), i64_ty)
+        wl_build_store(self.builder, start_val, wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 1))
+        wl_build_store(self.builder, stop_val, wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 2))
+        wl_build_store(self.builder, step_val, wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 3))
+        wl_build_store(self.builder, wl_const_int(wl_i1_type(ctx), if d0 != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 4))
+        wl_build_store(self.builder, wl_const_int(wl_i1_type(ctx), if d1 != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 5))
+        wl_build_store(self.builder, wl_const_int(wl_i1_type(ctx), if step_node != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, spec_ty, elem_ptr, 6))
+
+    let data_indices: Vec[i64] = Vec.new()
+    data_indices.push(zero_i32)
+    data_indices.push(zero_i32)
+    let data_ptr = if specs_count > 0: wl_build_gep(self.builder, arr_ty, arr_ptr, vec_data_i64(&data_indices), 2) else: wl_const_null(wl_ptr_type(ctx))
+    let slice_fields: Vec[i64] = Vec.new()
+    slice_fields.push(wl_ptr_type(ctx))
+    slice_fields.push(i64_ty)
+    let slice_ty = wl_struct_type(ctx, vec_data_i64(&slice_fields), 2, 0)
+    var slice_val = wl_get_undef(slice_ty)
+    slice_val = wl_build_insert_value(self.builder, slice_val, data_ptr, 0)
+    slice_val = wl_build_insert_value(self.builder, slice_val, wl_const_int(i64_ty, specs_count as i64, 0), 1)
+    let slice_ptr = self.create_entry_alloca(slice_ty)
+    wl_build_store(self.builder, slice_val, slice_ptr)
+    slice_ptr
+
+fn Codegen.mir_emit_multi_index_method_call(self: Codegen, body: MirBody, args_id: i32, dest_place: i32, is_set: i32) -> i64:
+    let mi_node = body.call_ast_node(args_id)
+    if mi_node == 0:
+        with_eprint("error: cannot lower multi-index expression without source metadata")
+        self.had_error = 1
+        return self.mir_multi_index_failure_value(body, dest_place)
+    let arg_start = body.call_arg_starts.get(args_id as i64)
+    let base_op = body.call_arg_operands.get(arg_start as i64)
+    let base_val = self.mir_eval_operand(body, base_op, 0)
+    let base_ty = wl_type_of(base_val)
+    let base_sema = self.mir_unwrap_ref_like_sema_type(self.mir_operand_sema_type(body, base_op))
+    var owner_sym = self.mir_struct_sym_from_sema_type(base_sema)
+    if owner_sym == 0:
+        owner_sym = self.find_struct_type_by_llvm(base_ty)
+    if owner_sym == 0:
+        with_eprint("error: cannot lower multi-index expression; receiver type has no concrete method owner")
+        self.had_error = 1
+        return self.mir_multi_index_failure_value(body, dest_place)
+
+    let owner_name = self.intern.resolve(owner_sym)
+    let method_name = if is_set != 0: "multi_index_set" else: "multi_index"
+    let qualified = owner_name ++ "." ++ method_name
+    let fn_sym = self.intern.intern(qualified)
+    let fn_val_opt = self.fn_values.get(fn_sym)
+    let fn_ty_opt = self.fn_fn_types.get(fn_sym)
+    if not fn_val_opt.is_some() or not fn_ty_opt.is_some():
+        with_eprint("error: cannot lower multi-index expression; missing concrete method `" ++ qualified ++ "`")
+        self.had_error = 1
+        return self.mir_multi_index_failure_value(body, dest_place)
+
+    let call_args: Vec[i64] = Vec.new()
+    if self.is_ref_param(fn_sym, 0):
+        let base_ptr = self.mir_try_place_ptr_for_ref(body, base_op)
+        if base_ptr != 0:
+            call_args.push(base_ptr)
+        else:
+            call_args.push(self.get_mutable_receiver_ptr(self.pool.get_data0(mi_node), base_val, base_ty))
+    else:
+        call_args.push(base_val)
+    call_args.push(self.mir_build_multi_index_specs_ref(body, args_id, mi_node, is_set))
+    let specs_count = if self.pool.kind(mi_node) == NodeKind.NK_INDEX: 2 else: self.pool.get_data2(mi_node)
+    call_args.push(wl_const_int(wl_i32_type(self.context), specs_count as i64, 0))
+    if is_set != 0:
+        let rhs_arg = body.call_arg_operands.get((arg_start + 1 + specs_count * 3) as i64)
+        call_args.push(self.mir_eval_operand(body, rhs_arg, 0))
+
+    let fn_val = fn_val_opt.unwrap() as i64
+    let fn_ty = fn_ty_opt.unwrap() as i64
+    let coerced = self.coerce_call_args_for_fn_value(fn_sym, fn_val, -1, 0, call_args, call_args.len() as i32, "method " ++ qualified, mi_node)
+    wl_build_call(self.builder, fn_ty, fn_val, vec_data_i64(&coerced), coerced.len() as i32)
 
 fn Codegen.mir_dyn_arg_info_from_operand(self: Codegen, body: MirBody, operand_id: i32, arg_val: i64) -> DynArgInfo:
     let sema_ty = self.mir_operand_sema_type(body, operand_id)
@@ -3710,6 +3931,21 @@ fn Codegen.classify_generic_call_intrinsic(self: Codegen, recv_type: i32, method
     if type_name == "VecSlot":
         if method_name == "get": return MirIntrinsic.MIR_INTRINSIC_VECSLOT_GET
         if method_name == "set": return MirIntrinsic.MIR_INTRINSIC_VECSLOT_SET
+        return MirIntrinsic.MIR_INTRINSIC_NONE
+    if type_name == "SlotMap":
+        if method_name == "new": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_NEW
+        if method_name == "insert": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_INSERT
+        if method_name == "get": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET
+        if method_name == "slot": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_SLOT
+        if method_name == "remove": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REMOVE
+        if method_name == "replace": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REPLACE
+        if method_name == "contains": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_CONTAINS
+        if method_name == "len": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_LEN
+        if method_name == "get_disjoint": return MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET_DISJOINT
+        return MirIntrinsic.MIR_INTRINSIC_NONE
+    if type_name == "SlotMapSlot":
+        if method_name == "get": return MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_GET
+        if method_name == "set": return MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_SET
         return MirIntrinsic.MIR_INTRINSIC_NONE
     if type_name == "VecRange":
         if method_name == "get": return MirIntrinsic.MIR_INTRINSIC_VECRANGE_GET
@@ -4217,6 +4453,303 @@ fn Codegen.mir_emit_intrinsic_call(self: Codegen, body: MirBody, intrinsic: i32,
         keys_args.push(wl_const_int(i64_ty, key_size, 0))
         let _ = wl_build_call(self.builder, keys_ty, keys_fn, vec_data_i64(&keys_args), 3)
         result = wl_build_load(self.builder, vec_ty, out_alloca)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_NEW:
+        var sm_elem_ty = i64_ty
+        let sm_dest_sema = self.mir_intrinsic_dest_sema_type(body, dest_place)
+        var sm_ty: i64 = 0
+        if sm_dest_sema > 0:
+            let sm_resolved = self.mir_input.mir_resolve_alias(sm_dest_sema)
+            if self.mir_input.mir_get_type_kind(sm_resolved) == TypeKind.TY_GENERIC_INST:
+                let sm_arg_start = self.mir_input.mir_get_type_d1(sm_resolved)
+                let sm_elem_tid = self.mir_input.mir_get_type_extra(sm_arg_start)
+                let sm_elem_llvm = self.mir_sema_type_to_llvm(sm_elem_tid)
+                if sm_elem_llvm != 0:
+                    sm_elem_ty = sm_elem_llvm
+                    sm_ty = self.get_or_create_slotmap_type(sm_dest_sema, sm_elem_ty)
+        let sm_new_fn = self.ensure_c_fn("with_slotmap_new", ptr_ty, 1)
+        let sm_params: Vec[i64] = Vec.new()
+        sm_params.push(i64_ty)
+        let sm_fn_ty = wl_function_type(ptr_ty, vec_data_i64(&sm_params), 1, 0)
+        let sm_args: Vec[i64] = Vec.new()
+        sm_args.push(wl_const_int(i64_ty, self.abi_size_of(sm_elem_ty), 0))
+        let sm_handle = wl_build_call(self.builder, sm_fn_ty, sm_new_fn, vec_data_i64(&sm_args), 1)
+        if sm_ty == 0:
+            sm_ty = self.get_or_create_slotmap_type(0, sm_elem_ty)
+        result = wl_build_insert_value(self.builder, self.build_default_value(sm_ty), sm_handle, 0)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_INSERT:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_val_raw = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_elem_ty = self.mir_slotmap_elem_type_from_recv(body, args_id)
+        let sm_val = if sm_elem_ty != 0 and wl_type_of(sm_val_raw) != sm_elem_ty: self.coerce_value_to_type(sm_val_raw, sm_elem_ty) else: sm_val_raw
+        let sm_val_alloca = wl_build_alloca(self.builder, wl_type_of(sm_val))
+        wl_build_store(self.builder, sm_val, sm_val_alloca)
+        var sm_h_ty = self.mir_sema_type_to_llvm(self.mir_intrinsic_dest_sema_type(body, dest_place))
+        if sm_h_ty == 0:
+            let sm_h_fields: Vec[i64] = Vec.new()
+            sm_h_fields.push(i32_ty)
+            sm_h_fields.push(i32_ty)
+            sm_h_ty = wl_struct_type(self.context, vec_data_i64(&sm_h_fields), 2, 0)
+        let sm_out = wl_build_alloca(self.builder, sm_h_ty)
+        let sm_insert_fn = self.ensure_c_fn("with_slotmap_insert_out", void_ty, 3)
+        let sm_insert_params: Vec[i64] = Vec.new()
+        sm_insert_params.push(ptr_ty)
+        sm_insert_params.push(ptr_ty)
+        sm_insert_params.push(ptr_ty)
+        let sm_insert_ty = wl_function_type(void_ty, vec_data_i64(&sm_insert_params), 3, 0)
+        let sm_insert_args: Vec[i64] = Vec.new()
+        sm_insert_args.push(sm_map)
+        sm_insert_args.push(sm_val_alloca)
+        sm_insert_args.push(sm_out)
+        wl_build_call(self.builder, sm_insert_ty, sm_insert_fn, vec_data_i64(&sm_insert_args), 3)
+        result = wl_build_load(self.builder, sm_h_ty, sm_out)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_h = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_idx = wl_build_extract_value(self.builder, sm_h, 0)
+        let sm_gen = wl_build_extract_value(self.builder, sm_h, 1)
+        let sm_get_fn = self.ensure_c_fn("with_slotmap_get_ptr", ptr_ty, 3)
+        let sm_get_params: Vec[i64] = Vec.new()
+        sm_get_params.push(ptr_ty)
+        sm_get_params.push(i32_ty)
+        sm_get_params.push(i32_ty)
+        let sm_get_ty = wl_function_type(ptr_ty, vec_data_i64(&sm_get_params), 3, 0)
+        let sm_get_args: Vec[i64] = Vec.new()
+        sm_get_args.push(sm_map)
+        sm_get_args.push(sm_idx)
+        sm_get_args.push(sm_gen)
+        let sm_ptr = wl_build_call(self.builder, sm_get_ty, sm_get_fn, vec_data_i64(&sm_get_args), 3)
+        let sm_dest_ty = self.mir_sema_type_to_llvm(self.mir_intrinsic_dest_sema_type(body, dest_place))
+        result = if sm_dest_ty != 0 and wl_get_type_kind(sm_dest_ty) == wl_pointer_type_kind(): self.coerce_value_to_type(sm_ptr, sm_dest_ty) else: sm_ptr
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_SLOT:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_h = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_idx = wl_build_extract_value(self.builder, sm_h, 0)
+        let sm_gen = wl_build_extract_value(self.builder, sm_h, 1)
+        var sms_ty = self.mir_sema_type_to_llvm(self.mir_intrinsic_dest_sema_type(body, dest_place))
+        if sms_ty == 0:
+            let sms_fields: Vec[i64] = Vec.new()
+            sms_fields.push(i64_ty)
+            sms_fields.push(i32_ty)
+            sms_fields.push(i32_ty)
+            sms_ty = wl_struct_type(self.context, vec_data_i64(&sms_fields), 3, 0)
+        let sms_map_i64 = wl_build_ptr_to_int(self.builder, sm_map, i64_ty)
+        let sms_0 = wl_build_insert_value(self.builder, self.build_default_value(sms_ty), sms_map_i64, 0)
+        let sms_1 = wl_build_insert_value(self.builder, sms_0, sm_idx, 1)
+        result = wl_build_insert_value(self.builder, sms_1, sm_gen, 2)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_CONTAINS:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_h = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_idx = wl_build_extract_value(self.builder, sm_h, 0)
+        let sm_gen = wl_build_extract_value(self.builder, sm_h, 1)
+        let sm_contains_fn = self.ensure_c_fn("with_slotmap_contains", i32_ty, 3)
+        let sm_contains_params: Vec[i64] = Vec.new()
+        sm_contains_params.push(ptr_ty)
+        sm_contains_params.push(i32_ty)
+        sm_contains_params.push(i32_ty)
+        let sm_contains_ty = wl_function_type(i32_ty, vec_data_i64(&sm_contains_params), 3, 0)
+        let sm_contains_args: Vec[i64] = Vec.new()
+        sm_contains_args.push(sm_map)
+        sm_contains_args.push(sm_idx)
+        sm_contains_args.push(sm_gen)
+        let sm_raw = wl_build_call(self.builder, sm_contains_ty, sm_contains_fn, vec_data_i64(&sm_contains_args), 3)
+        result = wl_build_icmp(self.builder, wl_int_ne(), sm_raw, wl_const_int(i32_ty, 0, 0))
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_LEN:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_len_fn = self.ensure_c_fn("with_slotmap_len", i64_ty, 1)
+        let sm_len_params: Vec[i64] = Vec.new()
+        sm_len_params.push(ptr_ty)
+        let sm_len_ty = wl_function_type(i64_ty, vec_data_i64(&sm_len_params), 1, 0)
+        let sm_len_args: Vec[i64] = Vec.new()
+        sm_len_args.push(sm_map)
+        result = wl_build_call(self.builder, sm_len_ty, sm_len_fn, vec_data_i64(&sm_len_args), 1)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REMOVE or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REPLACE:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_h = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_idx = wl_build_extract_value(self.builder, sm_h, 0)
+        let sm_gen = wl_build_extract_value(self.builder, sm_h, 1)
+        let sm_elem_ty = self.mir_slotmap_elem_type_from_recv(body, args_id)
+        let sm_out = wl_build_alloca(self.builder, sm_elem_ty)
+        var sm_found: i64 = 0
+        if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REMOVE:
+            let sm_remove_fn = self.ensure_c_fn("with_slotmap_remove", i32_ty, 4)
+            let sm_remove_params: Vec[i64] = Vec.new()
+            sm_remove_params.push(ptr_ty)
+            sm_remove_params.push(i32_ty)
+            sm_remove_params.push(i32_ty)
+            sm_remove_params.push(ptr_ty)
+            let sm_remove_ty = wl_function_type(i32_ty, vec_data_i64(&sm_remove_params), 4, 0)
+            let sm_remove_args: Vec[i64] = Vec.new()
+            sm_remove_args.push(sm_map)
+            sm_remove_args.push(sm_idx)
+            sm_remove_args.push(sm_gen)
+            sm_remove_args.push(sm_out)
+            sm_found = wl_build_call(self.builder, sm_remove_ty, sm_remove_fn, vec_data_i64(&sm_remove_args), 4)
+        else:
+            let sm_val_raw = self.mir_intrinsic_arg(body, args_id, 2)
+            let sm_val = if wl_type_of(sm_val_raw) != sm_elem_ty: self.coerce_value_to_type(sm_val_raw, sm_elem_ty) else: sm_val_raw
+            let sm_val_alloca = wl_build_alloca(self.builder, sm_elem_ty)
+            wl_build_store(self.builder, sm_val, sm_val_alloca)
+            let sm_replace_fn = self.ensure_c_fn("with_slotmap_replace", i32_ty, 5)
+            let sm_replace_params: Vec[i64] = Vec.new()
+            sm_replace_params.push(ptr_ty)
+            sm_replace_params.push(i32_ty)
+            sm_replace_params.push(i32_ty)
+            sm_replace_params.push(ptr_ty)
+            sm_replace_params.push(ptr_ty)
+            let sm_replace_ty = wl_function_type(i32_ty, vec_data_i64(&sm_replace_params), 5, 0)
+            let sm_replace_args: Vec[i64] = Vec.new()
+            sm_replace_args.push(sm_map)
+            sm_replace_args.push(sm_idx)
+            sm_replace_args.push(sm_gen)
+            sm_replace_args.push(sm_val_alloca)
+            sm_replace_args.push(sm_out)
+            sm_found = wl_build_call(self.builder, sm_replace_ty, sm_replace_fn, vec_data_i64(&sm_replace_args), 5)
+        let sm_val = wl_build_load(self.builder, sm_elem_ty, sm_out)
+        let sm_opt_ty = self.get_or_create_option_type(0, sm_elem_ty)
+        let sm_is_found = wl_build_icmp(self.builder, wl_int_ne(), sm_found, wl_const_int(i32_ty, 0, 0))
+        let sm_some = self.build_option_some(sm_val, sm_opt_ty)
+        let sm_none = self.build_option_none(sm_opt_ty)
+        result = wl_build_select(self.builder, sm_is_found, sm_some, sm_none)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET_DISJOINT:
+        let sm_map = self.mir_intrinsic_slotmap_handle(body, args_id)
+        let sm_h1 = self.mir_intrinsic_arg(body, args_id, 1)
+        let sm_h2 = self.mir_intrinsic_arg(body, args_id, 2)
+        let sm_i1 = wl_build_extract_value(self.builder, sm_h1, 0)
+        let sm_g1 = wl_build_extract_value(self.builder, sm_h1, 1)
+        let sm_i2 = wl_build_extract_value(self.builder, sm_h2, 0)
+        let sm_g2 = wl_build_extract_value(self.builder, sm_h2, 1)
+        let sm_valid_fn = self.ensure_c_fn("with_slotmap_contains", i32_ty, 3)
+        let sm_valid_params: Vec[i64] = Vec.new()
+        sm_valid_params.push(ptr_ty)
+        sm_valid_params.push(i32_ty)
+        sm_valid_params.push(i32_ty)
+        let sm_valid_ty = wl_function_type(i32_ty, vec_data_i64(&sm_valid_params), 3, 0)
+        let sm_va: Vec[i64] = Vec.new()
+        sm_va.push(sm_map)
+        sm_va.push(sm_i1)
+        sm_va.push(sm_g1)
+        let sm_v1 = wl_build_call(self.builder, sm_valid_ty, sm_valid_fn, vec_data_i64(&sm_va), 3)
+        let sm_vb: Vec[i64] = Vec.new()
+        sm_vb.push(sm_map)
+        sm_vb.push(sm_i2)
+        sm_vb.push(sm_g2)
+        let sm_v2 = wl_build_call(self.builder, sm_valid_ty, sm_valid_fn, vec_data_i64(&sm_vb), 3)
+        let sm_same_i = wl_build_icmp(self.builder, wl_int_eq(), sm_i1, sm_i2)
+        let sm_same_g = wl_build_icmp(self.builder, wl_int_eq(), sm_g1, sm_g2)
+        let sm_same = wl_build_and(self.builder, sm_same_i, sm_same_g)
+        let sm_bad1 = wl_build_icmp(self.builder, wl_int_eq(), sm_v1, wl_const_int(i32_ty, 0, 0))
+        let sm_bad2 = wl_build_icmp(self.builder, wl_int_eq(), sm_v2, wl_const_int(i32_ty, 0, 0))
+        let sm_fail = wl_build_or(self.builder, wl_build_or(self.builder, sm_bad1, sm_bad2), sm_same)
+        let sm_panic_bb = wl_append_bb(self.context, self.current_function, "slotmap.gd.panic")
+        let sm_ok_bb = wl_append_bb(self.context, self.current_function, "slotmap.gd.ok")
+        wl_build_cond_br(self.builder, sm_fail, sm_panic_bb, sm_ok_bb)
+        wl_position_at_end(self.builder, sm_panic_bb)
+        self.emit_runtime_panic("SlotMap.get_disjoint requires distinct valid handles")
+        wl_position_at_end(self.builder, sm_ok_bb)
+        let sm_slot_fields: Vec[i64] = Vec.new()
+        sm_slot_fields.push(i64_ty)
+        sm_slot_fields.push(i32_ty)
+        sm_slot_fields.push(i32_ty)
+        let sm_slot_ty = wl_struct_type(self.context, vec_data_i64(&sm_slot_fields), 3, 0)
+        let sm_map_i64 = wl_build_ptr_to_int(self.builder, sm_map, i64_ty)
+        let sm_s0a = wl_build_insert_value(self.builder, self.build_default_value(sm_slot_ty), sm_map_i64, 0)
+        let sm_s0b = wl_build_insert_value(self.builder, sm_s0a, sm_i1, 1)
+        let sm_s0 = wl_build_insert_value(self.builder, sm_s0b, sm_g1, 2)
+        let sm_s1a = wl_build_insert_value(self.builder, self.build_default_value(sm_slot_ty), sm_map_i64, 0)
+        let sm_s1b = wl_build_insert_value(self.builder, sm_s1a, sm_i2, 1)
+        let sm_s1 = wl_build_insert_value(self.builder, sm_s1b, sm_g2, 2)
+        var sm_tuple_ty = self.mir_sema_type_to_llvm(self.mir_intrinsic_dest_sema_type(body, dest_place))
+        if sm_tuple_ty == 0:
+            let sm_tuple_fields: Vec[i64] = Vec.new()
+            sm_tuple_fields.push(sm_slot_ty)
+            sm_tuple_fields.push(sm_slot_ty)
+            sm_tuple_ty = wl_struct_type(self.context, vec_data_i64(&sm_tuple_fields), 2, 0)
+        let sm_tuple0 = wl_build_insert_value(self.builder, self.build_default_value(sm_tuple_ty), sm_s0, 0)
+        result = wl_build_insert_value(self.builder, sm_tuple0, sm_s1, 1)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_GET:
+        let sms_ptr = self.mir_intrinsic_recv_ptr(body, args_id)
+        let sms_fields: Vec[i64] = Vec.new()
+        sms_fields.push(i64_ty)
+        sms_fields.push(i32_ty)
+        sms_fields.push(i32_ty)
+        let sms_ty = wl_struct_type(self.context, vec_data_i64(&sms_fields), 3, 0)
+        let sms_map_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 0)
+        let sms_map_i = wl_build_load(self.builder, i64_ty, sms_map_p)
+        let sms_map = wl_build_int_to_ptr(self.builder, sms_map_i, ptr_ty)
+        let sms_idx_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 1)
+        let sms_idx = wl_build_load(self.builder, i32_ty, sms_idx_p)
+        let sms_gen_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 2)
+        let sms_gen = wl_build_load(self.builder, i32_ty, sms_gen_p)
+        let sms_get_fn = self.ensure_c_fn("with_slotmap_get_ptr", ptr_ty, 3)
+        let sms_get_params: Vec[i64] = Vec.new()
+        sms_get_params.push(ptr_ty)
+        sms_get_params.push(i32_ty)
+        sms_get_params.push(i32_ty)
+        let sms_get_ty = wl_function_type(ptr_ty, vec_data_i64(&sms_get_params), 3, 0)
+        let sms_get_args: Vec[i64] = Vec.new()
+        sms_get_args.push(sms_map)
+        sms_get_args.push(sms_idx)
+        sms_get_args.push(sms_gen)
+        let sms_val_ptr = wl_build_call(self.builder, sms_get_ty, sms_get_fn, vec_data_i64(&sms_get_args), 3)
+        let sms_is_null = wl_build_icmp(self.builder, wl_int_eq(), sms_val_ptr, wl_const_null(ptr_ty))
+        let sms_panic_bb = wl_append_bb(self.context, self.current_function, "slotmap.slot.get.panic")
+        let sms_ok_bb = wl_append_bb(self.context, self.current_function, "slotmap.slot.get.ok")
+        wl_build_cond_br(self.builder, sms_is_null, sms_panic_bb, sms_ok_bb)
+        wl_position_at_end(self.builder, sms_panic_bb)
+        self.emit_runtime_panic("SlotMapSlot.get requires a valid handle")
+        wl_position_at_end(self.builder, sms_ok_bb)
+        let sms_elem_ty = self.mir_slotmapslot_elem_type_from_recv(body, args_id)
+        result = wl_build_load(self.builder, sms_elem_ty, sms_val_ptr)
+
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_SET:
+        let sms_ptr = self.mir_intrinsic_recv_ptr(body, args_id)
+        let sms_fields: Vec[i64] = Vec.new()
+        sms_fields.push(i64_ty)
+        sms_fields.push(i32_ty)
+        sms_fields.push(i32_ty)
+        let sms_ty = wl_struct_type(self.context, vec_data_i64(&sms_fields), 3, 0)
+        let sms_map_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 0)
+        let sms_map_i = wl_build_load(self.builder, i64_ty, sms_map_p)
+        let sms_map = wl_build_int_to_ptr(self.builder, sms_map_i, ptr_ty)
+        let sms_idx_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 1)
+        let sms_idx = wl_build_load(self.builder, i32_ty, sms_idx_p)
+        let sms_gen_p = wl_build_struct_gep(self.builder, sms_ty, sms_ptr, 2)
+        let sms_gen = wl_build_load(self.builder, i32_ty, sms_gen_p)
+        let sms_val_raw = self.mir_intrinsic_arg(body, args_id, 1)
+        let sms_elem_ty = self.mir_slotmapslot_elem_type_from_recv(body, args_id)
+        let sms_val = if wl_type_of(sms_val_raw) != sms_elem_ty: self.coerce_value_to_type(sms_val_raw, sms_elem_ty) else: sms_val_raw
+        let sms_val_alloca = wl_build_alloca(self.builder, sms_elem_ty)
+        wl_build_store(self.builder, sms_val, sms_val_alloca)
+        let sms_set_fn = self.ensure_c_fn("with_slotmap_set", i32_ty, 4)
+        let sms_set_params: Vec[i64] = Vec.new()
+        sms_set_params.push(ptr_ty)
+        sms_set_params.push(i32_ty)
+        sms_set_params.push(i32_ty)
+        sms_set_params.push(ptr_ty)
+        let sms_set_ty = wl_function_type(i32_ty, vec_data_i64(&sms_set_params), 4, 0)
+        let sms_set_args: Vec[i64] = Vec.new()
+        sms_set_args.push(sms_map)
+        sms_set_args.push(sms_idx)
+        sms_set_args.push(sms_gen)
+        sms_set_args.push(sms_val_alloca)
+        let sms_ok = wl_build_call(self.builder, sms_set_ty, sms_set_fn, vec_data_i64(&sms_set_args), 4)
+        let sms_bad = wl_build_icmp(self.builder, wl_int_eq(), sms_ok, wl_const_int(i32_ty, 0, 0))
+        let sms_set_panic = wl_append_bb(self.context, self.current_function, "slotmap.slot.set.panic")
+        let sms_set_ok = wl_append_bb(self.context, self.current_function, "slotmap.slot.set.ok")
+        wl_build_cond_br(self.builder, sms_bad, sms_set_panic, sms_set_ok)
+        wl_position_at_end(self.builder, sms_set_panic)
+        self.emit_runtime_panic("SlotMapSlot.set requires a valid handle")
+        wl_position_at_end(self.builder, sms_set_ok)
+        result = wl_const_int(i32_ty, 0, 0)
 
     else if intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_ENTRY:
         // HashMap.entry(key) → HashMapEntry { map_ptr, key }
@@ -5116,62 +5649,25 @@ fn Codegen.mir_emit_intrinsic_call(self: Codegen, body: MirBody, intrinsic: i32,
         return true
 
     else if intrinsic == MirIntrinsic.MIR_INTRINSIC_MULTI_INDEX:
-        let mi_node = body.call_ast_node(args_id)
-        if mi_node != 0:
-            let base_val = self.mir_intrinsic_arg(body, args_id, 0)
-            let mi_specs_start = self.pool.get_data1(mi_node)
-            let mi_specs_count = self.pool.get_data2(mi_node)
-            // Build IndexSpec LLVM struct type: {i32, i64, i64, i64, i1, i1, i1}
-            let mi_ctx = self.context
-            let mi_spec_fields: Vec[i64] = Vec.new()
-            mi_spec_fields.push(wl_i32_type(mi_ctx))   // kind
-            mi_spec_fields.push(wl_i64_type(mi_ctx))   // start
-            mi_spec_fields.push(wl_i64_type(mi_ctx))   // stop
-            mi_spec_fields.push(wl_i64_type(mi_ctx))   // step
-            mi_spec_fields.push(wl_i1_type(mi_ctx))    // has_start
-            mi_spec_fields.push(wl_i1_type(mi_ctx))    // has_stop
-            mi_spec_fields.push(wl_i1_type(mi_ctx))    // has_step
-            let mi_spec_ty = wl_struct_type(mi_ctx, vec_data_i64(&mi_spec_fields), 7, 0)
-            // Allocate IndexSpec[N] on stack
-            let mi_arr_ty = wl_array_type(mi_spec_ty, mi_specs_count as i64)
-            let mi_arr_ptr = self.create_entry_alloca(mi_arr_ty)
-            // Populate each spec from MIR args (base at arg 0, specs at 1+si*3)
-            for mi_si in 0..mi_specs_count:
-                let mi_spec_node = self.pool.get_extra(mi_specs_start + mi_si)
-                let mi_d2 = self.pool.get_data2(mi_spec_node)
-                let mi_kind = mi_d2 / INDEX_KIND_SHIFT
-                let mi_step_node = mi_d2 - mi_kind * INDEX_KIND_SHIFT
-                let mi_d0 = self.pool.get_data0(mi_spec_node)
-                let mi_d1 = self.pool.get_data1(mi_spec_node)
-                // GEP to array element
-                let mi_elem_ptr = wl_build_struct_gep(self.builder, mi_arr_ty, mi_arr_ptr, mi_si)
-                // Store kind
-                wl_build_store(self.builder, wl_const_int(wl_i32_type(mi_ctx), mi_kind as i64, 0), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 0))
-                // Store start/stop/step from MIR args
-                let mi_arg_base = 1 + mi_si * 3
-                wl_build_store(self.builder, self.mir_intrinsic_arg(body, args_id, mi_arg_base), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 1))
-                wl_build_store(self.builder, self.mir_intrinsic_arg(body, args_id, mi_arg_base + 1), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 2))
-                wl_build_store(self.builder, self.mir_intrinsic_arg(body, args_id, mi_arg_base + 2), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 3))
-                // Store has_start/has_stop/has_step booleans
-                wl_build_store(self.builder, wl_const_int(wl_i1_type(mi_ctx), if mi_d0 != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 4))
-                wl_build_store(self.builder, wl_const_int(wl_i1_type(mi_ctx), if mi_d1 != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 5))
-                wl_build_store(self.builder, wl_const_int(wl_i1_type(mi_ctx), if mi_step_node != 0: 1 else: 0, 0), wl_build_struct_gep(self.builder, mi_spec_ty, mi_elem_ptr, 6))
-            // Look up multi_index method on base type and call it
-            // For now: pass through base value (method call dispatch deferred
-            // until a concrete MultiIndex impl is available to test against)
-            result = base_val
+        result = self.mir_emit_multi_index_method_call(body, args_id, dest_place, 0)
+        if dest_place >= 0 and result != 0:
+            let result_ty = wl_type_of(result)
+            if result_ty != wl_void_type(self.context):
+                let dest_ptr = self.mir_place_ptr(body, dest_place, true, result_ty)
+                if dest_ptr != 0:
+                    wl_build_store(self.builder, result, dest_ptr)
         if next_bb >= 0 and next_bb < self.mir_bb_values.len() as i32:
             wl_build_br(self.builder, self.mir_bb_values.get(next_bb as i64))
         return true
 
     else if intrinsic == MirIntrinsic.MIR_INTRINSIC_MULTI_INDEX_SET:
-        let mis_node = body.call_ast_node(args_id)
-        if mis_node != 0:
-            let mis_base = self.mir_intrinsic_arg(body, args_id, 0)
-            let mis_value = self.mir_intrinsic_arg(body, args_id, 1)
-            // IndexSpec construction same as MULTI_INDEX above.
-            // Method call to multi_index_set deferred until impl available.
-            result = mis_value
+        result = self.mir_emit_multi_index_method_call(body, args_id, dest_place, 1)
+        if dest_place >= 0 and result != 0:
+            let result_ty = wl_type_of(result)
+            if result_ty != wl_void_type(self.context):
+                let dest_ptr = self.mir_place_ptr(body, dest_place, true, result_ty)
+                if dest_ptr != 0:
+                    wl_build_store(self.builder, result, dest_ptr)
         if next_bb >= 0 and next_bb < self.mir_bb_values.len() as i32:
             wl_build_br(self.builder, self.mir_bb_values.get(next_bb as i64))
         return true
@@ -5256,9 +5752,9 @@ fn Codegen.mir_emit_intrinsic_call(self: Codegen, body: MirBody, intrinsic: i32,
             wl_build_br(self.builder, self.mir_bb_values.get(next_bb as i64))
         return true
 
-    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_FIBER_SELECT:
+    else if intrinsic == MirIntrinsic.MIR_INTRINSIC_FIBER_SELECT or intrinsic == MirIntrinsic.MIR_INTRINSIC_FIBER_SELECT_BIASED:
         // Select: extract fiber_ids from all Task operands, pack into array,
-        // call with_fiber_select(ids, count, &winner_index), store winner index.
+        // call with_fiber_select_mode(ids, count, biased, &winner_index), store winner index.
 
         // Allocate array of fiber IDs on stack
         let arr_ty = wl_array_type(i32_ty, arg_count as i64)
@@ -5281,15 +5777,16 @@ fn Codegen.mir_emit_intrinsic_call(self: Codegen, body: MirBody, intrinsic: i32,
         // Allocate winner_index on stack
         let winner_alloca = self.create_entry_alloca(i32_ty)
 
-        // Call with_fiber_select(ids_ptr, count, &winner_index)
-        let select_fn_name = "with_fiber_select"
+        // Call with_fiber_select_mode(ids_ptr, count, biased, &winner_index)
+        let select_fn_name = "with_fiber_select_mode"
         var select_fn = wl_get_named_function(self.llmod, select_fn_name)
         if select_fn == 0:
             let sp: Vec[i64] = Vec.new()
             sp.push(ptr_ty)    // ids
             sp.push(i32_ty)    // count
+            sp.push(i32_ty)    // biased
             sp.push(ptr_ty)    // result_index
-            let sel_ft = wl_function_type(wl_void_type(self.context), vec_data_i64(&sp), 3, 0)
+            let sel_ft = wl_function_type(wl_void_type(self.context), vec_data_i64(&sp), 4, 0)
             select_fn = wl_add_function(self.llmod, select_fn_name, sel_ft)
         let sel_ft2 = wl_global_get_value_type(select_fn)
         let sa: Vec[i64] = Vec.new()
@@ -5299,8 +5796,9 @@ fn Codegen.mir_emit_intrinsic_call(self: Codegen, body: MirBody, intrinsic: i32,
         let ids_ptr = wl_build_gep(self.builder, arr_ty, ids_alloca, vec_data_i64(&zero_idx), 2)
         sa.push(ids_ptr)
         sa.push(wl_const_int(i32_ty, arg_count as i64, 0))
+        sa.push(wl_const_int(i32_ty, if intrinsic == MirIntrinsic.MIR_INTRINSIC_FIBER_SELECT_BIASED: 1 else: 0, 0))
         sa.push(winner_alloca)
-        wl_build_call(self.builder, sel_ft2, select_fn, vec_data_i64(&sa), 3)
+        wl_build_call(self.builder, sel_ft2, select_fn, vec_data_i64(&sa), 4)
 
         // Load winner index and store to dest
         let winner_idx = wl_build_load(self.builder, i32_ty, winner_alloca)
@@ -7375,15 +7873,19 @@ fn Codegen.mir_emit_call_term(self: Codegen, body: MirBody, callee_operand: i32,
         var dst_ty = ret_ty
         let dst_ty_opt = self.mir_local_types.get(dst_local)
         if dst_ty_opt.is_some():
-            dst_ty = dst_ty_opt.unwrap() as i64
-        else:
+            let cached_dst_ty = dst_ty_opt.unwrap() as i64
+            if cached_dst_ty != 0:
+                dst_ty = cached_dst_ty
+        if dst_ty == 0 or dst_ty == ret_ty:
             if dst_local >= 0 and dst_local < body.local_type_ids.len() as i32:
                 let sema_ty = body.local_type_ids.get(dst_local as i64)
                 if sema_ty > 0:
                     let resolved_llvm = self.mir_sema_type_to_llvm(sema_ty)
-                    if resolved_llvm != 0:
+                    if resolved_llvm != 0 and wl_get_type_kind(resolved_llvm) != wl_void_type_kind():
                         dst_ty = resolved_llvm
-            self.mir_local_types.insert(dst_local, dst_ty)
+        if dst_ty == 0:
+            dst_ty = ret_ty
+        self.mir_local_types.insert(dst_local, self.mir_storage_type_for_value(dst_ty))
         if self.debug_mir_codegen_enabled():
             with_eprint(f"[mir-call-ret] dst_local={dst_local} ret_ty_kind={wl_get_type_kind(ret_ty)} dst_ty_kind={wl_get_type_kind(dst_ty)} is_str={if self.is_str_type(dst_ty): 1 else: 0}")
         let dst_ptr = self.mir_place_ptr(body, dest_place, true, dst_ty)
@@ -7972,7 +8474,7 @@ fn Codegen.gen_function_mir_mono(self: Codegen, mono_sym: i32, fn_node: i32, bod
     let fn_direct_ret_ty_opt = self.extern_fn_direct_ret_type.get(mono_sym)
     if fn_direct_ret_ty_opt.is_some():
         self.current_ret_type = fn_direct_ret_ty_opt.unwrap() as i64
-    self.current_method_owner_sym = 0
+    self.current_method_owner_sym = saved_owner
 
     let fresh_local_allocas: HashMap[i32, i64] = HashMap.new()
     let fresh_local_types: HashMap[i32, i64] = HashMap.new()
@@ -9396,14 +9898,24 @@ fn Codegen.ensure_async_runtime_declared(self: Codegen):
         let ft = wl_function_type(void_ty, vec_data_i64(&no_params), 0, 0)
         wl_add_function(self.llmod, "with_fiber_yield", ft)
 
-    // i32 with_fiber_select(ids: ptr, count: i32, result_out: ptr) -> i32
+    // void with_fiber_select(ids: ptr, count: i32, result_out: ptr)
     if wl_get_named_function(self.llmod, "with_fiber_select") == 0:
         let params: Vec[i64] = Vec.new()
         params.push(ptr_ty)
         params.push(i32_ty)
         params.push(ptr_ty)
-        let ft = wl_function_type(i32_ty, vec_data_i64(&params), 3, 0)
+        let ft = wl_function_type(void_ty, vec_data_i64(&params), 3, 0)
         wl_add_function(self.llmod, "with_fiber_select", ft)
+
+    // void with_fiber_select_mode(ids: ptr, count: i32, biased: i32, result_out: ptr)
+    if wl_get_named_function(self.llmod, "with_fiber_select_mode") == 0:
+        let params: Vec[i64] = Vec.new()
+        params.push(ptr_ty)
+        params.push(i32_ty)
+        params.push(i32_ty)
+        params.push(ptr_ty)
+        let ft = wl_function_type(void_ty, vec_data_i64(&params), 4, 0)
+        wl_add_function(self.llmod, "with_fiber_select_mode", ft)
 
     self.uses_async = true
 

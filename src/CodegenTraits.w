@@ -92,6 +92,8 @@ fn codegen_type_node_mentions_self(pool: AstPool, self_sym: i32, type_node: i32)
     let kind = pool.kind(type_node)
     if kind == NodeKind.NK_TYPE_NAMED:
         return if pool.get_data0(type_node) == self_sym: 1 else: 0
+    if kind == NodeKind.NK_TYPE_ASSOC:
+        return if pool.get_data0(type_node) == self_sym: 1 else: 0
     if kind == NodeKind.NK_TYPE_REF or kind == NodeKind.NK_TYPE_PTR or kind == NodeKind.NK_TYPE_ARRAY or kind == NodeKind.NK_TYPE_SLICE or kind == NodeKind.NK_TYPE_OPTIONAL:
         return codegen_type_node_mentions_self(pool, self_sym, pool.get_data0(type_node))
     if kind == NodeKind.NK_TYPE_TUPLE:
@@ -101,7 +103,17 @@ fn codegen_type_node_mentions_self(pool: AstPool, self_sym: i32, type_node: i32)
             if codegen_type_node_mentions_self(pool, self_sym, pool.get_extra(extra_start + ei)) != 0:
                 return 1
         return 0
+    if kind == NodeKind.NK_TYPE_FN:
+        let extra_start = pool.get_data0(type_node)
+        let param_count = pool.get_data1(type_node)
+        let ret_node = pool.get_data2(type_node)
+        for pi in 0..param_count:
+            if codegen_type_node_mentions_self(pool, self_sym, pool.get_extra(extra_start + pi)) != 0:
+                return 1
+        return codegen_type_node_mentions_self(pool, self_sym, ret_node)
     if kind == NodeKind.NK_TYPE_GENERIC:
+        if pool.get_data0(type_node) == self_sym:
+            return 1
         let extra_start = pool.get_data1(type_node)
         let arg_count = pool.get_data2(type_node)
         for ai in 0..arg_count:
@@ -1240,6 +1252,8 @@ fn Codegen.is_collection_runtime_intrinsic(self: Codegen, intrinsic: i32) -> boo
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_NEW or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_WITH_CAPACITY or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_PUSH or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_GET or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_LEN or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_SET or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_REMOVE or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_CLEAR or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_POP or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_ITER or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_MAP or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_FILTER or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_FOLD or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_CONTAINS or intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_JOIN:
         return true
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_NEW or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_INSERT or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_GET or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_CONTAINS or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_LEN or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_REMOVE or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_CLEAR or intrinsic == MirIntrinsic.MIR_INTRINSIC_MAP_INCREMENT:
+        return true
+    if intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_NEW or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_INSERT or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_SLOT or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REMOVE or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_REPLACE or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_CONTAINS or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_LEN or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAP_GET_DISJOINT or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_GET or intrinsic == MirIntrinsic.MIR_INTRINSIC_SLOTMAPSLOT_SET:
         return true
     false
 
