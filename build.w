@@ -350,6 +350,9 @@ pub fn build(ctx: BuildCtx) -> Build:
     bootstrap_embedded_objects = bootstrap_embedded_objects.arg(host_runtime.platform_symbol)
     bootstrap_embedded_objects = bootstrap_embedded_objects.input(host_runtime.opposite_bootstrap_platform_blob)
     bootstrap_embedded_objects = bootstrap_embedded_objects.arg(host_runtime.opposite_platform_symbol)
+    // Always embed the Windows platform runtime so emit-C bundles with Windows targets work on any host
+    bootstrap_embedded_objects = bootstrap_embedded_objects.input("out/bootstrap-lib/empty_rt_windows_x86_64.bin")
+    bootstrap_embedded_objects = bootstrap_embedded_objects.arg("rt_windows_x86_64_o")
     out = out.add_target(bootstrap_embedded_objects)
     var bootstrap_embedded_objects_obj = target_new(.CompileAsmObject, "bootstrap-embedded-objects-object", "out/bootstrap-lib/embedded_objects.s").output("out/bootstrap-lib/embedded_objects.o")
     bootstrap_embedded_objects_obj = bootstrap_embedded_objects_obj.dep("bootstrap-embedded-objects-asm")
