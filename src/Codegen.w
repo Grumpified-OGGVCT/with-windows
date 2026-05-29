@@ -395,6 +395,7 @@ type Codegen {
     sym_void: i32,
     sym_never: i32,
     sym_str: i32,
+    sym_cstr: i32,
     sym_sizeof: i32,
     sym_size_of: i32,
     sym_alignof: i32,
@@ -692,6 +693,7 @@ type Codegen {
     mir_local_ptrs: HashMap[i32, i64],
     mir_local_types: HashMap[i32, i64],
     mir_indirect_value_local_types: HashMap[i32, i64],
+    mir_ref_capture_local_types: HashMap[i32, i64],
     mir_bb_values: Vec[i64],
     mir_default_unreachable_bbs: Vec[i64],
 }
@@ -740,6 +742,7 @@ fn Codegen.init_with_opt_and_intern(module_name: str, opt_level: i32, intern: In
     cg.sym_void = cg.intern.intern("void")
     cg.sym_never = cg.intern.intern("Never")
     cg.sym_str = cg.intern.intern("str")
+    cg.sym_cstr = cg.intern.intern("CStr")
     cg.sym_sizeof = cg.intern.intern("sizeof")
     cg.sym_size_of = cg.intern.intern("size_of")
     cg.sym_alignof = cg.intern.intern("alignof")
@@ -792,7 +795,7 @@ fn Codegen.init_with_opt(module_name: str, opt_level: i32) -> Codegen:
         sym_box: 0, sym_context_error: 0,
         sym_Self: 0, sym_self: 0, sym_unit: 0,
         sym_bool: 0, sym_usize: 0, sym_isize: 0, sym_void: 0,
-        sym_never: 0, sym_str: 0,
+        sym_never: 0, sym_str: 0, sym_cstr: 0,
         sym_sizeof: 0, sym_size_of: 0, sym_alignof: 0, sym_align_of: 0, sym_chan: 0,
         sym_todo: 0, sym_unreachable: 0, sym_src: 0, sym_transmute: 0,
         sym_nameof: 0, sym_type_name: 0, sym_embed_file: 0,
@@ -963,6 +966,7 @@ fn Codegen.init_with_opt(module_name: str, opt_level: i32) -> Codegen:
         mir_local_ptrs: HashMap.new(),
         mir_local_types: HashMap.new(),
         mir_indirect_value_local_types: HashMap.new(),
+        mir_ref_capture_local_types: HashMap.new(),
         mir_bb_values: Vec.new(),
         mir_default_unreachable_bbs: Vec.new(),
         debug_info: 1,
@@ -1211,15 +1215,70 @@ fn Codegen.get_dyn_fat_ptr_type(self: Codegen) -> i64:
 
 fn Codegen.get_fn_dyn_param_trait(self: Codegen, fn_sym: i32, param_idx: i32) -> i32:
     let base_opt = self.fn_dyn_param_starts.get(fn_sym)
-    if not base_opt.is_some():
-        return 0
     if param_idx < 0:
         return 0
-    let base = base_opt.unwrap()
-    let slot = base + param_idx
-    if slot < 0 or slot >= self.fn_dyn_param_data.len() as i32:
+    if base_opt.is_some():
+        let base = base_opt.unwrap()
+        let slot = base + param_idx
+        if slot >= 0 and slot < self.fn_dyn_param_data.len() as i32:
+            let recorded_trait = self.fn_dyn_param_data.get(slot as i64)
+            if recorded_trait != 0:
+                if self.trait_map.get(recorded_trait).is_some():
+                    return recorded_trait
+                let cg_trait = self.sema_sym_to_codegen_sym(recorded_trait)
+                if cg_trait != 0:
+                    return cg_trait
+                return recorded_trait
+
+    let fn_name = self.intern.resolve(fn_sym)
+    let sema_fn_sym = if fn_name.len() > 0: self.sema.pool_lookup_symbol(fn_name) else: 0
+    if sema_fn_sym == 0:
         return 0
-    self.fn_dyn_param_data.get(slot as i64)
+    if not self.sema.fn_decl_nodes.contains(sema_fn_sym):
+        return 0
+    let fn_node = self.sema.fn_decl_nodes.get(sema_fn_sym).unwrap()
+    let meta = self.sema.ast.find_fn_meta(fn_node)
+    if meta < 0:
+        return 0
+    let param_count = self.sema.ast.fn_meta_param_count(meta)
+    if param_idx < 0 or param_idx >= param_count:
+        return 0
+    let param_start = self.sema.ast.fn_meta_param_start(meta)
+    let p_type_node = self.sema.ast.fn_param_type(param_start, param_idx)
+    let sema_trait = self.sema.trait_object_from_type_node(p_type_node)
+    if sema_trait == 0:
+        return 0
+    let cg_trait2 = self.sema_sym_to_codegen_sym(sema_trait)
+    if cg_trait2 != 0:
+        return cg_trait2
+    sema_trait
+
+fn Codegen.get_raw_fn_dyn_param_trait(self: Codegen, raw_fn_sym: i32, param_idx: i32) -> i32:
+    if raw_fn_sym == 0 or param_idx < 0:
+        return 0
+    var sema_fn_sym = raw_fn_sym
+    if not self.sema.fn_decl_nodes.contains(sema_fn_sym):
+        let fn_text = self.sema_symbol_text(raw_fn_sym)
+        if fn_text.len() > 0:
+            sema_fn_sym = self.sema.pool_lookup_symbol(fn_text)
+    if sema_fn_sym == 0 or not self.sema.fn_decl_nodes.contains(sema_fn_sym):
+        return 0
+    let fn_node = self.sema.fn_decl_nodes.get(sema_fn_sym).unwrap()
+    let meta = self.sema.ast.find_fn_meta(fn_node)
+    if meta < 0:
+        return 0
+    let param_count = self.sema.ast.fn_meta_param_count(meta)
+    if param_idx >= param_count:
+        return 0
+    let param_start = self.sema.ast.fn_meta_param_start(meta)
+    let p_type_node = self.sema.ast.fn_param_type(param_start, param_idx)
+    let sema_trait = self.sema.trait_object_from_type_node(p_type_node)
+    if sema_trait == 0:
+        return 0
+    let cg_trait = self.sema_sym_to_codegen_sym(sema_trait)
+    if cg_trait != 0:
+        return cg_trait
+    sema_trait
 
 fn Codegen.is_const_int_value(self: Codegen, val: i64) -> bool:
     // LLVMIsConstant is broader than integer constants; only this kind is safe
@@ -1713,7 +1772,9 @@ fn Codegen.build_dyn_trait_value(self: Codegen, concrete_val: i64, type_sym: i32
     let key = codegen_hash_type_trait_key(type_sym, trait_sym)
     let vg = self.vtable_globals.get(key)
     if not vg.is_some():
-        return concrete_val
+        with_eprint("error: missing vtable for type '" ++ self.intern.resolve(type_sym) ++ "' implementing trait '" ++ self.intern.resolve(trait_sym) ++ "'")
+        self.had_error = 1
+        return wl_get_undef(self.get_dyn_fat_ptr_type())
 
     let alloca = wl_build_alloca(self.builder, wl_type_of(concrete_val))
     wl_build_store(self.builder, concrete_val, alloca)
@@ -1728,7 +1789,9 @@ fn Codegen.build_dyn_trait_value_from_ptr(self: Codegen, data_ptr: i64, type_sym
     let key = codegen_hash_type_trait_key(type_sym, trait_sym)
     let vg = self.vtable_globals.get(key)
     if not vg.is_some():
-        return data_ptr
+        with_eprint("error: missing vtable for type '" ++ self.intern.resolve(type_sym) ++ "' implementing trait '" ++ self.intern.resolve(trait_sym) ++ "'")
+        self.had_error = 1
+        return wl_get_undef(self.get_dyn_fat_ptr_type())
 
     let ptr_ty = wl_ptr_type(self.context)
     let fat_ty = self.get_dyn_fat_ptr_type()
@@ -2622,6 +2685,29 @@ fn Codegen.sema_type_to_llvm(self: Codegen, tid: i32) -> i64:
         if cg_sym != 0:
             return self.resolve_named_type(cg_sym)
         return self.resolve_named_type(sym)
+    if tk == TypeKind.TY_TUPLE:
+        let elem_start = self.sema.get_type_d0(resolved_tid)
+        let elem_count = self.sema.get_type_d1(resolved_tid)
+        let elem_types: Vec[i64] = Vec.new()
+        for i in 0..elem_count:
+            let elem_tid = self.sema.type_extra.get((elem_start + i) as i64)
+            var elem_ty = self.sema_type_to_llvm(elem_tid)
+            if elem_ty == 0:
+                elem_ty = self.type_fallback()
+            elem_types.push(elem_ty)
+        if elem_count > 0:
+            return wl_struct_type(self.context, vec_data_i64(&elem_types), elem_count, 0)
+        return wl_i32_type(self.context)
+    if tk == TypeKind.TY_RANGE:
+        let elem_tid = self.sema.get_type_d0(resolved_tid)
+        var elem_ty = self.sema_type_to_llvm(elem_tid)
+        if elem_ty == 0:
+            elem_ty = wl_i32_type(self.context)
+        let range_fields: Vec[i64] = Vec.new()
+        range_fields.push(elem_ty)
+        range_fields.push(elem_ty)
+        range_fields.push(wl_i8_type(self.context))
+        return wl_struct_type(self.context, vec_data_i64(&range_fields), 3, 0)
     if tk == TypeKind.TY_ARRAY:
         let elem_tid = self.sema.get_type_d0(resolved_tid)
         let arr_len = self.sema.get_type_d1(resolved_tid)
@@ -2637,6 +2723,11 @@ fn Codegen.sema_type_to_llvm(self: Codegen, tid: i32) -> i64:
         fat_types.push(ptr_ty)
         fat_types.push(ptr_ty)
         return wl_struct_type(self.context, vec_data_i64(&fat_types), 2, 0)
+    if tk == TypeKind.TY_SLICE:
+        let slice_fields: Vec[i64] = Vec.new()
+        slice_fields.push(wl_ptr_type(self.context))
+        slice_fields.push(wl_i64_type(self.context))
+        return wl_struct_type(self.context, vec_data_i64(&slice_fields), 2, 0)
     0
 
 // Reverse map: LLVM type → sema TypeId (for primitives and str)
@@ -2710,6 +2801,34 @@ fn Codegen.declare_builtin_str_type(self: Codegen):
     self.struct_llvm_field_indices.push(1)
 
     self.struct_type_map.insert(str_sym, idx)
+
+fn Codegen.declare_builtin_cstr_type(self: Codegen):
+    let cstr_sym = self.intern.intern("CStr")
+    if self.struct_type_map.get(cstr_sym).is_some():
+        return
+    let cstr_type = wl_struct_create_named(self.context, "CStr")
+    wl_struct_set_body_2(cstr_type, wl_ptr_type(self.context), wl_i64_type(self.context), 0)
+
+    let idx = self.struct_llvm_types.len() as i32
+    self.struct_llvm_types.push(cstr_type)
+    self.struct_index_syms.push(cstr_sym)
+    self.struct_field_starts.push(self.struct_field_names.len() as i32)
+    self.struct_field_counts.push(2)
+
+    let ptr_sym = self.intern.intern("ptr")
+    let len_sym = self.intern.intern("len")
+    self.struct_field_names.push(ptr_sym)
+    self.struct_field_names.push(len_sym)
+    self.struct_field_types.push(wl_ptr_type(self.context))
+    self.struct_field_types.push(wl_i64_type(self.context))
+    self.struct_field_type_nodes.push(0)
+    self.struct_field_type_nodes.push(0)
+    self.struct_field_defaults.push(0)
+    self.struct_field_defaults.push(0)
+    self.struct_llvm_field_indices.push(0)
+    self.struct_llvm_field_indices.push(1)
+
+    self.struct_type_map.insert(cstr_sym, idx)
 
 fn Codegen.predeclare_struct_type(self: Codegen, name_sym: i32):
     if self.struct_type_map.get(name_sym).is_some():
@@ -3298,8 +3417,14 @@ fn Codegen.declare_function(self: Codegen, fn_node: i32):
     let name_str = self.intern.resolve(name_sym)
     if name_sym == 0:
         return
-    let parsed_name = if name_str.len() == 0: self.fn_decl_name_from_node(fn_node) else: ""
-    let alias_sym = if parsed_name.len() > 0: self.intern.intern(parsed_name) else: 0
+    let sema_name_str = self.sema_symbol_text(name_sym)
+    let parsed_name = if sema_name_str.len() == 0 and name_str.len() == 0: self.fn_decl_name_from_node(fn_node) else: ""
+    let alias_text =
+        if sema_name_str.len() > 0:
+            sema_name_str
+        else:
+            parsed_name
+    let alias_sym = if alias_text.len() > 0: self.intern.intern(alias_text) else: 0
     let flags = self.pool.get_data2(fn_node)
     let meta = self.pool.find_fn_meta(fn_node)
     if meta < 0: return
@@ -4753,8 +4878,9 @@ fn Codegen.gen_module(self: Codegen, pool: AstPool) -> i32:
 
     self.debug_init_module()
 
-    // Declare built-in str type before user types
+    // Declare built-in string view types before user types.
     self.declare_builtin_str_type()
+    self.declare_builtin_cstr_type()
 
     // Pass 0a: predeclare all struct/enum names so forward references resolve.
     for i in 0..self.pool.decl_count():

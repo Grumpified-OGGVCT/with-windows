@@ -241,6 +241,12 @@ fn cc_builtin_vecslot_get -> i32:
 fn cc_builtin_vecslot_set -> i32:
     65
 
+fn cc_builtin_vec_get_disjoint -> i32:
+    73
+
+fn cc_builtin_dyn_call -> i32:
+    74
+
 fn cc_builtin_atomic_load -> i32:
     70
 
@@ -265,6 +271,7 @@ fn cc_builtin_uses_vec_receiver(kind: i32) -> bool:
     if kind == cc_builtin_vec_contains(): return true
     if kind == cc_builtin_vec_join(): return true
     if kind == cc_builtin_vec_slot(): return true
+    if kind == cc_builtin_vec_get_disjoint(): return true
     false
 
 fn cc_builtin_uses_option_receiver(kind: i32) -> bool:
@@ -2167,8 +2174,8 @@ fn CCodegen.global_init_text(self: CCodegen, node: i32, tid: i32) -> str:
                 return "((" ++ self.c_type(tid, 0) ++ ")\"" ++ cc_escape_c_string(text) ++ "\")"
         return "WITH_STR_LIT(\"" ++ cc_escape_c_string(text) ++ "\")"
     if kind == NodeKind.NK_C_STRING_LIT:
-        let text = cc_string_literal_payload(cc_intern_resolve(self.intern, self.ast.get_data0(expr)))
-        return "(\"" ++ cc_escape_c_string(text) ++ "\")"
+        self.fail("emit-c does not yet support c-string literal CStr objects")
+        return "0"
     if kind == NodeKind.NK_NULL_LIT:
         return "NULL"
     let resolved = self.sema.resolve_alias(tid)
@@ -2191,6 +2198,9 @@ fn CCodegen.const_text(self: CCodegen, body: MirBody, const_id: i32) -> str:
     if ck == ConstKind.CK_STR:
         let text = if cd != 0: cc_string_literal_payload(cc_intern_resolve(self.intern, cd)) else: ""
         return "WITH_STR_LIT(\"" ++ cc_escape_c_string(text) ++ "\")"
+    if ck == ConstKind.CK_C_STR:
+        self.fail("emit-c does not yet support c-string literal CStr objects")
+        return "0"
     if ck == ConstKind.CK_UNIT:
         let unit_tid = body.const_types.get(const_id as i64)
         if unit_tid != 0:
@@ -3868,6 +3878,10 @@ fn CCodegen.call_builtin_kind(self: CCodegen, body: MirBody, callee_operand: i32
         if recv_kind_is_vec != 0:
             return cc_builtin_vec_slot()
         return cc_builtin_none()
+    if method == "get_disjoint":
+        if recv_kind_is_vec != 0:
+            return cc_builtin_vec_get_disjoint()
+        return cc_builtin_none()
 
     if method == "push":
         if recv_kind_is_vec != 0:
@@ -4648,6 +4662,7 @@ fn cc_builtin_from_mir_intrinsic(intrinsic: i32) -> i32:
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_JOIN: return cc_builtin_vec_join()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_DYN_VTABLE_CMP: return cc_builtin_dyn_vtable_cmp()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_DYN_DOWNCAST: return cc_builtin_dyn_downcast()
+    if intrinsic == MirIntrinsic.MIR_INTRINSIC_DYN_CALL: return cc_builtin_dyn_call()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_OPT_FILTER: return cc_builtin_opt_filter()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_ROTATE_LEFT: return cc_builtin_rotate_left()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_ROTATE_RIGHT: return cc_builtin_rotate_right()
@@ -4661,6 +4676,7 @@ fn cc_builtin_from_mir_intrinsic(intrinsic: i32) -> i32:
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_FMT_BUF_WRITE_FMT: return cc_builtin_fmt_buf_write_fmt()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_FMT_BUF_FINISH: return cc_builtin_fmt_buf_finish()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_SLOT: return cc_builtin_vec_slot()
+    if intrinsic == MirIntrinsic.MIR_INTRINSIC_VEC_GET_DISJOINT: return cc_builtin_vec_get_disjoint()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_VECSLOT_GET: return cc_builtin_vecslot_get()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_VECSLOT_SET: return cc_builtin_vecslot_set()
     if intrinsic == MirIntrinsic.MIR_INTRINSIC_INT_SWAP_BYTES: return cc_builtin_int_swap_bytes()
@@ -4688,6 +4704,10 @@ fn CCodegen.emit_builtin_call_term(self: CCodegen, body: MirBody, bb: i32, calle
     let ret_tid = self.call_builtin_ret_tid(body, callee_operand, args_id, dest_place)
     let has_ret = if self.is_void_tid(ret_tid) == 0: 1 else: 0
 
+    if kind == cc_builtin_dyn_call():
+        self.fail("C backend does not yet support dyn trait method dispatch")
+        return "    abort();"
+
     if kind == cc_builtin_vec_new():
         var out = ""
         if has_ret != 0:
@@ -4713,6 +4733,10 @@ fn CCodegen.emit_builtin_call_term(self: CCodegen, body: MirBody, bb: i32, calle
             out = out ++ "    (void)0;\n"
         out = out ++ f"    goto bb{next_bb};"
         return out
+
+    if kind == cc_builtin_vec_get_disjoint():
+        self.fail("C backend does not yet support Vec.get_disjoint; use the LLVM backend or add tuple-valued VecSlot lowering")
+        return "    abort();"
 
     if kind == cc_builtin_vecslot_get():
         if argc < 1:

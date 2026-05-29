@@ -14,8 +14,9 @@ type JoinHandle  {
 }
 
 /// Spawn an OS thread running `worker`. Returns a JoinHandle.
+@[effect(worker = [read, escape_value])]
 pub fn spawn_os(worker: fn() -> i32) -> JoinHandle:
-    let raw: RawFn0I32 = unsafe: transmute[RawFn0I32](worker)
+    let raw: RawFn0I32 = unsafe transmute[RawFn0I32](worker)
     JoinHandle { handle: with_thread_spawn(raw.fn_ptr, raw.ctx) }
 
 /// Wait for a thread to finish and return its result.

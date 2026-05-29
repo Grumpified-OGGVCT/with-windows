@@ -2054,6 +2054,7 @@ fn Parser.parse_use_decl(self: Parser, start: i32) -> NodeId:
 
     let extra_start = self.pool.extra_len()
     var path_count = 0
+    var selector_count = 0
 
     let first = self.peek()
     if first == TokenKind.TK_IDENT or parser_is_keyword_tag(first):
@@ -2079,6 +2080,16 @@ fn Parser.parse_use_decl(self: Parser, start: i32) -> NodeId:
             else if self.peek() == TokenKind.TK_L_BRACE:
                 self.advance()
                 while self.peek() != TokenKind.TK_R_BRACE and self.peek() != TokenKind.TK_EOF and self.peek() != TokenKind.TK_NEWLINE:
+                    if self.peek() == TokenKind.TK_COMMA:
+                        self.advance()
+                        continue
+                    if self.peek() == TokenKind.TK_IDENT or parser_is_keyword_tag(self.peek()):
+                        let selector_sym = self.expect_ident_or_keyword()
+                        if selector_sym != 0:
+                            self.pool.add_extra(selector_sym)
+                            selector_count = selector_count + 1
+                        continue
+                    self.emit_error("expected import selector")
                     self.advance()
                 if self.peek() == TokenKind.TK_R_BRACE:
                     self.advance()
@@ -2111,7 +2122,7 @@ fn Parser.parse_use_decl(self: Parser, start: i32) -> NodeId:
                 depth = depth - 1
             self.advance()
 
-    self.pool.add_node(NodeKind.NK_USE_DECL, start, self.prev_end(), extra_start, path_count, 0)
+    self.pool.add_node(NodeKind.NK_USE_DECL, start, self.prev_end(), extra_start, path_count, selector_count)
 
 fn Parser.parse_c_import(self: Parser, start: i32) -> NodeId:
     self.advance()  // consume c_import
@@ -2827,6 +2838,13 @@ fn Parser.parse_precedence(self: Parser, min_prec: i32) -> NodeId:
             lhs = self.pool.add_node(NodeKind.NK_RANGE, self.pool.get_start(lhs), self.prev_end(), lhs, rhs, 1)
         else:
             lhs = self.pool.add_node(NodeKind.NK_BINARY, self.pool.get_start(lhs), self.prev_end(), op_code, lhs, rhs)
+            if parser_infix_op_is_non_associative(op_code):
+                let next_info = self.infix_op()
+                if next_info != 0:
+                    let follow_prec = next_info / 1000
+                    let next_op = next_info % 1000
+                    if follow_prec == prec and parser_infix_op_is_non_associative(next_op):
+                        self.emit_error("non-associative operator cannot be chained; add parentheses")
             // Chained comparisons: a < b < c → (a < b) and (b < c)
             if op_code >= BinaryOp.OP_LT and op_code <= BinaryOp.OP_GTE:
                 var last_cmp = lhs  // track the latest comparison node
@@ -2867,6 +2885,15 @@ fn Parser.parse_precedence(self: Parser, min_prec: i32) -> NodeId:
     lhs
 
 // Returns encoded info: prec * 1000 + op_code, or 0 if not infix
+fn parser_infix_op_is_non_associative(op_code: i32) -> bool:
+    if op_code == BinaryOp.OP_EQ: return true
+    if op_code == BinaryOp.OP_NEQ: return true
+    if op_code == BinaryOp.OP_IN: return true
+    if op_code == BinaryOp.OP_NOT_IN: return true
+    if op_code == 506: return true  // =~
+    if op_code == 507: return true  // !~
+    false
+
 fn Parser.infix_op(self: Parser) -> i32:
     let t = self.peek()
     if t == TokenKind.TK_KW_OR: return 1 * 1000 + BinaryOp.OP_OR
@@ -3290,7 +3317,7 @@ fn Parser.desugar_interpolated_string(self: Parser, content: str, start: i32, en
                 seg_data2.push(0)
             // Find matching }. Track the first top-level colon as a fallback
             // format-spec split point, but give the whole hole expression
-            // precedence later so constructs like `unsafe: *p` parse as real
+            // precedence later so constructs like `unsafe *p` parse as real
             // expressions instead of being mistaken for `{expr:spec}`.
             var depth = 1
             var expr_start_pos = i + 1
@@ -4589,11 +4616,24 @@ fn Parser.parse_unsafe(self: Parser) -> NodeId:
     let start = self.current_start()
     self.advance()
     var body: NodeId = 0 as NodeId
-    if self.peek() == TokenKind.TK_L_BRACE or self.peek() == TokenKind.TK_COLON:
+    var unsafe_kind = UNSAFE_KIND_PREFIX
+    if self.peek() == TokenKind.TK_L_BRACE:
+        unsafe_kind = UNSAFE_KIND_BLOCK
         body = self.parse_body()
+    else if self.peek() == TokenKind.TK_COLON:
+        unsafe_kind = UNSAFE_KIND_BLOCK
+        self.advance()
+        if self.peek() != TokenKind.TK_NEWLINE:
+            self.emit_error("unsafe: requires a newline and indented block; use unsafe { ... } or unsafe *ptr")
+            body = self.parse_expr()
+        else:
+            body = self.parse_block_or_expr()
     else:
-        body = self.parse_expr()
-    self.pool.add_node(NodeKind.NK_UNSAFE_BLOCK, start, self.prev_end(), body, 0, 0)
+        // Prefix unsafe authorizes one unary/postfix raw-memory access chain.
+        // Binary operators bind outside the unsafe marker, so
+        // `unsafe *p + 1` parses as `(unsafe *p) + 1`.
+        body = self.parse_precedence(13)
+    self.pool.add_node(NodeKind.NK_UNSAFE_BLOCK, start, self.prev_end(), body, unsafe_kind, 0)
 
 fn Parser.parse_asm_expr(self: Parser) -> NodeId:
     // asm("template" : outputs : inputs : clobbers)

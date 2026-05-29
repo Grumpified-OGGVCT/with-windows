@@ -116,6 +116,8 @@ type SemaBuiltinSymbols {
     veciterplace: i32,
     vecrange: i32,
     veciterref: i32,
+    range_type: i32,
+    range_inclusive_type: i32,
     iter_place: i32,
     iter_ref: i32,
     range_method: i32,
@@ -251,6 +253,8 @@ type Sema {
     variant_lookup: HashMap[i32, i32],
     // Variant type IDs: variant_sym → enum_tid
     variant_type_ids: HashMap[i32, i32],
+    // Explicit constructor imports: variant_sym -> enum_tid.
+    imported_variant_owners: HashMap[i32, i32],
     // Discriminant enum data
     disc_repr_types: HashMap[i32, i32],
     disc_values: HashMap[i32, i32],
@@ -337,6 +341,10 @@ type Sema {
     method_lookup: SemaMethodLookup,
     drop_method_cache: HashMap[i32, i32],
     copy_visit_stack: Vec[i32],
+    current_drop_type_sym: i32,
+    drop_control_flow_depth: i32,
+    drop_consumed_field_owner_syms: Vec[i32],
+    drop_consumed_field_syms: Vec[i32],
 
     // Scope binding storage (stack-based with watermarks)
     bind_names: Vec[i32],
@@ -481,6 +489,7 @@ type Sema {
     loop_depth: i32,
     stmt_pos_depth: i32,
     closure_direct_arg_depth: i32,
+    closure_direct_arg_escape_flags: Vec[i32],
     expected_expr_type: TypeId,
     has_expected_type: i32,
     local_file_id: i32,
@@ -506,6 +515,8 @@ type Sema {
     ty_never: TypeId,
     ty_str: TypeId,
     ty_str_view: TypeId,
+    ty_cstr: TypeId,
+    ty_cstr_view: TypeId,
     ty_usize: TypeId,
     ty_isize: TypeId,
     ty_const_i8_ptr: TypeId,
@@ -667,6 +678,8 @@ fn sema_builtin_symbols_zero -> SemaBuiltinSymbols:
         veciterplace: 0,
         vecrange: 0,
         veciterref: 0,
+        range_type: 0,
+        range_inclusive_type: 0,
         iter_place: 0,
         iter_ref: 0,
         range_method: 0,
@@ -745,6 +758,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
     let generic_fn_nodes = sema_new_map_i32_i32()
     let variant_lookup = sema_new_map_i32_i32()
     let variant_type_ids = sema_new_map_i32_i32()
+    let imported_variant_owners = sema_new_map_i32_i32()
     let disc_repr_types = sema_new_map_i32_i32()
     let disc_values = sema_new_map_i32_i32()
     let disc_has_payload = sema_new_map_i32_i32()
@@ -812,6 +826,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         generic_fn_nodes,
         variant_lookup,
         variant_type_ids,
+        imported_variant_owners,
         disc_repr_types,
         disc_values,
         disc_has_payload,
@@ -872,6 +887,10 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         method_lookup,
         drop_method_cache,
         copy_visit_stack: Vec.new(),
+        current_drop_type_sym: 0,
+        drop_control_flow_depth: 0,
+        drop_consumed_field_owner_syms: Vec.new(),
+        drop_consumed_field_syms: Vec.new(),
         bind_names: Vec.new(),
         bind_types: Vec.new(),
         bind_muts: Vec.new(),
@@ -980,6 +999,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         loop_depth: 0,
         stmt_pos_depth: 0,
         closure_direct_arg_depth: 0,
+        closure_direct_arg_escape_flags: Vec.new(),
         expected_expr_type: 0,
         has_expected_type: 0,
         local_file_id: 0,
@@ -990,6 +1010,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         ty_u8: 0, ty_u16: 0, ty_u32: 0, ty_u64: 0, ty_u128: 0,
         ty_f32: 0, ty_f64: 0, ty_bool: 0, ty_void: 0,
         ty_never: 0, ty_str: 0, ty_str_view: 0,
+        ty_cstr: 0, ty_cstr_view: 0,
         ty_usize: 0, ty_isize: 0, ty_const_i8_ptr: 0,
         ty_field_info: 0, ty_variant_info: 0,
         decl_source_paths: Vec.new(),
@@ -1050,6 +1071,14 @@ fn Sema.init(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Sema:
     s.ty_usize = s.add_type(TypeKind.TY_INT, 64, 0, 1)
     s.ty_isize = s.add_type(TypeKind.TY_INT, 64, 1, 1)
     s.ty_const_i8_ptr = s.add_type(TypeKind.TY_PTR, s.ty_i8, 0, 0)
+    let cstr_field_names: Vec[str] = Vec.new()
+    cstr_field_names.push("ptr")
+    cstr_field_names.push("len")
+    let cstr_field_types: Vec[i32] = Vec.new()
+    cstr_field_types.push(s.ty_const_i8_ptr as i32)
+    cstr_field_types.push(s.ty_i64 as i32)
+    s.ty_cstr = s.register_builtin_struct_type("CStr", cstr_field_names, cstr_field_types, 2) as TypeId
+    s.ty_cstr_view = s.add_type(TypeKind.TY_REF, s.ty_cstr, 0, 0)
 
     // Sub-byte and non-standard integer widths for bitpacked structs.
     for w in 1..8:
@@ -1078,6 +1107,7 @@ fn Sema.init(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Sema:
     s.register_prim("str", s.ty_str)
     s.register_prim("String", s.ty_str)
     s.register_prim("StrView", s.ty_str_view)
+    s.register_prim("CStr", s.ty_cstr)
     s.register_prim("usize", s.ty_usize)
     s.register_prim("isize", s.ty_isize)
     s.init_builtin_reflection_types()
@@ -1240,6 +1270,8 @@ fn Sema.init_intrinsic_symbols(mut self: Sema):
     self.syms.veciterplace = self.pool_intern("VecIterPlace")
     self.syms.vecrange = self.pool_intern("VecRange")
     self.syms.veciterref = self.pool_intern("VecIterRef")
+    self.syms.range_type = self.pool_intern("Range")
+    self.syms.range_inclusive_type = self.pool_intern("RangeInclusive")
     self.syms.iter_place = self.pool_intern("iter_place")
     self.syms.iter_ref = self.pool_intern("iter_ref")
     self.syms.range_method = self.pool_intern("range")
@@ -1709,6 +1741,29 @@ fn Sema.find_range_type(self: Sema, elem_tid: TypeId, inclusive: i32) -> TypeId:
                     return ti as TypeId
     0 as TypeId
 
+fn Sema.range_type_constructor_inclusive(self: Sema, sym: i32) -> i32:
+    if sym == self.syms.range_type:
+        return 0
+    if sym == self.syms.range_inclusive_type:
+        return 1
+    -1
+
+fn Sema.canonical_symbol_by_text(self: Sema, sym: i32) -> i32:
+    let text = self.pool_resolve_symbol(sym)
+    let canonical = if text.len() > 0: self.pool_lookup_symbol(text) else: 0
+    if canonical != 0:
+        return canonical
+    sym
+
+fn Sema.canonical_range_type_constructor_inclusive(self: Sema, sym: i32) -> i32:
+    let direct = self.range_type_constructor_inclusive(sym)
+    if direct >= 0:
+        return direct
+    let canonical = self.canonical_symbol_by_text(sym)
+    if canonical != sym:
+        return self.range_type_constructor_inclusive(canonical)
+    -1
+
 // Pre-register generic instantiation types needed by MirLower so that
 // downstream passes never need to mutate the type tables.
 // Must be called after check_module() and before freeze_types().
@@ -1776,10 +1831,20 @@ fn Sema.preregister_mir_types(self: Sema):
 
 fn Sema.resolve_generic_type(self: Sema, node: i32) -> i32:
     var gi_base_sym = self.ast.get_data0(node)
+    let range_inclusive = self.canonical_range_type_constructor_inclusive(gi_base_sym)
+    if range_inclusive >= 0:
+        let gi_arg_count = self.ast.get_data2(node)
+        if gi_arg_count != 1:
+            self.emit_error("Range expects exactly one type argument", node)
+            return 0
+        let gi_extra_start = self.ast.get_data1(node)
+        let elem_tid = self.resolve_type_expr(self.ast.get_extra(gi_extra_start))
+        if elem_tid == 0:
+            return 0
+        return self.ensure_exact_type(TypeKind.TY_RANGE, elem_tid as i32, range_inclusive, 0) as i32
     var gi_base_tid = self.lookup_named_type_visible(gi_base_sym)
     if gi_base_tid == 0:
-        let gi_base_text = self.pool_resolve_symbol(gi_base_sym)
-        let canonical_base = if gi_base_text.len() > 0: self.pool_lookup_symbol(gi_base_text) else: 0
+        let canonical_base = self.canonical_symbol_by_text(gi_base_sym)
         if canonical_base != 0 and canonical_base != gi_base_sym:
             gi_base_sym = canonical_base
             gi_base_tid = self.lookup_named_type_visible(gi_base_sym)
@@ -2638,7 +2703,7 @@ fn sema_str_has_data(text: str) -> i32:
     let ptr_ptr = &text as *const *const u8
     if ptr_ptr as i64 == 0:
         return 0
-    let data_ptr = unsafe: *ptr_ptr
+    let data_ptr = unsafe *ptr_ptr
     if data_ptr as i64 == 0:
         return 0
     1
@@ -2794,6 +2859,10 @@ fn Sema.types_compatible_fast(self: Sema, expected: TypeId, actual: TypeId) -> i
         return if self.get_type_d0(exp_r) == self.get_type_d0(act_r): 1 else: 0
     if exp_k == TypeKind.TY_ENUM and act_k == TypeKind.TY_ENUM:
         return if self.get_type_d0(exp_r) == self.get_type_d0(act_r): 1 else: 0
+    if exp_k == TypeKind.TY_RANGE and act_k == TypeKind.TY_RANGE:
+        if self.get_type_d1(exp_r) != self.get_type_d1(act_r):
+            return 0
+        return self.types_compatible_fast(self.get_type_d0(exp_r), self.get_type_d0(act_r))
     // TypeKind.TY_GENERIC_INST: compatible if same base and all args compatible
     if exp_k == TypeKind.TY_GENERIC_INST and act_k == TypeKind.TY_GENERIC_INST:
         if self.get_type_d0(exp_r) == self.get_type_d0(act_r):
@@ -3044,6 +3113,23 @@ fn Sema.has_drop_method(self: Sema, type_name: i32) -> i32:
 
     self.drop_method_cache.insert(type_name, has)
     has
+
+fn Sema.record_drop_consumed_field(self: Sema, owner_sym: i32, field_sym: i32):
+    if owner_sym == 0 or field_sym == 0:
+        return
+    for i in 0..self.drop_consumed_field_owner_syms.len() as i32:
+        if self.drop_consumed_field_owner_syms.get(i as i64) == owner_sym and self.drop_consumed_field_syms.get(i as i64) == field_sym:
+            return
+    self.drop_consumed_field_owner_syms.push(owner_sym)
+    self.drop_consumed_field_syms.push(field_sym)
+
+fn Sema.drop_consumed_field(self: Sema, owner_sym: i32, field_sym: i32) -> i32:
+    if owner_sym == 0 or field_sym == 0:
+        return 0
+    for i in 0..self.drop_consumed_field_owner_syms.len() as i32:
+        if self.drop_consumed_field_owner_syms.get(i as i64) == owner_sym and self.drop_consumed_field_syms.get(i as i64) == field_sym:
+            return 1
+    0
 
 // ── Borrow checking ──────────────────────────────────────────────
 

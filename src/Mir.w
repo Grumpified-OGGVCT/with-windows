@@ -74,6 +74,7 @@ enum ConstKind: i32:
     CK_ASYNC_BLOCK = 8
     CK_INT_EXACT = 9
     CK_REGEX_LIT = 10
+    CK_C_STR = 11
 
 // ── Call intrinsic kinds ─────────────────────────────────────────
 // Attached to TermKind.TK_CALL terminators to mark known container/builtin
@@ -197,6 +198,7 @@ enum MirIntrinsic: i32:
     MIR_INTRINSIC_VEC_ITER_REF = 113
     MIR_INTRINSIC_VECITERREF_NEXT = 114
     MIR_INTRINSIC_VEC_GET_REF = 115
+    MIR_INTRINSIC_DYN_CALL = 116
 
 // ── Projection kinds ─────────────────────────────────────────────
 
@@ -1040,6 +1042,11 @@ fn mir_const_text(body: MirBody, const_id: i32, pool: InternPool, sema: Sema) ->
             return "const \"\""
         return f"const \"sym{d0}\""
 
+    if k == ConstKind.CK_C_STR:
+        if d0 == 0:
+            return "const c\"\""
+        return f"const c\"sym{d0}\""
+
     if k == ConstKind.CK_UNIT:
         return "const ()"
 
@@ -1427,7 +1434,7 @@ fn validate_mir_body(body: MirBody) -> str:
 
     for ci in 0..const_count:
         let ck = body.const_kinds.get(ci as i64)
-        if ck == ConstKind.CK_INT or ck == ConstKind.CK_BOOL or ck == ConstKind.CK_STR or ck == ConstKind.CK_UNIT or ck == ConstKind.CK_FLOAT or ck == ConstKind.CK_ZERO_SIZED or ck == ConstKind.CK_FN or ck == ConstKind.CK_CLOSURE or ck == ConstKind.CK_ASYNC_BLOCK or ck == ConstKind.CK_INT_EXACT or ck == ConstKind.CK_REGEX_LIT:
+        if ck == ConstKind.CK_INT or ck == ConstKind.CK_BOOL or ck == ConstKind.CK_STR or ck == ConstKind.CK_C_STR or ck == ConstKind.CK_UNIT or ck == ConstKind.CK_FLOAT or ck == ConstKind.CK_ZERO_SIZED or ck == ConstKind.CK_FN or ck == ConstKind.CK_CLOSURE or ck == ConstKind.CK_ASYNC_BLOCK or ck == ConstKind.CK_INT_EXACT or ck == ConstKind.CK_REGEX_LIT:
             continue
         return f"const{ci}: unknown const kind {ck}"
 

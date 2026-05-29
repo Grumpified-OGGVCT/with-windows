@@ -244,6 +244,11 @@ const INDEX_ELLIPSIS: i32 = 2
 const INDEX_NEWAXIS: i32 = 3
 const INDEX_KIND_SHIFT: i32 = 268435456  // 1 << 28
 
+// NK_UNSAFE_BLOCK.d1 distinguishes a true unsafe block from the narrow
+// `unsafe *p` / `unsafe p[i]` raw-access prefix form.
+const UNSAFE_KIND_BLOCK: i32 = 0
+const UNSAFE_KIND_PREFIX: i32 = 1
+
 fn fn_param_is_noalias(flags: i32) -> i32:
     (flags / FN_PARAM_FLAG_NOALIAS) % 2
 
@@ -1355,8 +1360,8 @@ fn AstPool.for_binding_is_pattern(self: AstPool, node: NodeId) -> bool:
 //                   For enum: extra=[variant_count, [var_name, payload_count, payload_type...]*, vis, tp_start, tp_count]
 //                   For alias/distinct: extra=[aliased_or_inner_type, vis, tp_start, tp_count]
 //
-// NodeKind.NK_USE_DECL:      d0=extra_start, d1=path_count, d2=0
-//                   extra: [sym, sym, ...]
+// NodeKind.NK_USE_DECL:      d0=extra_start, d1=path_count, d2=selector_count
+//                   extra: [path_sym..., selector_sym...]
 //
 // NodeKind.NK_LET_DECL:      d0=name(sym), d1=value(node), d2=flags (bit0=mut, bit1=pub)
 //                   extra: [type_expr(node)] if type annotation present
