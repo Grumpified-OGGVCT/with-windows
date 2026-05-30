@@ -1,0 +1,8 @@
+Imported MSVC/UCRT environment from vcvars64.bat
+[1/3] Emitting C from rt\windows_x86_64.w ...
+      emitted 155.8 KB
+[2/3] Patched: dropped redundant '#include <windows.h>'
+      filtered header: 179 external decls, 21 own
+[3/3] Compiling windows_x86_64_emitted.c -> out\lib\rt_windows_x86_64.o ...
+      OK: out\lib\rt_windows_x86_64.o (16.8 KB)
+Done.

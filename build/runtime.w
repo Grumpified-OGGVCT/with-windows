@@ -118,7 +118,7 @@ fn br_generate_embedded_stdlib(ctx: ActionCtx, files: Vec[str]) -> str:
         if source.len() == 0:
             ctx.diagnostics().error("compat-runtime-source: failed to read stdlib source: " ++ path)
             return ""
-        if source.len() > 500000:
+        if source.len() > 2000000:
             ctx.diagnostics().error("compat-runtime-source: stdlib source too large: " ++ path)
             return ""
         let sym = f"EMBEDDED_STD_{i}"

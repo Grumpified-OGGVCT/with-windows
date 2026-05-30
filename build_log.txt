@@ -1,0 +1,13 @@
+=== Compiling with.c ===
+PASS
+=== Compiling runtime modules ===
+Extracted 170 total declarations from all runtime files
+  [panic_runtime] 153 external, 17 own
+clang.exe : rt/panic_runtime.w:188:8: error: assigning to 'with_str' from incompatible type 'int'
+At C:\Users\gerry\generic_workspace\with-windows\build.ps1:79 char:15
++     $result = & "clang" @args 2>&1
++               ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (rt/panic_runtim...ible type 'int':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+*** BUILD FAILED *** 

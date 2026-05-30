@@ -1,0 +1,94 @@
+src/main.w:100:10: error: call to undeclared function 'with_regex_code_copy'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  100 |     _3 = with_regex_code_copy((*_1).ptr);
+      |          ^
+src/main.w:100:8: error: incompatible integer to pointer conversion assigning to 'int8_t *' (aka 'signed char *') from 'int' [-Wint-conversion]
+  100 |     _3 = with_regex_code_copy((*_1).ptr);
+      |        ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main.w:152:5: error: call to undeclared function 'with_regex_code_free'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  152 |     with_regex_code_free((*_1).ptr);
+      |     ^
+src/main.w:160:11: error: call to undeclared function 'with_regex_compile'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  160 |     _13 = with_regex_compile(_1, _7.options, _11, _12);
+      |           ^
+src/main.w:160:9: error: incompatible integer to pointer conversion assigning to 'int8_t *' (aka 'signed char *') from 'int' [-Wint-conversion]
+  160 |     _13 = with_regex_compile(_1, _7.options, _11, _12);
+      |         ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main.w:174:11: error: call to undeclared function 'with_regex_capture_count'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  174 |     _19 = with_regex_capture_count(_10);
+      |           ^
+src/main.w:174:11: note: did you mean 'with_regex_capture_name_at'?
+.\runtime\with_runtime.h:224:10: note: 'with_regex_capture_name_at' declared here
+  224 | with_str with_regex_capture_name_at(uint8_t* code, int32_t index);
+      |          ^
+src/main.w:205:11: error: call to undeclared function 'with_regex_compile'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  205 |     _14 = with_regex_compile(_2, _3, _12, _13);
+      |           ^
+src/main.w:205:9: error: incompatible integer to pointer conversion assigning to 'int8_t *' (aka 'signed char *') from 'int' [-Wint-conversion]
+  205 |     _14 = with_regex_compile(_2, _3, _12, _13);
+      |         ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main.w:236:10: error: call to undeclared function 'with_regex_group_name_to_index'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  236 |     _7 = with_regex_group_name_to_index((*_1).ptr, _2);
+      |          ^
+src/main.w:229:10: error: call to undeclared function 'with_regex_capture_name_count'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  229 |     _7 = with_regex_capture_name_count((*_1).ptr);
+      |          ^
+src/main.w:229:10: note: did you mean 'with_regex_capture_name_at'?
+.\runtime\with_runtime.h:224:10: note: 'with_regex_capture_name_at' declared here
+  224 | with_str with_regex_capture_name_at(uint8_t* code, int32_t index);
+      |          ^
+src/main.w:240:38: warning: passing 'int8_t *const' (aka 'signed char *const') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+  240 |     _10 = with_regex_capture_name_at((*_1).ptr, _8);
+      |                                      ^~~~~~~~~
+.\runtime\with_runtime.h:224:46: note: passing argument to parameter 'code' here
+  224 | with_str with_regex_capture_name_at(uint8_t* code, int32_t index);
+      |                                              ^
+src/main.w:238:48: error: incompatible pointer types passing 'with_vec *' to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  238 |     { with_str __with_tmp = _10; with_vec_push(&(_2), &__with_tmp); }
+      |                                                ^~~~~
+.\runtime\with_runtime.h:125:32: note: passing argument to parameter '_1' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                ^
+src/main.w:238:55: error: incompatible pointer types passing 'with_str *' to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  238 |     { with_str __with_tmp = _10; with_vec_push(&(_2), &__with_tmp); }
+      |                                                       ^~~~~~~~~~~
+.\runtime\with_runtime.h:125:45: note: passing argument to parameter '_2' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                             ^
+src/main.w:249:11: error: call to undeclared function 'with_regex_match_spans_alloc_at'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  249 |     _10 = with_regex_match_spans_alloc_at((*_1).ptr, _2, _3, _9);
+      |           ^
+src/main.w:249:9: error: incompatible integer to pointer conversion assigning to 'int32_t *' (aka 'int *') from 'int' [-Wint-conversion]
+  249 |     _10 = with_regex_match_spans_alloc_at((*_1).ptr, _2, _3, _9);
+      |         ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main.w:257:50: error: incompatible pointer types passing 'with_vec *' to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  257 |     { int32_t __with_tmp = (*_25); with_vec_push(&(_16), &__with_tmp); }
+      |                                                  ^~~~~~
+.\runtime\with_runtime.h:125:32: note: passing argument to parameter '_1' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                ^
+src/main.w:257:58: error: incompatible pointer types passing 'int32_t *' (aka 'int *') to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  257 |     { int32_t __with_tmp = (*_25); with_vec_push(&(_16), &__with_tmp); }
+      |                                                          ^~~~~~~~~~~
+.\runtime\with_runtime.h:125:45: note: passing argument to parameter '_2' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                             ^
+src/main.w:325:45: error: incompatible pointer types passing 'with_vec *' to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  325 |     { Match __with_tmp = _13; with_vec_push(&(_3), &__with_tmp); }
+      |                                             ^~~~~
+.\runtime\with_runtime.h:125:32: note: passing argument to parameter '_1' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                ^
+src/main.w:325:52: error: incompatible pointer types passing 'Match *' (aka 'struct Match *') to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  325 |     { Match __with_tmp = _13; with_vec_push(&(_3), &__with_tmp); }
+      |                                                    ^~~~~~~~~~~
+.\runtime\with_runtime.h:125:45: note: passing argument to parameter '_2' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                             ^
+src/main.w:333:48: error: incompatible pointer types passing 'with_vec *' to parameter of type 'uint8_t *' (aka 'unsigned char *') [-Wincompatible-pointer-types]
+  333 |     { Captures __with_tmp = _13; with_vec_push(&(_3), &__with_tmp); }
+      |                                                ^~~~~
+.\runtime\with_runtime.h:125:32: note: passing argument to parameter '_1' here
+  125 | int64_t with_vec_push(uint8_t* _1, uint8_t* _2);
+      |                                ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+1 warning and 20 errors generated.

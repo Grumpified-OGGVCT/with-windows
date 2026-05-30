@@ -1,0 +1,3 @@
+emitted C: compat_runtime_windows_emitted.c
+compile with a C compiler (example):
+  cc -I runtime compat_runtime_windows_emitted.c runtime/with_runtime.c runtime/helpers.c runtime/fiber.c runtime/fiber_asm_<arch>.s -o <output>

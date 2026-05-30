@@ -1,0 +1,42 @@
+=== Compiling with.c ===
+PASS
+=== Compiling runtime via per-file filtered headers ===
+Extracted 196 declarations from with_runtime.h
+  [rt_core] 24 external, 182 own
+  PASS: rt_core.obj
+  [panic_runtime] 167 external, 33 own
+  PASS: panic_runtime.obj
+  [regex_runtime] 169 external, 43 own
+  PASS: regex_runtime.obj
+  [compat_runtime] 167 external, 33 own
+  PASS: compat_runtime.obj
+  [fiber_stubs] 168 external, 45 own
+  PASS: fiber_stubs.obj
+  [fiber_runtime] 169 external, 41 own
+  PASS: fiber_runtime.obj
+  [channel_runtime] 171 external, 35 own
+  PASS: channel_runtime.obj
+  [cimport_stubs] 173 external, 145 own
+  PASS: cimport_stubs.obj
+  [llvm_bridge] 178 external, 22 own
+  PASS: llvm_bridge.obj
+All runtime compiled.
+=== Skipping clang_bridge (needs POSIX headers) ===
+=== Compiling windows_platform ===
+PASS
+=== Compiling embedded_stubs ===
+PASS
+=== Compiling embedded_stubs ===
+PASS
+=== All compiles passed ===
+
+=== Link step ===
+=== SUCCESS: with.exe ===
+ Volume in drive C has no label.
+ Volume Serial Number is 0A3D-6117
+
+ Directory of C:\Users\gerry\generic_workspace\with-windows
+
+05/29/2026  02:31 PM        51,597,312 with.exe
+               1 File(s)     51,597,312 bytes
+               0 Dir(s)  1,031,428,874,240 bytes free

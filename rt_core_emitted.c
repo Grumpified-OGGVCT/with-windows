@@ -189,9 +189,9 @@ static int64_t __with_global_slab_ptr__148 = ((int64_t)(((uint64_t)0x0ULL)));
 static int64_t __with_global_slab_remaining__149 = ((int64_t)(((uint64_t)0x0ULL)));
 static int32_t __with_global_saved_argc__221 = ((int32_t)(((uint64_t)0x0ULL)));
 static int64_t __with_global_saved_argv_raw__222 = ((int64_t)(((uint64_t)0x0ULL)));
-static int64_t __with_global_loop_break_bbs__739[256] = {0};
-static int64_t __with_global_loop_continue_bbs__740[256] = {0};
-static int64_t __with_global_loop_result_bbs__741[256] = {0};
+static int64_t __with_global_loop_break_bbs__793[256] = {0};
+static int64_t __with_global_loop_continue_bbs__794[256] = {0};
+static int64_t __with_global_loop_result_bbs__795[256] = {0};
 
 extern with_str str_from_byte(int32_t _1);
 extern int64_t rt_write(int32_t _1, uint8_t* _2, uint64_t _3);
@@ -226,94 +226,94 @@ extern int32_t rt_stat(uint8_t* _1, uint8_t* _2);
 extern with_str rt_sysinfo_os(void);
 extern with_str rt_sysinfo_arch(void);
 
-int32_t fence__883(int32_t _1);
-int64_t string_len__813(with_str _1);
-int64_t view_len__814(const with_str* _1);
-bool view_is_empty__815(const with_str* _1);
-bool view_eq__816(const with_str* _1, const with_str* _2);
-int64_t CStr_len__818(const CStr* _1);
-bool string_eq__821(with_str _1, with_str _2);
-int32_t string_cmp__822(with_str _1, with_str _2);
-bool is_alpha__825(int32_t _1);
-bool is_digit__826(int32_t _1);
-bool is_space__827(int32_t _1);
-bool is_alnum__828(int32_t _1);
-bool is_upper__829(int32_t _1);
-bool is_lower__830(int32_t _1);
-bool is_xdigit__831(int32_t _1);
-bool is_print__832(int32_t _1);
-int32_t to_lower__833(int32_t _1);
-int32_t to_upper__834(int32_t _1);
-int64_t string_to_int__835(with_str _1);
-with_vec lines__836(with_str _1);
-int32_t parse__838(with_str _1);
-void print__854(with_str _1);
-void write__855(with_str _1);
-void print_i32__856(int32_t _1);
-void print_i64__857(int64_t _1);
-void print_bool__858(bool _1);
-void assert__859(bool _1, with_str _2, with_str _3);
-void require__862(bool _1, with_str _2, with_str _3);
-void check__863(bool _1, with_str _2, with_str _3);
-with_str i32_to_string__866(const int32_t* _1);
-with_str i64_to_string__867(const int64_t* _1);
-with_str u32_to_string__868(const uint32_t* _1);
-with_str u64_to_string__869(const uint64_t* _1);
-with_str bool_to_string__870(const bool* _1);
-with_str int_to_string__871(int64_t _1);
-RegexFlags regex_make_flags__942(int32_t _1, int32_t _2);
-with_str regex_error_message__943(int32_t _1);
-Result_RegexFlags__RegexError_ regex_compile_flags__944(with_str _1);
-Regex Regex_clone__951(const Regex* _1);
-void Regex_drop__955(Regex* _1);
-bool Regex_is_global__957(const Regex* _1);
-Result_Regex__RegexError_ Regex_compile__959(with_str _1);
-Result_Regex__RegexError_ Regex_compile_flags__961(with_str _1, with_str _2);
-int8_t* Regex___literal_code__966(int8_t** _1, with_str _2, int32_t _3);
-with_str Regex_pattern__969(const Regex* _1);
-int32_t Regex_num_captures__971(const Regex* _1);
-Option_i32_ Regex_capture_index__973(const Regex* _1, with_str _2);
-with_vec Regex_capture_names__978(const Regex* _1);
-Option_Captures_ Regex_captures__980(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_at__982(const Regex* _1, with_str _2, int32_t _3);
-bool Regex_is_match__985(const Regex* _1, with_str _2);
-Option_Captures_ Regex_captures_match_op__988(const Regex* _1, with_str _2);
-Option_Match_ Regex_find__994(const Regex* _1, with_str _2);
-Option_Match_ Regex_find_at__996(const Regex* _1, with_str _2, int32_t _3);
-with_vec Regex_find_all__998(const Regex* _1, with_str _2);
-with_vec Regex_captures_all__1001(const Regex* _1, with_str _2);
-with_str regex_expand_numbered_capture__1002(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
-bool regex_is_name_start__1003(int32_t _1);
-bool regex_is_name_continue__1005(int32_t _1);
-with_str regex_expand_replacement__1006(const Captures* _1, with_str _2);
-with_str Regex_replace_impl__1013(const Regex* _1, with_str _2, with_str _3, bool _4);
-with_str Regex_replace__1015(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_all__1016(const Regex* _1, with_str _2, with_str _3);
-with_str Regex_replace_fn__1018(const Regex* _1, with_str _2, with_fn_188 _3);
-with_str Regex_replace_all_fn__1021(const Regex* _1, with_str _2, with_fn_188 _3);
-with_vec Regex_split__1023(const Regex* _1, with_str _2);
-with_vec Regex_splitn__1025(const Regex* _1, with_str _2, int32_t _3);
-Option_Match_ Captures_get__1026(const Captures* _1, int32_t _2);
-int32_t Captures_len__1027(const Captures* _1);
-Option_Match_ Captures_by_name__1029(const Captures* _1, with_str _2);
-Option_Match_ Captures_name__1030(const Captures* _1, with_str _2);
-with_str Captures_text__1031(const Captures* _1, int32_t _2);
-with_str Captures_name_text__1033(const Captures* _1, with_str _2);
-with_str Regex_capture_text__1036(const Regex* _1, with_str _2, int32_t _3);
-with_str Regex_capture_name_text__1038(const Regex* _1, with_str _2, with_str _3);
-bool i32_eq__1059(int32_t _1, int32_t _2);
-bool bool_eq__1060(bool _1, bool _2);
-int32_t i32_default__1061();
-bool bool_default__1062();
-bool str_eq__1063(with_str _1, with_str _2);
-bool i64_eq__1064(int64_t _1, int64_t _2);
-with_str i32_debug_str__1065(int32_t _1);
-with_str bool_debug_str__1066(bool _1);
-with_str str_debug_str__1067(with_str _1);
-int64_t i32_hash_value__1069(int32_t _1);
-int64_t i64_hash_value__1070(int64_t _1);
-int64_t bool_hash_value__1071(bool _1);
-int64_t str_hash_value__1072(with_str _1);
+int32_t fence__937(int32_t _1);
+int64_t string_len__867(with_str _1);
+int64_t view_len__868(const with_str* _1);
+bool view_is_empty__869(const with_str* _1);
+bool view_eq__870(const with_str* _1, const with_str* _2);
+int64_t CStr_len__872(const CStr* _1);
+bool string_eq__875(with_str _1, with_str _2);
+int32_t string_cmp__876(with_str _1, with_str _2);
+bool is_alpha__879(int32_t _1);
+bool is_digit__880(int32_t _1);
+bool is_space__881(int32_t _1);
+bool is_alnum__882(int32_t _1);
+bool is_upper__883(int32_t _1);
+bool is_lower__884(int32_t _1);
+bool is_xdigit__885(int32_t _1);
+bool is_print__886(int32_t _1);
+int32_t to_lower__887(int32_t _1);
+int32_t to_upper__888(int32_t _1);
+int64_t string_to_int__889(with_str _1);
+with_vec lines__890(with_str _1);
+int32_t parse__892(with_str _1);
+void print__908(with_str _1);
+void write__909(with_str _1);
+void print_i32__910(int32_t _1);
+void print_i64__911(int64_t _1);
+void print_bool__912(bool _1);
+void assert__913(bool _1, with_str _2, with_str _3);
+void require__916(bool _1, with_str _2, with_str _3);
+void check__917(bool _1, with_str _2, with_str _3);
+with_str i32_to_string__920(const int32_t* _1);
+with_str i64_to_string__921(const int64_t* _1);
+with_str u32_to_string__922(const uint32_t* _1);
+with_str u64_to_string__923(const uint64_t* _1);
+with_str bool_to_string__924(const bool* _1);
+with_str int_to_string__925(int64_t _1);
+RegexFlags regex_make_flags__996(int32_t _1, int32_t _2);
+with_str regex_error_message__997(int32_t _1);
+Result_RegexFlags__RegexError_ regex_compile_flags__998(with_str _1);
+Regex Regex_clone__1005(const Regex* _1);
+void Regex_drop__1009(Regex* _1);
+bool Regex_is_global__1011(const Regex* _1);
+Result_Regex__RegexError_ Regex_compile__1013(with_str _1);
+Result_Regex__RegexError_ Regex_compile_flags__1015(with_str _1, with_str _2);
+int8_t* Regex___literal_code__1020(int8_t** _1, with_str _2, int32_t _3);
+with_str Regex_pattern__1023(const Regex* _1);
+int32_t Regex_num_captures__1025(const Regex* _1);
+Option_i32_ Regex_capture_index__1027(const Regex* _1, with_str _2);
+with_vec Regex_capture_names__1032(const Regex* _1);
+Option_Captures_ Regex_captures__1034(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_at__1036(const Regex* _1, with_str _2, int32_t _3);
+bool Regex_is_match__1039(const Regex* _1, with_str _2);
+Option_Captures_ Regex_captures_match_op__1042(const Regex* _1, with_str _2);
+Option_Match_ Regex_find__1048(const Regex* _1, with_str _2);
+Option_Match_ Regex_find_at__1050(const Regex* _1, with_str _2, int32_t _3);
+with_vec Regex_find_all__1052(const Regex* _1, with_str _2);
+with_vec Regex_captures_all__1055(const Regex* _1, with_str _2);
+with_str regex_expand_numbered_capture__1056(const Captures* _1, with_str _2, int64_t _3, int64_t _4);
+bool regex_is_name_start__1057(int32_t _1);
+bool regex_is_name_continue__1059(int32_t _1);
+with_str regex_expand_replacement__1060(const Captures* _1, with_str _2);
+with_str Regex_replace_impl__1067(const Regex* _1, with_str _2, with_str _3, bool _4);
+with_str Regex_replace__1069(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_all__1070(const Regex* _1, with_str _2, with_str _3);
+with_str Regex_replace_fn__1072(const Regex* _1, with_str _2, with_fn_188 _3);
+with_str Regex_replace_all_fn__1075(const Regex* _1, with_str _2, with_fn_188 _3);
+with_vec Regex_split__1077(const Regex* _1, with_str _2);
+with_vec Regex_splitn__1079(const Regex* _1, with_str _2, int32_t _3);
+Option_Match_ Captures_get__1080(const Captures* _1, int32_t _2);
+int32_t Captures_len__1081(const Captures* _1);
+Option_Match_ Captures_by_name__1083(const Captures* _1, with_str _2);
+Option_Match_ Captures_name__1084(const Captures* _1, with_str _2);
+with_str Captures_text__1085(const Captures* _1, int32_t _2);
+with_str Captures_name_text__1087(const Captures* _1, with_str _2);
+with_str Regex_capture_text__1090(const Regex* _1, with_str _2, int32_t _3);
+with_str Regex_capture_name_text__1092(const Regex* _1, with_str _2, with_str _3);
+bool i32_eq__1113(int32_t _1, int32_t _2);
+bool bool_eq__1114(bool _1, bool _2);
+int32_t i32_default__1115();
+bool bool_default__1116();
+bool str_eq__1117(with_str _1, with_str _2);
+bool i64_eq__1118(int64_t _1, int64_t _2);
+with_str i32_debug_str__1119(int32_t _1);
+with_str bool_debug_str__1120(bool _1);
+with_str str_debug_str__1121(with_str _1);
+int64_t i32_hash_value__1123(int32_t _1);
+int64_t i64_hash_value__1124(int64_t _1);
+int64_t bool_hash_value__1125(bool _1);
+int64_t str_hash_value__1126(with_str _1);
 bool f64_is_nan__67(double _1);
 bool f64_is_neg__71(double _1);
 bool f64_is_zero__72(double _1);
@@ -468,26 +468,55 @@ void with_vec_set_i32(uint8_t* _1, int64_t _2, int32_t _3);
 void with_vec_set_i64(uint8_t* _1, int64_t _2, int64_t _3);
 int64_t with_vec_remove(uint8_t* _1, int64_t _2);
 int32_t with_vec_pop_i32(uint8_t* _1);
-uint8_t* hm_keys__524(int64_t _1);
-uint8_t* hm_vals__526(int64_t _1);
-uint8_t* hm_occ__527(int64_t _1);
-int64_t hm_cap__528(int64_t _1);
-int64_t hm_len__529(int64_t _1);
-int64_t hm_key_size__530(int64_t _1);
-int64_t hm_val_size__531(int64_t _1);
-int32_t hm_is_str_key__532(int64_t _1);
-uint8_t* hm_set_keys__533(int64_t _1, uint8_t* _2);
-uint8_t* hm_set_vals__534(int64_t _1, uint8_t* _2);
-uint8_t* hm_set_occ__535(int64_t _1, uint8_t* _2);
-int64_t hm_set_cap__536(int64_t _1, int64_t _2);
-int64_t hm_set_len__537(int64_t _1, int64_t _2);
-int64_t hm_set_key_size__538(int64_t _1, int64_t _2);
-int64_t hm_set_val_size__539(int64_t _1, int64_t _2);
-int32_t hm_set_is_str_key__540(int64_t _1, int32_t _2);
+uint8_t* sm_values__522(int64_t _1);
+uint8_t* sm_occ__524(int64_t _1);
+uint8_t* sm_gens__525(int64_t _1);
+int64_t sm_len__526(int64_t _1);
+int64_t sm_cap__527(int64_t _1);
+int64_t sm_elem_size__528(int64_t _1);
+uint8_t* sm_set_values__529(int64_t _1, uint8_t* _2);
+uint8_t* sm_set_occ__530(int64_t _1, uint8_t* _2);
+uint8_t* sm_set_gens__531(int64_t _1, uint8_t* _2);
+int64_t sm_set_len__532(int64_t _1, int64_t _2);
+int64_t sm_set_cap__533(int64_t _1, int64_t _2);
+int64_t sm_set_elem_size__534(int64_t _1, int64_t _2);
+int32_t sm_occ_at__535(int64_t _1, int64_t _2);
+uint8_t sm_set_occ_at__536(int64_t _1, int64_t _2, int32_t _3);
+uint32_t sm_generation_at__537(int64_t _1, int64_t _2);
+uint32_t sm_set_generation_at__538(int64_t _1, int64_t _2, uint32_t _3);
+uint8_t* sm_value_ptr_at__539(int64_t _1, int64_t _2);
+uint32_t sm_normalize_generation__540(uint32_t _1);
+int64_t sm_grow__542(int64_t _1);
+uint32_t sm_write_handle__549(uint8_t* _1, uint32_t _2, uint32_t _3);
+int32_t sm_valid__551(int64_t _1, uint32_t _2, uint32_t _3);
+uint8_t* with_slotmap_new(int64_t _1);
+void with_slotmap_insert_out(uint8_t* _1, uint8_t* _2, uint8_t* _3);
+uint8_t* with_slotmap_get_ptr(uint8_t* _1, uint32_t _2, uint32_t _3);
+int32_t with_slotmap_contains(uint8_t* _1, uint32_t _2, uint32_t _3);
+int64_t with_slotmap_len(uint8_t* _1);
+int32_t with_slotmap_remove(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4);
+int32_t with_slotmap_replace(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4, uint8_t* _5);
+int32_t with_slotmap_set(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4);
+uint8_t* hm_keys__581(int64_t _1);
+uint8_t* hm_vals__582(int64_t _1);
+uint8_t* hm_occ__583(int64_t _1);
+int64_t hm_cap__584(int64_t _1);
+int64_t hm_len__585(int64_t _1);
+int64_t hm_key_size__586(int64_t _1);
+int64_t hm_val_size__587(int64_t _1);
+int32_t hm_is_str_key__588(int64_t _1);
+uint8_t* hm_set_keys__589(int64_t _1, uint8_t* _2);
+uint8_t* hm_set_vals__590(int64_t _1, uint8_t* _2);
+uint8_t* hm_set_occ__591(int64_t _1, uint8_t* _2);
+int64_t hm_set_cap__592(int64_t _1, int64_t _2);
+int64_t hm_set_len__593(int64_t _1, int64_t _2);
+int64_t hm_set_key_size__594(int64_t _1, int64_t _2);
+int64_t hm_set_val_size__595(int64_t _1, int64_t _2);
+int32_t hm_set_is_str_key__596(int64_t _1, int32_t _2);
 uint64_t fnv_hash__431(uint8_t* _1, int64_t _2);
-uint64_t hm_hash_key__543(int64_t _1, uint8_t* _2);
-int32_t hm_keys_eq__547(int64_t _1, uint8_t* _2, uint8_t* _3);
-void hm_grow__552(int64_t _1);
+uint64_t hm_hash_key__599(int64_t _1, uint8_t* _2);
+int32_t hm_keys_eq__603(int64_t _1, uint8_t* _2, uint8_t* _3);
+void hm_grow__608(int64_t _1);
 uint8_t* with_hashmap_new(int64_t _1, int64_t _2);
 uint8_t* with_hashmap_new_out(uint8_t** _1, int64_t _2, int64_t _3);
 uint8_t* with_hashmap_new_at(uint8_t* _1, int64_t _2, int64_t _3, int64_t _4);
@@ -504,8 +533,8 @@ int64_t with_hashmap_decrement(uint8_t* _1, uint8_t* _2, int64_t _3);
 int64_t with_sb_new();
 int64_t with_sb_append(uint8_t* _1, with_str _2);
 with_str with_sb_build(uint8_t* _1);
-bool fs_path_is_dir_c__611(uint8_t* _1);
-int32_t fs_mkdir_component__613(uint8_t* _1, int32_t _2);
+bool fs_path_is_dir_c__665(uint8_t* _1);
+int32_t fs_mkdir_component__667(uint8_t* _1, int32_t _2);
 with_str with_fs_read_file(with_str _1);
 int32_t with_fs_write_file(with_str _1, with_str _2);
 int32_t with_fs_file_exists(with_str _1);
@@ -575,7 +604,7 @@ void with_scope_await_all(int64_t _1);
 void with_scope_destroy(int64_t _1);
 
 
-int32_t fence__883(int32_t _1) {
+int32_t fence__937(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -588,7 +617,7 @@ bb0:
 }
 
 
-int64_t string_len__813(with_str _1) {
+int64_t string_len__867(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -603,7 +632,7 @@ bb1:
     return _0;
 }
 
-int64_t view_len__814(const with_str* _1) {
+int64_t view_len__868(const with_str* _1) {
     int64_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -613,7 +642,7 @@ bb0:
     return _0;
 }
 
-bool view_is_empty__815(const with_str* _1) {
+bool view_is_empty__869(const with_str* _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -626,7 +655,7 @@ bb0:
     return _0;
 }
 
-bool view_eq__816(const with_str* _1, const with_str* _2) {
+bool view_eq__870(const with_str* _1, const with_str* _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -640,7 +669,7 @@ bb0:
     return _0;
 }
 
-int64_t CStr_len__818(const CStr* _1) {
+int64_t CStr_len__872(const CStr* _1) {
     int64_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -651,7 +680,7 @@ bb0:
     return _0;
 }
 
-bool string_eq__821(with_str _1, with_str _2) {
+bool string_eq__875(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -670,7 +699,7 @@ bb1:
 bb2: ;
 }
 
-int32_t string_cmp__822(with_str _1, with_str _2) {
+int32_t string_cmp__876(with_str _1, with_str _2) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -809,7 +838,7 @@ bb23: ;
 bb24: ;
 }
 
-bool is_alpha__825(int32_t _1) {
+bool is_alpha__879(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -864,7 +893,7 @@ bb6:
     goto bb4;
 }
 
-bool is_digit__826(int32_t _1) {
+bool is_digit__880(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -891,7 +920,7 @@ bb2:
     return _0;
 }
 
-bool is_space__827(int32_t _1) {
+bool is_space__881(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -983,7 +1012,7 @@ bb10:
     return _0;
 }
 
-bool is_alnum__828(int32_t _1) {
+bool is_alnum__882(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -992,7 +1021,7 @@ bool is_alnum__828(int32_t _1) {
 bb0:
 #line 64 "rt/rt_core.w"
     /* StorageLive(_1); */
-    _3 = is_alpha__825(_1);
+    _3 = is_alpha__879(_1);
     goto bb1;
 bb1:
 #line 66 "rt/rt_core.w"
@@ -1004,7 +1033,7 @@ bb1:
         goto bb2;
     }
 bb2:
-    _4 = is_digit__826(_1);
+    _4 = is_digit__880(_1);
     goto bb4;
 bb3:
 #line 67 "rt/rt_core.w"
@@ -1016,7 +1045,7 @@ bb4:
     goto bb3;
 }
 
-bool is_upper__829(int32_t _1) {
+bool is_upper__883(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1043,7 +1072,7 @@ bb2:
     return _0;
 }
 
-bool is_lower__830(int32_t _1) {
+bool is_lower__884(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1073,7 +1102,7 @@ bb2:
     return _0;
 }
 
-bool is_xdigit__831(int32_t _1) {
+bool is_xdigit__885(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1160,7 +1189,7 @@ bb10:
     goto bb8;
 }
 
-bool is_print__832(int32_t _1) {
+bool is_print__886(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1187,7 +1216,7 @@ bb2:
     return _0;
 }
 
-int32_t to_lower__833(int32_t _1) {
+int32_t to_lower__887(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1231,7 +1260,7 @@ bb5:
     return _0;
 }
 
-int32_t to_upper__834(int32_t _1) {
+int32_t to_upper__888(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1277,7 +1306,7 @@ bb5:
     return _0;
 }
 
-int64_t string_to_int__835(with_str _1) {
+int64_t string_to_int__889(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1292,7 +1321,7 @@ bb1:
     return _0;
 }
 
-with_vec lines__836(with_str _1) {
+with_vec lines__890(with_str _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -1323,7 +1352,7 @@ bb4: ;
 bb5: ;
 }
 
-int32_t parse__838(with_str _1) {
+int32_t parse__892(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -1333,7 +1362,7 @@ bb0:
 #line 100 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = string_to_int__835(_1);
+    _3 = string_to_int__889(_1);
     goto bb1;
 bb1:
     _2 = _3;
@@ -1344,7 +1373,7 @@ bb1:
 bb2: ;
 }
 
-void print__854(with_str _1) {
+void print__908(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1357,7 +1386,7 @@ bb1:
     return;
 }
 
-void write__855(with_str _1) {
+void write__909(with_str _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1370,7 +1399,7 @@ bb1:
     return;
 }
 
-void print_i32__856(int32_t _1) {
+void print_i32__910(int32_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1383,7 +1412,7 @@ bb1:
     return;
 }
 
-void print_i64__857(int64_t _1) {
+void print_i64__911(int64_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1396,7 +1425,7 @@ bb1:
     return;
 }
 
-void print_bool__858(bool _1) {
+void print_bool__912(bool _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1409,7 +1438,7 @@ bb1:
     return;
 }
 
-void assert__859(bool _1, with_str _2, with_str _3) {
+void assert__913(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1438,7 +1467,7 @@ bb4:
     goto bb3;
 }
 
-void require__862(bool _1, with_str _2, with_str _3) {
+void require__916(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1467,7 +1496,7 @@ bb4:
     goto bb3;
 }
 
-void check__863(bool _1, with_str _2, with_str _3) {
+void check__917(bool _1, with_str _2, with_str _3) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -1496,7 +1525,7 @@ bb4:
     goto bb3;
 }
 
-with_str i32_to_string__866(const int32_t* _1) {
+with_str i32_to_string__920(const int32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
@@ -1516,7 +1545,7 @@ bb2: ;
 bb3: ;
 }
 
-with_str i64_to_string__867(const int64_t* _1) {
+with_str i64_to_string__921(const int64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1532,7 +1561,7 @@ bb1:
 bb2: ;
 }
 
-with_str u32_to_string__868(const uint32_t* _1) {
+with_str u32_to_string__922(const uint32_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1547,7 +1576,7 @@ bb1:
 bb2: ;
 }
 
-with_str u64_to_string__869(const uint64_t* _1) {
+with_str u64_to_string__923(const uint64_t* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1563,7 +1592,7 @@ bb1:
 bb2: ;
 }
 
-with_str bool_to_string__870(const bool* _1) {
+with_str bool_to_string__924(const bool* _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1579,7 +1608,7 @@ bb1:
 bb2: ;
 }
 
-with_str int_to_string__871(int64_t _1) {
+with_str int_to_string__925(int64_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1594,7 +1623,7 @@ bb1:
     return _0;
 }
 
-RegexFlags regex_make_flags__942(int32_t _1, int32_t _2) {
+RegexFlags regex_make_flags__996(int32_t _1, int32_t _2) {
     RegexFlags _0 __attribute__((unused)) = {0};
     RegexFlags _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -1609,7 +1638,7 @@ bb0:
     return _0;
 }
 
-with_str regex_error_message__943(int32_t _1) {
+with_str regex_error_message__997(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -1623,7 +1652,7 @@ bb1:
     return _0;
 }
 
-Result_RegexFlags__RegexError_ regex_compile_flags__944(with_str _1) {
+Result_RegexFlags__RegexError_ regex_compile_flags__998(with_str _1) {
     Result_RegexFlags__RegexError_ _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -1673,7 +1702,7 @@ bb2:
     _8 = with_str_byte_at(_1, (int64_t)(_4));
     goto bb5;
 bb3:
-    _28 = regex_make_flags__942(_2, _3);
+    _28 = regex_make_flags__996(_2, _3);
     goto bb28;
 bb4:
     _6 = (_4 < _5);
@@ -1844,7 +1873,7 @@ bb56: ;
 bb57: ;
 }
 
-Regex Regex_clone__951(const Regex* _1) {
+Regex Regex_clone__1005(const Regex* _1) {
     Regex _0 __attribute__((unused)) = {0};
     int8_t* _2 __attribute__((unused)) = {0};
     int8_t* _3 __attribute__((unused)) = {0};
@@ -1888,7 +1917,7 @@ bb7: ;
 bb8: ;
 }
 
-void Regex_drop__955(Regex* _1) {
+void Regex_drop__1009(Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1937,7 +1966,7 @@ bb11: ;
 bb12: ;
 }
 
-bool Regex_is_global__957(const Regex* _1) {
+bool Regex_is_global__1011(const Regex* _1) {
     bool _0 __attribute__((unused)) = {0};
     int32_t _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -1953,13 +1982,13 @@ bb0:
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile__959(with_str _1) {
+Result_Regex__RegexError_ Regex_compile__1013(with_str _1) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_Regex__RegexError_ _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _2 = Regex_compile_flags__961(_1, WITH_STR_LIT(""));
+    _2 = Regex_compile_flags__1015(_1, WITH_STR_LIT(""));
     goto bb1;
 bb1:
 #line 89 "rt/rt_core.w"
@@ -1967,7 +1996,7 @@ bb1:
     return _0;
 }
 
-Result_Regex__RegexError_ Regex_compile_flags__961(with_str _1, with_str _2) {
+Result_Regex__RegexError_ Regex_compile_flags__1015(with_str _1, with_str _2) {
     Result_Regex__RegexError_ _0 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _3 __attribute__((unused)) = {0};
     Result_RegexFlags__RegexError_ _4 __attribute__((unused)) = {0};
@@ -1995,7 +2024,7 @@ Result_Regex__RegexError_ Regex_compile_flags__961(with_str _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = regex_compile_flags__944(_2);
+    _3 = regex_compile_flags__998(_2);
     goto bb1;
 bb1:
 #line 93 "rt/rt_core.w"
@@ -2051,7 +2080,7 @@ bb5:
         goto bb7;
     }
 bb6:
-    _16 = regex_error_message__943(_8);
+    _16 = regex_error_message__997(_8);
     goto bb9;
 bb7:
     goto bb8;
@@ -2108,7 +2137,7 @@ bb37: ;
 bb38: ;
 }
 
-int8_t* Regex___literal_code__966(int8_t** _1, with_str _2, int32_t _3) {
+int8_t* Regex___literal_code__1020(int8_t** _1, with_str _2, int32_t _3) {
     int8_t* _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2194,7 +2223,7 @@ bb9:
         goto bb11;
     }
 bb10:
-    _17 = regex_error_message__943(_9);
+    _17 = regex_error_message__997(_9);
     goto bb13;
 bb11:
     goto bb12;
@@ -2230,7 +2259,7 @@ bb27: ;
 bb28: ;
 }
 
-with_str Regex_pattern__969(const Regex* _1) {
+with_str Regex_pattern__1023(const Regex* _1) {
     with_str _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -2241,7 +2270,7 @@ bb0:
     return _0;
 }
 
-int32_t Regex_num_captures__971(const Regex* _1) {
+int32_t Regex_num_captures__1025(const Regex* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -2251,7 +2280,7 @@ bb0:
     return _0;
 }
 
-Option_i32_ Regex_capture_index__973(const Regex* _1, with_str _2) {
+Option_i32_ Regex_capture_index__1027(const Regex* _1, with_str _2) {
     Option_i32_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2316,7 +2345,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_capture_names__978(const Regex* _1) {
+with_vec Regex_capture_names__1032(const Regex* _1) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _2 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
@@ -2406,7 +2435,7 @@ bb24: ;
 bb25: ;
 }
 
-Option_Captures_ Regex_captures__980(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures__1034(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -2414,7 +2443,7 @@ bb0:
 #line 152 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures_at__982(_1, _2, 0);
+    _3 = Regex_captures_at__1036(_1, _2, 0);
     goto bb1;
 bb1:
 #line 154 "rt/rt_core.w"
@@ -2423,7 +2452,7 @@ bb1:
 bb2: ;
 }
 
-Option_Captures_ Regex_captures_at__982(const Regex* _1, with_str _2, int32_t _3) {
+Option_Captures_ Regex_captures_at__1036(const Regex* _1, with_str _2, int32_t _3) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -2602,7 +2631,7 @@ bb48: ;
 bb49: ;
 }
 
-bool Regex_is_match__985(const Regex* _1, with_str _2) {
+bool Regex_is_match__1039(const Regex* _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     Option_Captures_ _3 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
@@ -2612,7 +2641,7 @@ bool Regex_is_match__985(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_captures__980(_1, _2);
+    _3 = Regex_captures__1034(_1, _2);
     goto bb1;
 bb1:
 #line 172 "rt/rt_core.w"
@@ -2625,7 +2654,7 @@ bb1:
 bb2: ;
 }
 
-Option_Captures_ Regex_captures_match_op__988(const Regex* _1, with_str _2) {
+Option_Captures_ Regex_captures_match_op__1042(const Regex* _1, with_str _2) {
     Option_Captures_ _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -2677,7 +2706,7 @@ Option_Captures_ Regex_captures_match_op__988(const Regex* _1, with_str _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _6 = Regex_is_global__957(_1);
+    _6 = Regex_is_global__1011(_1);
     goto bb1;
 bb1:
 #line 176 "rt/rt_core.w"
@@ -2730,7 +2759,7 @@ bb7:
         goto bb9;
     }
 bb8:
-    _14 = Regex_captures__980(_1, _2);
+    _14 = Regex_captures__1034(_1, _2);
     goto bb11;
 bb9:
     goto bb10;
@@ -2792,7 +2821,7 @@ bb18:
 #line 190 "rt/rt_core.w"
     /* StorageLive(_25); */
     _25 = (*(*_1).global_pos);
-    _26 = Regex_captures_at__982(_1, _2, _25);
+    _26 = Regex_captures_at__1036(_1, _2, _25);
     goto bb19;
 bb19:
 #line 192 "rt/rt_core.w"
@@ -2813,7 +2842,7 @@ bb21:
 #line 194 "rt/rt_core.w"
     /* StorageLive(_30); */
     _30 = _27.payload0;
-    _31 = Captures_get__1026(&(_30), 0);
+    _31 = Captures_get__1080(&(_30), 0);
     goto bb23;
 bb22:
     _47 = (_27).tag;
@@ -2978,7 +3007,7 @@ bb106: ;
 bb107: ;
 }
 
-Option_Match_ Regex_find__994(const Regex* _1, with_str _2) {
+Option_Match_ Regex_find__1048(const Regex* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -2986,7 +3015,7 @@ bb0:
 #line 212 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_find_at__996(_1, _2, 0);
+    _3 = Regex_find_at__1050(_1, _2, 0);
     goto bb1;
 bb1:
 #line 218 "rt/rt_core.w"
@@ -2995,7 +3024,7 @@ bb1:
 bb2: ;
 }
 
-Option_Match_ Regex_find_at__996(const Regex* _1, with_str _2, int32_t _3) {
+Option_Match_ Regex_find_at__1050(const Regex* _1, with_str _2, int32_t _3) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -3010,7 +3039,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures_at__982(_1, _2, _3);
+    _4 = Regex_captures_at__1036(_1, _2, _3);
     goto bb1;
 bb1:
 #line 222 "rt/rt_core.w"
@@ -3031,7 +3060,7 @@ bb3:
 #line 225 "rt/rt_core.w"
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__1026(&(_8), 0);
+    _9 = Captures_get__1080(&(_8), 0);
     goto bb5;
 bb4:
     _10 = (_5).tag;
@@ -3057,7 +3086,7 @@ bb11: ;
 bb12: ;
 }
 
-with_vec Regex_find_all__998(const Regex* _1, with_str _2) {
+with_vec Regex_find_all__1052(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -3096,7 +3125,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_find_at__996(_1, _2, _5);
+    _9 = Regex_find_at__1050(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_3); */
@@ -3201,7 +3230,7 @@ bb30: ;
 bb31: ;
 }
 
-with_vec Regex_captures_all__1001(const Regex* _1, with_str _2) {
+with_vec Regex_captures_all__1055(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
@@ -3246,7 +3275,7 @@ bb2:
     _6 = ((_2).len);
     goto bb5;
 bb3:
-    _9 = Regex_captures_at__982(_1, _2, _5);
+    _9 = Regex_captures_at__1036(_1, _2, _5);
     goto bb6;
 bb4:
     /* drop(_13); */
@@ -3280,7 +3309,7 @@ bb8:
 #line 253 "rt/rt_core.w"
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__1026(&(_13), 0);
+    _14 = Captures_get__1080(&(_13), 0);
     goto bb10;
 bb9:
     _27 = (_10).tag;
@@ -3394,7 +3423,7 @@ bb39: ;
 bb40: ;
 }
 
-with_str regex_expand_numbered_capture__1002(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
+with_str regex_expand_numbered_capture__1056(const Captures* _1, with_str _2, int64_t _3, int64_t _4) {
     with_str _0 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
     int64_t _6 __attribute__((unused)) = {0};
@@ -3436,7 +3465,7 @@ bb2:
     _9 = with_str_byte_at(_2, (int64_t)(_6));
     goto bb4;
 bb3:
-    _13 = Captures_get__1026(_1, _5);
+    _13 = Captures_get__1080(_1, _5);
     goto bb5;
 bb4:
 #line 273 "rt/rt_core.w"
@@ -3491,7 +3520,7 @@ bb18: ;
 bb19: ;
 }
 
-bool regex_is_name_start__1003(int32_t _1) {
+bool regex_is_name_start__1057(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3570,7 +3599,7 @@ bb8:
     return _0;
 }
 
-bool regex_is_name_continue__1005(int32_t _1) {
+bool regex_is_name_continue__1059(int32_t _1) {
     bool _0 __attribute__((unused)) = {0};
     bool _2 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
@@ -3580,7 +3609,7 @@ bool regex_is_name_continue__1005(int32_t _1) {
     goto bb0;
 bb0:
     /* StorageLive(_1); */
-    _3 = regex_is_name_start__1003(_1);
+    _3 = regex_is_name_start__1057(_1);
     goto bb1;
 bb1:
 #line 289 "rt/rt_core.w"
@@ -3614,7 +3643,7 @@ bb5:
     goto bb3;
 }
 
-with_str regex_expand_replacement__1006(const Captures* _1, with_str _2) {
+with_str regex_expand_replacement__1060(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     int64_t _4 __attribute__((unused)) = {0};
@@ -3861,7 +3890,7 @@ bb27:
     _29 = _38;
     goto bb26;
 bb28:
-    _39 = regex_expand_numbered_capture__1002(_1, _2, _27, _29);
+    _39 = regex_expand_numbered_capture__1056(_1, _2, _27, _29);
     goto bb36;
 bb29:
 #line 320 "rt/rt_core.w"
@@ -3926,7 +3955,7 @@ bb38:
 bb39:
     goto bb40;
 bb40:
-    _63 = regex_is_name_start__1003(_18);
+    _63 = regex_is_name_start__1057(_18);
     goto bb59;
 bb41:
     _45 = ((_2).len);
@@ -3989,7 +4018,7 @@ bb51:
 bb52:
 #line 338 "rt/rt_core.w"
     _52 = _54;
-    _55 = Captures_name__1030(_1, _52);
+    _55 = Captures_name__1084(_1, _52);
     goto bb53;
 bb53:
 #line 340 "rt/rt_core.w"
@@ -4087,7 +4116,7 @@ bb68:
         goto bb65;
     }
 bb69:
-    _71 = regex_is_name_continue__1005(_70);
+    _71 = regex_is_name_continue__1059(_70);
     goto bb70;
 bb70:
     _67 = _71;
@@ -4095,7 +4124,7 @@ bb70:
 bb71:
 #line 353 "rt/rt_core.w"
     _73 = _74;
-    _75 = Captures_name__1030(_1, _73);
+    _75 = Captures_name__1084(_1, _73);
     goto bb72;
 bb72:
 #line 356 "rt/rt_core.w"
@@ -4224,7 +4253,7 @@ bb164: ;
 bb165: ;
 }
 
-with_str Regex_replace_impl__1013(const Regex* _1, with_str _2, with_str _3, bool _4) {
+with_str Regex_replace_impl__1067(const Regex* _1, with_str _2, with_str _3, bool _4) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _5 __attribute__((unused)) = {0};
     int32_t _6 __attribute__((unused)) = {0};
@@ -4296,7 +4325,7 @@ bb1:
     _7 = ((_2).len);
     goto bb4;
 bb2:
-    _10 = Regex_captures_at__982(_1, _2, _6);
+    _10 = Regex_captures_at__1036(_1, _2, _6);
     goto bb5;
 bb3:
     /* drop(_14); */
@@ -4329,7 +4358,7 @@ bb7:
 #line 372 "rt/rt_core.w"
     /* StorageLive(_14); */
     _14 = _11.payload0;
-    _15 = Captures_get__1026(&(_14), 0);
+    _15 = Captures_get__1080(&(_14), 0);
     goto bb9;
 bb8:
     _52 = (_11).tag;
@@ -4374,7 +4403,7 @@ bb13:
     _23 = with_str_concat(_5, _22);
 #line 383 "rt/rt_core.w"
     _24 = (const Captures*)(&_14);
-    _25 = regex_expand_replacement__1006(_24, _3);
+    _25 = regex_expand_replacement__1060(_24, _3);
     goto bb14;
 bb14:
 #line 377 "rt/rt_core.w"
@@ -4586,7 +4615,7 @@ bb114: ;
 bb115: ;
 }
 
-with_str Regex_replace__1015(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace__1069(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4597,7 +4626,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_is_global__957(_1);
+    _4 = Regex_is_global__1011(_1);
     goto bb1;
 bb1:
     if (_4 == 1) {
@@ -4626,7 +4655,7 @@ bb7: ;
 bb8: ;
 }
 
-with_str Regex_replace_all__1016(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_replace_all__1070(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
@@ -4646,7 +4675,7 @@ bb4: ;
 bb5: ;
 }
 
-with_str Regex_replace_fn__1018(const Regex* _1, with_str _2, with_fn_188 _3) {
+with_str Regex_replace_fn__1072(const Regex* _1, with_str _2, with_fn_188 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4692,7 +4721,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__982(_1, _2, _5);
+    _9 = Regex_captures_at__1036(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4725,7 +4754,7 @@ bb7:
 #line 425 "rt/rt_core.w"
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__1026(&(_13), 0);
+    _14 = Captures_get__1080(&(_13), 0);
     goto bb9;
 bb8:
     _31 = (_10).tag;
@@ -4841,7 +4870,7 @@ bb49: ;
 bb50: ;
 }
 
-with_str Regex_replace_all_fn__1021(const Regex* _1, with_str _2, with_fn_188 _3) {
+with_str Regex_replace_all_fn__1075(const Regex* _1, with_str _2, with_fn_188 _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     int32_t _5 __attribute__((unused)) = {0};
@@ -4906,7 +4935,7 @@ bb1:
     _6 = ((_2).len);
     goto bb4;
 bb2:
-    _9 = Regex_captures_at__982(_1, _2, _5);
+    _9 = Regex_captures_at__1036(_1, _2, _5);
     goto bb5;
 bb3:
     /* drop(_13); */
@@ -4939,7 +4968,7 @@ bb7:
 #line 448 "rt/rt_core.w"
     /* StorageLive(_13); */
     _13 = _10.payload0;
-    _14 = Captures_get__1026(&(_13), 0);
+    _14 = Captures_get__1080(&(_13), 0);
     goto bb9;
 bb8:
     _46 = (_10).tag;
@@ -5167,7 +5196,7 @@ bb103: ;
 bb104: ;
 }
 
-with_vec Regex_split__1023(const Regex* _1, with_str _2) {
+with_vec Regex_split__1077(const Regex* _1, with_str _2) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -5175,7 +5204,7 @@ bb0:
 #line 480 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Regex_splitn__1025(_1, _2, 0);
+    _3 = Regex_splitn__1079(_1, _2, 0);
     goto bb1;
 bb1:
 #line 482 "rt/rt_core.w"
@@ -5184,7 +5213,7 @@ bb1:
 bb2: ;
 }
 
-with_vec Regex_splitn__1025(const Regex* _1, with_str _2, int32_t _3) {
+with_vec Regex_splitn__1079(const Regex* _1, with_str _2, int32_t _3) {
     with_vec _0 __attribute__((unused)) = {0};
     with_vec _4 __attribute__((unused)) = {0};
     with_vec _5 __attribute__((unused)) = {0};
@@ -5294,7 +5323,7 @@ bb9:
 bb10:
     goto bb11;
 bb11:
-    _20 = Regex_find_at__996(_1, _2, _6);
+    _20 = Regex_find_at__1050(_1, _2, _6);
     goto bb16;
 bb12:
     _18 = with_str_slice(_2, _16, _17);
@@ -5464,7 +5493,7 @@ bb84: ;
 bb85: ;
 }
 
-Option_Match_ Captures_get__1026(const Captures* _1, int32_t _2) {
+Option_Match_ Captures_get__1080(const Captures* _1, int32_t _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
@@ -5630,7 +5659,7 @@ bb48: ;
 bb49: ;
 }
 
-int32_t Captures_len__1027(const Captures* _1) {
+int32_t Captures_len__1081(const Captures* _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
@@ -5651,7 +5680,7 @@ bb2: ;
 bb3: ;
 }
 
-Option_Match_ Captures_by_name__1029(const Captures* _1, with_str _2) {
+Option_Match_ Captures_by_name__1083(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5705,7 +5734,7 @@ bb6:
 bb7:
     goto bb8;
 bb8:
-    _10 = Captures_get__1026(_1, _6);
+    _10 = Captures_get__1080(_1, _6);
     goto bb10;
 bb9:
     goto bb8;
@@ -5724,14 +5753,14 @@ bb18: ;
 bb19: ;
 }
 
-Option_Match_ Captures_name__1030(const Captures* _1, with_str _2) {
+Option_Match_ Captures_name__1084(const Captures* _1, with_str _2) {
     Option_Match_ _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_by_name__1029(_1, _2);
+    _3 = Captures_by_name__1083(_1, _2);
     goto bb1;
 bb1:
 #line 536 "rt/rt_core.w"
@@ -5740,7 +5769,7 @@ bb1:
 bb2: ;
 }
 
-with_str Captures_text__1031(const Captures* _1, int32_t _2) {
+with_str Captures_text__1085(const Captures* _1, int32_t _2) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Match_ _3 __attribute__((unused)) = {0};
     Option_Match_ _4 __attribute__((unused)) = {0};
@@ -5752,7 +5781,7 @@ with_str Captures_text__1031(const Captures* _1, int32_t _2) {
 bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = Captures_get__1026(_1, _2);
+    _3 = Captures_get__1080(_1, _2);
     goto bb1;
 bb1:
 #line 538 "rt/rt_core.w"
@@ -5788,7 +5817,7 @@ bb5:
     goto bb2;
 }
 
-with_str Captures_name_text__1033(const Captures* _1, with_str _2) {
+with_str Captures_name_text__1087(const Captures* _1, with_str _2) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -5844,7 +5873,7 @@ bb6:
     goto bb7;
 bb7:
     _3 = _9;
-    _12 = Captures_name__1030(_1, _3);
+    _12 = Captures_name__1084(_1, _3);
     goto bb10;
 bb8:
     _11 = with_str_slice(_2, 1, _10);
@@ -5891,7 +5920,7 @@ bb17: ;
 bb18: ;
 }
 
-with_str Regex_capture_text__1036(const Regex* _1, with_str _2, int32_t _3) {
+with_str Regex_capture_text__1090(const Regex* _1, with_str _2, int32_t _3) {
     with_str _0 __attribute__((unused)) = {0};
     Option_Captures_ _4 __attribute__((unused)) = {0};
     Option_Captures_ _5 __attribute__((unused)) = {0};
@@ -5910,7 +5939,7 @@ bb0:
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = Regex_captures__980(_1, _2);
+    _4 = Regex_captures__1034(_1, _2);
     goto bb1;
 bb1:
 #line 551 "rt/rt_core.w"
@@ -5931,7 +5960,7 @@ bb3:
 #line 552 "rt/rt_core.w"
     /* StorageLive(_8); */
     _8 = _5.payload0;
-    _9 = Captures_get__1026(&(_8), _3);
+    _9 = Captures_get__1080(&(_8), _3);
     goto bb5;
 bb4:
     _15 = (_5).tag;
@@ -5980,7 +6009,7 @@ bb11: ;
 bb12: ;
 }
 
-with_str Regex_capture_name_text__1038(const Regex* _1, with_str _2, with_str _3) {
+with_str Regex_capture_name_text__1092(const Regex* _1, with_str _2, with_str _3) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -6045,7 +6074,7 @@ bb6:
     goto bb7;
 bb7:
     _4 = _10;
-    _13 = Regex_captures__980(_1, _2);
+    _13 = Regex_captures__1034(_1, _2);
     goto bb10;
 bb8:
     _12 = with_str_slice(_3, 1, _11);
@@ -6073,7 +6102,7 @@ bb12:
 #line 567 "rt/rt_core.w"
     /* StorageLive(_17); */
     _17 = _14.payload0;
-    _18 = Captures_name__1030(&(_17), _4);
+    _18 = Captures_name__1084(&(_17), _4);
     goto bb14;
 bb13:
     _24 = (_14).tag;
@@ -6130,7 +6159,7 @@ bb28: ;
 }
 
 
-bool i32_eq__1059(int32_t _1, int32_t _2) {
+bool i32_eq__1113(int32_t _1, int32_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -6144,7 +6173,7 @@ bb0:
     return _0;
 }
 
-bool bool_eq__1060(bool _1, bool _2) {
+bool bool_eq__1114(bool _1, bool _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -6158,7 +6187,7 @@ bb0:
     return _0;
 }
 
-int32_t i32_default__1061() {
+int32_t i32_default__1115() {
     int32_t _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -6167,7 +6196,7 @@ bb0:
     return _0;
 }
 
-bool bool_default__1062() {
+bool bool_default__1116() {
     bool _0 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
@@ -6176,7 +6205,7 @@ bb0:
     return _0;
 }
 
-bool str_eq__1063(with_str _1, with_str _2) {
+bool str_eq__1117(with_str _1, with_str _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -6189,7 +6218,7 @@ bb0:
     return _0;
 }
 
-bool i64_eq__1064(int64_t _1, int64_t _2) {
+bool i64_eq__1118(int64_t _1, int64_t _2) {
     bool _0 __attribute__((unused)) = {0};
     bool _3 __attribute__((unused)) = {0};
     goto bb0;
@@ -6203,7 +6232,7 @@ bb0:
     return _0;
 }
 
-with_str i32_debug_str__1065(int32_t _1) {
+with_str i32_debug_str__1119(int32_t _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -6218,7 +6247,7 @@ bb1:
     return _0;
 }
 
-with_str bool_debug_str__1066(bool _1) {
+with_str bool_debug_str__1120(bool _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -6243,7 +6272,7 @@ bb3:
     return _0;
 }
 
-with_str str_debug_str__1067(with_str _1) {
+with_str str_debug_str__1121(with_str _1) {
     with_str _0 __attribute__((unused)) = {0};
     with_str _2 __attribute__((unused)) = {0};
     with_str _3 __attribute__((unused)) = {0};
@@ -6258,7 +6287,7 @@ bb0:
     return _0;
 }
 
-int64_t i32_hash_value__1069(int32_t _1) {
+int64_t i32_hash_value__1123(int32_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -6277,7 +6306,7 @@ bb0:
     return _0;
 }
 
-int64_t i64_hash_value__1070(int64_t _1) {
+int64_t i64_hash_value__1124(int64_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -6292,7 +6321,7 @@ bb0:
     return _0;
 }
 
-int64_t bool_hash_value__1071(bool _1) {
+int64_t bool_hash_value__1125(bool _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     goto bb0;
@@ -6317,7 +6346,7 @@ bb3:
     return _0;
 }
 
-int64_t str_hash_value__1072(with_str _1) {
+int64_t str_hash_value__1126(with_str _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -20806,31 +20835,31 @@ bb13: ;
 bb14: ;
 }
 
-uint8_t* hm_keys__524(int64_t _1) {
+uint8_t* sm_values__522(int64_t _1) {
     uint8_t* _0 __attribute__((unused)) = {0};
     uint8_t** _2 __attribute__((unused)) = {0};
     uint8_t** _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1671 "rt/rt_core.w"
+#line 1667 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1672 "rt/rt_core.w"
+#line 1668 "rt/rt_core.w"
     _2 = (uint8_t**)((uint8_t**)(_1));
     _3 = _2;
     _0 = (*_3);
     return _0;
 }
 
-uint8_t* hm_vals__526(int64_t _1) {
+uint8_t* sm_occ__524(int64_t _1) {
     uint8_t* _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     uint8_t** _3 __attribute__((unused)) = {0};
     uint8_t** _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1673 "rt/rt_core.w"
+#line 1669 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1674 "rt/rt_core.w"
+#line 1670 "rt/rt_core.w"
     _2 = (_1 + 8);
     _3 = (uint8_t**)((uint8_t**)(_2));
     _4 = _3;
@@ -20838,16 +20867,16 @@ bb0:
     return _0;
 }
 
-uint8_t* hm_occ__527(int64_t _1) {
+uint8_t* sm_gens__525(int64_t _1) {
     uint8_t* _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     uint8_t** _3 __attribute__((unused)) = {0};
     uint8_t** _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1675 "rt/rt_core.w"
+#line 1671 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1676 "rt/rt_core.w"
+#line 1672 "rt/rt_core.w"
     _2 = (_1 + 16);
     _3 = (uint8_t**)((uint8_t**)(_2));
     _4 = _3;
@@ -20855,7 +20884,41 @@ bb0:
     return _0;
 }
 
-int64_t hm_cap__528(int64_t _1) {
+int64_t sm_len__526(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1673 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1674 "rt/rt_core.w"
+    _2 = (_1 + 24);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t sm_cap__527(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1675 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1676 "rt/rt_core.w"
+    _2 = (_1 + 32);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t sm_elem_size__528(int64_t _1) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t* _3 __attribute__((unused)) = {0};
@@ -20865,40 +20928,6 @@ bb0:
 #line 1677 "rt/rt_core.w"
     /* StorageLive(_1); */
 #line 1678 "rt/rt_core.w"
-    _2 = (_1 + 24);
-    _3 = (int64_t*)((int64_t*)(_2));
-    _4 = _3;
-    _0 = (*_4);
-    return _0;
-}
-
-int64_t hm_len__529(int64_t _1) {
-    int64_t _0 __attribute__((unused)) = {0};
-    int64_t _2 __attribute__((unused)) = {0};
-    int64_t* _3 __attribute__((unused)) = {0};
-    int64_t* _4 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 1679 "rt/rt_core.w"
-    /* StorageLive(_1); */
-#line 1680 "rt/rt_core.w"
-    _2 = (_1 + 32);
-    _3 = (int64_t*)((int64_t*)(_2));
-    _4 = _3;
-    _0 = (*_4);
-    return _0;
-}
-
-int64_t hm_key_size__530(int64_t _1) {
-    int64_t _0 __attribute__((unused)) = {0};
-    int64_t _2 __attribute__((unused)) = {0};
-    int64_t* _3 __attribute__((unused)) = {0};
-    int64_t* _4 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 1681 "rt/rt_core.w"
-    /* StorageLive(_1); */
-#line 1682 "rt/rt_core.w"
     _2 = (_1 + 40);
     _3 = (int64_t*)((int64_t*)(_2));
     _4 = _3;
@@ -20906,50 +20935,16 @@ bb0:
     return _0;
 }
 
-int64_t hm_val_size__531(int64_t _1) {
-    int64_t _0 __attribute__((unused)) = {0};
-    int64_t _2 __attribute__((unused)) = {0};
-    int64_t* _3 __attribute__((unused)) = {0};
-    int64_t* _4 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 1683 "rt/rt_core.w"
-    /* StorageLive(_1); */
-#line 1684 "rt/rt_core.w"
-    _2 = (_1 + 48);
-    _3 = (int64_t*)((int64_t*)(_2));
-    _4 = _3;
-    _0 = (*_4);
-    return _0;
-}
-
-int32_t hm_is_str_key__532(int64_t _1) {
-    int32_t _0 __attribute__((unused)) = {0};
-    int64_t _2 __attribute__((unused)) = {0};
-    int32_t* _3 __attribute__((unused)) = {0};
-    int32_t* _4 __attribute__((unused)) = {0};
-    goto bb0;
-bb0:
-#line 1685 "rt/rt_core.w"
-    /* StorageLive(_1); */
-#line 1686 "rt/rt_core.w"
-    _2 = (_1 + 56);
-    _3 = (int32_t*)((int32_t*)(_2));
-    _4 = _3;
-    _0 = (*_4);
-    return _0;
-}
-
-uint8_t* hm_set_keys__533(int64_t _1, uint8_t* _2) {
+uint8_t* sm_set_values__529(int64_t _1, uint8_t* _2) {
     uint8_t* _0 __attribute__((unused)) = {0};
     uint8_t** _3 __attribute__((unused)) = {0};
     uint8_t** _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1688 "rt/rt_core.w"
+#line 1680 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1689 "rt/rt_core.w"
+#line 1681 "rt/rt_core.w"
     _3 = (uint8_t**)((uint8_t**)(_1));
     _4 = _3;
     (*_4) = _2;
@@ -20957,17 +20952,17 @@ bb0:
     return _0;
 }
 
-uint8_t* hm_set_vals__534(int64_t _1, uint8_t* _2) {
+uint8_t* sm_set_occ__530(int64_t _1, uint8_t* _2) {
     uint8_t* _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     uint8_t** _4 __attribute__((unused)) = {0};
     uint8_t** _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1690 "rt/rt_core.w"
+#line 1682 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1691 "rt/rt_core.w"
+#line 1683 "rt/rt_core.w"
     _3 = (_1 + 8);
     _4 = (uint8_t**)((uint8_t**)(_3));
     _5 = _4;
@@ -20976,17 +20971,17 @@ bb0:
     return _0;
 }
 
-uint8_t* hm_set_occ__535(int64_t _1, uint8_t* _2) {
+uint8_t* sm_set_gens__531(int64_t _1, uint8_t* _2) {
     uint8_t* _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     uint8_t** _4 __attribute__((unused)) = {0};
     uint8_t** _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1692 "rt/rt_core.w"
+#line 1684 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1693 "rt/rt_core.w"
+#line 1685 "rt/rt_core.w"
     _3 = (_1 + 16);
     _4 = (uint8_t**)((uint8_t**)(_3));
     _5 = _4;
@@ -20995,17 +20990,17 @@ bb0:
     return _0;
 }
 
-int64_t hm_set_cap__536(int64_t _1, int64_t _2) {
+int64_t sm_set_len__532(int64_t _1, int64_t _2) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t* _4 __attribute__((unused)) = {0};
     int64_t* _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1694 "rt/rt_core.w"
+#line 1686 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1695 "rt/rt_core.w"
+#line 1687 "rt/rt_core.w"
     _3 = (_1 + 24);
     _4 = (int64_t*)((int64_t*)(_3));
     _5 = _4;
@@ -21014,17 +21009,17 @@ bb0:
     return _0;
 }
 
-int64_t hm_set_len__537(int64_t _1, int64_t _2) {
+int64_t sm_set_cap__533(int64_t _1, int64_t _2) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t* _4 __attribute__((unused)) = {0};
     int64_t* _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1696 "rt/rt_core.w"
+#line 1688 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1697 "rt/rt_core.w"
+#line 1689 "rt/rt_core.w"
     _3 = (_1 + 32);
     _4 = (int64_t*)((int64_t*)(_3));
     _5 = _4;
@@ -21033,17 +21028,17 @@ bb0:
     return _0;
 }
 
-int64_t hm_set_key_size__538(int64_t _1, int64_t _2) {
+int64_t sm_set_elem_size__534(int64_t _1, int64_t _2) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t* _4 __attribute__((unused)) = {0};
     int64_t* _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1698 "rt/rt_core.w"
+#line 1690 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1699 "rt/rt_core.w"
+#line 1691 "rt/rt_core.w"
     _3 = (_1 + 40);
     _4 = (int64_t*)((int64_t*)(_3));
     _5 = _4;
@@ -21052,17 +21047,1572 @@ bb0:
     return _0;
 }
 
-int64_t hm_set_val_size__539(int64_t _1, int64_t _2) {
+int32_t sm_occ_at__535(int64_t _1, int64_t _2) {
+    int32_t _0 __attribute__((unused)) = {0};
+    uint8_t* _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    uint8_t* _6 __attribute__((unused)) = {0};
+    uint8_t* _7 __attribute__((unused)) = {0};
+    int32_t _8 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1693 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    _3 = sm_occ__524(_1);
+    goto bb1;
+bb1:
+#line 1694 "rt/rt_core.w"
+    _4 = ((int64_t)(_3));
+    _5 = (_4 + _2);
+    _6 = (uint8_t*)((uint8_t*)(_5));
+    _7 = _6;
+    _8 = ((int32_t)((*_7)));
+    _0 = _8;
+    return _0;
+}
+
+uint8_t sm_set_occ_at__536(int64_t _1, int64_t _2, int32_t _3) {
+    uint8_t _0 __attribute__((unused)) = {0};
+    uint8_t _4 __attribute__((unused)) = {0};
+    uint8_t* _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    uint8_t* _8 __attribute__((unused)) = {0};
+    uint8_t* _9 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1695 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1696 "rt/rt_core.w"
+    _4 = ((uint8_t)(_3));
+    _5 = sm_occ__524(_1);
+    goto bb1;
+bb1:
+    _6 = ((int64_t)(_5));
+    _7 = (_6 + _2);
+    _8 = (uint8_t*)((uint8_t*)(_7));
+    _9 = _8;
+    (*_9) = _4;
+    _0 = _4;
+    return _0;
+bb2: ;
+bb3: ;
+}
+
+uint32_t sm_generation_at__537(int64_t _1, int64_t _2) {
+    uint32_t _0 __attribute__((unused)) = {0};
+    uint8_t* _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    uint32_t* _7 __attribute__((unused)) = {0};
+    uint32_t* _8 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1697 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    _3 = sm_gens__525(_1);
+    goto bb1;
+bb1:
+#line 1698 "rt/rt_core.w"
+    _4 = ((int64_t)(_3));
+    _5 = (_2 * 4);
+    _6 = (_4 + _5);
+    _7 = (uint32_t*)((uint32_t*)(_6));
+    _8 = _7;
+    _0 = (*_8);
+    return _0;
+}
+
+uint32_t sm_set_generation_at__538(int64_t _1, int64_t _2, uint32_t _3) {
+    uint32_t _0 __attribute__((unused)) = {0};
+    uint8_t* _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    uint32_t* _8 __attribute__((unused)) = {0};
+    uint32_t* _9 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1699 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+    _4 = sm_gens__525(_1);
+    goto bb1;
+bb1:
+#line 1700 "rt/rt_core.w"
+    _5 = ((int64_t)(_4));
+    _6 = (_2 * 4);
+    _7 = (_5 + _6);
+    _8 = (uint32_t*)((uint32_t*)(_7));
+    _9 = _8;
+    (*_9) = _3;
+    _0 = _3;
+    return _0;
+bb2: ;
+}
+
+uint8_t* sm_value_ptr_at__539(int64_t _1, int64_t _2) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    uint8_t* _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    uint8_t* _8 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1701 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    _3 = sm_values__522(_1);
+    goto bb1;
+bb1:
+#line 1702 "rt/rt_core.w"
+    _4 = ((int64_t)(_3));
+    _5 = sm_elem_size__528(_1);
+    goto bb2;
+bb2:
+    _6 = (_2 * _5);
+    _7 = (_4 + _6);
+    _8 = (uint8_t*)((uint8_t*)(_7));
+    _0 = _8;
+    return _0;
+bb3: ;
+bb4: ;
+bb5: ;
+}
+
+uint32_t sm_normalize_generation__540(uint32_t _1) {
+    uint32_t _0 __attribute__((unused)) = {0};
+    uint32_t _2 __attribute__((unused)) = {0};
+    bool _3 __attribute__((unused)) = {0};
+    uint32_t _4 __attribute__((unused)) = {0};
+    uint32_t _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1704 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1705 "rt/rt_core.w"
+    _2 = ((uint32_t)(0));
+    _3 = (_1 == _2);
+    if (_3 == 1) {
+        goto bb1;
+    }
+    else {
+        goto bb2;
+    }
+bb1:
+    _5 = ((uint32_t)(1));
+    _4 = _5;
+    goto bb3;
+bb2:
+    _4 = _1;
+    goto bb3;
+bb3:
+    _0 = _4;
+    return _0;
+}
+
+int64_t sm_grow__542(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    bool _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    int64_t _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    int64_t _10 __attribute__((unused)) = {0};
+    uint8_t* _11 __attribute__((unused)) = {0};
+    uint8_t* _12 __attribute__((unused)) = {0};
+    uint8_t* _13 __attribute__((unused)) = {0};
+    uint8_t* _14 __attribute__((unused)) = {0};
+    uint8_t* _15 __attribute__((unused)) = {0};
+    uint8_t* _16 __attribute__((unused)) = {0};
+    uint8_t* _17 __attribute__((unused)) = {0};
+    int64_t _18 __attribute__((unused)) = {0};
+    uint8_t* _19 __attribute__((unused)) = {0};
+    uint8_t* _20 __attribute__((unused)) = {0};
+    uint8_t* _21 __attribute__((unused)) = {0};
+    uint8_t* _22 __attribute__((unused)) = {0};
+    int64_t _23 __attribute__((unused)) = {0};
+    uint8_t* _24 __attribute__((unused)) = {0};
+    int32_t _25 __attribute__((unused)) = {0};
+    int64_t _26 __attribute__((unused)) = {0};
+    bool _27 __attribute__((unused)) = {0};
+    int64_t _28 __attribute__((unused)) = {0};
+    int64_t _29 __attribute__((unused)) = {0};
+    int64_t _30 __attribute__((unused)) = {0};
+    uint32_t* _31 __attribute__((unused)) = {0};
+    uint32_t* _32 __attribute__((unused)) = {0};
+    uint32_t _33 __attribute__((unused)) = {0};
+    int64_t _34 __attribute__((unused)) = {0};
+    bool _35 __attribute__((unused)) = {0};
+    uint8_t* _36 __attribute__((unused)) = {0};
+    int64_t _37 __attribute__((unused)) = {0};
+    int32_t _38 __attribute__((unused)) = {0};
+    uint8_t* _39 __attribute__((unused)) = {0};
+    int32_t _40 __attribute__((unused)) = {0};
+    uint8_t* _41 __attribute__((unused)) = {0};
+    int64_t _42 __attribute__((unused)) = {0};
+    int32_t _43 __attribute__((unused)) = {0};
+    int64_t _44 __attribute__((unused)) = {0};
+    int32_t _45 __attribute__((unused)) = {0};
+    int32_t _46 __attribute__((unused)) = {0};
+    int64_t _47 __attribute__((unused)) = {0};
+    int32_t _48 __attribute__((unused)) = {0};
+    uint8_t* _49 __attribute__((unused)) = {0};
+    uint8_t* _50 __attribute__((unused)) = {0};
+    uint8_t* _51 __attribute__((unused)) = {0};
+    int64_t _52 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1707 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1708 "rt/rt_core.w"
+    /* StorageLive(_2); */
+    _3 = sm_cap__527(_1);
+    goto bb1;
+bb1:
+    _2 = _3;
+#line 1709 "rt/rt_core.w"
+    /* StorageLive(_4); */
+    _5 = (_2 < 8);
+    if (_5 == 1) {
+        goto bb2;
+    }
+    else {
+        goto bb3;
+    }
+bb2:
+    _7 = ((int64_t)(8));
+    _6 = _7;
+    goto bb4;
+bb3:
+    _8 = (_2 * 2);
+    _6 = _8;
+    goto bb4;
+bb4:
+    _4 = _6;
+#line 1710 "rt/rt_core.w"
+    /* StorageLive(_9); */
+    _10 = sm_elem_size__528(_1);
+    goto bb5;
+bb5:
+    _9 = _10;
+#line 1711 "rt/rt_core.w"
+    /* StorageLive(_11); */
+    _12 = sm_values__522(_1);
+    goto bb6;
+bb6:
+    _11 = _12;
+#line 1712 "rt/rt_core.w"
+    /* StorageLive(_13); */
+    _14 = sm_occ__524(_1);
+    goto bb7;
+bb7:
+    _13 = _14;
+#line 1713 "rt/rt_core.w"
+    /* StorageLive(_15); */
+    _16 = sm_gens__525(_1);
+    goto bb8;
+bb8:
+    _15 = _16;
+#line 1714 "rt/rt_core.w"
+    /* StorageLive(_17); */
+    _18 = (_4 * _9);
+    _19 = rt_alloc__172(_18);
+    goto bb9;
+bb9:
+    _17 = _19;
+#line 1715 "rt/rt_core.w"
+    /* StorageLive(_20); */
+    _21 = rt_alloc__172(_4);
+    goto bb10;
+bb10:
+    _20 = _21;
+#line 1716 "rt/rt_core.w"
+    /* StorageLive(_22); */
+    _23 = (_4 * 4);
+    _24 = rt_alloc__172(_23);
+    goto bb11;
+bb11:
+    _22 = _24;
+    rt_memset__112(_20, 0, _4);
+    goto bb12;
+bb12:
+#line 1718 "rt/rt_core.w"
+    /* StorageLive(_26); */
+    _26 = 0;
+    goto bb13;
+bb13:
+#line 1719 "rt/rt_core.w"
+    _27 = (_26 < _4);
+    if (_27 == 1) {
+        goto bb14;
+    }
+    else {
+        goto bb15;
+    }
+bb14:
+#line 1720 "rt/rt_core.w"
+    _28 = ((int64_t)(_22));
+    _29 = (_26 * 4);
+    _30 = (_28 + _29);
+    _31 = (uint32_t*)((uint32_t*)(_30));
+    _32 = _31;
+    _33 = ((uint32_t)(1));
+    (*_32) = _33;
+#line 1721 "rt/rt_core.w"
+    _34 = (_26 + 1);
+    _26 = _34;
+    goto bb13;
+bb15:
+#line 1722 "rt/rt_core.w"
+    _35 = (_2 > 0);
+    if (_35 == 1) {
+        goto bb16;
+    }
+    else {
+        goto bb17;
+    }
+bb16:
+#line 1723 "rt/rt_core.w"
+    _36 = (uint8_t*)((uint8_t*)(_11));
+    _37 = (_2 * _9);
+    rt_memcpy__106(_17, _36, _37);
+    goto bb19;
+bb17:
+    goto bb18;
+bb18:
+    _49 = sm_set_values__529(_1, _17);
+    goto bb25;
+bb19:
+#line 1724 "rt/rt_core.w"
+    _39 = (uint8_t*)((uint8_t*)(_13));
+    rt_memcpy__106(_20, _39, _2);
+    goto bb20;
+bb20:
+#line 1725 "rt/rt_core.w"
+    _41 = (uint8_t*)((uint8_t*)(_15));
+    _42 = (_2 * 4);
+    rt_memcpy__106(_22, _41, _42);
+    goto bb21;
+bb21:
+#line 1726 "rt/rt_core.w"
+    _44 = (_2 * _9);
+    rt_free_sized__175(_11, _44);
+    goto bb22;
+bb22:
+    rt_free_sized__175(_13, _2);
+    goto bb23;
+bb23:
+#line 1728 "rt/rt_core.w"
+    _47 = (_2 * 4);
+    rt_free_sized__175(_15, _47);
+    goto bb24;
+bb24:
+    goto bb18;
+bb25:
+    _50 = sm_set_occ__530(_1, _20);
+    goto bb26;
+bb26:
+    _51 = sm_set_gens__531(_1, _22);
+    goto bb27;
+bb27:
+    _52 = sm_set_cap__533(_1, _4);
+    goto bb28;
+bb28:
+#line 1732 "rt/rt_core.w"
+    _0 = _52;
+    return _0;
+bb29: ;
+bb30: ;
+bb31: ;
+bb32: ;
+bb33: ;
+bb34: ;
+bb35: ;
+bb36: ;
+bb37: ;
+bb38: ;
+bb39: ;
+bb40: ;
+bb41: ;
+bb42: ;
+bb43: ;
+bb44: ;
+bb45: ;
+bb46: ;
+bb47: ;
+bb48: ;
+bb49: ;
+bb50: ;
+bb51: ;
+bb52: ;
+bb53: ;
+bb54: ;
+bb55: ;
+bb56: ;
+bb57: ;
+bb58: ;
+bb59: ;
+bb60: ;
+bb61: ;
+bb62: ;
+bb63: ;
+bb64: ;
+bb65: ;
+bb66: ;
+bb67: ;
+bb68: ;
+bb69: ;
+bb70: ;
+bb71: ;
+bb72: ;
+bb73: ;
+bb74: ;
+bb75: ;
+bb76: ;
+bb77: ;
+bb78: ;
+bb79: ;
+bb80: ;
+bb81: ;
+bb82: ;
+bb83: ;
+bb84: ;
+bb85: ;
+bb86: ;
+bb87: ;
+bb88: ;
+bb89: ;
+bb90: ;
+bb91: ;
+bb92: ;
+bb93: ;
+bb94: ;
+bb95: ;
+bb96: ;
+}
+
+uint32_t sm_write_handle__549(uint8_t* _1, uint32_t _2, uint32_t _3) {
+    uint32_t _0 __attribute__((unused)) = {0};
+    uint32_t* _4 __attribute__((unused)) = {0};
+    uint32_t* _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    uint32_t* _8 __attribute__((unused)) = {0};
+    uint32_t* _9 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1734 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1735 "rt/rt_core.w"
+    _4 = (uint32_t*)((uint32_t*)(_1));
+    _5 = _4;
+    (*_5) = _2;
+#line 1736 "rt/rt_core.w"
+    _6 = ((int64_t)(_1));
+    _7 = (_6 + 4);
+    _8 = (uint32_t*)((uint32_t*)(_7));
+    _9 = _8;
+    (*_9) = _3;
+    _0 = _3;
+    return _0;
+}
+
+int32_t sm_valid__551(int64_t _1, uint32_t _2, uint32_t _3) {
+    int32_t _0 __attribute__((unused)) = {0};
+    bool _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    bool _7 __attribute__((unused)) = {0};
+    bool _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    bool _10 __attribute__((unused)) = {0};
+    int32_t _11 __attribute__((unused)) = {0};
+    bool _12 __attribute__((unused)) = {0};
+    uint32_t _13 __attribute__((unused)) = {0};
+    bool _14 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1738 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1739 "rt/rt_core.w"
+    _4 = (_1 == 0);
+    if (_4 == 1) {
+        goto bb1;
+    }
+    else {
+        goto bb2;
+    }
+bb1:
+#line 1740 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb2:
+    goto bb3;
+bb3:
+#line 1741 "rt/rt_core.w"
+    /* StorageLive(_5); */
+    _6 = ((int64_t)(_2));
+    _5 = _6;
+#line 1742 "rt/rt_core.w"
+    _8 = (_5 < 0);
+    _7 = _8;
+    if (_7 == 1) {
+        goto bb6;
+    }
+    else {
+        goto bb5;
+    }
+bb4:
+    goto bb3;
+bb5:
+    _9 = sm_cap__527(_1);
+    goto bb7;
+bb6:
+    if (_7 == 1) {
+        goto bb8;
+    }
+    else {
+        goto bb9;
+    }
+bb7:
+    _10 = (_5 >= _9);
+    _7 = _10;
+    goto bb6;
+bb8:
+#line 1743 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb9:
+    goto bb10;
+bb10:
+    _11 = sm_occ_at__535(_1, _5);
+    goto bb12;
+bb11:
+    goto bb10;
+bb12:
+#line 1744 "rt/rt_core.w"
+    _12 = (_11 == 0);
+    if (_12 == 1) {
+        goto bb13;
+    }
+    else {
+        goto bb14;
+    }
+bb13:
+#line 1745 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb14:
+    goto bb15;
+bb15:
+    _13 = sm_generation_at__537(_1, _5);
+    goto bb17;
+bb16:
+    goto bb15;
+bb17:
+#line 1746 "rt/rt_core.w"
+    _14 = (_13 != _3);
+    if (_14 == 1) {
+        goto bb18;
+    }
+    else {
+        goto bb19;
+    }
+bb18:
+#line 1747 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb19:
+    goto bb20;
+bb20:
+#line 1748 "rt/rt_core.w"
+    _0 = 1;
+    return _0;
+bb21:
+    goto bb20;
+bb22: ;
+bb23: ;
+}
+
+uint8_t* with_slotmap_new(int64_t _1) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    uint8_t* _2 __attribute__((unused)) = {0};
+    uint8_t* _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    uint8_t* _5 __attribute__((unused)) = {0};
+    uint8_t* _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    uint8_t* _8 __attribute__((unused)) = {0};
+    uint8_t* _9 __attribute__((unused)) = {0};
+    int64_t _10 __attribute__((unused)) = {0};
+    uint8_t* _11 __attribute__((unused)) = {0};
+    uint8_t* _12 __attribute__((unused)) = {0};
+    int64_t _13 __attribute__((unused)) = {0};
+    int64_t _14 __attribute__((unused)) = {0};
+    int64_t _15 __attribute__((unused)) = {0};
+    int64_t _16 __attribute__((unused)) = {0};
+    int64_t _17 __attribute__((unused)) = {0};
+    int64_t _18 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1751 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1752 "rt/rt_core.w"
+    /* StorageLive(_2); */
+    _3 = rt_alloc__172(48);
+    goto bb1;
+bb1:
+    _2 = _3;
+#line 1753 "rt/rt_core.w"
+    _4 = ((int64_t)(_2));
+    _5 = (uint8_t*)((uint8_t*)(0));
+    _6 = sm_set_values__529(_4, _5);
+    goto bb2;
+bb2:
+#line 1754 "rt/rt_core.w"
+    _7 = ((int64_t)(_2));
+    _8 = (uint8_t*)((uint8_t*)(0));
+    _9 = sm_set_occ__530(_7, _8);
+    goto bb3;
+bb3:
+#line 1755 "rt/rt_core.w"
+    _10 = ((int64_t)(_2));
+    _11 = (uint8_t*)((uint8_t*)(0));
+    _12 = sm_set_gens__531(_10, _11);
+    goto bb4;
+bb4:
+#line 1756 "rt/rt_core.w"
+    _13 = ((int64_t)(_2));
+    _14 = sm_set_len__532(_13, 0);
+    goto bb5;
+bb5:
+#line 1757 "rt/rt_core.w"
+    _15 = ((int64_t)(_2));
+    _16 = sm_set_cap__533(_15, 0);
+    goto bb6;
+bb6:
+#line 1758 "rt/rt_core.w"
+    _17 = ((int64_t)(_2));
+    _18 = sm_set_elem_size__534(_17, _1);
+    goto bb7;
+bb7:
+#line 1759 "rt/rt_core.w"
+    _0 = _2;
+    return _0;
+bb8: ;
+bb9: ;
+bb10: ;
+bb11: ;
+bb12: ;
+bb13: ;
+bb14: ;
+bb15: ;
+bb16: ;
+bb17: ;
+bb18: ;
+bb19: ;
+bb20: ;
+bb21: ;
+bb22: ;
+bb23: ;
+}
+
+void with_slotmap_insert_out(uint8_t* _1, uint8_t* _2, uint8_t* _3) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    bool _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    int64_t _10 __attribute__((unused)) = {0};
+    int64_t _11 __attribute__((unused)) = {0};
+    bool _12 __attribute__((unused)) = {0};
+    int32_t _13 __attribute__((unused)) = {0};
+    bool _14 __attribute__((unused)) = {0};
+    uint32_t _15 __attribute__((unused)) = {0};
+    uint32_t _16 __attribute__((unused)) = {0};
+    uint32_t _17 __attribute__((unused)) = {0};
+    uint32_t _18 __attribute__((unused)) = {0};
+    uint8_t* _19 __attribute__((unused)) = {0};
+    int64_t _20 __attribute__((unused)) = {0};
+    int32_t _21 __attribute__((unused)) = {0};
+    uint8_t _22 __attribute__((unused)) = {0};
+    int64_t _23 __attribute__((unused)) = {0};
+    int64_t _24 __attribute__((unused)) = {0};
+    int64_t _25 __attribute__((unused)) = {0};
+    uint32_t _26 __attribute__((unused)) = {0};
+    uint32_t _27 __attribute__((unused)) = {0};
+    int64_t _28 __attribute__((unused)) = {0};
+    uint8_t* _29 __attribute__((unused)) = {0};
+    with_str _30 __attribute__((unused)) = {0};
+    uint8_t* _31 __attribute__((unused)) = {0};
+    with_str _32 __attribute__((unused)) = {0};
+    int32_t _33 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1762 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1763 "rt/rt_core.w"
+    /* StorageLive(_4); */
+    _5 = ((int64_t)(_1));
+    _4 = _5;
+    _6 = sm_len__526(_4);
+    goto bb1;
+bb1:
+    _7 = sm_cap__527(_4);
+    goto bb2;
+bb2:
+#line 1764 "rt/rt_core.w"
+    _8 = (_6 >= _7);
+    if (_8 == 1) {
+        goto bb3;
+    }
+    else {
+        goto bb4;
+    }
+bb3:
+    _9 = sm_grow__542(_4);
+    goto bb6;
+bb4:
+    goto bb5;
+bb5:
+#line 1766 "rt/rt_core.w"
+    /* StorageLive(_10); */
+    _10 = 0;
+    goto bb7;
+bb6:
+    goto bb5;
+bb7:
+    _11 = sm_cap__527(_4);
+    goto bb10;
+bb8:
+    _13 = sm_occ_at__535(_4, _10);
+    goto bb11;
+bb9:
+#line 1777 "rt/rt_core.w"
+    _29 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("SlotMap insert failed to find a free slot").ptr));
+    _30 = make_str__103(_29, 41);
+    goto bb26;
+bb10:
+#line 1767 "rt/rt_core.w"
+    _12 = (_10 < _11);
+    if (_12 == 1) {
+        goto bb8;
+    }
+    else {
+        goto bb9;
+    }
+bb11:
+#line 1768 "rt/rt_core.w"
+    _14 = (_13 == 0);
+    if (_14 == 1) {
+        goto bb12;
+    }
+    else {
+        goto bb13;
+    }
+bb12:
+#line 1769 "rt/rt_core.w"
+    /* StorageLive(_15); */
+    _16 = sm_generation_at__537(_4, _10);
+    goto bb15;
+bb13:
+    goto bb14;
+bb14:
+#line 1776 "rt/rt_core.w"
+    _28 = (_10 + 1);
+    _10 = _28;
+    goto bb7;
+bb15:
+    _17 = sm_normalize_generation__540(_16);
+    goto bb16;
+bb16:
+#line 1769 "rt/rt_core.w"
+    _15 = _17;
+    _18 = sm_set_generation_at__538(_4, _10, _15);
+    goto bb17;
+bb17:
+    _19 = sm_value_ptr_at__539(_4, _10);
+    goto bb18;
+bb18:
+    _20 = sm_elem_size__528(_4);
+    goto bb19;
+bb19:
+    rt_memcpy__106(_19, _2, _20);
+    goto bb20;
+bb20:
+    _22 = sm_set_occ_at__536(_4, _10, 1);
+    goto bb21;
+bb21:
+    _23 = sm_len__526(_4);
+    goto bb22;
+bb22:
+#line 1773 "rt/rt_core.w"
+    _24 = (_23 + 1);
+    _25 = sm_set_len__532(_4, _24);
+    goto bb23;
+bb23:
+#line 1774 "rt/rt_core.w"
+    _26 = ((uint32_t)(_10));
+    _27 = sm_write_handle__549(_3, _26, _15);
+    goto bb24;
+bb24:
+#line 1775 "rt/rt_core.w"
+    _0 = (__typeof__(_0)){0};
+    return;
+bb25:
+    goto bb14;
+bb26:
+#line 1777 "rt/rt_core.w"
+    _31 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
+    _32 = make_str__103(_31, 0);
+    goto bb27;
+bb27:
+    with_panic_core(_30, _32, 0);
+    goto bb28;
+bb28:
+    return;
+bb29: ;
+bb30: ;
+bb31: ;
+bb32: ;
+bb33: ;
+bb34: ;
+bb35: ;
+bb36: ;
+bb37: ;
+bb38: ;
+bb39: ;
+bb40: ;
+bb41: ;
+bb42: ;
+bb43: ;
+bb44: ;
+bb45: ;
+bb46: ;
+bb47: ;
+bb48: ;
+bb49: ;
+bb50: ;
+bb51: ;
+bb52: ;
+bb53: ;
+bb54: ;
+bb55: ;
+bb56: ;
+}
+
+uint8_t* with_slotmap_get_ptr(uint8_t* _1, uint32_t _2, uint32_t _3) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int32_t _6 __attribute__((unused)) = {0};
+    bool _7 __attribute__((unused)) = {0};
+    uint8_t* _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    uint8_t* _10 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1780 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1781 "rt/rt_core.w"
+    /* StorageLive(_4); */
+    _5 = ((int64_t)(_1));
+    _4 = _5;
+    _6 = sm_valid__551(_4, _2, _3);
+    goto bb1;
+bb1:
+#line 1782 "rt/rt_core.w"
+    _7 = (_6 == 0);
+    if (_7 == 1) {
+        goto bb2;
+    }
+    else {
+        goto bb3;
+    }
+bb2:
+#line 1783 "rt/rt_core.w"
+    _8 = (uint8_t*)((uint8_t*)(0));
+    _0 = _8;
+    return _0;
+bb3:
+    goto bb4;
+bb4:
+#line 1784 "rt/rt_core.w"
+    _9 = ((int64_t)(_2));
+    _10 = sm_value_ptr_at__539(_4, _9);
+    goto bb6;
+bb5:
+    goto bb4;
+bb6:
+    _0 = _10;
+    return _0;
+bb7: ;
+bb8: ;
+bb9: ;
+bb10: ;
+bb11: ;
+bb12: ;
+bb13: ;
+}
+
+int32_t with_slotmap_contains(uint8_t* _1, uint32_t _2, uint32_t _3) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int32_t _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1787 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+#line 1788 "rt/rt_core.w"
+    _4 = ((int64_t)(_1));
+    _5 = sm_valid__551(_4, _2, _3);
+    goto bb1;
+bb1:
+    _0 = _5;
+    return _0;
+bb2: ;
+bb3: ;
+bb4: ;
+}
+
+int64_t with_slotmap_len(uint8_t* _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    bool _3 __attribute__((unused)) = {0};
+    int64_t _4 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1791 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1792 "rt/rt_core.w"
+    _2 = ((int64_t)(_1));
+    _3 = (_2 == 0);
+    if (_3 == 1) {
+        goto bb1;
+    }
+    else {
+        goto bb2;
+    }
+bb1:
+#line 1793 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb2:
+    goto bb3;
+bb3:
+#line 1794 "rt/rt_core.w"
+    _4 = ((int64_t)(_1));
+    _5 = sm_len__526(_4);
+    goto bb5;
+bb4:
+    goto bb3;
+bb5:
+    _0 = _5;
+    return _0;
+bb6: ;
+}
+
+int32_t with_slotmap_remove(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int32_t _7 __attribute__((unused)) = {0};
+    bool _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    int64_t _10 __attribute__((unused)) = {0};
+    int64_t _11 __attribute__((unused)) = {0};
+    bool _12 __attribute__((unused)) = {0};
+    uint8_t* _13 __attribute__((unused)) = {0};
+    uint8_t* _14 __attribute__((unused)) = {0};
+    int64_t _15 __attribute__((unused)) = {0};
+    int32_t _16 __attribute__((unused)) = {0};
+    uint8_t _17 __attribute__((unused)) = {0};
+    uint32_t _18 __attribute__((unused)) = {0};
+    uint32_t _19 __attribute__((unused)) = {0};
+    uint32_t _20 __attribute__((unused)) = {0};
+    uint32_t _21 __attribute__((unused)) = {0};
+    bool _22 __attribute__((unused)) = {0};
+    uint32_t _23 __attribute__((unused)) = {0};
+    uint32_t _24 __attribute__((unused)) = {0};
+    int64_t _25 __attribute__((unused)) = {0};
+    int64_t _26 __attribute__((unused)) = {0};
+    int64_t _27 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1797 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+    /* StorageLive(_4); */
+#line 1798 "rt/rt_core.w"
+    /* StorageLive(_5); */
+    _6 = ((int64_t)(_1));
+    _5 = _6;
+    _7 = sm_valid__551(_5, _2, _3);
+    goto bb1;
+bb1:
+#line 1799 "rt/rt_core.w"
+    _8 = (_7 == 0);
+    if (_8 == 1) {
+        goto bb2;
+    }
+    else {
+        goto bb3;
+    }
+bb2:
+#line 1800 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb3:
+    goto bb4;
+bb4:
+#line 1801 "rt/rt_core.w"
+    /* StorageLive(_9); */
+    _10 = ((int64_t)(_2));
+    _9 = _10;
+#line 1802 "rt/rt_core.w"
+    _11 = ((int64_t)(_4));
+    _12 = (_11 != 0);
+    if (_12 == 1) {
+        goto bb6;
+    }
+    else {
+        goto bb7;
+    }
+bb5:
+    goto bb4;
+bb6:
+    _13 = sm_value_ptr_at__539(_5, _9);
+    goto bb9;
+bb7:
+    goto bb8;
+bb8:
+    _17 = sm_set_occ_at__536(_5, _9, 0);
+    goto bb12;
+bb9:
+#line 1803 "rt/rt_core.w"
+    _14 = (uint8_t*)((uint8_t*)(_13));
+    _15 = sm_elem_size__528(_5);
+    goto bb10;
+bb10:
+    rt_memcpy__106(_4, _14, _15);
+    goto bb11;
+bb11:
+    goto bb8;
+bb12:
+#line 1805 "rt/rt_core.w"
+    /* StorageLive(_18); */
+    _19 = ((uint32_t)(1));
+    _20 = (_3 + _19);
+    _18 = _20;
+#line 1806 "rt/rt_core.w"
+    _21 = ((uint32_t)(0));
+    _22 = (_18 == _21);
+    if (_22 == 1) {
+        goto bb13;
+    }
+    else {
+        goto bb14;
+    }
+bb13:
+#line 1807 "rt/rt_core.w"
+    _23 = ((uint32_t)(1));
+    _18 = _23;
+    goto bb15;
+bb14:
+    goto bb15;
+bb15:
+    _24 = sm_set_generation_at__538(_5, _9, _18);
+    goto bb16;
+bb16:
+    _25 = sm_len__526(_5);
+    goto bb17;
+bb17:
+#line 1809 "rt/rt_core.w"
+    _26 = (_25 - 1);
+    _27 = sm_set_len__532(_5, _26);
+    goto bb18;
+bb18:
+#line 1810 "rt/rt_core.w"
+    _0 = 1;
+    return _0;
+bb19: ;
+bb20: ;
+bb21: ;
+bb22: ;
+bb23: ;
+bb24: ;
+bb25: ;
+bb26: ;
+bb27: ;
+bb28: ;
+bb29: ;
+bb30: ;
+bb31: ;
+bb32: ;
+bb33: ;
+bb34: ;
+bb35: ;
+bb36: ;
+bb37: ;
+bb38: ;
+bb39: ;
+bb40: ;
+bb41: ;
+bb42: ;
+bb43: ;
+}
+
+int32_t with_slotmap_replace(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4, uint8_t* _5) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int64_t _7 __attribute__((unused)) = {0};
+    int32_t _8 __attribute__((unused)) = {0};
+    bool _9 __attribute__((unused)) = {0};
+    uint8_t* _10 __attribute__((unused)) = {0};
+    int64_t _11 __attribute__((unused)) = {0};
+    uint8_t* _12 __attribute__((unused)) = {0};
+    int64_t _13 __attribute__((unused)) = {0};
+    bool _14 __attribute__((unused)) = {0};
+    uint8_t* _15 __attribute__((unused)) = {0};
+    int64_t _16 __attribute__((unused)) = {0};
+    int32_t _17 __attribute__((unused)) = {0};
+    int64_t _18 __attribute__((unused)) = {0};
+    int32_t _19 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1813 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+    /* StorageLive(_4); */
+    /* StorageLive(_5); */
+#line 1814 "rt/rt_core.w"
+    /* StorageLive(_6); */
+    _7 = ((int64_t)(_1));
+    _6 = _7;
+    _8 = sm_valid__551(_6, _2, _3);
+    goto bb1;
+bb1:
+#line 1815 "rt/rt_core.w"
+    _9 = (_8 == 0);
+    if (_9 == 1) {
+        goto bb2;
+    }
+    else {
+        goto bb3;
+    }
+bb2:
+#line 1816 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb3:
+    goto bb4;
+bb4:
+#line 1817 "rt/rt_core.w"
+    /* StorageLive(_10); */
+    _11 = ((int64_t)(_2));
+    _12 = sm_value_ptr_at__539(_6, _11);
+    goto bb6;
+bb5:
+    goto bb4;
+bb6:
+    _10 = _12;
+#line 1818 "rt/rt_core.w"
+    _13 = ((int64_t)(_5));
+    _14 = (_13 != 0);
+    if (_14 == 1) {
+        goto bb7;
+    }
+    else {
+        goto bb8;
+    }
+bb7:
+#line 1819 "rt/rt_core.w"
+    _15 = (uint8_t*)((uint8_t*)(_10));
+    _16 = sm_elem_size__528(_6);
+    goto bb10;
+bb8:
+    goto bb9;
+bb9:
+    _18 = sm_elem_size__528(_6);
+    goto bb12;
+bb10:
+    rt_memcpy__106(_5, _15, _16);
+    goto bb11;
+bb11:
+    goto bb9;
+bb12:
+    rt_memcpy__106(_10, _4, _18);
+    goto bb13;
+bb13:
+#line 1821 "rt/rt_core.w"
+    _0 = 1;
+    return _0;
+bb14: ;
+bb15: ;
+bb16: ;
+bb17: ;
+bb18: ;
+bb19: ;
+bb20: ;
+bb21: ;
+bb22: ;
+bb23: ;
+bb24: ;
+bb25: ;
+bb26: ;
+bb27: ;
+}
+
+int32_t with_slotmap_set(uint8_t* _1, uint32_t _2, uint32_t _3, uint8_t* _4) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _5 __attribute__((unused)) = {0};
+    int64_t _6 __attribute__((unused)) = {0};
+    int32_t _7 __attribute__((unused)) = {0};
+    bool _8 __attribute__((unused)) = {0};
+    int64_t _9 __attribute__((unused)) = {0};
+    uint8_t* _10 __attribute__((unused)) = {0};
+    int64_t _11 __attribute__((unused)) = {0};
+    int32_t _12 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1824 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+    /* StorageLive(_3); */
+    /* StorageLive(_4); */
+#line 1825 "rt/rt_core.w"
+    /* StorageLive(_5); */
+    _6 = ((int64_t)(_1));
+    _5 = _6;
+    _7 = sm_valid__551(_5, _2, _3);
+    goto bb1;
+bb1:
+#line 1826 "rt/rt_core.w"
+    _8 = (_7 == 0);
+    if (_8 == 1) {
+        goto bb2;
+    }
+    else {
+        goto bb3;
+    }
+bb2:
+#line 1827 "rt/rt_core.w"
+    _0 = 0;
+    return _0;
+bb3:
+    goto bb4;
+bb4:
+#line 1828 "rt/rt_core.w"
+    _9 = ((int64_t)(_2));
+    _10 = sm_value_ptr_at__539(_5, _9);
+    goto bb6;
+bb5:
+    goto bb4;
+bb6:
+    _11 = sm_elem_size__528(_5);
+    goto bb7;
+bb7:
+    rt_memcpy__106(_10, _4, _11);
+    goto bb8;
+bb8:
+#line 1829 "rt/rt_core.w"
+    _0 = 1;
+    return _0;
+bb9: ;
+bb10: ;
+bb11: ;
+bb12: ;
+bb13: ;
+bb14: ;
+bb15: ;
+bb16: ;
+}
+
+uint8_t* hm_keys__581(int64_t _1) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    uint8_t** _2 __attribute__((unused)) = {0};
+    uint8_t** _3 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1851 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1852 "rt/rt_core.w"
+    _2 = (uint8_t**)((uint8_t**)(_1));
+    _3 = _2;
+    _0 = (*_3);
+    return _0;
+}
+
+uint8_t* hm_vals__582(int64_t _1) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    uint8_t** _3 __attribute__((unused)) = {0};
+    uint8_t** _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1853 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1854 "rt/rt_core.w"
+    _2 = (_1 + 8);
+    _3 = (uint8_t**)((uint8_t**)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+uint8_t* hm_occ__583(int64_t _1) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    uint8_t** _3 __attribute__((unused)) = {0};
+    uint8_t** _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1855 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1856 "rt/rt_core.w"
+    _2 = (_1 + 16);
+    _3 = (uint8_t**)((uint8_t**)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t hm_cap__584(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1857 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1858 "rt/rt_core.w"
+    _2 = (_1 + 24);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t hm_len__585(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1859 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1860 "rt/rt_core.w"
+    _2 = (_1 + 32);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t hm_key_size__586(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1861 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1862 "rt/rt_core.w"
+    _2 = (_1 + 40);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int64_t hm_val_size__587(int64_t _1) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int64_t* _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1863 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1864 "rt/rt_core.w"
+    _2 = (_1 + 48);
+    _3 = (int64_t*)((int64_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+int32_t hm_is_str_key__588(int64_t _1) {
+    int32_t _0 __attribute__((unused)) = {0};
+    int64_t _2 __attribute__((unused)) = {0};
+    int32_t* _3 __attribute__((unused)) = {0};
+    int32_t* _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1865 "rt/rt_core.w"
+    /* StorageLive(_1); */
+#line 1866 "rt/rt_core.w"
+    _2 = (_1 + 56);
+    _3 = (int32_t*)((int32_t*)(_2));
+    _4 = _3;
+    _0 = (*_4);
+    return _0;
+}
+
+uint8_t* hm_set_keys__589(int64_t _1, uint8_t* _2) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    uint8_t** _3 __attribute__((unused)) = {0};
+    uint8_t** _4 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1868 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1869 "rt/rt_core.w"
+    _3 = (uint8_t**)((uint8_t**)(_1));
+    _4 = _3;
+    (*_4) = _2;
+    _0 = _2;
+    return _0;
+}
+
+uint8_t* hm_set_vals__590(int64_t _1, uint8_t* _2) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    uint8_t** _4 __attribute__((unused)) = {0};
+    uint8_t** _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1870 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1871 "rt/rt_core.w"
+    _3 = (_1 + 8);
+    _4 = (uint8_t**)((uint8_t**)(_3));
+    _5 = _4;
+    (*_5) = _2;
+    _0 = _2;
+    return _0;
+}
+
+uint8_t* hm_set_occ__591(int64_t _1, uint8_t* _2) {
+    uint8_t* _0 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    uint8_t** _4 __attribute__((unused)) = {0};
+    uint8_t** _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1872 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1873 "rt/rt_core.w"
+    _3 = (_1 + 16);
+    _4 = (uint8_t**)((uint8_t**)(_3));
+    _5 = _4;
+    (*_5) = _2;
+    _0 = _2;
+    return _0;
+}
+
+int64_t hm_set_cap__592(int64_t _1, int64_t _2) {
     int64_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int64_t* _4 __attribute__((unused)) = {0};
     int64_t* _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1700 "rt/rt_core.w"
+#line 1874 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1701 "rt/rt_core.w"
+#line 1875 "rt/rt_core.w"
+    _3 = (_1 + 24);
+    _4 = (int64_t*)((int64_t*)(_3));
+    _5 = _4;
+    (*_5) = _2;
+    _0 = _2;
+    return _0;
+}
+
+int64_t hm_set_len__593(int64_t _1, int64_t _2) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    int64_t* _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1876 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1877 "rt/rt_core.w"
+    _3 = (_1 + 32);
+    _4 = (int64_t*)((int64_t*)(_3));
+    _5 = _4;
+    (*_5) = _2;
+    _0 = _2;
+    return _0;
+}
+
+int64_t hm_set_key_size__594(int64_t _1, int64_t _2) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    int64_t* _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1878 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1879 "rt/rt_core.w"
+    _3 = (_1 + 40);
+    _4 = (int64_t*)((int64_t*)(_3));
+    _5 = _4;
+    (*_5) = _2;
+    _0 = _2;
+    return _0;
+}
+
+int64_t hm_set_val_size__595(int64_t _1, int64_t _2) {
+    int64_t _0 __attribute__((unused)) = {0};
+    int64_t _3 __attribute__((unused)) = {0};
+    int64_t* _4 __attribute__((unused)) = {0};
+    int64_t* _5 __attribute__((unused)) = {0};
+    goto bb0;
+bb0:
+#line 1880 "rt/rt_core.w"
+    /* StorageLive(_1); */
+    /* StorageLive(_2); */
+#line 1881 "rt/rt_core.w"
     _3 = (_1 + 48);
     _4 = (int64_t*)((int64_t*)(_3));
     _5 = _4;
@@ -21071,17 +22621,17 @@ bb0:
     return _0;
 }
 
-int32_t hm_set_is_str_key__540(int64_t _1, int32_t _2) {
+int32_t hm_set_is_str_key__596(int64_t _1, int32_t _2) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
     int32_t* _4 __attribute__((unused)) = {0};
     int32_t* _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1702 "rt/rt_core.w"
+#line 1882 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1703 "rt/rt_core.w"
+#line 1883 "rt/rt_core.w"
     _3 = (_1 + 56);
     _4 = (int32_t*)((int32_t*)(_3));
     _5 = _4;
@@ -21103,18 +22653,18 @@ uint64_t fnv_hash__431(uint8_t* _1, int64_t _2) {
     int64_t _11 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1706 "rt/rt_core.w"
+#line 1886 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1708 "rt/rt_core.w"
+#line 1888 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = ((uint64_t)(((uint64_t)0xCBF29CE484222325ULL)));
-#line 1709 "rt/rt_core.w"
+#line 1889 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = 0;
     goto bb1;
 bb1:
-#line 1710 "rt/rt_core.w"
+#line 1890 "rt/rt_core.w"
     _5 = (_4 < _2);
     if (_5 == 1) {
         goto bb2;
@@ -21123,28 +22673,28 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 1711 "rt/rt_core.w"
+#line 1891 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = _4;
     _6 = _1[_7];
-#line 1712 "rt/rt_core.w"
+#line 1892 "rt/rt_core.w"
     _8 = ((uint64_t)(_6));
     _9 = (_3 ^ _8);
     _3 = _9;
-#line 1714 "rt/rt_core.w"
+#line 1894 "rt/rt_core.w"
     _10 = (_3 * 1099511628211);
     _3 = _10;
-#line 1715 "rt/rt_core.w"
+#line 1895 "rt/rt_core.w"
     _11 = (_4 + 1);
     _4 = _11;
     goto bb1;
 bb3:
-#line 1716 "rt/rt_core.w"
+#line 1896 "rt/rt_core.w"
     _0 = _3;
     return _0;
 }
 
-uint64_t hm_hash_key__543(int64_t _1, uint8_t* _2) {
+uint64_t hm_hash_key__599(int64_t _1, uint8_t* _2) {
     uint64_t _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     bool _4 __attribute__((unused)) = {0};
@@ -21161,13 +22711,13 @@ uint64_t hm_hash_key__543(int64_t _1, uint8_t* _2) {
     uint64_t _15 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1718 "rt/rt_core.w"
+#line 1898 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-    _3 = hm_is_str_key__532(_1);
+    _3 = hm_is_str_key__588(_1);
     goto bb1;
 bb1:
-#line 1719 "rt/rt_core.w"
+#line 1899 "rt/rt_core.w"
     _4 = (_3 != 0);
     if (_4 == 1) {
         goto bb2;
@@ -21176,12 +22726,12 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 1721 "rt/rt_core.w"
+#line 1901 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = (uint8_t**)((uint8_t**)(_2));
     _7 = _6;
     _5 = (*_7);
-#line 1722 "rt/rt_core.w"
+#line 1902 "rt/rt_core.w"
     /* StorageLive(_8); */
     _9 = ((int64_t)(_2));
     _10 = (_9 + 8);
@@ -21193,10 +22743,10 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-    _14 = hm_key_size__530(_1);
+    _14 = hm_key_size__586(_1);
     goto bb7;
 bb5:
-#line 1723 "rt/rt_core.w"
+#line 1903 "rt/rt_core.w"
     _0 = _13;
     return _0;
 bb6:
@@ -21205,7 +22755,7 @@ bb7:
     _15 = fnv_hash__431(_2, _14);
     goto bb8;
 bb8:
-#line 1724 "rt/rt_core.w"
+#line 1904 "rt/rt_core.w"
     _0 = _15;
     return _0;
 bb9: ;
@@ -21224,7 +22774,7 @@ bb21: ;
 bb22: ;
 }
 
-int32_t hm_keys_eq__547(int64_t _1, uint8_t* _2, uint8_t* _3) {
+int32_t hm_keys_eq__603(int64_t _1, uint8_t* _2, uint8_t* _3) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
     bool _5 __attribute__((unused)) = {0};
@@ -21255,14 +22805,14 @@ int32_t hm_keys_eq__547(int64_t _1, uint8_t* _2, uint8_t* _3) {
     int32_t _30 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1726 "rt/rt_core.w"
+#line 1906 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-    _4 = hm_is_str_key__532(_1);
+    _4 = hm_is_str_key__588(_1);
     goto bb1;
 bb1:
-#line 1727 "rt/rt_core.w"
+#line 1907 "rt/rt_core.w"
     _5 = (_4 != 0);
     if (_5 == 1) {
         goto bb2;
@@ -21271,31 +22821,31 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 1728 "rt/rt_core.w"
+#line 1908 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = (uint8_t**)((uint8_t**)(_2));
     _8 = _7;
     _6 = (*_8);
-#line 1729 "rt/rt_core.w"
+#line 1909 "rt/rt_core.w"
     /* StorageLive(_9); */
     _10 = ((int64_t)(_2));
     _11 = (_10 + 8);
     _12 = (int64_t*)((int64_t*)(_11));
     _13 = _12;
     _9 = (*_13);
-#line 1730 "rt/rt_core.w"
+#line 1910 "rt/rt_core.w"
     /* StorageLive(_14); */
     _15 = (uint8_t**)((uint8_t**)(_3));
     _16 = _15;
     _14 = (*_16);
-#line 1731 "rt/rt_core.w"
+#line 1911 "rt/rt_core.w"
     /* StorageLive(_17); */
     _18 = ((int64_t)(_3));
     _19 = (_18 + 8);
     _20 = (int64_t*)((int64_t*)(_19));
     _21 = _20;
     _17 = (*_21);
-#line 1732 "rt/rt_core.w"
+#line 1912 "rt/rt_core.w"
     _22 = (_9 != _17);
     if (_22 == 1) {
         goto bb5;
@@ -21306,7 +22856,7 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-    _27 = hm_key_size__530(_1);
+    _27 = hm_key_size__586(_1);
     goto bb18;
 bb5:
     _0 = 0;
@@ -21314,7 +22864,7 @@ bb5:
 bb6:
     goto bb7;
 bb7:
-#line 1733 "rt/rt_core.w"
+#line 1913 "rt/rt_core.w"
     _23 = (_9 == 0);
     if (_23 == 1) {
         goto bb9;
@@ -21335,7 +22885,7 @@ bb11:
 bb12:
     goto bb11;
 bb13:
-#line 1734 "rt/rt_core.w"
+#line 1914 "rt/rt_core.w"
     _25 = (_24 == 0);
     if (_25 == 1) {
         goto bb14;
@@ -21358,7 +22908,7 @@ bb18:
     _28 = rt_memcmp__107(_2, _3, _27);
     goto bb19;
 bb19:
-#line 1735 "rt/rt_core.w"
+#line 1915 "rt/rt_core.w"
     _29 = (_28 == 0);
     if (_29 == 1) {
         goto bb20;
@@ -21400,7 +22950,7 @@ bb44: ;
 bb45: ;
 }
 
-void hm_grow__552(int64_t _1) {
+void hm_grow__608(int64_t _1) {
     int32_t _0 __attribute__((unused)) = {0};
     int64_t _2 __attribute__((unused)) = {0};
     int64_t _3 __attribute__((unused)) = {0};
@@ -21484,88 +23034,88 @@ void hm_grow__552(int64_t _1) {
     int32_t _81 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1737 "rt/rt_core.w"
+#line 1917 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1738 "rt/rt_core.w"
+#line 1918 "rt/rt_core.w"
     /* StorageLive(_2); */
-    _3 = hm_cap__528(_1);
+    _3 = hm_cap__584(_1);
     goto bb1;
 bb1:
     _2 = _3;
-#line 1739 "rt/rt_core.w"
+#line 1919 "rt/rt_core.w"
     /* StorageLive(_4); */
-    _5 = hm_keys__524(_1);
+    _5 = hm_keys__581(_1);
     goto bb2;
 bb2:
     _4 = _5;
-#line 1740 "rt/rt_core.w"
+#line 1920 "rt/rt_core.w"
     /* StorageLive(_6); */
-    _7 = hm_vals__526(_1);
+    _7 = hm_vals__582(_1);
     goto bb3;
 bb3:
     _6 = _7;
-#line 1741 "rt/rt_core.w"
+#line 1921 "rt/rt_core.w"
     /* StorageLive(_8); */
-    _9 = hm_occ__527(_1);
+    _9 = hm_occ__583(_1);
     goto bb4;
 bb4:
     _8 = _9;
-#line 1742 "rt/rt_core.w"
+#line 1922 "rt/rt_core.w"
     /* StorageLive(_10); */
-    _11 = hm_key_size__530(_1);
+    _11 = hm_key_size__586(_1);
     goto bb5;
 bb5:
     _10 = _11;
-#line 1743 "rt/rt_core.w"
+#line 1923 "rt/rt_core.w"
     /* StorageLive(_12); */
-    _13 = hm_val_size__531(_1);
+    _13 = hm_val_size__587(_1);
     goto bb6;
 bb6:
     _12 = _13;
-#line 1745 "rt/rt_core.w"
+#line 1925 "rt/rt_core.w"
     /* StorageLive(_14); */
     _15 = (_2 * 2);
     _14 = _15;
-    _16 = hm_set_cap__536(_1, _14);
+    _16 = hm_set_cap__592(_1, _14);
     goto bb7;
 bb7:
-#line 1747 "rt/rt_core.w"
+#line 1927 "rt/rt_core.w"
     _17 = (_14 * _10);
     _18 = rt_alloc__172(_17);
     goto bb8;
 bb8:
-    _19 = hm_set_keys__533(_1, _18);
+    _19 = hm_set_keys__589(_1, _18);
     goto bb9;
 bb9:
-#line 1748 "rt/rt_core.w"
+#line 1928 "rt/rt_core.w"
     _20 = (_14 * _12);
     _21 = rt_alloc__172(_20);
     goto bb10;
 bb10:
-    _22 = hm_set_vals__534(_1, _21);
+    _22 = hm_set_vals__590(_1, _21);
     goto bb11;
 bb11:
     _23 = rt_alloc__172(_14);
     goto bb12;
 bb12:
-    _24 = hm_set_occ__535(_1, _23);
+    _24 = hm_set_occ__591(_1, _23);
     goto bb13;
 bb13:
-    _25 = hm_occ__527(_1);
+    _25 = hm_occ__583(_1);
     goto bb14;
 bb14:
     rt_memset__112(_25, 0, _14);
     goto bb15;
 bb15:
-    _27 = hm_set_len__537(_1, 0);
+    _27 = hm_set_len__593(_1, 0);
     goto bb16;
 bb16:
-#line 1753 "rt/rt_core.w"
+#line 1933 "rt/rt_core.w"
     /* StorageLive(_28); */
     _28 = 0;
     goto bb17;
 bb17:
-#line 1754 "rt/rt_core.w"
+#line 1934 "rt/rt_core.w"
     _29 = (_28 < _2);
     if (_29 == 1) {
         goto bb18;
@@ -21574,7 +23124,7 @@ bb17:
         goto bb19;
     }
 bb18:
-#line 1755 "rt/rt_core.w"
+#line 1935 "rt/rt_core.w"
     _30 = _28;
     _31 = (_8[_30] != 0);
     if (_31 == 1) {
@@ -21584,48 +23134,48 @@ bb18:
         goto bb21;
     }
 bb19:
-#line 1768 "rt/rt_core.w"
+#line 1948 "rt/rt_core.w"
     _77 = (_2 * _10);
     rt_free_sized__175(_4, _77);
     goto bb35;
 bb20:
-#line 1756 "rt/rt_core.w"
+#line 1936 "rt/rt_core.w"
     /* StorageLive(_32); */
     _33 = ((int64_t)(_4));
     _34 = (_28 * _10);
     _35 = (_33 + _34);
     _36 = (uint8_t*)((uint8_t*)(_35));
     _32 = _36;
-#line 1757 "rt/rt_core.w"
+#line 1937 "rt/rt_core.w"
     /* StorageLive(_37); */
     _38 = ((int64_t)(_6));
     _39 = (_28 * _12);
     _40 = (_38 + _39);
     _41 = (uint8_t*)((uint8_t*)(_40));
     _37 = _41;
-#line 1759 "rt/rt_core.w"
+#line 1939 "rt/rt_core.w"
     /* StorageLive(_42); */
-    _43 = hm_hash_key__543(_1, _32);
+    _43 = hm_hash_key__599(_1, _32);
     goto bb23;
 bb21:
     goto bb22;
 bb22:
-#line 1766 "rt/rt_core.w"
+#line 1946 "rt/rt_core.w"
     _76 = (_28 + 1);
     _28 = _76;
     goto bb17;
 bb23:
-#line 1759 "rt/rt_core.w"
+#line 1939 "rt/rt_core.w"
     _44 = ((uint64_t)(_14));
     _45 = (_43 % _44);
     _46 = ((int64_t)(_45));
     _42 = _46;
     goto bb24;
 bb24:
-    _47 = hm_occ__527(_1);
+    _47 = hm_occ__583(_1);
     goto bb27;
 bb25:
-#line 1761 "rt/rt_core.w"
+#line 1941 "rt/rt_core.w"
     _51 = (_42 + 1);
     _52 = ((uint64_t)(_51));
     _53 = ((uint64_t)(_14));
@@ -21634,10 +23184,10 @@ bb25:
     _42 = _55;
     goto bb24;
 bb26:
-    _56 = hm_keys__524(_1);
+    _56 = hm_keys__581(_1);
     goto bb28;
 bb27:
-#line 1760 "rt/rt_core.w"
+#line 1940 "rt/rt_core.w"
     _48 = _47;
     _49 = _42;
     _50 = (_48[_49] != 0);
@@ -21648,7 +23198,7 @@ bb27:
         goto bb26;
     }
 bb28:
-#line 1762 "rt/rt_core.w"
+#line 1942 "rt/rt_core.w"
     _57 = ((int64_t)(_56));
     _58 = (_42 * _10);
     _59 = (_57 + _58);
@@ -21656,10 +23206,10 @@ bb28:
     rt_memcpy__106(_60, _32, _10);
     goto bb29;
 bb29:
-    _62 = hm_vals__526(_1);
+    _62 = hm_vals__582(_1);
     goto bb30;
 bb30:
-#line 1763 "rt/rt_core.w"
+#line 1943 "rt/rt_core.w"
     _63 = ((int64_t)(_62));
     _64 = (_42 * _12);
     _65 = (_63 + _64);
@@ -21667,26 +23217,26 @@ bb30:
     rt_memcpy__106(_66, _37, _12);
     goto bb31;
 bb31:
-    _68 = hm_occ__527(_1);
+    _68 = hm_occ__583(_1);
     goto bb32;
 bb32:
-#line 1764 "rt/rt_core.w"
+#line 1944 "rt/rt_core.w"
     _69 = ((int64_t)(_68));
     _70 = (_69 + _42);
     _71 = (uint8_t*)((uint8_t*)(_70));
     _72 = _71;
     (*_72) = 1;
-    _73 = hm_len__529(_1);
+    _73 = hm_len__585(_1);
     goto bb33;
 bb33:
-#line 1765 "rt/rt_core.w"
+#line 1945 "rt/rt_core.w"
     _74 = (_73 + 1);
-    _75 = hm_set_len__537(_1, _74);
+    _75 = hm_set_len__593(_1, _74);
     goto bb34;
 bb34:
     goto bb22;
 bb35:
-#line 1769 "rt/rt_core.w"
+#line 1949 "rt/rt_core.w"
     _79 = (_2 * _12);
     rt_free_sized__175(_6, _79);
     goto bb36;
@@ -21829,32 +23379,32 @@ uint8_t* with_hashmap_new(int64_t _1, int64_t _2) {
     int32_t _23 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1773 "rt/rt_core.w"
+#line 1953 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1774 "rt/rt_core.w"
+#line 1954 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = rt_alloc__172(64);
     goto bb1;
 bb1:
     _3 = _4;
-#line 1775 "rt/rt_core.w"
+#line 1955 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_3));
     _5 = _6;
-    _7 = hm_set_cap__536(_5, 16);
+    _7 = hm_set_cap__592(_5, 16);
     goto bb2;
 bb2:
-    _8 = hm_set_len__537(_5, 0);
+    _8 = hm_set_len__593(_5, 0);
     goto bb3;
 bb3:
-    _9 = hm_set_key_size__538(_5, _1);
+    _9 = hm_set_key_size__594(_5, _1);
     goto bb4;
 bb4:
-    _10 = hm_set_val_size__539(_5, _2);
+    _10 = hm_set_val_size__595(_5, _2);
     goto bb5;
 bb5:
-#line 1781 "rt/rt_core.w"
+#line 1961 "rt/rt_core.w"
     _11 = (_1 == 16);
     if (_11 == 1) {
         goto bb6;
@@ -21869,38 +23419,38 @@ bb7:
     _12 = 0;
     goto bb8;
 bb8:
-    _13 = hm_set_is_str_key__540(_5, _12);
+    _13 = hm_set_is_str_key__596(_5, _12);
     goto bb9;
 bb9:
-#line 1782 "rt/rt_core.w"
+#line 1962 "rt/rt_core.w"
     _14 = (16 * _1);
     _15 = rt_alloc__172(_14);
     goto bb10;
 bb10:
-    _16 = hm_set_keys__533(_5, _15);
+    _16 = hm_set_keys__589(_5, _15);
     goto bb11;
 bb11:
-#line 1783 "rt/rt_core.w"
+#line 1963 "rt/rt_core.w"
     _17 = (16 * _2);
     _18 = rt_alloc__172(_17);
     goto bb12;
 bb12:
-    _19 = hm_set_vals__534(_5, _18);
+    _19 = hm_set_vals__590(_5, _18);
     goto bb13;
 bb13:
     _20 = rt_alloc__172(16);
     goto bb14;
 bb14:
-    _21 = hm_set_occ__535(_5, _20);
+    _21 = hm_set_occ__591(_5, _20);
     goto bb15;
 bb15:
-    _22 = hm_occ__527(_5);
+    _22 = hm_occ__583(_5);
     goto bb16;
 bb16:
     rt_memset__112(_22, 0, 16);
     goto bb17;
 bb17:
-#line 1786 "rt/rt_core.w"
+#line 1966 "rt/rt_core.w"
     _0 = _3;
     return _0;
 bb18: ;
@@ -21928,14 +23478,14 @@ uint8_t* with_hashmap_new_out(uint8_t** _1, int64_t _2, int64_t _3) {
     uint8_t* _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1789 "rt/rt_core.w"
+#line 1969 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     _4 = with_hashmap_new(_2, _3);
     goto bb1;
 bb1:
-#line 1790 "rt/rt_core.w"
+#line 1970 "rt/rt_core.w"
     (*_1) = _4;
     _0 = _4;
     return _0;
@@ -21951,12 +23501,12 @@ uint8_t* with_hashmap_new_at(uint8_t* _1, int64_t _2, int64_t _3, int64_t _4) {
     uint8_t* _9 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1793 "rt/rt_core.w"
+#line 1973 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 1794 "rt/rt_core.w"
+#line 1974 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_1));
     _7 = (_6 + _2);
@@ -21965,7 +23515,7 @@ bb0:
     _9 = with_hashmap_new(_3, _4);
     goto bb1;
 bb1:
-#line 1795 "rt/rt_core.w"
+#line 1975 "rt/rt_core.w"
     (*_5) = _9;
     _0 = _9;
     return _0;
@@ -22045,16 +23595,16 @@ int64_t with_hashmap_insert(uint8_t* _1, uint8_t* _2, uint8_t* _3, int64_t _4) {
     int64_t _67 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1798 "rt/rt_core.w"
+#line 1978 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 1799 "rt/rt_core.w"
+#line 1979 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_1));
     _5 = _6;
-#line 1801 "rt/rt_core.w"
+#line 1981 "rt/rt_core.w"
     _7 = (_4 != 0);
     if (_7 == 1) {
         goto bb1;
@@ -22063,19 +23613,19 @@ bb0:
         goto bb2;
     }
 bb1:
-    _8 = hm_set_is_str_key__540(_5, 1);
+    _8 = hm_set_is_str_key__596(_5, 1);
     goto bb4;
 bb2:
     goto bb3;
 bb3:
-    _9 = hm_len__529(_5);
+    _9 = hm_len__585(_5);
     goto bb5;
 bb4:
     goto bb3;
 bb5:
-#line 1804 "rt/rt_core.w"
+#line 1984 "rt/rt_core.w"
     _10 = (_9 * 10);
-    _11 = hm_cap__528(_5);
+    _11 = hm_cap__584(_5);
     goto bb6;
 bb6:
     _12 = (_11 * 7);
@@ -22087,34 +23637,34 @@ bb6:
         goto bb8;
     }
 bb7:
-    hm_grow__552(_5);
+    hm_grow__608(_5);
     goto bb10;
 bb8:
     goto bb9;
 bb9:
-#line 1807 "rt/rt_core.w"
+#line 1987 "rt/rt_core.w"
     /* StorageLive(_15); */
-    _16 = hm_cap__528(_5);
+    _16 = hm_cap__584(_5);
     goto bb11;
 bb10:
     goto bb9;
 bb11:
     _15 = _16;
-#line 1808 "rt/rt_core.w"
+#line 1988 "rt/rt_core.w"
     /* StorageLive(_17); */
-    _18 = hm_key_size__530(_5);
+    _18 = hm_key_size__586(_5);
     goto bb12;
 bb12:
     _17 = _18;
-#line 1809 "rt/rt_core.w"
+#line 1989 "rt/rt_core.w"
     /* StorageLive(_19); */
-    _20 = hm_val_size__531(_5);
+    _20 = hm_val_size__587(_5);
     goto bb13;
 bb13:
     _19 = _20;
-#line 1811 "rt/rt_core.w"
+#line 1991 "rt/rt_core.w"
     /* StorageLive(_21); */
-    _22 = hm_hash_key__543(_5, _2);
+    _22 = hm_hash_key__599(_5, _2);
     goto bb14;
 bb14:
     _23 = ((uint64_t)(_15));
@@ -22125,13 +23675,13 @@ bb14:
 bb15:
     goto bb16;
 bb16:
-    _26 = hm_occ__527(_5);
+    _26 = hm_occ__583(_5);
     goto bb18;
 bb17:
-    _48 = hm_keys__524(_5);
+    _48 = hm_keys__581(_5);
     goto bb31;
 bb18:
-#line 1813 "rt/rt_core.w"
+#line 1993 "rt/rt_core.w"
     _27 = _26;
     _28 = _21;
     _29 = (_27[_28] == 0);
@@ -22146,17 +23696,17 @@ bb19:
 bb20:
     goto bb21;
 bb21:
-    _30 = hm_keys__524(_5);
+    _30 = hm_keys__581(_5);
     goto bb23;
 bb22:
     goto bb21;
 bb23:
-#line 1815 "rt/rt_core.w"
+#line 1995 "rt/rt_core.w"
     _31 = ((int64_t)(_30));
     _32 = (_21 * _17);
     _33 = (_31 + _32);
     _34 = (uint8_t*)((uint8_t*)(_33));
-    _35 = hm_keys_eq__547(_5, _34, _2);
+    _35 = hm_keys_eq__603(_5, _34, _2);
     goto bb24;
 bb24:
     _36 = (_35 != 0);
@@ -22167,12 +23717,12 @@ bb24:
         goto bb26;
     }
 bb25:
-    _37 = hm_vals__526(_5);
+    _37 = hm_vals__582(_5);
     goto bb28;
 bb26:
     goto bb27;
 bb27:
-#line 1819 "rt/rt_core.w"
+#line 1999 "rt/rt_core.w"
     _43 = (_21 + 1);
     _44 = ((uint64_t)(_43));
     _45 = ((uint64_t)(_15));
@@ -22181,7 +23731,7 @@ bb27:
     _21 = _47;
     goto bb15;
 bb28:
-#line 1817 "rt/rt_core.w"
+#line 1997 "rt/rt_core.w"
     _38 = ((int64_t)(_37));
     _39 = (_21 * _19);
     _40 = (_38 + _39);
@@ -22189,13 +23739,13 @@ bb28:
     rt_memcpy__106(_41, _3, _19);
     goto bb29;
 bb29:
-#line 1818 "rt/rt_core.w"
+#line 1998 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb30:
     goto bb27;
 bb31:
-#line 1820 "rt/rt_core.w"
+#line 2000 "rt/rt_core.w"
     _49 = ((int64_t)(_48));
     _50 = (_21 * _17);
     _51 = (_49 + _50);
@@ -22203,10 +23753,10 @@ bb31:
     rt_memcpy__106(_52, _2, _17);
     goto bb32;
 bb32:
-    _54 = hm_vals__526(_5);
+    _54 = hm_vals__582(_5);
     goto bb33;
 bb33:
-#line 1821 "rt/rt_core.w"
+#line 2001 "rt/rt_core.w"
     _55 = ((int64_t)(_54));
     _56 = (_21 * _19);
     _57 = (_55 + _56);
@@ -22214,21 +23764,21 @@ bb33:
     rt_memcpy__106(_58, _3, _19);
     goto bb34;
 bb34:
-    _60 = hm_occ__527(_5);
+    _60 = hm_occ__583(_5);
     goto bb35;
 bb35:
-#line 1822 "rt/rt_core.w"
+#line 2002 "rt/rt_core.w"
     _61 = ((int64_t)(_60));
     _62 = (_61 + _21);
     _63 = (uint8_t*)((uint8_t*)(_62));
     _64 = _63;
     (*_64) = 1;
-    _65 = hm_len__529(_5);
+    _65 = hm_len__585(_5);
     goto bb36;
 bb36:
-#line 1823 "rt/rt_core.w"
+#line 2003 "rt/rt_core.w"
     _66 = (_65 + 1);
-    _67 = hm_set_len__537(_5, _66);
+    _67 = hm_set_len__593(_5, _66);
     goto bb37;
 bb37:
     _0 = _67;
@@ -22351,22 +23901,22 @@ int32_t with_hashmap_get(uint8_t* _1, uint8_t* _2, uint8_t* _3, int64_t _4) {
     int64_t _47 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1826 "rt/rt_core.w"
+#line 2006 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 1827 "rt/rt_core.w"
+#line 2007 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = _4;
-#line 1828 "rt/rt_core.w"
+#line 2008 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = ((int64_t)(_1));
     _6 = _7;
-    _8 = hm_len__529(_6);
+    _8 = hm_len__585(_6);
     goto bb1;
 bb1:
-#line 1829 "rt/rt_core.w"
+#line 2009 "rt/rt_core.w"
     _9 = (_8 == 0);
     if (_9 == 1) {
         goto bb2;
@@ -22380,41 +23930,41 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-#line 1830 "rt/rt_core.w"
+#line 2010 "rt/rt_core.w"
     /* StorageLive(_10); */
-    _11 = hm_cap__528(_6);
+    _11 = hm_cap__584(_6);
     goto bb6;
 bb5:
     goto bb4;
 bb6:
     _10 = _11;
-#line 1831 "rt/rt_core.w"
+#line 2011 "rt/rt_core.w"
     /* StorageLive(_12); */
-    _13 = hm_key_size__530(_6);
+    _13 = hm_key_size__586(_6);
     goto bb7;
 bb7:
     _12 = _13;
-#line 1832 "rt/rt_core.w"
+#line 2012 "rt/rt_core.w"
     /* StorageLive(_14); */
-    _15 = hm_val_size__531(_6);
+    _15 = hm_val_size__587(_6);
     goto bb8;
 bb8:
     _14 = _15;
-#line 1834 "rt/rt_core.w"
+#line 2014 "rt/rt_core.w"
     /* StorageLive(_16); */
-    _17 = hm_hash_key__543(_6, _2);
+    _17 = hm_hash_key__599(_6, _2);
     goto bb9;
 bb9:
     _18 = ((uint64_t)(_10));
     _19 = (_17 % _18);
     _20 = ((int64_t)(_19));
     _16 = _20;
-#line 1835 "rt/rt_core.w"
+#line 2015 "rt/rt_core.w"
     /* StorageLive(_21); */
     _21 = 0;
     goto bb10;
 bb10:
-#line 1836 "rt/rt_core.w"
+#line 2016 "rt/rt_core.w"
     _22 = (_21 < _10);
     if (_22 == 1) {
         goto bb11;
@@ -22423,14 +23973,14 @@ bb10:
         goto bb12;
     }
 bb11:
-    _23 = hm_occ__527(_6);
+    _23 = hm_occ__583(_6);
     goto bb13;
 bb12:
-#line 1845 "rt/rt_core.w"
+#line 2025 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb13:
-#line 1837 "rt/rt_core.w"
+#line 2017 "rt/rt_core.w"
     _24 = _23;
     _25 = _16;
     _26 = (_24[_25] == 0);
@@ -22441,23 +23991,23 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 1838 "rt/rt_core.w"
+#line 2018 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb15:
     goto bb16;
 bb16:
-    _27 = hm_keys__524(_6);
+    _27 = hm_keys__581(_6);
     goto bb18;
 bb17:
     goto bb16;
 bb18:
-#line 1839 "rt/rt_core.w"
+#line 2019 "rt/rt_core.w"
     _28 = ((int64_t)(_27));
     _29 = (_16 * _12);
     _30 = (_28 + _29);
     _31 = (uint8_t*)((uint8_t*)(_30));
-    _32 = hm_keys_eq__547(_6, _31, _2);
+    _32 = hm_keys_eq__603(_6, _31, _2);
     goto bb19;
 bb19:
     _33 = (_32 != 0);
@@ -22468,7 +24018,7 @@ bb19:
         goto bb21;
     }
 bb20:
-#line 1840 "rt/rt_core.w"
+#line 2020 "rt/rt_core.w"
     _34 = ((int64_t)(_3));
     _35 = (_34 != 0);
     if (_35 == 1) {
@@ -22480,28 +24030,28 @@ bb20:
 bb21:
     goto bb22;
 bb22:
-#line 1843 "rt/rt_core.w"
+#line 2023 "rt/rt_core.w"
     _42 = (_16 + 1);
     _43 = ((uint64_t)(_42));
     _44 = ((uint64_t)(_10));
     _45 = (_43 % _44);
     _46 = ((int64_t)(_45));
     _16 = _46;
-#line 1844 "rt/rt_core.w"
+#line 2024 "rt/rt_core.w"
     _47 = (_21 + 1);
     _21 = _47;
     goto bb10;
 bb23:
-    _36 = hm_vals__526(_6);
+    _36 = hm_vals__582(_6);
     goto bb26;
 bb24:
     goto bb25;
 bb25:
-#line 1842 "rt/rt_core.w"
+#line 2022 "rt/rt_core.w"
     _0 = 1;
     return _0;
 bb26:
-#line 1841 "rt/rt_core.w"
+#line 2021 "rt/rt_core.w"
     _37 = ((int64_t)(_36));
     _38 = (_16 * _14);
     _39 = (_37 + _38);
@@ -22555,11 +24105,11 @@ int32_t with_hashmap_contains(uint8_t* _1, uint8_t* _2, int64_t _3) {
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1848 "rt/rt_core.w"
+#line 2028 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 1849 "rt/rt_core.w"
+#line 2029 "rt/rt_core.w"
     _4 = (uint8_t*)((uint8_t*)(0));
     _5 = with_hashmap_get(_1, _2, _4, _3);
     goto bb1;
@@ -22672,22 +24222,22 @@ int32_t with_hashmap_remove(uint8_t* _1, uint8_t* _2, uint8_t* _3, int64_t _4) {
     int64_t _101 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1852 "rt/rt_core.w"
+#line 2032 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 1853 "rt/rt_core.w"
+#line 2033 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = _4;
-#line 1854 "rt/rt_core.w"
+#line 2034 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = ((int64_t)(_1));
     _6 = _7;
-    _8 = hm_len__529(_6);
+    _8 = hm_len__585(_6);
     goto bb1;
 bb1:
-#line 1855 "rt/rt_core.w"
+#line 2035 "rt/rt_core.w"
     _9 = (_8 == 0);
     if (_9 == 1) {
         goto bb2;
@@ -22701,41 +24251,41 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-#line 1856 "rt/rt_core.w"
+#line 2036 "rt/rt_core.w"
     /* StorageLive(_10); */
-    _11 = hm_cap__528(_6);
+    _11 = hm_cap__584(_6);
     goto bb6;
 bb5:
     goto bb4;
 bb6:
     _10 = _11;
-#line 1857 "rt/rt_core.w"
+#line 2037 "rt/rt_core.w"
     /* StorageLive(_12); */
-    _13 = hm_key_size__530(_6);
+    _13 = hm_key_size__586(_6);
     goto bb7;
 bb7:
     _12 = _13;
-#line 1858 "rt/rt_core.w"
+#line 2038 "rt/rt_core.w"
     /* StorageLive(_14); */
-    _15 = hm_val_size__531(_6);
+    _15 = hm_val_size__587(_6);
     goto bb8;
 bb8:
     _14 = _15;
-#line 1860 "rt/rt_core.w"
+#line 2040 "rt/rt_core.w"
     /* StorageLive(_16); */
-    _17 = hm_hash_key__543(_6, _2);
+    _17 = hm_hash_key__599(_6, _2);
     goto bb9;
 bb9:
     _18 = ((uint64_t)(_10));
     _19 = (_17 % _18);
     _20 = ((int64_t)(_19));
     _16 = _20;
-#line 1861 "rt/rt_core.w"
+#line 2041 "rt/rt_core.w"
     /* StorageLive(_21); */
     _21 = 0;
     goto bb10;
 bb10:
-#line 1862 "rt/rt_core.w"
+#line 2042 "rt/rt_core.w"
     _22 = (_21 < _10);
     if (_22 == 1) {
         goto bb11;
@@ -22744,14 +24294,14 @@ bb10:
         goto bb12;
     }
 bb11:
-    _23 = hm_occ__527(_6);
+    _23 = hm_occ__583(_6);
     goto bb13;
 bb12:
-#line 1887 "rt/rt_core.w"
+#line 2067 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb13:
-#line 1863 "rt/rt_core.w"
+#line 2043 "rt/rt_core.w"
     _24 = _23;
     _25 = _16;
     _26 = (_24[_25] == 0);
@@ -22762,23 +24312,23 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 1864 "rt/rt_core.w"
+#line 2044 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb15:
     goto bb16;
 bb16:
-    _27 = hm_keys__524(_6);
+    _27 = hm_keys__581(_6);
     goto bb18;
 bb17:
     goto bb16;
 bb18:
-#line 1865 "rt/rt_core.w"
+#line 2045 "rt/rt_core.w"
     _28 = ((int64_t)(_27));
     _29 = (_16 * _12);
     _30 = (_28 + _29);
     _31 = (uint8_t*)((uint8_t*)(_30));
-    _32 = hm_keys_eq__547(_6, _31, _2);
+    _32 = hm_keys_eq__603(_6, _31, _2);
     goto bb19;
 bb19:
     _33 = (_32 != 0);
@@ -22789,7 +24339,7 @@ bb19:
         goto bb21;
     }
 bb20:
-#line 1866 "rt/rt_core.w"
+#line 2046 "rt/rt_core.w"
     _34 = ((int64_t)(_3));
     _35 = (_34 != 0);
     if (_35 == 1) {
@@ -22801,27 +24351,27 @@ bb20:
 bb21:
     goto bb22;
 bb22:
-#line 1885 "rt/rt_core.w"
+#line 2065 "rt/rt_core.w"
     _96 = (_16 + 1);
     _97 = ((uint64_t)(_96));
     _98 = ((uint64_t)(_10));
     _99 = (_97 % _98);
     _100 = ((int64_t)(_99));
     _16 = _100;
-#line 1886 "rt/rt_core.w"
+#line 2066 "rt/rt_core.w"
     _101 = (_21 + 1);
     _21 = _101;
     goto bb10;
 bb23:
-    _36 = hm_vals__526(_6);
+    _36 = hm_vals__582(_6);
     goto bb26;
 bb24:
     goto bb25;
 bb25:
-    _42 = hm_occ__527(_6);
+    _42 = hm_occ__583(_6);
     goto bb28;
 bb26:
-#line 1867 "rt/rt_core.w"
+#line 2047 "rt/rt_core.w"
     _37 = ((int64_t)(_36));
     _38 = (_16 * _14);
     _39 = (_37 + _38);
@@ -22831,21 +24381,21 @@ bb26:
 bb27:
     goto bb25;
 bb28:
-#line 1868 "rt/rt_core.w"
+#line 2048 "rt/rt_core.w"
     _43 = ((int64_t)(_42));
     _44 = (_43 + _16);
     _45 = (uint8_t*)((uint8_t*)(_44));
     _46 = _45;
     (*_46) = 0;
-    _47 = hm_len__529(_6);
+    _47 = hm_len__585(_6);
     goto bb29;
 bb29:
-#line 1869 "rt/rt_core.w"
+#line 2049 "rt/rt_core.w"
     _48 = (_47 - 1);
-    _49 = hm_set_len__537(_6, _48);
+    _49 = hm_set_len__593(_6, _48);
     goto bb30;
 bb30:
-#line 1871 "rt/rt_core.w"
+#line 2051 "rt/rt_core.w"
     /* StorageLive(_50); */
     _51 = (_16 + 1);
     _52 = ((uint64_t)(_51));
@@ -22855,19 +24405,19 @@ bb30:
     _50 = _55;
     goto bb31;
 bb31:
-    _56 = hm_occ__527(_6);
+    _56 = hm_occ__583(_6);
     goto bb34;
 bb32:
-#line 1874 "rt/rt_core.w"
+#line 2054 "rt/rt_core.w"
     /* StorageLive(_60); */
     _61 = rt_alloc__172(_12);
     goto bb35;
 bb33:
-#line 1884 "rt/rt_core.w"
+#line 2064 "rt/rt_core.w"
     _0 = 1;
     return _0;
 bb34:
-#line 1872 "rt/rt_core.w"
+#line 2052 "rt/rt_core.w"
     _57 = _56;
     _58 = _50;
     _59 = (_57[_58] != 0);
@@ -22878,18 +24428,18 @@ bb34:
         goto bb33;
     }
 bb35:
-#line 1874 "rt/rt_core.w"
+#line 2054 "rt/rt_core.w"
     _60 = _61;
-#line 1875 "rt/rt_core.w"
+#line 2055 "rt/rt_core.w"
     /* StorageLive(_62); */
     _63 = rt_alloc__172(_14);
     goto bb36;
 bb36:
     _62 = _63;
-    _64 = hm_keys__524(_6);
+    _64 = hm_keys__581(_6);
     goto bb37;
 bb37:
-#line 1876 "rt/rt_core.w"
+#line 2056 "rt/rt_core.w"
     _65 = ((int64_t)(_64));
     _66 = (_50 * _12);
     _67 = (_65 + _66);
@@ -22897,10 +24447,10 @@ bb37:
     rt_memcpy__106(_60, _68, _12);
     goto bb38;
 bb38:
-    _70 = hm_vals__526(_6);
+    _70 = hm_vals__582(_6);
     goto bb39;
 bb39:
-#line 1877 "rt/rt_core.w"
+#line 2057 "rt/rt_core.w"
     _71 = ((int64_t)(_70));
     _72 = (_50 * _14);
     _73 = (_71 + _72);
@@ -22908,27 +24458,27 @@ bb39:
     rt_memcpy__106(_62, _74, _14);
     goto bb40;
 bb40:
-    _76 = hm_occ__527(_6);
+    _76 = hm_occ__583(_6);
     goto bb41;
 bb41:
-#line 1878 "rt/rt_core.w"
+#line 2058 "rt/rt_core.w"
     _77 = ((int64_t)(_76));
     _78 = (_77 + _50);
     _79 = (uint8_t*)((uint8_t*)(_78));
     _80 = _79;
     (*_80) = 0;
-    _81 = hm_len__529(_6);
+    _81 = hm_len__585(_6);
     goto bb42;
 bb42:
-#line 1879 "rt/rt_core.w"
+#line 2059 "rt/rt_core.w"
     _82 = (_81 - 1);
-    _83 = hm_set_len__537(_6, _82);
+    _83 = hm_set_len__593(_6, _82);
     goto bb43;
 bb43:
-#line 1880 "rt/rt_core.w"
+#line 2060 "rt/rt_core.w"
     _84 = (uint8_t*)((uint8_t*)(_60));
     _85 = (uint8_t*)((uint8_t*)(_62));
-    _86 = hm_is_str_key__532(_6);
+    _86 = hm_is_str_key__588(_6);
     goto bb44;
 bb44:
     _87 = ((int64_t)(_86));
@@ -22941,7 +24491,7 @@ bb46:
     rt_free_sized__175(_62, _14);
     goto bb47;
 bb47:
-#line 1883 "rt/rt_core.w"
+#line 2063 "rt/rt_core.w"
     _91 = (_50 + 1);
     _92 = ((uint64_t)(_91));
     _93 = ((uint64_t)(_10));
@@ -23058,11 +24608,11 @@ int64_t with_hashmap_len(uint8_t* _1) {
     int64_t _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1890 "rt/rt_core.w"
+#line 2070 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1891 "rt/rt_core.w"
+#line 2071 "rt/rt_core.w"
     _2 = ((int64_t)(_1));
-    _3 = hm_len__529(_2);
+    _3 = hm_len__585(_2);
     goto bb1;
 bb1:
     _0 = _3;
@@ -23080,25 +24630,25 @@ int64_t with_hashmap_clear(uint8_t* _1) {
     int64_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1894 "rt/rt_core.w"
+#line 2074 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1895 "rt/rt_core.w"
+#line 2075 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((int64_t)(_1));
     _2 = _3;
-    _4 = hm_occ__527(_2);
+    _4 = hm_occ__583(_2);
     goto bb1;
 bb1:
-    _5 = hm_cap__528(_2);
+    _5 = hm_cap__584(_2);
     goto bb2;
 bb2:
     rt_memset__112(_4, 0, _5);
     goto bb3;
 bb3:
-    _7 = hm_set_len__537(_2, 0);
+    _7 = hm_set_len__593(_2, 0);
     goto bb4;
 bb4:
-#line 1897 "rt/rt_core.w"
+#line 2077 "rt/rt_core.w"
     _0 = _7;
     return _0;
 bb5: ;
@@ -23137,15 +24687,15 @@ void with_hashmap_keys_out(uint8_t* _1, uint8_t* _2, int64_t _3) {
     int64_t _28 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1900 "rt/rt_core.w"
+#line 2080 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 1901 "rt/rt_core.w"
+#line 2081 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = ((int64_t)(_2));
     _4 = _5;
-#line 1902 "rt/rt_core.w"
+#line 2082 "rt/rt_core.w"
     _6 = (_4 == 0);
     if (_6 == 1) {
         goto bb1;
@@ -23159,26 +24709,26 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 1905 "rt/rt_core.w"
+#line 2085 "rt/rt_core.w"
     /* StorageLive(_8); */
-    _9 = hm_cap__528(_4);
+    _9 = hm_cap__584(_4);
     goto bb6;
 bb4:
-#line 1904 "rt/rt_core.w"
+#line 2084 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return;
 bb5:
     goto bb3;
 bb6:
-#line 1905 "rt/rt_core.w"
+#line 2085 "rt/rt_core.w"
     _8 = _9;
-#line 1906 "rt/rt_core.w"
+#line 2086 "rt/rt_core.w"
     /* StorageLive(_10); */
-    _11 = hm_key_size__530(_4);
+    _11 = hm_key_size__586(_4);
     goto bb7;
 bb7:
     _10 = _11;
-#line 1907 "rt/rt_core.w"
+#line 2087 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = (_10 > 0);
     if (_13 == 1) {
@@ -23198,12 +24748,12 @@ bb10:
     _15 = with_vec_new_out(_1, _12);
     goto bb11;
 bb11:
-#line 1909 "rt/rt_core.w"
+#line 2089 "rt/rt_core.w"
     /* StorageLive(_16); */
     _16 = 0;
     goto bb12;
 bb12:
-#line 1910 "rt/rt_core.w"
+#line 2090 "rt/rt_core.w"
     _17 = (_16 < _8);
     if (_17 == 1) {
         goto bb13;
@@ -23212,12 +24762,12 @@ bb12:
         goto bb14;
     }
 bb13:
-    _18 = hm_occ__527(_4);
+    _18 = hm_occ__583(_4);
     goto bb15;
 bb14:
     return;
 bb15:
-#line 1911 "rt/rt_core.w"
+#line 2091 "rt/rt_core.w"
     _19 = _18;
     _20 = _16;
     _21 = (_19[_20] != 0);
@@ -23228,17 +24778,17 @@ bb15:
         goto bb17;
     }
 bb16:
-    _22 = hm_keys__524(_4);
+    _22 = hm_keys__581(_4);
     goto bb19;
 bb17:
     goto bb18;
 bb18:
-#line 1913 "rt/rt_core.w"
+#line 2093 "rt/rt_core.w"
     _28 = (_16 + 1);
     _16 = _28;
     goto bb12;
 bb19:
-#line 1912 "rt/rt_core.w"
+#line 2092 "rt/rt_core.w"
     _23 = ((int64_t)(_22));
     _24 = (_16 * _10);
     _25 = (_23 + _24);
@@ -23294,9 +24844,9 @@ void with_hashmap_free(uint8_t* _1) {
     int32_t _18 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1916 "rt/rt_core.w"
+#line 2096 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1917 "rt/rt_core.w"
+#line 2097 "rt/rt_core.w"
     _2 = ((int64_t)(_1));
     _3 = (_2 == 0);
     if (_3 == 1) {
@@ -23311,41 +24861,41 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 1918 "rt/rt_core.w"
+#line 2098 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = ((int64_t)(_1));
     _4 = _5;
-#line 1919 "rt/rt_core.w"
+#line 2099 "rt/rt_core.w"
     /* StorageLive(_6); */
-    _7 = hm_cap__528(_4);
+    _7 = hm_cap__584(_4);
     goto bb5;
 bb4:
     goto bb3;
 bb5:
     _6 = _7;
-    _8 = hm_keys__524(_4);
+    _8 = hm_keys__581(_4);
     goto bb6;
 bb6:
-    _9 = hm_key_size__530(_4);
+    _9 = hm_key_size__586(_4);
     goto bb7;
 bb7:
-#line 1920 "rt/rt_core.w"
+#line 2100 "rt/rt_core.w"
     _10 = (_6 * _9);
     rt_free_sized__175(_8, _10);
     goto bb8;
 bb8:
-    _12 = hm_vals__526(_4);
+    _12 = hm_vals__582(_4);
     goto bb9;
 bb9:
-    _13 = hm_val_size__531(_4);
+    _13 = hm_val_size__587(_4);
     goto bb10;
 bb10:
-#line 1921 "rt/rt_core.w"
+#line 2101 "rt/rt_core.w"
     _14 = (_6 * _13);
     rt_free_sized__175(_12, _14);
     goto bb11;
 bb11:
-    _16 = hm_occ__527(_4);
+    _16 = hm_occ__583(_4);
     goto bb12;
 bb12:
     rt_free_sized__175(_16, _6);
@@ -23385,14 +24935,14 @@ int64_t with_hashmap_increment(uint8_t* _1, uint8_t* _2, int64_t _3) {
     int64_t _12 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1926 "rt/rt_core.w"
+#line 2106 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 1927 "rt/rt_core.w"
+#line 2107 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = 0;
-#line 1928 "rt/rt_core.w"
+#line 2108 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = (&_4);
     _7 = (uint8_t*)((uint8_t*)(_6));
@@ -23400,10 +24950,10 @@ bb0:
     goto bb1;
 bb1:
     _5 = _8;
-#line 1929 "rt/rt_core.w"
+#line 2109 "rt/rt_core.w"
     _9 = (_4 + 1);
     _4 = _9;
-#line 1930 "rt/rt_core.w"
+#line 2110 "rt/rt_core.w"
     _10 = (&_4);
     _11 = (uint8_t*)((uint8_t*)(_10));
     _12 = with_hashmap_insert(_1, _2, _11, _3);
@@ -23442,14 +24992,14 @@ int64_t with_hashmap_decrement(uint8_t* _1, uint8_t* _2, int64_t _3) {
     int64_t _12 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1933 "rt/rt_core.w"
+#line 2113 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
-#line 1934 "rt/rt_core.w"
+#line 2114 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = 0;
-#line 1935 "rt/rt_core.w"
+#line 2115 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = (&_4);
     _7 = (uint8_t*)((uint8_t*)(_6));
@@ -23457,10 +25007,10 @@ bb0:
     goto bb1;
 bb1:
     _5 = _8;
-#line 1936 "rt/rt_core.w"
+#line 2116 "rt/rt_core.w"
     _9 = (_4 - 1);
     _4 = _9;
-#line 1937 "rt/rt_core.w"
+#line 2117 "rt/rt_core.w"
     _10 = (&_4);
     _11 = (uint8_t*)((uint8_t*)(_10));
     _12 = with_hashmap_insert(_1, _2, _11, _3);
@@ -23495,13 +25045,13 @@ int64_t with_sb_new() {
     int64_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1950 "rt/rt_core.w"
+#line 2130 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = rt_alloc__172(64);
     goto bb1;
 bb1:
     _1 = _2;
-#line 1951 "rt/rt_core.w"
+#line 2131 "rt/rt_core.w"
     _3 = ((int64_t)(0));
     _4 = ((int64_t)(64));
     _5 = (int64_t){_1, _3, _4};
@@ -23556,16 +25106,16 @@ int64_t with_sb_append(uint8_t* _1, with_str _2) {
     int64_t* _45 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1954 "rt/rt_core.w"
+#line 2134 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1955 "rt/rt_core.w"
+#line 2135 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_length__102(_2);
     goto bb1;
 bb1:
     _3 = _4;
-#line 1956 "rt/rt_core.w"
+#line 2136 "rt/rt_core.w"
     _5 = (_3 == 0);
     if (_5 == 1) {
         goto bb2;
@@ -23579,7 +25129,7 @@ bb2:
 bb3:
     goto bb4;
 bb4:
-#line 1957 "rt/rt_core.w"
+#line 2137 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = str_data__99(_2);
     goto bb6;
@@ -23587,19 +25137,19 @@ bb5:
     goto bb4;
 bb6:
     _6 = _7;
-#line 1958 "rt/rt_core.w"
+#line 2138 "rt/rt_core.w"
     /* StorageLive(_8); */
     _9 = (uint8_t**)((uint8_t**)(_1));
     _10 = _9;
     _8 = (*_10);
-#line 1959 "rt/rt_core.w"
+#line 2139 "rt/rt_core.w"
     /* StorageLive(_11); */
     _12 = ((int64_t)(_1));
     _13 = (_12 + 8);
     _14 = (int64_t*)((int64_t*)(_13));
     _15 = _14;
     _11 = (*_15);
-#line 1960 "rt/rt_core.w"
+#line 2140 "rt/rt_core.w"
     /* StorageLive(_16); */
     _17 = ((int64_t)(_1));
     _18 = (_17 + 16);
@@ -23608,7 +25158,7 @@ bb6:
     _16 = (*_20);
     goto bb7;
 bb7:
-#line 1961 "rt/rt_core.w"
+#line 2141 "rt/rt_core.w"
     _21 = (_11 + _3);
     _22 = (_21 > _16);
     if (_22 == 1) {
@@ -23618,28 +25168,28 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 1962 "rt/rt_core.w"
+#line 2142 "rt/rt_core.w"
     /* StorageLive(_23); */
     _23 = _16;
-#line 1963 "rt/rt_core.w"
+#line 2143 "rt/rt_core.w"
     /* StorageLive(_24); */
     _25 = (_23 * 2);
     _24 = _25;
-#line 1964 "rt/rt_core.w"
+#line 2144 "rt/rt_core.w"
     /* StorageLive(_26); */
     _27 = rt_alloc__172(_24);
     goto bb10;
 bb9:
-#line 1969 "rt/rt_core.w"
+#line 2149 "rt/rt_core.w"
     _31 = ((int64_t)(_8));
     _32 = (_31 + _11);
     _33 = (uint8_t*)((uint8_t*)(_32));
     rt_memcpy__106(_33, _6, _3);
     goto bb13;
 bb10:
-#line 1964 "rt/rt_core.w"
+#line 2144 "rt/rt_core.w"
     _26 = _27;
-#line 1965 "rt/rt_core.w"
+#line 2145 "rt/rt_core.w"
     _28 = (uint8_t*)((uint8_t*)(_8));
     rt_memcpy__106(_26, _28, _11);
     goto bb11;
@@ -23647,26 +25197,26 @@ bb11:
     rt_free_sized__175(_8, _23);
     goto bb12;
 bb12:
-#line 1967 "rt/rt_core.w"
+#line 2147 "rt/rt_core.w"
     _8 = _26;
-#line 1968 "rt/rt_core.w"
+#line 2148 "rt/rt_core.w"
     _16 = _24;
     goto bb7;
 bb13:
-#line 1970 "rt/rt_core.w"
+#line 2150 "rt/rt_core.w"
     _35 = (_11 + _3);
     _11 = _35;
-#line 1971 "rt/rt_core.w"
+#line 2151 "rt/rt_core.w"
     _36 = (uint8_t**)((uint8_t**)(_1));
     _37 = _36;
     (*_37) = _8;
-#line 1972 "rt/rt_core.w"
+#line 2152 "rt/rt_core.w"
     _38 = ((int64_t)(_1));
     _39 = (_38 + 8);
     _40 = (int64_t*)((int64_t*)(_39));
     _41 = _40;
     (*_41) = _11;
-#line 1973 "rt/rt_core.w"
+#line 2153 "rt/rt_core.w"
     _42 = ((int64_t)(_1));
     _43 = (_42 + 16);
     _44 = (int64_t*)((int64_t*)(_43));
@@ -23746,39 +25296,39 @@ with_str with_sb_build(uint8_t* _1) {
     with_str _20 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1976 "rt/rt_core.w"
+#line 2156 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1977 "rt/rt_core.w"
+#line 2157 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = (uint8_t**)((uint8_t**)(_1));
     _4 = _3;
     _2 = (*_4);
-#line 1978 "rt/rt_core.w"
+#line 2158 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_1));
     _7 = (_6 + 8);
     _8 = (int64_t*)((int64_t*)(_7));
     _9 = _8;
     _5 = (*_9);
-#line 1979 "rt/rt_core.w"
+#line 2159 "rt/rt_core.w"
     /* StorageLive(_10); */
     _11 = (_5 + 1);
     _12 = rt_alloc__172(_11);
     goto bb1;
 bb1:
     _10 = _12;
-#line 1980 "rt/rt_core.w"
+#line 2160 "rt/rt_core.w"
     _13 = (uint8_t*)((uint8_t*)(_2));
     rt_memcpy__106(_10, _13, _5);
     goto bb2;
 bb2:
-#line 1981 "rt/rt_core.w"
+#line 2161 "rt/rt_core.w"
     _15 = ((int64_t)(_10));
     _16 = (_15 + _5);
     _17 = (uint8_t*)((uint8_t*)(_16));
     _18 = _17;
     (*_18) = 0;
-#line 1982 "rt/rt_core.w"
+#line 2162 "rt/rt_core.w"
     _19 = (uint8_t*)((uint8_t*)(_10));
     _20 = make_str__103(_19, _5);
     goto bb3;
@@ -23815,7 +25365,7 @@ bb30: ;
 bb31: ;
 }
 
-bool fs_path_is_dir_c__611(uint8_t* _1) {
+bool fs_path_is_dir_c__665(uint8_t* _1) {
     bool _0 __attribute__((unused)) = {0};
     uint8_t _2[24] __attribute__((unused)) = {0};
     uint8_t _3 __attribute__((unused)) = {0};
@@ -23856,9 +25406,9 @@ bool fs_path_is_dir_c__611(uint8_t* _1) {
     bool _38 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1986 "rt/rt_core.w"
+#line 2166 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 1987 "rt/rt_core.w"
+#line 2167 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((uint8_t)(0));
     _4 = ((uint8_t)(0));
@@ -23886,7 +25436,7 @@ bb0:
     _26 = ((uint8_t)(0));
     { uint8_t __with_arr_tmp[24] = {_3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26}; memcpy(_27, __with_arr_tmp, sizeof(_27)); }
     memcpy(_2, _27, sizeof(_2));
-#line 1988 "rt/rt_core.w"
+#line 2168 "rt/rt_core.w"
     _28 = (&_2);
     _29 = (uint8_t*)((uint8_t*)(_28));
     _30 = rt_stat(_1, _29);
@@ -23900,18 +25450,18 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 1989 "rt/rt_core.w"
+#line 2169 "rt/rt_core.w"
     _0 = false;
     return _0;
 bb3:
     goto bb4;
 bb4:
-#line 1990 "rt/rt_core.w"
+#line 2170 "rt/rt_core.w"
     /* StorageLive(_32); */
     _33 = (&_2);
     _34 = ((int64_t)(_33));
     _32 = _34;
-#line 1991 "rt/rt_core.w"
+#line 2171 "rt/rt_core.w"
     _35 = (_32 + 8);
     _36 = (int32_t*)((int32_t*)(_35));
     _37 = _36;
@@ -23947,7 +25497,7 @@ bb29: ;
 bb30: ;
 }
 
-int32_t fs_mkdir_component__613(uint8_t* _1, int32_t _2) {
+int32_t fs_mkdir_component__667(uint8_t* _1, int32_t _2) {
     int32_t _0 __attribute__((unused)) = {0};
     int32_t _3 __attribute__((unused)) = {0};
     int32_t _4 __attribute__((unused)) = {0};
@@ -23956,16 +25506,16 @@ int32_t fs_mkdir_component__613(uint8_t* _1, int32_t _2) {
     bool _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 1993 "rt/rt_core.w"
+#line 2173 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 1994 "rt/rt_core.w"
+#line 2174 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = rt_mkdir(_1, _2);
     goto bb1;
 bb1:
     _3 = _4;
-#line 1995 "rt/rt_core.w"
+#line 2175 "rt/rt_core.w"
     _6 = (_3 == -17);
     _5 = _6;
     if (_5 == 1) {
@@ -23975,7 +25525,7 @@ bb1:
         goto bb3;
     }
 bb2:
-    _7 = fs_path_is_dir_c__611(_1);
+    _7 = fs_path_is_dir_c__665(_1);
     goto bb4;
 bb3:
     if (_5 == 1) {
@@ -23988,13 +25538,13 @@ bb4:
     _5 = _7;
     goto bb3;
 bb5:
-#line 1996 "rt/rt_core.w"
+#line 2176 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb6:
     goto bb7;
 bb7:
-#line 1997 "rt/rt_core.w"
+#line 2177 "rt/rt_core.w"
     _0 = _3;
     return _0;
 bb8:
@@ -24043,21 +25593,21 @@ with_str with_fs_read_file(with_str _1) {
     with_str _39 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2000 "rt/rt_core.w"
+#line 2180 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2001 "rt/rt_core.w"
+#line 2181 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _2 = _3;
-#line 2002 "rt/rt_core.w"
+#line 2182 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = rt_open(_2, 0, 0);
     goto bb2;
 bb2:
     _4 = _5;
-#line 2003 "rt/rt_core.w"
+#line 2183 "rt/rt_core.w"
     _6 = (_4 < 0);
     if (_6 == 1) {
         goto bb3;
@@ -24066,27 +25616,27 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2004 "rt/rt_core.w"
+#line 2184 "rt/rt_core.w"
     _7 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _8 = make_str__103(_7, 0);
     goto bb6;
 bb4:
     goto bb5;
 bb5:
-#line 2007 "rt/rt_core.w"
+#line 2187 "rt/rt_core.w"
     /* StorageLive(_9); */
     _10 = rt_seek(_4, 0, 2);
     goto bb8;
 bb6:
-#line 2004 "rt/rt_core.w"
+#line 2184 "rt/rt_core.w"
     _0 = _8;
     return _0;
 bb7:
     goto bb5;
 bb8:
-#line 2007 "rt/rt_core.w"
+#line 2187 "rt/rt_core.w"
     _9 = _10;
-#line 2008 "rt/rt_core.w"
+#line 2188 "rt/rt_core.w"
     _11 = (_9 <= 0);
     if (_11 == 1) {
         goto bb9;
@@ -24095,21 +25645,21 @@ bb8:
         goto bb10;
     }
 bb9:
-#line 2009 "rt/rt_core.w"
+#line 2189 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = rt_close(_4);
     goto bb12;
 bb10:
     goto bb11;
 bb11:
-#line 2011 "rt/rt_core.w"
+#line 2191 "rt/rt_core.w"
     /* StorageLive(_16); */
     _17 = rt_seek(_4, 0, 0);
     goto bb15;
 bb12:
-#line 2009 "rt/rt_core.w"
+#line 2189 "rt/rt_core.w"
     _12 = _13;
-#line 2010 "rt/rt_core.w"
+#line 2190 "rt/rt_core.w"
     _14 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _15 = make_str__103(_14, 0);
     goto bb13;
@@ -24119,21 +25669,21 @@ bb13:
 bb14:
     goto bb11;
 bb15:
-#line 2011 "rt/rt_core.w"
+#line 2191 "rt/rt_core.w"
     _16 = _17;
-#line 2013 "rt/rt_core.w"
+#line 2193 "rt/rt_core.w"
     /* StorageLive(_18); */
     _19 = (_9 + 1);
     _20 = rt_alloc__172(_19);
     goto bb16;
 bb16:
     _18 = _20;
-#line 2014 "rt/rt_core.w"
+#line 2194 "rt/rt_core.w"
     /* StorageLive(_21); */
     _21 = 0;
     goto bb17;
 bb17:
-#line 2015 "rt/rt_core.w"
+#line 2195 "rt/rt_core.w"
     _22 = (_21 < _9);
     if (_22 == 1) {
         goto bb18;
@@ -24142,7 +25692,7 @@ bb17:
         goto bb19;
     }
 bb18:
-#line 2016 "rt/rt_core.w"
+#line 2196 "rt/rt_core.w"
     /* StorageLive(_23); */
     _24 = ((int64_t)(_18));
     _25 = (_24 + _21);
@@ -24152,14 +25702,14 @@ bb18:
     _29 = rt_read(_4, _26, _28);
     goto bb20;
 bb19:
-#line 2019 "rt/rt_core.w"
+#line 2199 "rt/rt_core.w"
     /* StorageLive(_32); */
     _33 = rt_close(_4);
     goto bb25;
 bb20:
-#line 2016 "rt/rt_core.w"
+#line 2196 "rt/rt_core.w"
     _23 = _29;
-#line 2017 "rt/rt_core.w"
+#line 2197 "rt/rt_core.w"
     _30 = (_23 <= 0);
     if (_30 == 1) {
         goto bb21;
@@ -24172,22 +25722,22 @@ bb21:
 bb22:
     goto bb23;
 bb23:
-#line 2018 "rt/rt_core.w"
+#line 2198 "rt/rt_core.w"
     _31 = (_21 + _23);
     _21 = _31;
     goto bb17;
 bb24:
     goto bb23;
 bb25:
-#line 2019 "rt/rt_core.w"
+#line 2199 "rt/rt_core.w"
     _32 = _33;
-#line 2020 "rt/rt_core.w"
+#line 2200 "rt/rt_core.w"
     _34 = ((int64_t)(_18));
     _35 = (_34 + _21);
     _36 = (uint8_t*)((uint8_t*)(_35));
     _37 = _36;
     (*_37) = 0;
-#line 2021 "rt/rt_core.w"
+#line 2201 "rt/rt_core.w"
     _38 = (uint8_t*)((uint8_t*)(_18));
     _39 = make_str__103(_38, _21);
     goto bb26;
@@ -24262,16 +25812,16 @@ int32_t with_fs_write_file(with_str _1, with_str _2) {
     int32_t _26 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2024 "rt/rt_core.w"
+#line 2204 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2025 "rt/rt_core.w"
+#line 2205 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _3 = _4;
-#line 2027 "rt/rt_core.w"
+#line 2207 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = (1 | 512);
     _7 = (_6 | 1024);
@@ -24279,7 +25829,7 @@ bb1:
     goto bb2;
 bb2:
     _5 = _8;
-#line 2028 "rt/rt_core.w"
+#line 2208 "rt/rt_core.w"
     _9 = (_5 < 0);
     if (_9 == 1) {
         goto bb3;
@@ -24293,7 +25843,7 @@ bb3:
 bb4:
     goto bb5;
 bb5:
-#line 2029 "rt/rt_core.w"
+#line 2209 "rt/rt_core.w"
     /* StorageLive(_10); */
     _11 = str_data__99(_2);
     goto bb7;
@@ -24301,18 +25851,18 @@ bb6:
     goto bb5;
 bb7:
     _10 = _11;
-#line 2030 "rt/rt_core.w"
+#line 2210 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = str_length__102(_2);
     goto bb8;
 bb8:
     _12 = _13;
-#line 2031 "rt/rt_core.w"
+#line 2211 "rt/rt_core.w"
     /* StorageLive(_14); */
     _14 = 0;
     goto bb9;
 bb9:
-#line 2032 "rt/rt_core.w"
+#line 2212 "rt/rt_core.w"
     _15 = (_14 < _12);
     if (_15 == 1) {
         goto bb10;
@@ -24321,7 +25871,7 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 2033 "rt/rt_core.w"
+#line 2213 "rt/rt_core.w"
     /* StorageLive(_16); */
     _17 = ((int64_t)(_10));
     _18 = (_17 + _14);
@@ -24331,14 +25881,14 @@ bb10:
     _22 = rt_write(_5, _19, _21);
     goto bb12;
 bb11:
-#line 2036 "rt/rt_core.w"
+#line 2216 "rt/rt_core.w"
     /* StorageLive(_25); */
     _26 = rt_close(_5);
     goto bb17;
 bb12:
-#line 2033 "rt/rt_core.w"
+#line 2213 "rt/rt_core.w"
     _16 = _22;
-#line 2034 "rt/rt_core.w"
+#line 2214 "rt/rt_core.w"
     _23 = (_16 <= 0);
     if (_23 == 1) {
         goto bb13;
@@ -24351,16 +25901,16 @@ bb13:
 bb14:
     goto bb15;
 bb15:
-#line 2035 "rt/rt_core.w"
+#line 2215 "rt/rt_core.w"
     _24 = (_14 + _16);
     _14 = _24;
     goto bb9;
 bb16:
     goto bb15;
 bb17:
-#line 2036 "rt/rt_core.w"
+#line 2216 "rt/rt_core.w"
     _25 = _26;
-#line 2037 "rt/rt_core.w"
+#line 2217 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb18: ;
@@ -24401,21 +25951,21 @@ int32_t with_fs_file_exists(with_str _1) {
     int32_t _8 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2040 "rt/rt_core.w"
+#line 2220 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2041 "rt/rt_core.w"
+#line 2221 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _2 = _3;
-#line 2042 "rt/rt_core.w"
+#line 2222 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = rt_open(_2, 0, 0);
     goto bb2;
 bb2:
     _4 = _5;
-#line 2043 "rt/rt_core.w"
+#line 2223 "rt/rt_core.w"
     _6 = (_4 < 0);
     if (_6 == 1) {
         goto bb3;
@@ -24429,7 +25979,7 @@ bb3:
 bb4:
     goto bb5;
 bb5:
-#line 2044 "rt/rt_core.w"
+#line 2224 "rt/rt_core.w"
     /* StorageLive(_7); */
     _8 = rt_close(_4);
     goto bb7;
@@ -24437,7 +25987,7 @@ bb6:
     goto bb5;
 bb7:
     _7 = _8;
-#line 2045 "rt/rt_core.w"
+#line 2225 "rt/rt_core.w"
     _0 = 1;
     return _0;
 bb8: ;
@@ -24453,15 +26003,15 @@ int32_t with_fs_is_dir(with_str _1) {
     bool _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2048 "rt/rt_core.w"
+#line 2228 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2049 "rt/rt_core.w"
+#line 2229 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _2 = _3;
-    _4 = fs_path_is_dir_c__611(_2);
+    _4 = fs_path_is_dir_c__665(_2);
     goto bb2;
 bb2:
     if (_4 == 1) {
@@ -24471,13 +26021,13 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2051 "rt/rt_core.w"
+#line 2231 "rt/rt_core.w"
     _0 = 1;
     return _0;
 bb4:
     goto bb5;
 bb5:
-#line 2052 "rt/rt_core.w"
+#line 2232 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb6:
@@ -24512,26 +26062,26 @@ int32_t with_fs_mkdir_p(with_str _1) {
     int32_t _25 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2055 "rt/rt_core.w"
+#line 2235 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2056 "rt/rt_core.w"
+#line 2236 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _2 = _3;
-#line 2058 "rt/rt_core.w"
+#line 2238 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = str_length__102(_1);
     goto bb2;
 bb2:
     _4 = _5;
-#line 2059 "rt/rt_core.w"
+#line 2239 "rt/rt_core.w"
     /* StorageLive(_6); */
     _6 = 1;
     goto bb3;
 bb3:
-#line 2060 "rt/rt_core.w"
+#line 2240 "rt/rt_core.w"
     _7 = (_6 < _4);
     if (_7 == 1) {
         goto bb4;
@@ -24540,7 +26090,7 @@ bb3:
         goto bb5;
     }
 bb4:
-#line 2061 "rt/rt_core.w"
+#line 2241 "rt/rt_core.w"
     _8 = ((int64_t)(_2));
     _9 = (_8 + _6);
     _10 = (uint8_t*)((uint8_t*)(_9));
@@ -24553,36 +26103,36 @@ bb4:
         goto bb7;
     }
 bb5:
-    _25 = fs_mkdir_component__613(_2, 493);
+    _25 = fs_mkdir_component__667(_2, 493);
     goto bb14;
 bb6:
-#line 2062 "rt/rt_core.w"
+#line 2242 "rt/rt_core.w"
     _13 = ((int64_t)(_2));
     _14 = (_13 + _6);
     _15 = (uint8_t*)((uint8_t*)(_14));
     _16 = _15;
     (*_16) = 0;
-#line 2063 "rt/rt_core.w"
+#line 2243 "rt/rt_core.w"
     /* StorageLive(_17); */
-    _18 = fs_mkdir_component__613(_2, 493);
+    _18 = fs_mkdir_component__667(_2, 493);
     goto bb9;
 bb7:
     goto bb8;
 bb8:
-#line 2067 "rt/rt_core.w"
+#line 2247 "rt/rt_core.w"
     _24 = (_6 + 1);
     _6 = _24;
     goto bb3;
 bb9:
-#line 2063 "rt/rt_core.w"
+#line 2243 "rt/rt_core.w"
     _17 = _18;
-#line 2064 "rt/rt_core.w"
+#line 2244 "rt/rt_core.w"
     _19 = ((int64_t)(_2));
     _20 = (_19 + _6);
     _21 = (uint8_t*)((uint8_t*)(_20));
     _22 = _21;
     (*_22) = 47;
-#line 2065 "rt/rt_core.w"
+#line 2245 "rt/rt_core.w"
     _23 = (_17 != 0);
     if (_23 == 1) {
         goto bb10;
@@ -24591,7 +26141,7 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 2066 "rt/rt_core.w"
+#line 2246 "rt/rt_core.w"
     _0 = _17;
     return _0;
 bb11:
@@ -24601,7 +26151,7 @@ bb12:
 bb13:
     goto bb12;
 bb14:
-#line 2068 "rt/rt_core.w"
+#line 2248 "rt/rt_core.w"
     _0 = _25;
     return _0;
 bb15: ;
@@ -24642,9 +26192,9 @@ int32_t with_fs_remove_file(with_str _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2071 "rt/rt_core.w"
+#line 2251 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2072 "rt/rt_core.w"
+#line 2252 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -24653,7 +26203,7 @@ bb1:
     _4 = rt_unlink(_2);
     goto bb2;
 bb2:
-#line 2073 "rt/rt_core.w"
+#line 2253 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -24667,10 +26217,10 @@ int32_t with_fs_chmod(with_str _1, int32_t _2) {
     int32_t _5 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2076 "rt/rt_core.w"
+#line 2256 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2077 "rt/rt_core.w"
+#line 2257 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_to_cstr__196(_1);
     goto bb1;
@@ -24679,7 +26229,7 @@ bb1:
     _5 = rt_chmod(_3, _2);
     goto bb2;
 bb2:
-#line 2078 "rt/rt_core.w"
+#line 2258 "rt/rt_core.w"
     _0 = _5;
     return _0;
 bb3: ;
@@ -24696,16 +26246,16 @@ int32_t with_fs_rename_file(with_str _1, with_str _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2081 "rt/rt_core.w"
+#line 2261 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2082 "rt/rt_core.w"
+#line 2262 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _3 = _4;
-#line 2083 "rt/rt_core.w"
+#line 2263 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = str_to_cstr__196(_2);
     goto bb2;
@@ -24714,7 +26264,7 @@ bb2:
     _7 = rt_rename(_3, _5);
     goto bb3;
 bb3:
-#line 2084 "rt/rt_core.w"
+#line 2264 "rt/rt_core.w"
     _0 = _7;
     return _0;
 bb4: ;
@@ -24731,9 +26281,9 @@ int32_t with_fs_create_dir(with_str _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2087 "rt/rt_core.w"
+#line 2267 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2088 "rt/rt_core.w"
+#line 2268 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -24742,7 +26292,7 @@ bb1:
     _4 = rt_mkdir(_2, 493);
     goto bb2;
 bb2:
-#line 2089 "rt/rt_core.w"
+#line 2269 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -24756,9 +26306,9 @@ int32_t with_fs_remove_dir(with_str _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2092 "rt/rt_core.w"
+#line 2272 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2093 "rt/rt_core.w"
+#line 2273 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -24767,7 +26317,7 @@ bb1:
     _4 = rt_rmdir(_2);
     goto bb2;
 bb2:
-#line 2094 "rt/rt_core.w"
+#line 2274 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -24781,9 +26331,9 @@ int32_t with_fs_remove_tree(with_str _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2097 "rt/rt_core.w"
+#line 2277 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2098 "rt/rt_core.w"
+#line 2278 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -24792,7 +26342,7 @@ bb1:
     _4 = rt_remove_tree(_2);
     goto bb2;
 bb2:
-#line 2099 "rt/rt_core.w"
+#line 2279 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -24808,16 +26358,16 @@ int32_t with_fs_copy_tree(with_str _1, with_str _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2102 "rt/rt_core.w"
+#line 2282 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2103 "rt/rt_core.w"
+#line 2283 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _3 = _4;
-#line 2104 "rt/rt_core.w"
+#line 2284 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = str_to_cstr__196(_2);
     goto bb2;
@@ -24826,7 +26376,7 @@ bb2:
     _7 = rt_copy_tree(_3, _5);
     goto bb3;
 bb3:
-#line 2105 "rt/rt_core.w"
+#line 2285 "rt/rt_core.w"
     _0 = _7;
     return _0;
 bb4: ;
@@ -24845,16 +26395,16 @@ int32_t with_fs_symlink(with_str _1, with_str _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2108 "rt/rt_core.w"
+#line 2288 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2109 "rt/rt_core.w"
+#line 2289 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = str_to_cstr__196(_1);
     goto bb1;
 bb1:
     _3 = _4;
-#line 2110 "rt/rt_core.w"
+#line 2290 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = str_to_cstr__196(_2);
     goto bb2;
@@ -24863,7 +26413,7 @@ bb2:
     _7 = rt_symlink(_3, _5);
     goto bb3;
 bb3:
-#line 2111 "rt/rt_core.w"
+#line 2291 "rt/rt_core.w"
     _0 = _7;
     return _0;
 bb4: ;
@@ -24880,9 +26430,9 @@ with_str with_fs_list_files(with_str _1) {
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2114 "rt/rt_core.w"
+#line 2294 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2115 "rt/rt_core.w"
+#line 2295 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -24891,7 +26441,7 @@ bb1:
     _4 = rt_list_files(_2);
     goto bb2;
 bb2:
-#line 2116 "rt/rt_core.w"
+#line 2296 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -24923,17 +26473,17 @@ with_str with_read_line_stdin() {
     with_str _21 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2122 "rt/rt_core.w"
+#line 2302 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = ((uint8_t)(0));
     { __typeof__(_3[0]) __with_fill = _2; for (int64_t __with_i = 0; __with_i < 4096; __with_i++) { _3[__with_i] = __with_fill; } }
     memcpy(_1, _3, sizeof(_1));
-#line 2123 "rt/rt_core.w"
+#line 2303 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = 0;
     goto bb1;
 bb1:
-#line 2124 "rt/rt_core.w"
+#line 2304 "rt/rt_core.w"
     _5 = (_4 < 4095);
     if (_5 == 1) {
         goto bb2;
@@ -24942,7 +26492,7 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 2125 "rt/rt_core.w"
+#line 2305 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = (&_1);
     _8 = ((int64_t)(_7));
@@ -24951,7 +26501,7 @@ bb2:
     _11 = rt_read(0, _10, 1);
     goto bb4;
 bb3:
-#line 2129 "rt/rt_core.w"
+#line 2309 "rt/rt_core.w"
     _16 = (_4 == 0);
     if (_16 == 1) {
         goto bb13;
@@ -24960,9 +26510,9 @@ bb3:
         goto bb14;
     }
 bb4:
-#line 2125 "rt/rt_core.w"
+#line 2305 "rt/rt_core.w"
     _6 = _11;
-#line 2126 "rt/rt_core.w"
+#line 2306 "rt/rt_core.w"
     _12 = (_6 <= 0);
     if (_12 == 1) {
         goto bb5;
@@ -24975,7 +26525,7 @@ bb5:
 bb6:
     goto bb7;
 bb7:
-#line 2127 "rt/rt_core.w"
+#line 2307 "rt/rt_core.w"
     _13 = _4;
     _14 = (_1[_13] == 10);
     if (_14 == 1) {
@@ -24991,33 +26541,33 @@ bb9:
 bb10:
     goto bb11;
 bb11:
-#line 2128 "rt/rt_core.w"
+#line 2308 "rt/rt_core.w"
     _15 = (_4 + 1);
     _4 = _15;
     goto bb1;
 bb12:
     goto bb11;
 bb13:
-#line 2130 "rt/rt_core.w"
+#line 2310 "rt/rt_core.w"
     _17 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _18 = make_str__103(_17, 0);
     goto bb16;
 bb14:
     goto bb15;
 bb15:
-#line 2131 "rt/rt_core.w"
+#line 2311 "rt/rt_core.w"
     _19 = (&_1);
     _20 = (uint8_t*)((uint8_t*)(_19));
     _21 = alloc_str__217(_20, _4);
     goto bb18;
 bb16:
-#line 2130 "rt/rt_core.w"
+#line 2310 "rt/rt_core.w"
     _0 = _18;
     return _0;
 bb17:
     goto bb15;
 bb18:
-#line 2131 "rt/rt_core.w"
+#line 2311 "rt/rt_core.w"
     _0 = _21;
     return _0;
 bb19: ;
@@ -25067,9 +26617,9 @@ with_str with_read_bytes_stdin(int32_t _1) {
     with_str _27 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2134 "rt/rt_core.w"
+#line 2314 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2135 "rt/rt_core.w"
+#line 2315 "rt/rt_core.w"
     _2 = (_1 <= 0);
     if (_2 == 1) {
         goto bb1;
@@ -25078,34 +26628,34 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 2136 "rt/rt_core.w"
+#line 2316 "rt/rt_core.w"
     _3 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _4 = make_str__103(_3, 0);
     goto bb4;
 bb2:
     goto bb3;
 bb3:
-#line 2137 "rt/rt_core.w"
+#line 2317 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_1));
     _7 = (_6 + 1);
     _8 = rt_alloc__172(_7);
     goto bb6;
 bb4:
-#line 2136 "rt/rt_core.w"
+#line 2316 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb5:
     goto bb3;
 bb6:
-#line 2137 "rt/rt_core.w"
+#line 2317 "rt/rt_core.w"
     _5 = _8;
-#line 2138 "rt/rt_core.w"
+#line 2318 "rt/rt_core.w"
     /* StorageLive(_9); */
     _9 = 0;
     goto bb7;
 bb7:
-#line 2139 "rt/rt_core.w"
+#line 2319 "rt/rt_core.w"
     _10 = ((int64_t)(_1));
     _11 = (_9 < _10);
     if (_11 == 1) {
@@ -25115,7 +26665,7 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2140 "rt/rt_core.w"
+#line 2320 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = ((int64_t)(_5));
     _14 = (_13 + _9);
@@ -25126,20 +26676,20 @@ bb8:
     _19 = rt_read(0, _15, _18);
     goto bb10;
 bb9:
-#line 2143 "rt/rt_core.w"
+#line 2323 "rt/rt_core.w"
     _22 = ((int64_t)(_5));
     _23 = (_22 + _9);
     _24 = (uint8_t*)((uint8_t*)(_23));
     _25 = _24;
     (*_25) = 0;
-#line 2144 "rt/rt_core.w"
+#line 2324 "rt/rt_core.w"
     _26 = (uint8_t*)((uint8_t*)(_5));
     _27 = make_str__103(_26, _9);
     goto bb15;
 bb10:
-#line 2140 "rt/rt_core.w"
+#line 2320 "rt/rt_core.w"
     _12 = _19;
-#line 2141 "rt/rt_core.w"
+#line 2321 "rt/rt_core.w"
     _20 = (_12 <= 0);
     if (_20 == 1) {
         goto bb11;
@@ -25152,14 +26702,14 @@ bb11:
 bb12:
     goto bb13;
 bb13:
-#line 2142 "rt/rt_core.w"
+#line 2322 "rt/rt_core.w"
     _21 = (_9 + _12);
     _9 = _21;
     goto bb7;
 bb14:
     goto bb13;
 bb15:
-#line 2144 "rt/rt_core.w"
+#line 2324 "rt/rt_core.w"
     _0 = _27;
     return _0;
 bb16: ;
@@ -25197,7 +26747,7 @@ void with_write_stdout(with_str _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2147 "rt/rt_core.w"
+#line 2327 "rt/rt_core.w"
     /* StorageLive(_1); */
     with_print_str(_1);
     goto bb1;
@@ -25210,7 +26760,7 @@ void with_flush_stdout() {
     int32_t _1 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2153 "rt/rt_core.w"
+#line 2333 "rt/rt_core.w"
     /* StorageLive(_1); */
     _1 = 0;
     return;
@@ -25276,24 +26826,24 @@ int64_t with_str_split(with_str _1, with_str _2, uint8_t* _3, int64_t* _4) {
     int64_t _60 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2158 "rt/rt_core.w"
+#line 2338 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     /* StorageLive(_4); */
-#line 2159 "rt/rt_core.w"
+#line 2339 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = str_length__102(_1);
     goto bb1;
 bb1:
     _5 = _6;
-#line 2160 "rt/rt_core.w"
+#line 2340 "rt/rt_core.w"
     /* StorageLive(_7); */
     _8 = str_length__102(_2);
     goto bb2;
 bb2:
     _7 = _8;
-#line 2161 "rt/rt_core.w"
+#line 2341 "rt/rt_core.w"
     _10 = (_5 == 0);
     _9 = _10;
     if (_9 == 1) {
@@ -25314,7 +26864,7 @@ bb4:
         goto bb6;
     }
 bb5:
-#line 2162 "rt/rt_core.w"
+#line 2342 "rt/rt_core.w"
     _12 = ((int64_t)(_3));
     _13 = (_12 != 0);
     if (_13 == 1) {
@@ -25326,12 +26876,12 @@ bb5:
 bb6:
     goto bb7;
 bb7:
-#line 2170 "rt/rt_core.w"
+#line 2350 "rt/rt_core.w"
     /* StorageLive(_17); */
     _18 = str_data__99(_1);
     goto bb15;
 bb8:
-#line 2164 "rt/rt_core.w"
+#line 2344 "rt/rt_core.w"
     _14 = (with_str*)((with_str*)(_3));
     _15 = _14;
     (*_15) = _1;
@@ -25339,7 +26889,7 @@ bb8:
 bb9:
     goto bb10;
 bb10:
-#line 2165 "rt/rt_core.w"
+#line 2345 "rt/rt_core.w"
     _16 = (_5 > 0);
     if (_16 == 1) {
         goto bb11;
@@ -25348,40 +26898,40 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 2166 "rt/rt_core.w"
+#line 2346 "rt/rt_core.w"
     (*_4) = 1;
     goto bb13;
 bb12:
-#line 2168 "rt/rt_core.w"
+#line 2348 "rt/rt_core.w"
     (*_4) = 0;
     goto bb13;
 bb13:
-#line 2169 "rt/rt_core.w"
+#line 2349 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb14:
     goto bb7;
 bb15:
-#line 2170 "rt/rt_core.w"
+#line 2350 "rt/rt_core.w"
     _17 = _18;
-#line 2171 "rt/rt_core.w"
+#line 2351 "rt/rt_core.w"
     /* StorageLive(_19); */
     _20 = str_data__99(_2);
     goto bb16;
 bb16:
     _19 = _20;
-#line 2172 "rt/rt_core.w"
+#line 2352 "rt/rt_core.w"
     /* StorageLive(_21); */
     _21 = 0;
-#line 2173 "rt/rt_core.w"
+#line 2353 "rt/rt_core.w"
     /* StorageLive(_22); */
     _22 = 0;
-#line 2174 "rt/rt_core.w"
+#line 2354 "rt/rt_core.w"
     /* StorageLive(_23); */
     _23 = 0;
     goto bb17;
 bb17:
-#line 2175 "rt/rt_core.w"
+#line 2355 "rt/rt_core.w"
     _24 = (_5 - _7);
     _25 = (_23 <= _24);
     if (_25 == 1) {
@@ -25391,14 +26941,14 @@ bb17:
         goto bb19;
     }
 bb18:
-#line 2176 "rt/rt_core.w"
+#line 2356 "rt/rt_core.w"
     _26 = ((int64_t)(_17));
     _27 = (_26 + _23);
     _28 = (uint8_t*)((uint8_t*)(_27));
     _29 = rt_memcmp__107(_28, _19, _7);
     goto bb20;
 bb19:
-#line 2185 "rt/rt_core.w"
+#line 2365 "rt/rt_core.w"
     _47 = ((int64_t)(_3));
     _48 = (_47 != 0);
     if (_48 == 1) {
@@ -25408,7 +26958,7 @@ bb19:
         goto bb29;
     }
 bb20:
-#line 2176 "rt/rt_core.w"
+#line 2356 "rt/rt_core.w"
     _30 = (_29 == 0);
     if (_30 == 1) {
         goto bb21;
@@ -25417,7 +26967,7 @@ bb20:
         goto bb22;
     }
 bb21:
-#line 2177 "rt/rt_core.w"
+#line 2357 "rt/rt_core.w"
     _31 = ((int64_t)(_3));
     _32 = (_31 != 0);
     if (_32 == 1) {
@@ -25427,14 +26977,14 @@ bb21:
         goto bb25;
     }
 bb22:
-#line 2184 "rt/rt_core.w"
+#line 2364 "rt/rt_core.w"
     _46 = (_23 + 1);
     _23 = _46;
     goto bb23;
 bb23:
     goto bb17;
 bb24:
-#line 2178 "rt/rt_core.w"
+#line 2358 "rt/rt_core.w"
     /* StorageLive(_33); */
     _34 = ((int64_t)(_17));
     _35 = (_34 + _22);
@@ -25445,19 +26995,19 @@ bb24:
 bb25:
     goto bb26;
 bb26:
-#line 2180 "rt/rt_core.w"
+#line 2360 "rt/rt_core.w"
     _44 = (_21 + 1);
     _21 = _44;
-#line 2181 "rt/rt_core.w"
+#line 2361 "rt/rt_core.w"
     _45 = (_23 + _7);
     _22 = _45;
-#line 2182 "rt/rt_core.w"
+#line 2362 "rt/rt_core.w"
     _23 = _22;
     goto bb23;
 bb27:
-#line 2178 "rt/rt_core.w"
+#line 2358 "rt/rt_core.w"
     _33 = _38;
-#line 2179 "rt/rt_core.w"
+#line 2359 "rt/rt_core.w"
     _39 = ((int64_t)(_3));
     _40 = (_21 * 16);
     _41 = (_39 + _40);
@@ -25466,7 +27016,7 @@ bb27:
     (*_43) = _33;
     goto bb26;
 bb28:
-#line 2186 "rt/rt_core.w"
+#line 2366 "rt/rt_core.w"
     /* StorageLive(_49); */
     _50 = ((int64_t)(_17));
     _51 = (_50 + _22);
@@ -25477,17 +27027,17 @@ bb28:
 bb29:
     goto bb30;
 bb30:
-#line 2188 "rt/rt_core.w"
+#line 2368 "rt/rt_core.w"
     _60 = (_21 + 1);
     _21 = _60;
-#line 2189 "rt/rt_core.w"
+#line 2369 "rt/rt_core.w"
     (*_4) = _21;
     _0 = _21;
     return _0;
 bb31:
-#line 2186 "rt/rt_core.w"
+#line 2366 "rt/rt_core.w"
     _49 = _54;
-#line 2187 "rt/rt_core.w"
+#line 2367 "rt/rt_core.w"
     _55 = ((int64_t)(_3));
     _56 = (_21 * 16);
     _57 = (_55 + _56);
@@ -25598,33 +27148,33 @@ void with_lines_out(uint8_t* _1, with_str _2) {
     int64_t _33 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2192 "rt/rt_core.w"
+#line 2372 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     _3 = with_vec_new_out(_1, 16);
     goto bb1;
 bb1:
-#line 2194 "rt/rt_core.w"
+#line 2374 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = str_data__99(_2);
     goto bb2;
 bb2:
     _4 = _5;
-#line 2195 "rt/rt_core.w"
+#line 2375 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = str_length__102(_2);
     goto bb3;
 bb3:
     _6 = _7;
-#line 2196 "rt/rt_core.w"
+#line 2376 "rt/rt_core.w"
     /* StorageLive(_8); */
     _8 = 0;
-#line 2197 "rt/rt_core.w"
+#line 2377 "rt/rt_core.w"
     /* StorageLive(_9); */
     _9 = 0;
     goto bb4;
 bb4:
-#line 2198 "rt/rt_core.w"
+#line 2378 "rt/rt_core.w"
     _10 = (_9 < _6);
     if (_10 == 1) {
         goto bb5;
@@ -25633,7 +27183,7 @@ bb4:
         goto bb6;
     }
 bb5:
-#line 2199 "rt/rt_core.w"
+#line 2379 "rt/rt_core.w"
     _11 = _9;
     _12 = (_4[_11] == 10);
     if (_12 == 1) {
@@ -25643,7 +27193,7 @@ bb5:
         goto bb8;
     }
 bb6:
-#line 2204 "rt/rt_core.w"
+#line 2384 "rt/rt_core.w"
     _24 = (_8 < _6);
     if (_24 == 1) {
         goto bb12;
@@ -25652,7 +27202,7 @@ bb6:
         goto bb13;
     }
 bb7:
-#line 2200 "rt/rt_core.w"
+#line 2380 "rt/rt_core.w"
     /* StorageLive(_13); */
     _14 = ((int64_t)(_4));
     _15 = (_14 + _8);
@@ -25663,25 +27213,25 @@ bb7:
 bb8:
     goto bb9;
 bb9:
-#line 2203 "rt/rt_core.w"
+#line 2383 "rt/rt_core.w"
     _23 = (_9 + 1);
     _9 = _23;
     goto bb4;
 bb10:
-#line 2200 "rt/rt_core.w"
+#line 2380 "rt/rt_core.w"
     _13 = _18;
-#line 2201 "rt/rt_core.w"
+#line 2381 "rt/rt_core.w"
     _19 = (&_13);
     _20 = (uint8_t*)((uint8_t*)(_19));
     _21 = with_vec_push(_1, _20);
     goto bb11;
 bb11:
-#line 2202 "rt/rt_core.w"
+#line 2382 "rt/rt_core.w"
     _22 = (_9 + 1);
     _8 = _22;
     goto bb9;
 bb12:
-#line 2205 "rt/rt_core.w"
+#line 2385 "rt/rt_core.w"
     /* StorageLive(_25); */
     _26 = ((int64_t)(_4));
     _27 = (_26 + _8);
@@ -25695,7 +27245,7 @@ bb14:
     return;
 bb15:
     _25 = _30;
-#line 2206 "rt/rt_core.w"
+#line 2386 "rt/rt_core.w"
     _31 = (&_25);
     _32 = (uint8_t*)((uint8_t*)(_31));
     _33 = with_vec_push(_1, _32);
@@ -25775,24 +27325,24 @@ int64_t with_lines(with_str _1) {
     int64_t _28 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2209 "rt/rt_core.w"
+#line 2389 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2211 "rt/rt_core.w"
+#line 2391 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = (int64_t){0, 0, 0, 0};
     _2 = _3;
-#line 2212 "rt/rt_core.w"
+#line 2392 "rt/rt_core.w"
     _4 = (&_2);
     _5 = (uint8_t*)((uint8_t*)(_4));
     with_lines_out(_5, _1);
     goto bb1;
 bb1:
-#line 2213 "rt/rt_core.w"
+#line 2393 "rt/rt_core.w"
     /* StorageLive(_7); */
     _8 = (&_2);
     _9 = (uint8_t**)((uint8_t**)(_8));
     _7 = _9;
-#line 2214 "rt/rt_core.w"
+#line 2394 "rt/rt_core.w"
     /* StorageLive(_10); */
     _11 = (&_2);
     _12 = ((int64_t)(_11));
@@ -25800,7 +27350,7 @@ bb1:
     _14 = (int64_t*)((int64_t*)(_13));
     _15 = _14;
     _10 = (*_15);
-#line 2215 "rt/rt_core.w"
+#line 2395 "rt/rt_core.w"
     /* StorageLive(_16); */
     _17 = (&_2);
     _18 = ((int64_t)(_17));
@@ -25808,7 +27358,7 @@ bb1:
     _20 = (int64_t*)((int64_t*)(_19));
     _21 = _20;
     _16 = (*_21);
-#line 2216 "rt/rt_core.w"
+#line 2396 "rt/rt_core.w"
     /* StorageLive(_22); */
     _23 = (&_2);
     _24 = ((int64_t)(_23));
@@ -25816,7 +27366,7 @@ bb1:
     _26 = (int64_t*)((int64_t*)(_25));
     _27 = _26;
     _22 = (*_27);
-#line 2217 "rt/rt_core.w"
+#line 2397 "rt/rt_core.w"
     _28 = (int64_t){(*_7), _10, _16, _22};
     _0 = _28;
     return _0;
@@ -25890,16 +27440,16 @@ with_str with_str_join(uint8_t* _1, with_str _2) {
     with_str _61 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2220 "rt/rt_core.w"
+#line 2400 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2221 "rt/rt_core.w"
+#line 2401 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = vec_get_len__460(_1);
     goto bb1;
 bb1:
     _3 = _4;
-#line 2222 "rt/rt_core.w"
+#line 2402 "rt/rt_core.w"
     _5 = (_3 == 0);
     if (_5 == 1) {
         goto bb2;
@@ -25908,41 +27458,41 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 2223 "rt/rt_core.w"
+#line 2403 "rt/rt_core.w"
     _6 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _7 = make_str__103(_6, 0);
     goto bb5;
 bb3:
     goto bb4;
 bb4:
-#line 2224 "rt/rt_core.w"
+#line 2404 "rt/rt_core.w"
     /* StorageLive(_8); */
     _9 = str_data__99(_2);
     goto bb7;
 bb5:
-#line 2223 "rt/rt_core.w"
+#line 2403 "rt/rt_core.w"
     _0 = _7;
     return _0;
 bb6:
     goto bb4;
 bb7:
-#line 2224 "rt/rt_core.w"
+#line 2404 "rt/rt_core.w"
     _8 = _9;
-#line 2225 "rt/rt_core.w"
+#line 2405 "rt/rt_core.w"
     /* StorageLive(_10); */
     _11 = str_length__102(_2);
     goto bb8;
 bb8:
     _10 = _11;
-#line 2227 "rt/rt_core.w"
+#line 2407 "rt/rt_core.w"
     /* StorageLive(_12); */
     _12 = 0;
-#line 2228 "rt/rt_core.w"
+#line 2408 "rt/rt_core.w"
     /* StorageLive(_13); */
     _13 = 0;
     goto bb9;
 bb9:
-#line 2229 "rt/rt_core.w"
+#line 2409 "rt/rt_core.w"
     _14 = (_13 < _3);
     if (_14 == 1) {
         goto bb10;
@@ -25951,30 +27501,30 @@ bb9:
         goto bb11;
     }
 bb10:
-#line 2230 "rt/rt_core.w"
+#line 2410 "rt/rt_core.w"
     /* StorageLive(_15); */
     _16 = with_vec_get_ptr(_1, _13);
     goto bb12;
 bb11:
-#line 2236 "rt/rt_core.w"
+#line 2416 "rt/rt_core.w"
     /* StorageLive(_26); */
     _27 = (_12 + 1);
     _28 = rt_alloc__172(_27);
     goto bb16;
 bb12:
-#line 2230 "rt/rt_core.w"
+#line 2410 "rt/rt_core.w"
     _15 = _16;
-#line 2231 "rt/rt_core.w"
+#line 2411 "rt/rt_core.w"
     /* StorageLive(_17); */
     _18 = ((int64_t)(_15));
     _19 = (_18 + 8);
     _20 = (int64_t*)((int64_t*)(_19));
     _21 = _20;
     _17 = (*_21);
-#line 2232 "rt/rt_core.w"
+#line 2412 "rt/rt_core.w"
     _22 = (_12 + _17);
     _12 = _22;
-#line 2233 "rt/rt_core.w"
+#line 2413 "rt/rt_core.w"
     _23 = (_13 > 0);
     if (_23 == 1) {
         goto bb13;
@@ -25983,28 +27533,28 @@ bb12:
         goto bb14;
     }
 bb13:
-#line 2234 "rt/rt_core.w"
+#line 2414 "rt/rt_core.w"
     _24 = (_12 + _10);
     _12 = _24;
     goto bb15;
 bb14:
     goto bb15;
 bb15:
-#line 2235 "rt/rt_core.w"
+#line 2415 "rt/rt_core.w"
     _25 = (_13 + 1);
     _13 = _25;
     goto bb9;
 bb16:
-#line 2236 "rt/rt_core.w"
+#line 2416 "rt/rt_core.w"
     _26 = _28;
-#line 2237 "rt/rt_core.w"
+#line 2417 "rt/rt_core.w"
     /* StorageLive(_29); */
     _29 = 0;
-#line 2238 "rt/rt_core.w"
+#line 2418 "rt/rt_core.w"
     _13 = 0;
     goto bb17;
 bb17:
-#line 2239 "rt/rt_core.w"
+#line 2419 "rt/rt_core.w"
     _30 = (_13 < _3);
     if (_30 == 1) {
         goto bb18;
@@ -26013,7 +27563,7 @@ bb17:
         goto bb19;
     }
 bb18:
-#line 2240 "rt/rt_core.w"
+#line 2420 "rt/rt_core.w"
     _32 = (_13 > 0);
     _31 = _32;
     if (_31 == 1) {
@@ -26023,18 +27573,18 @@ bb18:
         goto bb21;
     }
 bb19:
-#line 2250 "rt/rt_core.w"
+#line 2430 "rt/rt_core.w"
     _56 = ((int64_t)(_26));
     _57 = (_56 + _12);
     _58 = (uint8_t*)((uint8_t*)(_57));
     _59 = _58;
     (*_59) = 0;
-#line 2251 "rt/rt_core.w"
+#line 2431 "rt/rt_core.w"
     _60 = (uint8_t*)((uint8_t*)(_26));
     _61 = make_str__103(_60, _12);
     goto bb31;
 bb20:
-#line 2240 "rt/rt_core.w"
+#line 2420 "rt/rt_core.w"
     _33 = (_10 > 0);
     _31 = _33;
     goto bb21;
@@ -26046,7 +27596,7 @@ bb21:
         goto bb23;
     }
 bb22:
-#line 2241 "rt/rt_core.w"
+#line 2421 "rt/rt_core.w"
     _34 = ((int64_t)(_26));
     _35 = (_34 + _29);
     _36 = (uint8_t*)((uint8_t*)(_35));
@@ -26055,31 +27605,31 @@ bb22:
 bb23:
     goto bb24;
 bb24:
-#line 2243 "rt/rt_core.w"
+#line 2423 "rt/rt_core.w"
     /* StorageLive(_39); */
     _40 = with_vec_get_ptr(_1, _13);
     goto bb26;
 bb25:
-#line 2242 "rt/rt_core.w"
+#line 2422 "rt/rt_core.w"
     _38 = (_29 + _10);
     _29 = _38;
     goto bb24;
 bb26:
-#line 2243 "rt/rt_core.w"
+#line 2423 "rt/rt_core.w"
     _39 = _40;
-#line 2244 "rt/rt_core.w"
+#line 2424 "rt/rt_core.w"
     /* StorageLive(_41); */
     _42 = (uint8_t**)((uint8_t**)(_39));
     _43 = _42;
     _41 = (*_43);
-#line 2245 "rt/rt_core.w"
+#line 2425 "rt/rt_core.w"
     /* StorageLive(_44); */
     _45 = ((int64_t)(_39));
     _46 = (_45 + 8);
     _47 = (int64_t*)((int64_t*)(_46));
     _48 = _47;
     _44 = (*_48);
-#line 2246 "rt/rt_core.w"
+#line 2426 "rt/rt_core.w"
     _49 = (_44 > 0);
     if (_49 == 1) {
         goto bb27;
@@ -26088,7 +27638,7 @@ bb26:
         goto bb28;
     }
 bb27:
-#line 2247 "rt/rt_core.w"
+#line 2427 "rt/rt_core.w"
     _50 = ((int64_t)(_26));
     _51 = (_50 + _29);
     _52 = (uint8_t*)((uint8_t*)(_51));
@@ -26097,17 +27647,17 @@ bb27:
 bb28:
     goto bb29;
 bb29:
-#line 2249 "rt/rt_core.w"
+#line 2429 "rt/rt_core.w"
     _55 = (_13 + 1);
     _13 = _55;
     goto bb17;
 bb30:
-#line 2248 "rt/rt_core.w"
+#line 2428 "rt/rt_core.w"
     _54 = (_29 + _44);
     _29 = _54;
     goto bb29;
 bb31:
-#line 2251 "rt/rt_core.w"
+#line 2431 "rt/rt_core.w"
     _0 = _61;
     return _0;
 bb32: ;
@@ -26200,13 +27750,13 @@ with_str with_vec_str_join(uint8_t* _1, with_str _2) {
     with_str _3 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2254 "rt/rt_core.w"
+#line 2434 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     _3 = with_str_join(_1, _2);
     goto bb1;
 bb1:
-#line 2255 "rt/rt_core.w"
+#line 2435 "rt/rt_core.w"
     _0 = _3;
     return _0;
 bb2: ;
@@ -26259,20 +27809,20 @@ int64_t with_str_split_vec(uint8_t* _1, with_str _2, with_str _3) {
     int64_t _46 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2258 "rt/rt_core.w"
+#line 2438 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
     /* StorageLive(_3); */
     _4 = with_vec_new_out(_1, 16);
     goto bb1;
 bb1:
-#line 2260 "rt/rt_core.w"
+#line 2440 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = str_length__102(_2);
     goto bb2;
 bb2:
     _5 = _6;
-#line 2261 "rt/rt_core.w"
+#line 2441 "rt/rt_core.w"
     _7 = (_5 == 0);
     if (_7 == 1) {
         goto bb3;
@@ -26286,7 +27836,7 @@ bb3:
 bb4:
     goto bb5;
 bb5:
-#line 2262 "rt/rt_core.w"
+#line 2442 "rt/rt_core.w"
     /* StorageLive(_8); */
     _9 = str_length__102(_3);
     goto bb7;
@@ -26294,7 +27844,7 @@ bb6:
     goto bb5;
 bb7:
     _8 = _9;
-#line 2263 "rt/rt_core.w"
+#line 2443 "rt/rt_core.w"
     _10 = (_8 == 0);
     if (_10 == 1) {
         goto bb8;
@@ -26303,7 +27853,7 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2264 "rt/rt_core.w"
+#line 2444 "rt/rt_core.w"
     _11 = (&_2);
     _12 = (uint8_t*)((uint8_t*)(_11));
     _13 = with_vec_push(_1, _12);
@@ -26311,34 +27861,34 @@ bb8:
 bb9:
     goto bb10;
 bb10:
-#line 2266 "rt/rt_core.w"
+#line 2446 "rt/rt_core.w"
     /* StorageLive(_14); */
     _15 = str_data__99(_2);
     goto bb13;
 bb11:
-#line 2265 "rt/rt_core.w"
+#line 2445 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb12:
     goto bb10;
 bb13:
-#line 2266 "rt/rt_core.w"
+#line 2446 "rt/rt_core.w"
     _14 = _15;
-#line 2267 "rt/rt_core.w"
+#line 2447 "rt/rt_core.w"
     /* StorageLive(_16); */
     _17 = str_data__99(_3);
     goto bb14;
 bb14:
     _16 = _17;
-#line 2268 "rt/rt_core.w"
+#line 2448 "rt/rt_core.w"
     /* StorageLive(_18); */
     _18 = 0;
-#line 2269 "rt/rt_core.w"
+#line 2449 "rt/rt_core.w"
     /* StorageLive(_19); */
     _19 = 0;
     goto bb15;
 bb15:
-#line 2270 "rt/rt_core.w"
+#line 2450 "rt/rt_core.w"
     _20 = (_5 - _8);
     _21 = (_19 <= _20);
     if (_21 == 1) {
@@ -26348,14 +27898,14 @@ bb15:
         goto bb17;
     }
 bb16:
-#line 2271 "rt/rt_core.w"
+#line 2451 "rt/rt_core.w"
     _22 = ((int64_t)(_14));
     _23 = (_22 + _19);
     _24 = (uint8_t*)((uint8_t*)(_23));
     _25 = rt_memcmp__107(_24, _16, _8);
     goto bb18;
 bb17:
-#line 2278 "rt/rt_core.w"
+#line 2458 "rt/rt_core.w"
     /* StorageLive(_38); */
     _39 = ((int64_t)(_14));
     _40 = (_39 + _18);
@@ -26364,7 +27914,7 @@ bb17:
     _43 = make_str__103(_41, _42);
     goto bb24;
 bb18:
-#line 2271 "rt/rt_core.w"
+#line 2451 "rt/rt_core.w"
     _26 = (_25 == 0);
     if (_26 == 1) {
         goto bb19;
@@ -26373,7 +27923,7 @@ bb18:
         goto bb20;
     }
 bb19:
-#line 2272 "rt/rt_core.w"
+#line 2452 "rt/rt_core.w"
     /* StorageLive(_27); */
     _28 = ((int64_t)(_14));
     _29 = (_28 + _18);
@@ -26382,31 +27932,31 @@ bb19:
     _32 = make_str__103(_30, _31);
     goto bb22;
 bb20:
-#line 2277 "rt/rt_core.w"
+#line 2457 "rt/rt_core.w"
     _37 = (_19 + 1);
     _19 = _37;
     goto bb21;
 bb21:
     goto bb15;
 bb22:
-#line 2272 "rt/rt_core.w"
+#line 2452 "rt/rt_core.w"
     _27 = _32;
-#line 2273 "rt/rt_core.w"
+#line 2453 "rt/rt_core.w"
     _33 = (&_27);
     _34 = (uint8_t*)((uint8_t*)(_33));
     _35 = with_vec_push(_1, _34);
     goto bb23;
 bb23:
-#line 2274 "rt/rt_core.w"
+#line 2454 "rt/rt_core.w"
     _36 = (_19 + _8);
     _18 = _36;
-#line 2275 "rt/rt_core.w"
+#line 2455 "rt/rt_core.w"
     _19 = _18;
     goto bb21;
 bb24:
-#line 2278 "rt/rt_core.w"
+#line 2458 "rt/rt_core.w"
     _38 = _43;
-#line 2279 "rt/rt_core.w"
+#line 2459 "rt/rt_core.w"
     _44 = (&_38);
     _45 = (uint8_t*)((uint8_t*)(_44));
     _46 = with_vec_push(_1, _45);
@@ -26478,7 +28028,7 @@ bb0:
     _1 = rt_clock_ns();
     goto bb1;
 bb1:
-#line 2285 "rt/rt_core.w"
+#line 2465 "rt/rt_core.w"
     _0 = _1;
     return _0;
 }
@@ -26491,7 +28041,7 @@ bb0:
     _1 = rt_clock_ns();
     goto bb1;
 bb1:
-#line 2289 "rt/rt_core.w"
+#line 2469 "rt/rt_core.w"
     _0 = _1;
     return _0;
 }
@@ -26501,12 +28051,12 @@ int32_t with_nanosleep(int64_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2292 "rt/rt_core.w"
+#line 2472 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = rt_nanosleep(_1);
     goto bb1;
 bb1:
-#line 2293 "rt/rt_core.w"
+#line 2473 "rt/rt_core.w"
     _0 = _2;
     return _0;
 }
@@ -26518,9 +28068,9 @@ int32_t with_usleep(int32_t _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2296 "rt/rt_core.w"
+#line 2476 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2297 "rt/rt_core.w"
+#line 2477 "rt/rt_core.w"
     _2 = ((int64_t)(_1));
     _3 = (_2 * 1000);
     _4 = rt_nanosleep(_3);
@@ -26540,7 +28090,7 @@ bb0:
     _1 = rt_getpid();
     goto bb1;
 bb1:
-#line 2301 "rt/rt_core.w"
+#line 2481 "rt/rt_core.w"
     _0 = _1;
     return _0;
 }
@@ -26550,12 +28100,12 @@ int32_t with_raise(int32_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2304 "rt/rt_core.w"
+#line 2484 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = rt_raise(_1);
     goto bb1;
 bb1:
-#line 2305 "rt/rt_core.w"
+#line 2485 "rt/rt_core.w"
     _0 = _2;
     return _0;
 }
@@ -26569,9 +28119,9 @@ int32_t with_process_alive(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2308 "rt/rt_core.w"
+#line 2488 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2309 "rt/rt_core.w"
+#line 2489 "rt/rt_core.w"
     _2 = (_1 <= 0);
     if (_2 == 1) {
         goto bb1;
@@ -26580,13 +28130,13 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 2310 "rt/rt_core.w"
+#line 2490 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb2:
     goto bb3;
 bb3:
-#line 2311 "rt/rt_core.w"
+#line 2491 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = rt_kill(_1, 0);
     goto bb5;
@@ -26594,7 +28144,7 @@ bb4:
     goto bb3;
 bb5:
     _3 = _4;
-#line 2312 "rt/rt_core.w"
+#line 2492 "rt/rt_core.w"
     _5 = (_3 == 0);
     if (_5 == 1) {
         goto bb6;
@@ -26620,9 +28170,9 @@ int32_t with_fs_mkdir(with_str _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2315 "rt/rt_core.w"
+#line 2495 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2316 "rt/rt_core.w"
+#line 2496 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = str_to_cstr__196(_1);
     goto bb1;
@@ -26631,7 +28181,7 @@ bb1:
     _4 = rt_mkdir(_2, 493);
     goto bb2;
 bb2:
-#line 2317 "rt/rt_core.w"
+#line 2497 "rt/rt_core.w"
     _0 = _4;
     return _0;
 bb3: ;
@@ -26652,25 +28202,25 @@ with_str with_str_from_byte(int32_t _1) {
     with_str _11 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2320 "rt/rt_core.w"
+#line 2500 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2321 "rt/rt_core.w"
+#line 2501 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = rt_alloc__172(2);
     goto bb1;
 bb1:
     _4 = (uint8_t*)((uint8_t*)(_3));
     _2 = _4;
-#line 2322 "rt/rt_core.w"
+#line 2502 "rt/rt_core.w"
     _5 = ((uint8_t)(_1));
     (*_2) = _5;
-#line 2323 "rt/rt_core.w"
+#line 2503 "rt/rt_core.w"
     _6 = ((int64_t)(_2));
     _7 = (_6 + 1);
     _8 = (uint8_t*)((uint8_t*)(_7));
     _9 = _8;
     (*_9) = 0;
-#line 2324 "rt/rt_core.w"
+#line 2504 "rt/rt_core.w"
     _10 = (uint8_t*)((uint8_t*)(_2));
     _11 = make_str__103(_10, 1);
     goto bb2;
@@ -26719,9 +28269,9 @@ int32_t with_clz(int32_t _1) {
     int32_t _24 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2329 "rt/rt_core.w"
+#line 2509 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2330 "rt/rt_core.w"
+#line 2510 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -26735,14 +28285,14 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 2331 "rt/rt_core.w"
+#line 2511 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = ((uint32_t)(_1));
     _3 = _4;
-#line 2332 "rt/rt_core.w"
+#line 2512 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 2334 "rt/rt_core.w"
+#line 2514 "rt/rt_core.w"
     _6 = (_3 & 4294901760);
     _7 = (_6 == 0);
     if (_7 == 1) {
@@ -26754,17 +28304,17 @@ bb3:
 bb4:
     goto bb3;
 bb5:
-#line 2335 "rt/rt_core.w"
+#line 2515 "rt/rt_core.w"
     _8 = (_5 + 16);
     _5 = _8;
-#line 2336 "rt/rt_core.w"
+#line 2516 "rt/rt_core.w"
     _9 = (_3 << 16);
     _3 = _9;
     goto bb7;
 bb6:
     goto bb7;
 bb7:
-#line 2337 "rt/rt_core.w"
+#line 2517 "rt/rt_core.w"
     _10 = (_3 & 4278190080);
     _11 = (_10 == 0);
     if (_11 == 1) {
@@ -26774,17 +28324,17 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2338 "rt/rt_core.w"
+#line 2518 "rt/rt_core.w"
     _12 = (_5 + 8);
     _5 = _12;
-#line 2339 "rt/rt_core.w"
+#line 2519 "rt/rt_core.w"
     _13 = (_3 << 8);
     _3 = _13;
     goto bb10;
 bb9:
     goto bb10;
 bb10:
-#line 2340 "rt/rt_core.w"
+#line 2520 "rt/rt_core.w"
     _14 = (_3 & 4026531840);
     _15 = (_14 == 0);
     if (_15 == 1) {
@@ -26794,17 +28344,17 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 2341 "rt/rt_core.w"
+#line 2521 "rt/rt_core.w"
     _16 = (_5 + 4);
     _5 = _16;
-#line 2342 "rt/rt_core.w"
+#line 2522 "rt/rt_core.w"
     _17 = (_3 << 4);
     _3 = _17;
     goto bb13;
 bb12:
     goto bb13;
 bb13:
-#line 2343 "rt/rt_core.w"
+#line 2523 "rt/rt_core.w"
     _18 = (_3 & 3221225472);
     _19 = (_18 == 0);
     if (_19 == 1) {
@@ -26814,17 +28364,17 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 2344 "rt/rt_core.w"
+#line 2524 "rt/rt_core.w"
     _20 = (_5 + 2);
     _5 = _20;
-#line 2345 "rt/rt_core.w"
+#line 2525 "rt/rt_core.w"
     _21 = (_3 << 2);
     _3 = _21;
     goto bb16;
 bb15:
     goto bb16;
 bb16:
-#line 2346 "rt/rt_core.w"
+#line 2526 "rt/rt_core.w"
     _22 = (_3 & 2147483648);
     _23 = (_22 == 0);
     if (_23 == 1) {
@@ -26834,14 +28384,14 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 2347 "rt/rt_core.w"
+#line 2527 "rt/rt_core.w"
     _24 = (_5 + 1);
     _5 = _24;
     goto bb19;
 bb18:
     goto bb19;
 bb19:
-#line 2348 "rt/rt_core.w"
+#line 2528 "rt/rt_core.w"
     _0 = _5;
     return _0;
 }
@@ -26873,9 +28423,9 @@ int32_t with_ctz(int32_t _1) {
     int32_t _24 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2351 "rt/rt_core.w"
+#line 2531 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2352 "rt/rt_core.w"
+#line 2532 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -26889,14 +28439,14 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 2353 "rt/rt_core.w"
+#line 2533 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = ((uint32_t)(_1));
     _3 = _4;
-#line 2354 "rt/rt_core.w"
+#line 2534 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 2355 "rt/rt_core.w"
+#line 2535 "rt/rt_core.w"
     _6 = (_3 & 65535);
     _7 = (_6 == 0);
     if (_7 == 1) {
@@ -26908,17 +28458,17 @@ bb3:
 bb4:
     goto bb3;
 bb5:
-#line 2356 "rt/rt_core.w"
+#line 2536 "rt/rt_core.w"
     _8 = (_5 + 16);
     _5 = _8;
-#line 2357 "rt/rt_core.w"
+#line 2537 "rt/rt_core.w"
     _9 = (_3 >> 16);
     _3 = _9;
     goto bb7;
 bb6:
     goto bb7;
 bb7:
-#line 2358 "rt/rt_core.w"
+#line 2538 "rt/rt_core.w"
     _10 = (_3 & 255);
     _11 = (_10 == 0);
     if (_11 == 1) {
@@ -26928,17 +28478,17 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2359 "rt/rt_core.w"
+#line 2539 "rt/rt_core.w"
     _12 = (_5 + 8);
     _5 = _12;
-#line 2360 "rt/rt_core.w"
+#line 2540 "rt/rt_core.w"
     _13 = (_3 >> 8);
     _3 = _13;
     goto bb10;
 bb9:
     goto bb10;
 bb10:
-#line 2361 "rt/rt_core.w"
+#line 2541 "rt/rt_core.w"
     _14 = (_3 & 15);
     _15 = (_14 == 0);
     if (_15 == 1) {
@@ -26948,17 +28498,17 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 2362 "rt/rt_core.w"
+#line 2542 "rt/rt_core.w"
     _16 = (_5 + 4);
     _5 = _16;
-#line 2363 "rt/rt_core.w"
+#line 2543 "rt/rt_core.w"
     _17 = (_3 >> 4);
     _3 = _17;
     goto bb13;
 bb12:
     goto bb13;
 bb13:
-#line 2364 "rt/rt_core.w"
+#line 2544 "rt/rt_core.w"
     _18 = (_3 & 3);
     _19 = (_18 == 0);
     if (_19 == 1) {
@@ -26968,17 +28518,17 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 2365 "rt/rt_core.w"
+#line 2545 "rt/rt_core.w"
     _20 = (_5 + 2);
     _5 = _20;
-#line 2366 "rt/rt_core.w"
+#line 2546 "rt/rt_core.w"
     _21 = (_3 >> 2);
     _3 = _21;
     goto bb16;
 bb15:
     goto bb16;
 bb16:
-#line 2367 "rt/rt_core.w"
+#line 2547 "rt/rt_core.w"
     _22 = (_3 & 1);
     _23 = (_22 == 0);
     if (_23 == 1) {
@@ -26988,14 +28538,14 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 2368 "rt/rt_core.w"
+#line 2548 "rt/rt_core.w"
     _24 = (_5 + 1);
     _5 = _24;
     goto bb19;
 bb18:
     goto bb19;
 bb19:
-#line 2369 "rt/rt_core.w"
+#line 2549 "rt/rt_core.w"
     _0 = _5;
     return _0;
 }
@@ -27019,29 +28569,29 @@ int32_t with_popcount(int32_t _1) {
     int32_t _16 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2372 "rt/rt_core.w"
+#line 2552 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2373 "rt/rt_core.w"
+#line 2553 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((uint32_t)(_1));
     _2 = _3;
-#line 2375 "rt/rt_core.w"
+#line 2555 "rt/rt_core.w"
     _4 = (_2 >> 1);
     _5 = (_4 & 1431655765);
     _6 = (_2 - _5);
     _2 = _6;
-#line 2376 "rt/rt_core.w"
+#line 2556 "rt/rt_core.w"
     _7 = (_2 & 858993459);
     _8 = (_2 >> 2);
     _9 = (_8 & 858993459);
     _10 = (_7 + _9);
     _2 = _10;
-#line 2377 "rt/rt_core.w"
+#line 2557 "rt/rt_core.w"
     _11 = (_2 >> 4);
     _12 = (_2 + _11);
     _13 = (_12 & 252645135);
     _2 = _13;
-#line 2378 "rt/rt_core.w"
+#line 2558 "rt/rt_core.w"
     _14 = (_2 * 16843009);
     _15 = (_14 >> 24);
     _16 = ((int32_t)(_15));
@@ -27061,13 +28611,13 @@ int16_t with_bswap16(int16_t _1) {
     int16_t _9 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2381 "rt/rt_core.w"
+#line 2561 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2382 "rt/rt_core.w"
+#line 2562 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((uint16_t)(_1));
     _2 = _3;
-#line 2383 "rt/rt_core.w"
+#line 2563 "rt/rt_core.w"
     _4 = (_2 >> 8);
     _5 = (_4 & 255);
     _6 = (_2 & 255);
@@ -27096,13 +28646,13 @@ int32_t with_bswap32(int32_t _1) {
     int32_t _15 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2386 "rt/rt_core.w"
+#line 2566 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2387 "rt/rt_core.w"
+#line 2567 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((uint32_t)(_1));
     _2 = _3;
-#line 2388 "rt/rt_core.w"
+#line 2568 "rt/rt_core.w"
     _4 = (_2 >> 24);
     _5 = (_4 & 255);
     _6 = (_2 >> 8);
@@ -27164,52 +28714,52 @@ int64_t with_bswap64(int64_t _1) {
     int64_t _42 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2391 "rt/rt_core.w"
+#line 2571 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2392 "rt/rt_core.w"
+#line 2572 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = ((uint64_t)(_1));
     _2 = _3;
-#line 2394 "rt/rt_core.w"
+#line 2574 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = (_2 & 255);
     _4 = _5;
-#line 2395 "rt/rt_core.w"
+#line 2575 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = (_2 >> 8);
     _8 = (_7 & 255);
     _6 = _8;
-#line 2396 "rt/rt_core.w"
+#line 2576 "rt/rt_core.w"
     /* StorageLive(_9); */
     _10 = (_2 >> 16);
     _11 = (_10 & 255);
     _9 = _11;
-#line 2397 "rt/rt_core.w"
+#line 2577 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = (_2 >> 24);
     _14 = (_13 & 255);
     _12 = _14;
-#line 2398 "rt/rt_core.w"
+#line 2578 "rt/rt_core.w"
     /* StorageLive(_15); */
     _16 = (_2 >> 32);
     _17 = (_16 & 255);
     _15 = _17;
-#line 2399 "rt/rt_core.w"
+#line 2579 "rt/rt_core.w"
     /* StorageLive(_18); */
     _19 = (_2 >> 40);
     _20 = (_19 & 255);
     _18 = _20;
-#line 2400 "rt/rt_core.w"
+#line 2580 "rt/rt_core.w"
     /* StorageLive(_21); */
     _22 = (_2 >> 48);
     _23 = (_22 & 255);
     _21 = _23;
-#line 2401 "rt/rt_core.w"
+#line 2581 "rt/rt_core.w"
     /* StorageLive(_24); */
     _25 = (_2 >> 56);
     _26 = (_25 & 255);
     _24 = _26;
-#line 2403 "rt/rt_core.w"
+#line 2583 "rt/rt_core.w"
     /* StorageLive(_27); */
     _28 = (_4 << 56);
     _29 = (_6 << 48);
@@ -27226,7 +28776,7 @@ bb0:
     _40 = (_38 | _39);
     _41 = (_40 | _24);
     _27 = _41;
-#line 2404 "rt/rt_core.w"
+#line 2584 "rt/rt_core.w"
     _42 = ((int64_t)(_27));
     _0 = _42;
     return _0;
@@ -27275,9 +28825,9 @@ int32_t with_clzl(int64_t _1) {
     int32_t _40 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2407 "rt/rt_core.w"
+#line 2587 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2408 "rt/rt_core.w"
+#line 2588 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -27291,14 +28841,14 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 2409 "rt/rt_core.w"
+#line 2589 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = ((uint64_t)(_1));
     _3 = _4;
-#line 2410 "rt/rt_core.w"
+#line 2590 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 2411 "rt/rt_core.w"
+#line 2591 "rt/rt_core.w"
     _6 = ((uint64_t)(4294967295));
     _7 = (_6 << 32);
     _8 = (_3 & _7);
@@ -27312,17 +28862,17 @@ bb3:
 bb4:
     goto bb3;
 bb5:
-#line 2412 "rt/rt_core.w"
+#line 2592 "rt/rt_core.w"
     _10 = (_5 + 32);
     _5 = _10;
-#line 2413 "rt/rt_core.w"
+#line 2593 "rt/rt_core.w"
     _11 = (_3 << 32);
     _3 = _11;
     goto bb7;
 bb6:
     goto bb7;
 bb7:
-#line 2414 "rt/rt_core.w"
+#line 2594 "rt/rt_core.w"
     _12 = ((uint64_t)(65535));
     _13 = (_12 << 48);
     _14 = (_3 & _13);
@@ -27334,17 +28884,17 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2415 "rt/rt_core.w"
+#line 2595 "rt/rt_core.w"
     _16 = (_5 + 16);
     _5 = _16;
-#line 2416 "rt/rt_core.w"
+#line 2596 "rt/rt_core.w"
     _17 = (_3 << 16);
     _3 = _17;
     goto bb10;
 bb9:
     goto bb10;
 bb10:
-#line 2417 "rt/rt_core.w"
+#line 2597 "rt/rt_core.w"
     _18 = ((uint64_t)(255));
     _19 = (_18 << 56);
     _20 = (_3 & _19);
@@ -27356,17 +28906,17 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 2418 "rt/rt_core.w"
+#line 2598 "rt/rt_core.w"
     _22 = (_5 + 8);
     _5 = _22;
-#line 2419 "rt/rt_core.w"
+#line 2599 "rt/rt_core.w"
     _23 = (_3 << 8);
     _3 = _23;
     goto bb13;
 bb12:
     goto bb13;
 bb13:
-#line 2420 "rt/rt_core.w"
+#line 2600 "rt/rt_core.w"
     _24 = ((uint64_t)(15));
     _25 = (_24 << 60);
     _26 = (_3 & _25);
@@ -27378,17 +28928,17 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 2421 "rt/rt_core.w"
+#line 2601 "rt/rt_core.w"
     _28 = (_5 + 4);
     _5 = _28;
-#line 2422 "rt/rt_core.w"
+#line 2602 "rt/rt_core.w"
     _29 = (_3 << 4);
     _3 = _29;
     goto bb16;
 bb15:
     goto bb16;
 bb16:
-#line 2423 "rt/rt_core.w"
+#line 2603 "rt/rt_core.w"
     _30 = ((uint64_t)(3));
     _31 = (_30 << 62);
     _32 = (_3 & _31);
@@ -27400,17 +28950,17 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 2424 "rt/rt_core.w"
+#line 2604 "rt/rt_core.w"
     _34 = (_5 + 2);
     _5 = _34;
-#line 2425 "rt/rt_core.w"
+#line 2605 "rt/rt_core.w"
     _35 = (_3 << 2);
     _3 = _35;
     goto bb19;
 bb18:
     goto bb19;
 bb19:
-#line 2426 "rt/rt_core.w"
+#line 2606 "rt/rt_core.w"
     _36 = ((uint64_t)(1));
     _37 = (_36 << 63);
     _38 = (_3 & _37);
@@ -27422,14 +28972,14 @@ bb19:
         goto bb21;
     }
 bb20:
-#line 2427 "rt/rt_core.w"
+#line 2607 "rt/rt_core.w"
     _40 = (_5 + 1);
     _5 = _40;
     goto bb22;
 bb21:
     goto bb22;
 bb22:
-#line 2428 "rt/rt_core.w"
+#line 2608 "rt/rt_core.w"
     _0 = _5;
     return _0;
 }
@@ -27439,12 +28989,12 @@ int32_t with_clzll(int64_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2431 "rt/rt_core.w"
+#line 2611 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = with_clzl(_1);
     goto bb1;
 bb1:
-#line 2432 "rt/rt_core.w"
+#line 2612 "rt/rt_core.w"
     _0 = _2;
     return _0;
 }
@@ -27480,9 +29030,9 @@ int32_t with_ctzl(int64_t _1) {
     int32_t _28 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2435 "rt/rt_core.w"
+#line 2615 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2436 "rt/rt_core.w"
+#line 2616 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -27496,14 +29046,14 @@ bb1:
 bb2:
     goto bb3;
 bb3:
-#line 2437 "rt/rt_core.w"
+#line 2617 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = ((uint64_t)(_1));
     _3 = _4;
-#line 2438 "rt/rt_core.w"
+#line 2618 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = 0;
-#line 2439 "rt/rt_core.w"
+#line 2619 "rt/rt_core.w"
     _6 = (_3 & 4294967295);
     _7 = (_6 == 0);
     if (_7 == 1) {
@@ -27515,17 +29065,17 @@ bb3:
 bb4:
     goto bb3;
 bb5:
-#line 2440 "rt/rt_core.w"
+#line 2620 "rt/rt_core.w"
     _8 = (_5 + 32);
     _5 = _8;
-#line 2441 "rt/rt_core.w"
+#line 2621 "rt/rt_core.w"
     _9 = (_3 >> 32);
     _3 = _9;
     goto bb7;
 bb6:
     goto bb7;
 bb7:
-#line 2442 "rt/rt_core.w"
+#line 2622 "rt/rt_core.w"
     _10 = (_3 & 65535);
     _11 = (_10 == 0);
     if (_11 == 1) {
@@ -27535,17 +29085,17 @@ bb7:
         goto bb9;
     }
 bb8:
-#line 2443 "rt/rt_core.w"
+#line 2623 "rt/rt_core.w"
     _12 = (_5 + 16);
     _5 = _12;
-#line 2444 "rt/rt_core.w"
+#line 2624 "rt/rt_core.w"
     _13 = (_3 >> 16);
     _3 = _13;
     goto bb10;
 bb9:
     goto bb10;
 bb10:
-#line 2445 "rt/rt_core.w"
+#line 2625 "rt/rt_core.w"
     _14 = (_3 & 255);
     _15 = (_14 == 0);
     if (_15 == 1) {
@@ -27555,17 +29105,17 @@ bb10:
         goto bb12;
     }
 bb11:
-#line 2446 "rt/rt_core.w"
+#line 2626 "rt/rt_core.w"
     _16 = (_5 + 8);
     _5 = _16;
-#line 2447 "rt/rt_core.w"
+#line 2627 "rt/rt_core.w"
     _17 = (_3 >> 8);
     _3 = _17;
     goto bb13;
 bb12:
     goto bb13;
 bb13:
-#line 2448 "rt/rt_core.w"
+#line 2628 "rt/rt_core.w"
     _18 = (_3 & 15);
     _19 = (_18 == 0);
     if (_19 == 1) {
@@ -27575,17 +29125,17 @@ bb13:
         goto bb15;
     }
 bb14:
-#line 2449 "rt/rt_core.w"
+#line 2629 "rt/rt_core.w"
     _20 = (_5 + 4);
     _5 = _20;
-#line 2450 "rt/rt_core.w"
+#line 2630 "rt/rt_core.w"
     _21 = (_3 >> 4);
     _3 = _21;
     goto bb16;
 bb15:
     goto bb16;
 bb16:
-#line 2451 "rt/rt_core.w"
+#line 2631 "rt/rt_core.w"
     _22 = (_3 & 3);
     _23 = (_22 == 0);
     if (_23 == 1) {
@@ -27595,17 +29145,17 @@ bb16:
         goto bb18;
     }
 bb17:
-#line 2452 "rt/rt_core.w"
+#line 2632 "rt/rt_core.w"
     _24 = (_5 + 2);
     _5 = _24;
-#line 2453 "rt/rt_core.w"
+#line 2633 "rt/rt_core.w"
     _25 = (_3 >> 2);
     _3 = _25;
     goto bb19;
 bb18:
     goto bb19;
 bb19:
-#line 2454 "rt/rt_core.w"
+#line 2634 "rt/rt_core.w"
     _26 = (_3 & 1);
     _27 = (_26 == 0);
     if (_27 == 1) {
@@ -27615,14 +29165,14 @@ bb19:
         goto bb21;
     }
 bb20:
-#line 2455 "rt/rt_core.w"
+#line 2635 "rt/rt_core.w"
     _28 = (_5 + 1);
     _5 = _28;
     goto bb22;
 bb21:
     goto bb22;
 bb22:
-#line 2456 "rt/rt_core.w"
+#line 2636 "rt/rt_core.w"
     _0 = _5;
     return _0;
 }
@@ -27632,12 +29182,12 @@ int32_t with_ctzll(int64_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2459 "rt/rt_core.w"
+#line 2639 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = with_ctzl(_1);
     goto bb1;
 bb1:
-#line 2460 "rt/rt_core.w"
+#line 2640 "rt/rt_core.w"
     _0 = _2;
     return _0;
 }
@@ -27649,9 +29199,9 @@ int32_t with_abs(int32_t _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2463 "rt/rt_core.w"
+#line 2643 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2464 "rt/rt_core.w"
+#line 2644 "rt/rt_core.w"
     _2 = (_1 < 0);
     if (_2 == 1) {
         goto bb1;
@@ -27677,10 +29227,10 @@ void with_fill_random(uint8_t* _1, int64_t _2) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2469 "rt/rt_core.w"
+#line 2649 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2470 "rt/rt_core.w"
+#line 2650 "rt/rt_core.w"
     _3 = ((uint64_t)(_2));
     rt_fill_random(_1, _3);
     goto bb1;
@@ -27698,10 +29248,10 @@ void with_codegen_loop_set_break(int32_t _1, int64_t _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2480 "rt/rt_core.w"
+#line 2660 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2481 "rt/rt_core.w"
+#line 2661 "rt/rt_core.w"
     _4 = (_1 >= 0);
     _3 = _4;
     if (_3 == 1) {
@@ -27722,9 +29272,9 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2482 "rt/rt_core.w"
+#line 2662 "rt/rt_core.w"
     _7 = _1;
-    __with_global_loop_break_bbs__739[_7] = _2;
+    __with_global_loop_break_bbs__793[_7] = _2;
     goto bb5;
 bb4:
     goto bb5;
@@ -27740,10 +29290,10 @@ void with_codegen_loop_set_continue(int32_t _1, int64_t _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2485 "rt/rt_core.w"
+#line 2665 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2486 "rt/rt_core.w"
+#line 2666 "rt/rt_core.w"
     _4 = (_1 >= 0);
     _3 = _4;
     if (_3 == 1) {
@@ -27764,9 +29314,9 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2487 "rt/rt_core.w"
+#line 2667 "rt/rt_core.w"
     _7 = _1;
-    __with_global_loop_continue_bbs__740[_7] = _2;
+    __with_global_loop_continue_bbs__794[_7] = _2;
     goto bb5;
 bb4:
     goto bb5;
@@ -27782,10 +29332,10 @@ void with_codegen_loop_set_result(int32_t _1, int64_t _2) {
     int32_t _7 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2490 "rt/rt_core.w"
+#line 2670 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2491 "rt/rt_core.w"
+#line 2671 "rt/rt_core.w"
     _4 = (_1 >= 0);
     _3 = _4;
     if (_3 == 1) {
@@ -27806,9 +29356,9 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2492 "rt/rt_core.w"
+#line 2672 "rt/rt_core.w"
     _7 = _1;
-    __with_global_loop_result_bbs__741[_7] = _2;
+    __with_global_loop_result_bbs__795[_7] = _2;
     goto bb5;
 bb4:
     goto bb5;
@@ -27824,9 +29374,9 @@ int64_t with_codegen_loop_get_break(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2495 "rt/rt_core.w"
+#line 2675 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2496 "rt/rt_core.w"
+#line 2676 "rt/rt_core.w"
     _3 = (_1 >= 0);
     _2 = _3;
     if (_2 == 1) {
@@ -27847,14 +29397,14 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2497 "rt/rt_core.w"
+#line 2677 "rt/rt_core.w"
     _6 = _1;
-    _0 = __with_global_loop_break_bbs__739[_6];
+    _0 = __with_global_loop_break_bbs__793[_6];
     return _0;
 bb4:
     goto bb5;
 bb5:
-#line 2498 "rt/rt_core.w"
+#line 2678 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb6:
@@ -27869,9 +29419,9 @@ int64_t with_codegen_loop_get_continue(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2501 "rt/rt_core.w"
+#line 2681 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2502 "rt/rt_core.w"
+#line 2682 "rt/rt_core.w"
     _3 = (_1 >= 0);
     _2 = _3;
     if (_2 == 1) {
@@ -27892,14 +29442,14 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2503 "rt/rt_core.w"
+#line 2683 "rt/rt_core.w"
     _6 = _1;
-    _0 = __with_global_loop_continue_bbs__740[_6];
+    _0 = __with_global_loop_continue_bbs__794[_6];
     return _0;
 bb4:
     goto bb5;
 bb5:
-#line 2504 "rt/rt_core.w"
+#line 2684 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb6:
@@ -27914,9 +29464,9 @@ int64_t with_codegen_loop_get_result(int32_t _1) {
     int32_t _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2507 "rt/rt_core.w"
+#line 2687 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2508 "rt/rt_core.w"
+#line 2688 "rt/rt_core.w"
     _3 = (_1 >= 0);
     _2 = _3;
     if (_2 == 1) {
@@ -27937,14 +29487,14 @@ bb2:
         goto bb4;
     }
 bb3:
-#line 2509 "rt/rt_core.w"
+#line 2689 "rt/rt_core.w"
     _6 = _1;
-    _0 = __with_global_loop_result_bbs__741[_6];
+    _0 = __with_global_loop_result_bbs__795[_6];
     return _0;
 bb4:
     goto bb5;
 bb5:
-#line 2510 "rt/rt_core.w"
+#line 2690 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb6:
@@ -27957,16 +29507,16 @@ int32_t with_net_tcp_listen(int32_t _1, int32_t _2) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2518 "rt/rt_core.w"
+#line 2698 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2519 "rt/rt_core.w"
+#line 2699 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = _1;
-#line 2520 "rt/rt_core.w"
+#line 2700 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = _2;
-#line 2521 "rt/rt_core.w"
+#line 2701 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -27976,12 +29526,12 @@ int32_t with_net_tcp_accept(int32_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2524 "rt/rt_core.w"
+#line 2704 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2525 "rt/rt_core.w"
+#line 2705 "rt/rt_core.w"
     /* StorageLive(_2); */
     _2 = _1;
-#line 2526 "rt/rt_core.w"
+#line 2706 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -27992,16 +29542,16 @@ int32_t with_net_tcp_connect(with_str _1, int32_t _2) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2529 "rt/rt_core.w"
+#line 2709 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2530 "rt/rt_core.w"
+#line 2710 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = _1;
-#line 2531 "rt/rt_core.w"
+#line 2711 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = _2;
-#line 2532 "rt/rt_core.w"
+#line 2712 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -28012,16 +29562,16 @@ int64_t with_net_send(int32_t _1, with_str _2) {
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2535 "rt/rt_core.w"
+#line 2715 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2536 "rt/rt_core.w"
+#line 2716 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = _1;
-#line 2537 "rt/rt_core.w"
+#line 2717 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = _2;
-#line 2538 "rt/rt_core.w"
+#line 2718 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -28034,16 +29584,16 @@ with_str with_net_recv(int32_t _1, int64_t _2) {
     with_str _6 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2541 "rt/rt_core.w"
+#line 2721 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2542 "rt/rt_core.w"
+#line 2722 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = _1;
-#line 2543 "rt/rt_core.w"
+#line 2723 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = _2;
-#line 2544 "rt/rt_core.w"
+#line 2724 "rt/rt_core.w"
     _5 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("").ptr));
     _6 = make_str__103(_5, 0);
     goto bb1;
@@ -28061,12 +29611,12 @@ int32_t with_net_close(int32_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2547 "rt/rt_core.w"
+#line 2727 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2548 "rt/rt_core.w"
+#line 2728 "rt/rt_core.w"
     /* StorageLive(_2); */
     _2 = _1;
-#line 2549 "rt/rt_core.w"
+#line 2729 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -28076,12 +29626,12 @@ int32_t with_net_udp_bind(int32_t _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2552 "rt/rt_core.w"
+#line 2732 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2553 "rt/rt_core.w"
+#line 2733 "rt/rt_core.w"
     /* StorageLive(_2); */
     _2 = _1;
-#line 2554 "rt/rt_core.w"
+#line 2734 "rt/rt_core.w"
     _0 = -1;
     return _0;
 }
@@ -28092,16 +29642,16 @@ int32_t with_extract_runtime_obj(with_str _1, with_str _2) {
     with_str _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2564 "rt/rt_core.w"
+#line 2744 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2565 "rt/rt_core.w"
+#line 2745 "rt/rt_core.w"
     /* StorageLive(_3); */
     _3 = _1;
-#line 2566 "rt/rt_core.w"
+#line 2746 "rt/rt_core.w"
     /* StorageLive(_4); */
     _4 = _2;
-#line 2569 "rt/rt_core.w"
+#line 2749 "rt/rt_core.w"
     _0 = 1;
     return _0;
 }
@@ -28114,7 +29664,7 @@ bb0:
     _1 = rt_sysinfo_os();
     goto bb1;
 bb1:
-#line 2578 "rt/rt_core.w"
+#line 2758 "rt/rt_core.w"
     _0 = _1;
     return _0;
 }
@@ -28127,7 +29677,7 @@ bb0:
     _1 = rt_sysinfo_arch();
     goto bb1;
 bb1:
-#line 2582 "rt/rt_core.w"
+#line 2762 "rt/rt_core.w"
     _0 = _1;
     return _0;
 }
@@ -28153,18 +29703,18 @@ with_str with_sysinfo_hostname() {
     with_str _17 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2586 "rt/rt_core.w"
+#line 2766 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = ((uint8_t)(0));
     { __typeof__(_3[0]) __with_fill = _2; for (int64_t __with_i = 0; __with_i < 256; __with_i++) { _3[__with_i] = __with_fill; } }
     memcpy(_1, _3, sizeof(_1));
-#line 2587 "rt/rt_core.w"
+#line 2767 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = (&_1);
     _6 = (uint8_t**)((uint8_t**)(_5));
     _7 = (uint8_t*)((uint8_t*)(_6));
     _4 = _7;
-#line 2588 "rt/rt_core.w"
+#line 2768 "rt/rt_core.w"
     _8 = ((uint64_t)(256));
     _9 = gethostname(_4, _8);
     goto bb1;
@@ -28177,23 +29727,23 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 2589 "rt/rt_core.w"
+#line 2769 "rt/rt_core.w"
     _11 = (uint8_t*)((uint8_t*)(WITH_STR_LIT("unknown").ptr));
     _12 = make_str__103(_11, 7);
     goto bb5;
 bb3:
     goto bb4;
 bb4:
-#line 2590 "rt/rt_core.w"
+#line 2770 "rt/rt_core.w"
     _13 = 255;
     _1[_13] = 0;
-#line 2591 "rt/rt_core.w"
+#line 2771 "rt/rt_core.w"
     _14 = (uint8_t*)((uint8_t*)(_4));
     _15 = (uint8_t*)((uint8_t*)(_4));
     _16 = cstr_len__105(_15);
     goto bb7;
 bb5:
-#line 2589 "rt/rt_core.w"
+#line 2769 "rt/rt_core.w"
     _0 = _12;
     return _0;
 bb6:
@@ -28202,7 +29752,7 @@ bb7:
     _17 = alloc_str__217(_14, _16);
     goto bb8;
 bb8:
-#line 2591 "rt/rt_core.w"
+#line 2771 "rt/rt_core.w"
     _0 = _17;
     return _0;
 bb9: ;
@@ -28227,12 +29777,12 @@ int32_t with_sysinfo(uint8_t* _1) {
     int32_t _2 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2595 "rt/rt_core.w"
+#line 2775 "rt/rt_core.w"
     /* StorageLive(_1); */
     _2 = rt_sysinfo(_1);
     goto bb1;
 bb1:
-#line 2596 "rt/rt_core.w"
+#line 2776 "rt/rt_core.w"
     _0 = _2;
     return _0;
 }
@@ -28257,22 +29807,22 @@ int64_t with_scope_create() {
     int64_t _16 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2608 "rt/rt_core.w"
+#line 2788 "rt/rt_core.w"
     /* StorageLive(_1); */
     _1 = 16;
-#line 2609 "rt/rt_core.w"
+#line 2789 "rt/rt_core.w"
     /* StorageLive(_2); */
     _3 = (_1 * 4);
     _4 = (8 + _3);
     _2 = _4;
-#line 2610 "rt/rt_core.w"
+#line 2790 "rt/rt_core.w"
     /* StorageLive(_5); */
     _6 = ((int64_t)(_2));
     _7 = rt_alloc__172(_6);
     goto bb1;
 bb1:
     _5 = _7;
-#line 2611 "rt/rt_core.w"
+#line 2791 "rt/rt_core.w"
     _8 = ((int64_t)(_5));
     _9 = (_8 == 0);
     if (_9 == 1) {
@@ -28282,27 +29832,27 @@ bb1:
         goto bb3;
     }
 bb2:
-#line 2612 "rt/rt_core.w"
+#line 2792 "rt/rt_core.w"
     _0 = 0;
     return _0;
 bb3:
     goto bb4;
 bb4:
-#line 2614 "rt/rt_core.w"
+#line 2794 "rt/rt_core.w"
     /* StorageLive(_10); */
     _11 = (int32_t*)((int32_t*)(_5));
     _10 = _11;
-#line 2616 "rt/rt_core.w"
+#line 2796 "rt/rt_core.w"
     (*_10) = 0;
-#line 2618 "rt/rt_core.w"
+#line 2798 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = ((int64_t)(_5));
     _14 = (_13 + 4);
     _15 = (int32_t*)((int32_t*)(_14));
     _12 = _15;
-#line 2620 "rt/rt_core.w"
+#line 2800 "rt/rt_core.w"
     (*_12) = _1;
-#line 2621 "rt/rt_core.w"
+#line 2801 "rt/rt_core.w"
     _16 = ((int64_t)(_5));
     _0 = _16;
     return _0;
@@ -28357,10 +29907,10 @@ int32_t with_scope_track(int64_t _1, int32_t _2) {
     int32_t _42 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2624 "rt/rt_core.w"
+#line 2804 "rt/rt_core.w"
     /* StorageLive(_1); */
     /* StorageLive(_2); */
-#line 2625 "rt/rt_core.w"
+#line 2805 "rt/rt_core.w"
     _3 = (_1 == 0);
     if (_3 == 1) {
         goto bb1;
@@ -28369,28 +29919,28 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 2626 "rt/rt_core.w"
+#line 2806 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb2:
     goto bb3;
 bb3:
-#line 2627 "rt/rt_core.w"
+#line 2807 "rt/rt_core.w"
     /* StorageLive(_4); */
     _5 = (int32_t*)((int32_t*)(_1));
     _4 = _5;
-#line 2628 "rt/rt_core.w"
+#line 2808 "rt/rt_core.w"
     /* StorageLive(_6); */
     _7 = (_1 + 4);
     _8 = (int32_t*)((int32_t*)(_7));
     _6 = _8;
-#line 2629 "rt/rt_core.w"
+#line 2809 "rt/rt_core.w"
     /* StorageLive(_9); */
     _9 = (*_4);
-#line 2630 "rt/rt_core.w"
+#line 2810 "rt/rt_core.w"
     /* StorageLive(_10); */
     _10 = (*_6);
-#line 2631 "rt/rt_core.w"
+#line 2811 "rt/rt_core.w"
     _11 = (_9 >= _10);
     if (_11 == 1) {
         goto bb5;
@@ -28401,16 +29951,16 @@ bb3:
 bb4:
     goto bb3;
 bb5:
-#line 2633 "rt/rt_core.w"
+#line 2813 "rt/rt_core.w"
     /* StorageLive(_12); */
     _13 = (_10 * 2);
     _12 = _13;
-#line 2634 "rt/rt_core.w"
+#line 2814 "rt/rt_core.w"
     /* StorageLive(_14); */
     _15 = (_12 * 4);
     _16 = (8 + _15);
     _14 = _16;
-#line 2635 "rt/rt_core.w"
+#line 2815 "rt/rt_core.w"
     /* StorageLive(_17); */
     _18 = ((int64_t)(_14));
     _19 = rt_alloc__172(_18);
@@ -28418,7 +29968,7 @@ bb5:
 bb6:
     goto bb7;
 bb7:
-#line 2650 "rt/rt_core.w"
+#line 2830 "rt/rt_core.w"
     /* StorageLive(_36); */
     _37 = (_1 + 8);
     _38 = ((int64_t)(_9));
@@ -28426,17 +29976,17 @@ bb7:
     _40 = (_37 + _39);
     _41 = (int32_t*)((int32_t*)(_40));
     _36 = _41;
-#line 2652 "rt/rt_core.w"
+#line 2832 "rt/rt_core.w"
     (*_36) = _2;
-#line 2654 "rt/rt_core.w"
+#line 2834 "rt/rt_core.w"
     _42 = (_9 + 1);
     (*_4) = _42;
     _0 = _42;
     return _0;
 bb8:
-#line 2635 "rt/rt_core.w"
+#line 2815 "rt/rt_core.w"
     _17 = _19;
-#line 2636 "rt/rt_core.w"
+#line 2816 "rt/rt_core.w"
     _20 = ((int64_t)(_17));
     _21 = (_20 == 0);
     if (_21 == 1) {
@@ -28446,18 +29996,18 @@ bb8:
         goto bb10;
     }
 bb9:
-#line 2637 "rt/rt_core.w"
+#line 2817 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb10:
     goto bb11;
 bb11:
-#line 2639 "rt/rt_core.w"
+#line 2819 "rt/rt_core.w"
     /* StorageLive(_22); */
     _23 = (_9 * 4);
     _24 = (8 + _23);
     _22 = _24;
-#line 2640 "rt/rt_core.w"
+#line 2820 "rt/rt_core.w"
     _25 = (uint8_t*)((uint8_t*)(_1));
     _26 = ((int64_t)(_22));
     rt_memcpy__106(_17, _25, _26);
@@ -28465,25 +30015,25 @@ bb11:
 bb12:
     goto bb11;
 bb13:
-#line 2641 "rt/rt_core.w"
+#line 2821 "rt/rt_core.w"
     _28 = (uint8_t*)((uint8_t*)(_1));
     rt_free__174(_28);
     goto bb14;
 bb14:
-#line 2643 "rt/rt_core.w"
+#line 2823 "rt/rt_core.w"
     /* StorageLive(_30); */
     _31 = ((int64_t)(_17));
     _32 = (_31 + 4);
     _33 = (int32_t*)((int32_t*)(_32));
     _30 = _33;
-#line 2645 "rt/rt_core.w"
+#line 2825 "rt/rt_core.w"
     (*_30) = _12;
-#line 2647 "rt/rt_core.w"
+#line 2827 "rt/rt_core.w"
     _34 = ((int64_t)(_17));
     _35 = with_scope_track(_34, _2);
     goto bb15;
 bb15:
-#line 2648 "rt/rt_core.w"
+#line 2828 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return _0;
 bb16:
@@ -28552,9 +30102,9 @@ void with_scope_await_all(int64_t _1) {
     int32_t _17 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2657 "rt/rt_core.w"
+#line 2837 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2658 "rt/rt_core.w"
+#line 2838 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -28563,20 +30113,20 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 2659 "rt/rt_core.w"
+#line 2839 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return;
 bb2:
     goto bb3;
 bb3:
-#line 2660 "rt/rt_core.w"
+#line 2840 "rt/rt_core.w"
     /* StorageLive(_3); */
     _4 = (int32_t*)((int32_t*)(_1));
     _3 = _4;
-#line 2661 "rt/rt_core.w"
+#line 2841 "rt/rt_core.w"
     /* StorageLive(_5); */
     _5 = (*_3);
-#line 2662 "rt/rt_core.w"
+#line 2842 "rt/rt_core.w"
     _6 = 0;
     _7 = _5;
     goto bb5;
@@ -28591,7 +30141,7 @@ bb5:
         goto bb8;
     }
 bb6:
-#line 2663 "rt/rt_core.w"
+#line 2843 "rt/rt_core.w"
     /* StorageLive(_9); */
     _9 = _6;
     /* StorageLive(_10); */
@@ -28601,13 +30151,13 @@ bb6:
     _14 = (_11 + _13);
     _15 = (int32_t*)((int32_t*)(_14));
     _10 = _15;
-#line 2664 "rt/rt_core.w"
+#line 2844 "rt/rt_core.w"
     /* StorageLive(_16); */
     _16 = (*_10);
     with_fiber_await(_16);
     goto bb9;
 bb7:
-#line 2662 "rt/rt_core.w"
+#line 2842 "rt/rt_core.w"
     _6 = (_6 + 1);
     goto bb5;
 bb8:
@@ -28640,9 +30190,9 @@ void with_scope_destroy(int64_t _1) {
     int32_t _4 __attribute__((unused)) = {0};
     goto bb0;
 bb0:
-#line 2668 "rt/rt_core.w"
+#line 2848 "rt/rt_core.w"
     /* StorageLive(_1); */
-#line 2669 "rt/rt_core.w"
+#line 2849 "rt/rt_core.w"
     _2 = (_1 == 0);
     if (_2 == 1) {
         goto bb1;
@@ -28651,13 +30201,13 @@ bb0:
         goto bb2;
     }
 bb1:
-#line 2670 "rt/rt_core.w"
+#line 2850 "rt/rt_core.w"
     _0 = (__typeof__(_0)){0};
     return;
 bb2:
     goto bb3;
 bb3:
-#line 2671 "rt/rt_core.w"
+#line 2851 "rt/rt_core.w"
     _3 = (uint8_t*)((uint8_t*)(_1));
     rt_free__174(_3);
     goto bb5;
