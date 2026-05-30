@@ -321,6 +321,7 @@ type Sema {
 
     // Must-use / result-option / task fn tracking
     must_use_types: HashMap[i32, i32],
+    no_await_guard_types: HashMap[i32, i32],
     must_use_fns: HashMap[i32, i32],
     result_option_fns: HashMap[i32, i32],
     task_fns: HashMap[i32, i32],
@@ -437,6 +438,7 @@ type Sema {
     typed_binding_types: HashMap[i32, i32],
     typed_binding_names: HashMap[i32, i32],
     typed_binding_muts: HashMap[i32, i32],
+    ephemeral_task_binding_nodes: HashMap[i32, i32],
     typed_dump_seen_nodes: HashMap[i32, i32],
     typed_dump_visit_budget: i32,
     // Generic substitution map + specialization cache
@@ -489,6 +491,7 @@ type Sema {
     in_async_fn: i32,
     no_std: i32,
     alloc: i32,
+    runtime_available: i32,
     in_defer: i32,
     in_unsafe: i32,
     break_value_type: TypeId,
@@ -784,6 +787,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
     let sealed_impl_starts = sema_new_map_i32_i32()
     let sealed_impl_counts = sema_new_map_i32_i32()
     let must_use_types = sema_new_map_i32_i32()
+    let no_await_guard_types = sema_new_map_i32_i32()
     let must_use_fns = sema_new_map_i32_i32()
     let result_option_fns = sema_new_map_i32_i32()
     let task_fns = sema_new_map_i32_i32()
@@ -801,6 +805,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
     let typed_binding_types = sema_new_map_i32_i32()
     let typed_binding_names = sema_new_map_i32_i32()
     let typed_binding_muts = sema_new_map_i32_i32()
+    let ephemeral_task_binding_nodes = sema_new_map_i32_i32()
     let typed_dump_seen_nodes = sema_new_map_i32_i32()
     let generic_specialization_cache = sema_new_map_str_i32()
     let generic_inst_cache = sema_new_map_i64_i32()
@@ -882,6 +887,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         sealed_impl_starts,
         sealed_impl_counts,
         must_use_types,
+        no_await_guard_types,
         must_use_fns,
         result_option_fns,
         task_fns,
@@ -969,6 +975,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         typed_binding_types,
         typed_binding_names,
         typed_binding_muts,
+        ephemeral_task_binding_nodes,
         typed_dump_seen_nodes,
         typed_dump_visit_budget: 0,
         generic_subst_param_syms: Vec.new(),
@@ -1004,6 +1011,7 @@ fn sema_empty_state(pool: InternPool, diags: DiagnosticList, ast: AstPool) -> Se
         in_async_fn: 0,
         no_std: 0,
         alloc: 0,
+        runtime_available: 1,
         in_defer: 0,
         in_unsafe: 0,
         break_value_type: 0,

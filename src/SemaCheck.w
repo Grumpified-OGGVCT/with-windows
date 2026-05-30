@@ -27,6 +27,11 @@ extern fn with_regex_capture_name_at(code: *const i8, index: i32) -> str
 // docs/mut.md Rev 8 — P12 lockdown active. `&mut T` is rejected.
 const STRICT_NO_MUT_REF: i32 = 1
 
+fn Sema.require_async_runtime(self: Sema, node: i32, feature: str):
+    if self.runtime_available != 0:
+        return
+    self.emit_error(feature ++ " requires the fiber runtime", node)
+
 type SemaDynTraitMethodInfo {
     ok: i32,
     param_start: i32,
@@ -1618,15 +1623,53 @@ fn Sema.expr_is_scoped_task_value(self: Sema, node: i32) -> i32:
                 return 1
     0
 
+fn Sema.type_is_no_await_guard_direct(self: Sema, tid: i32) -> i32:
+    if tid <= 0:
+        return 0
+    let kind = self.get_type_kind(tid as TypeId)
+    if kind == TypeKind.TY_STRUCT or kind == TypeKind.TY_ENUM or kind == TypeKind.TY_ALIAS:
+        let type_sym = self.get_type_d0(tid as TypeId)
+        if self.no_await_guard_types.contains(type_sym):
+            return 1
+    if kind == TypeKind.TY_GENERIC_INST:
+        let base_sym = self.get_type_d0(tid as TypeId)
+        if self.no_await_guard_types.contains(base_sym):
+            return 1
+    0
+
+fn Sema.type_is_no_await_guard(self: Sema, tid: i32) -> i32:
+    if tid <= 0:
+        return 0
+    if self.type_is_no_await_guard_direct(tid) != 0:
+        return 1
+    let resolved = self.resolve_alias(tid as TypeId) as i32
+    if resolved != tid and self.type_is_no_await_guard_direct(resolved) != 0:
+        return 1
+    0
+
 fn Sema.has_live_await_guard(self: Sema) -> i32:
     var i = self.bind_names.len() as i32 - 1
     while i >= 0:
         if self.bind_states.get(i as i64) == VarState.LIVE:
-            let name = self.pool_resolve(self.bind_names.get(i as i64))
-            if name.ends_with("_guard"):
+            let tid = self.bind_types.get(i as i64)
+            if self.type_is_no_await_guard(tid) != 0:
                 return 1
         i = i - 1
     0
+
+fn Sema.emit_no_await_guard_may_suspend_call(self: Sema, node: i32, fn_sym: i32):
+    if self.has_live_await_guard() == 0:
+        return
+    let visiting: HashMap[i32, i32] = HashMap.new()
+    if self.fn_symbol_may_suspend(fn_sym, visiting) != 0:
+        self.emit_error("E0701: may_suspend call while no_await_guard value is live", node)
+
+fn Sema.emit_no_await_guard_may_suspend_expr(self: Sema, node: i32, expr: i32):
+    if self.has_live_await_guard() == 0:
+        return
+    let visiting: HashMap[i32, i32] = HashMap.new()
+    if self.expr_may_suspend(expr, visiting) != 0:
+        self.emit_error("E0701: may_suspend call while no_await_guard value is live", node)
 
 fn Sema.fn_symbol_may_suspend(self: Sema, fn_sym: i32, visiting: HashMap[i32, i32]) -> i32:
     if fn_sym == 0:
@@ -1796,6 +1839,245 @@ fn Sema.expr_may_suspend(self: Sema, node: i32, visiting: HashMap[i32, i32]) -> 
         return 0
     0
 
+fn Sema.fn_symbol_is_std_thread_spawn_os(self: Sema, fn_sym: i32) -> i32:
+    if self.pool_resolve(fn_sym) != "spawn_os":
+        return 0
+    let source_path = self.fn_symbol_source_path(fn_sym)
+    if source_path == "lib/std/thread.w":
+        return 1
+    if source_path == "<embedded-std>/std/thread.w":
+        return 1
+    if source_path.ends_with("/lib/std/thread.w"):
+        return 1
+    0
+
+fn Sema.fn_symbol_is_std_builtins_drop(self: Sema, fn_sym: i32) -> i32:
+    if self.pool_resolve(fn_sym) != "drop":
+        return 0
+    let source_path = self.fn_symbol_source_path(fn_sym)
+    if source_path == "lib/std/builtins.w":
+        return 1
+    if source_path == "<embedded-std>/std/builtins.w":
+        return 1
+    if source_path.ends_with("/lib/std/builtins.w"):
+        return 1
+    0
+
+fn Sema.type_is_fn_value(self: Sema, tid: i32) -> i32:
+    if tid == 0:
+        return 0
+    let resolved = self.resolve_alias(tid as TypeId)
+    if self.get_type_kind(resolved) == TypeKind.TY_FN:
+        return 1
+    0
+
+fn Sema.fn_symbol_creates_ephemeral_task(self: Sema, fn_sym: i32, visiting: HashMap[i32, i32]) -> i32:
+    if fn_sym == 0:
+        return 0
+    if visiting.contains(fn_sym):
+        return 0
+    let fn_node = self.fn_symbol_decl_node(fn_sym)
+    if fn_node == 0:
+        return 0
+    visiting.insert(fn_sym, 1)
+    let body = self.ast.get_data1(fn_node)
+    let result = self.expr_creates_ephemeral_task(body, visiting)
+    visiting.remove(fn_sym)
+    result
+
+fn Sema.callable_expr_creates_ephemeral_task(self: Sema, node: i32, visiting: HashMap[i32, i32]) -> i32:
+    if node == 0:
+        return 0
+    let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_GROUPED or kind == NodeKind.NK_CAST or kind == NodeKind.NK_COPY_ARG or kind == NodeKind.NK_MOVE_ARG:
+        return self.callable_expr_creates_ephemeral_task(self.ast.get_data0(node), visiting)
+    if kind == NodeKind.NK_CLOSURE:
+        return self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting)
+    if kind == NodeKind.NK_IDENT:
+        let sym = self.ast.get_data0(node)
+        if self.fn_symbol_creates_ephemeral_task(sym, visiting) != 0:
+            return 1
+        if self.binding_closure_nodes.contains(sym):
+            return self.callable_expr_creates_ephemeral_task(self.binding_closure_nodes.get(sym).unwrap(), visiting)
+        return 0
+    self.expr_creates_ephemeral_task(node, visiting)
+
+fn Sema.expr_creates_ephemeral_task(self: Sema, node: i32, visiting: HashMap[i32, i32]) -> i32:
+    if node == 0:
+        return 0
+    let kind = self.ast.kind(node)
+    if kind == NodeKind.NK_CALL or kind == NodeKind.NK_ASYNC_BLOCK:
+        if self.expr_is_ephemeral_task(node) != 0:
+            return 1
+    if kind == NodeKind.NK_ASYNC_BLOCK:
+        return 0
+    if kind == NodeKind.NK_CALL:
+        let callee = self.ast.get_data0(node)
+        var resolved_fn_sym = 0
+        if self.comp_resolved.contains(node):
+            resolved_fn_sym = self.comp_resolved.get(node).unwrap()
+        else if self.ast.kind(callee) == NodeKind.NK_IDENT:
+            resolved_fn_sym = self.ast.get_data0(callee)
+
+        let args_start = self.ast.get_data1(node)
+        let arg_count = self.ast.get_data2(node)
+        let sig_idx_raw = if resolved_fn_sym != 0: self.get_sig(resolved_fn_sym) else: -1
+        let sig_idx = if sig_idx_raw >= 0 and self.is_ci_visible(resolved_fn_sym) == 0: -1 else: sig_idx_raw
+        if sig_idx >= 0 and (self.fn_symbol_is_std_thread_spawn_os(resolved_fn_sym) != 0 or self.extern_fn_names.contains(resolved_fn_sym)):
+            let param_count = self.sig_get_param_count(sig_idx)
+            for cai in 0..arg_count:
+                if cai < param_count:
+                    let expected_ty = self.sig_param_type(sig_idx, cai)
+                    if self.type_is_fn_value(expected_ty) != 0:
+                        if self.callable_expr_creates_ephemeral_task(self.ast.get_extra(args_start + cai), visiting) != 0:
+                            return 1
+        if resolved_fn_sym != 0 and not self.task_fns.contains(resolved_fn_sym):
+            if self.fn_symbol_creates_ephemeral_task(resolved_fn_sym, visiting) != 0:
+                return 1
+        if self.ast.kind(callee) == NodeKind.NK_IDENT:
+            let callee_sym = self.ast.get_data0(callee)
+            if self.binding_closure_nodes.contains(callee_sym):
+                if self.callable_expr_creates_ephemeral_task(self.binding_closure_nodes.get(callee_sym).unwrap(), visiting) != 0:
+                    return 1
+        else if self.ast.kind(callee) == NodeKind.NK_CLOSURE:
+            if self.callable_expr_creates_ephemeral_task(callee, visiting) != 0:
+                return 1
+        else if self.expr_creates_ephemeral_task(callee, visiting) != 0:
+            return 1
+        for ai in 0..arg_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(args_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_BLOCK:
+        let extra_start = self.ast.get_data0(node)
+        let stmt_count = self.ast.get_data1(node)
+        for si in 0..stmt_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(extra_start + si), visiting) != 0:
+                return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_CLOSURE:
+        return 0
+    if kind == NodeKind.NK_GROUPED or kind == NodeKind.NK_CAST or kind == NodeKind.NK_DEFER or kind == NodeKind.NK_ERRDEFER or kind == NodeKind.NK_LABEL or kind == NodeKind.NK_COPY_ARG or kind == NodeKind.NK_MOVE_ARG:
+        return self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting)
+    if kind == NodeKind.NK_UNARY or kind == NodeKind.NK_RETURN:
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_BINARY or kind == NodeKind.NK_ASSIGN or kind == NodeKind.NK_PIPELINE or kind == NodeKind.NK_RANGE or kind == NodeKind.NK_COMPUTED_FIELD_ACCESS or kind == NodeKind.NK_MATCH_OP or kind == NodeKind.NK_NEG_MATCH_OP:
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_FIELD_ACCESS or kind == NodeKind.NK_INDEX or kind == NodeKind.NK_OPTIONAL_CHAIN:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_MULTI_INDEX:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let spec_start = self.ast.get_data1(node)
+        let spec_count = self.ast.get_data2(node)
+        for mi in 0..spec_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(spec_start + mi), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_INDEX_SPEC:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node) % INDEX_KIND_SHIFT, visiting)
+    if kind == NodeKind.NK_IF_EXPR:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_WHILE:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_FOR:
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_LET_BINDING or kind == NodeKind.NK_LET_DECL:
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_LET_ELSE:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_TUPLE_DESTRUCTURE:
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_WITH_EXPR or kind == NodeKind.NK_WITH_IMPLICIT:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_WITH_TUPLE:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting)
+    if kind == NodeKind.NK_TUPLE or kind == NodeKind.NK_ARRAY_LIT:
+        let extra_start = self.ast.get_data0(node)
+        let count = self.ast.get_data1(node)
+        for ai in 0..count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(extra_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_ARRAY_COMPREHENSION:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_STRUCT_LIT:
+        let extra_start = self.ast.get_data1(node)
+        let field_count = self.ast.get_data2(node)
+        for fi in 0..field_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(extra_start + fi * 2 + 1), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_RECORD_UPDATE:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let extra_start = self.ast.get_data1(node)
+        let field_count = self.ast.get_data2(node)
+        for fi in 0..field_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(extra_start + fi * 2 + 1), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_ENUM_VARIANT:
+        let extra_start = self.ast.get_data2(node)
+        if extra_start == 0:
+            return 0
+        let arg_count = self.ast.get_extra(extra_start)
+        for ai in 0..arg_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(extra_start + 1 + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_MATCH:
+        if self.expr_creates_ephemeral_task(self.ast.get_data0(node), visiting) != 0:
+            return 1
+        let arm_start = self.ast.get_data1(node)
+        let arm_count = self.ast.get_data2(node)
+        for ai in 0..arm_count:
+            if self.expr_creates_ephemeral_task(self.ast.get_extra(arm_start + ai), visiting) != 0:
+                return 1
+        return 0
+    if kind == NodeKind.NK_MATCH_ARM:
+        if self.expr_creates_ephemeral_task(self.ast.get_data1(node), visiting) != 0:
+            return 1
+        return self.expr_creates_ephemeral_task(self.ast.get_data2(node), visiting)
+    if kind == NodeKind.NK_FSTRING:
+        let seg_count = self.ast.get_data0(node)
+        let extra_start = self.ast.get_data1(node)
+        var pos = extra_start
+        for si in 0..seg_count:
+            let seg_kind = self.ast.get_extra(pos)
+            let seg_data = self.ast.get_extra(pos + 1)
+            if seg_kind == 1 and self.expr_creates_ephemeral_task(seg_data, visiting) != 0:
+                return 1
+            pos = pos + 2
+        return 0
+    0
+
 fn Sema.param_is_by_reference(self: Sema, tid: i32) -> i32:
     if tid == 0:
         return 0
@@ -1839,6 +2121,12 @@ fn Sema.check_ephemeral_task_arg_escape(self: Sema, arg_node: i32, expected_ty: 
         self.emit_error("ephemeral Task cannot be passed by value to extern function", arg_node)
         return
     self.emit_warning("ephemeral Task passed by value may escape", arg_node)
+
+fn Sema.check_ephemeral_task_storage(self: Sema, value_node: i32, context: str):
+    if value_node <= 0:
+        return
+    if self.expr_is_ephemeral_task(value_node) != 0:
+        self.emit_error("ephemeral Task cannot be stored in " ++ context, value_node)
 
 fn Sema.expr_is_ephemeral_value(self: Sema, node: i32) -> i32:
     if node == 0:
@@ -2280,6 +2568,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
         return self.check_tuple_destructure(node) as TypeId
 
     if kind == NodeKind.NK_AWAIT:
+        self.require_async_runtime(node, "await")
         if self.in_comptime_fn != 0:
             self.emit_error("await is not allowed in comptime", node)
         if self.has_live_await_guard() != 0:
@@ -2318,6 +2607,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
 
 
     if kind == NodeKind.NK_ASYNC_BLOCK:
+        self.require_async_runtime(node, "async")
         if self.in_comptime_fn != 0:
             self.emit_error("async is not allowed in comptime", node)
         let ab_saved_label_registry = self.save_label_registry()
@@ -2338,6 +2628,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
         return ab_body_ty
 
     if kind == NodeKind.NK_SPAWN:
+        self.require_async_runtime(node, "spawn")
         if self.in_comptime_fn != 0:
             self.emit_error("spawn is not allowed in comptime", node)
         let inner = self.ast.get_data0(node)
@@ -2390,6 +2681,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
         return ty
 
     if kind == NodeKind.NK_ASYNC_SCOPE:
+        self.require_async_runtime(node, "async scope")
         let body = self.ast.get_data1(node)
         let name = self.ast.get_data0(node)
         self.push_scope()
@@ -2409,6 +2701,7 @@ fn Sema.check_expr(self: Sema, node: i32) -> TypeId:
         return result
 
     if kind == NodeKind.NK_SELECT_AWAIT:
+        self.require_async_runtime(node, "select await")
         if self.has_live_await_guard() != 0:
             self.emit_error("E0701: may_suspend call while no_await_guard value is live", node)
         let extra_start = self.ast.get_data0(node)
@@ -3146,9 +3439,19 @@ fn Sema.check_block(self: Sema, node: i32) -> i32:
     self.current_block_tail = tail
 
     var last_stmt_ty: TypeId = 0 as TypeId
+    // Unreachable-code detection: once a statement unconditionally transfers
+    // control out of the block (return / break / continue), the remaining
+    // statements and the tail can never execute. Detected by node kind rather
+    // than Never typing: a void function whose body ends in a bare `return`
+    // is itself typed Never, so a *call* to it is Never without diverging.
+    var block_diverged = 0
+    var reported_unreachable = 0
     for i in 0..stmt_count:
         self.current_block_stmt_index = i
         let stmt = self.ast.get_extra(extra_start + i)
+        if block_diverged != 0 and reported_unreachable == 0:
+            self.emit_error("unreachable code", stmt)
+            reported_unreachable = 1
         let saved_stmt_pos = self.match_in_stmt_pos
         let saved_label_stmt_pos = self.stmt_pos_depth
         let saved_expected = self.expected_expr_type
@@ -3165,6 +3468,8 @@ fn Sema.check_block(self: Sema, node: i32) -> i32:
         self.typed_expr_types.insert(stmt, stmt_ty as i32)
         last_stmt_ty = stmt_ty as TypeId
         let stmt_kind = self.ast.kind(stmt)
+        if stmt_kind == NodeKind.NK_RETURN or stmt_kind == NodeKind.NK_BREAK or stmt_kind == NodeKind.NK_CONTINUE:
+            block_diverged = 1
         let can_discard_task = stmt_kind == NodeKind.NK_CALL or stmt_kind == NodeKind.NK_IDENT or stmt_kind == NodeKind.NK_GROUPED or stmt_kind == NodeKind.NK_ASYNC_BLOCK or stmt_kind == NodeKind.NK_TUPLE
         let is_discarded_task = can_discard_task and stmt_kind != NodeKind.NK_SPAWN and self.expr_is_task_value(stmt) != 0 and self.expr_is_scoped_task_value(stmt) == 0
         if is_discarded_task:
@@ -3172,6 +3477,9 @@ fn Sema.check_block(self: Sema, node: i32) -> i32:
         self.expire_dead_borrows_in_block(extra_start, stmt_count, i + 1, tail)
 
     var result: TypeId = if tail == 0 and last_stmt_ty == self.ty_never: self.ty_never else: self.ty_void
+    if tail != 0 and block_diverged != 0 and reported_unreachable == 0:
+        self.emit_error("unreachable code", tail)
+        reported_unreachable = 1
     if tail != 0:
         // If the tail is a match in a void/unspecified-return context, treat as statement
         // position so partial enum match is allowed (value is not used).
@@ -3200,6 +3508,26 @@ fn Sema.check_block(self: Sema, node: i32) -> i32:
     if result != 0 and result != self.ty_void:
         self.typed_expr_types.insert(node, result as i32)
     result as i32
+
+// True when assigning a value of type `actual` to a slot of type `expected`
+// loses information: a narrower integer (fewer bits), or a sign flip at equal
+// width. Both require an explicit `as` cast. Literals are adapted to the
+// expected type before this is consulted, so only genuinely-typed values reach
+// here with a wider/differently-signed type.
+fn Sema.int_narrowing_requires_cast(self: Sema, expected: TypeId, actual: TypeId) -> i32:
+    if expected == 0 or actual == 0:
+        return 0
+    let er = self.resolve_alias(expected)
+    let ar = self.resolve_alias(actual)
+    if self.get_type_kind(er) != TypeKind.TY_INT or self.get_type_kind(ar) != TypeKind.TY_INT:
+        return 0
+    let ew = self.get_type_d0(er)
+    let aw = self.get_type_d0(ar)
+    if ew < aw:
+        return 1
+    if ew == aw and self.get_type_d1(er) != self.get_type_d1(ar):
+        return 1
+    0
 
 fn Sema.check_let_binding(self: Sema, node: i32) -> i32:
     let name = self.ast.get_data0(node)
@@ -3245,7 +3573,9 @@ fn Sema.check_let_binding(self: Sema, node: i32) -> i32:
     if ann_type != 0:
         bind_type = ann_type
         if val_type != 0:
-            if self.types_compatible(ann_type as i32, val_type as i32) == 0:
+            if self.int_narrowing_requires_cast(ann_type, val_type) != 0:
+                self.emit_error("implicit integer narrowing or sign change; use an explicit `as` cast", node)
+            else if self.types_compatible(ann_type as i32, val_type as i32) == 0:
                 if self.arithmetic_result_type(ann_type, val_type) == 0:
                     self.emit_error("type mismatch in binding", node)
 
@@ -3257,6 +3587,8 @@ fn Sema.check_let_binding(self: Sema, node: i32) -> i32:
     if self.is_opaque_value_type(bind_type as i32) != 0:
         let opaque_node = if ann_type_node != 0: ann_type_node else: value
         self.emit_error("opaque values cannot be stored by value; use a pointer or reference", opaque_node)
+    if self.pool_resolve(name) == "_" and self.expr_is_task_value(value) != 0 and self.expr_is_scoped_task_value(value) == 0:
+        self.emit_warning("`let _ = ...` on a Task immediately cancels it", node)
 
     let had_binding = self.scope_has(name)
     self.scope_put_at(name, bind_type as i32, is_mut, node)
@@ -3272,7 +3604,10 @@ fn Sema.check_let_binding(self: Sema, node: i32) -> i32:
         is_task_val = self.type_is_task(bind_type as i32)
     self.scope_set_is_task(name, is_task_val)
     self.scope_set_is_scoped_task(name, self.expr_is_scoped_task_value(value))
-    self.scope_set_is_ephemeral_task(name, self.expr_is_ephemeral_task(value))
+    let is_ephemeral_task = self.expr_is_ephemeral_task(value)
+    self.scope_set_is_ephemeral_task(name, is_ephemeral_task)
+    if is_task_val != 0 and is_ephemeral_task != 0:
+        self.ephemeral_task_binding_nodes.insert(node, 1)
     if self.ast.kind(value) == NodeKind.NK_CLOSURE:
         self.binding_closure_nodes.insert(name, value)
     else:
@@ -4086,6 +4421,7 @@ fn Sema.check_vec_literal_elem(self: Sema, elem_ty: i32, elem_node: i32, arg_ind
     if elem_node == 0:
         return
     let actual_ty = self.check_expr_with_expected(elem_node, elem_ty)
+    self.check_ephemeral_task_storage(elem_node, "generic container")
     if elem_ty != 0 and actual_ty != 0:
         if self.types_compatible(elem_ty, actual_ty) == 0:
             if self.arithmetic_result_type(elem_ty, actual_ty) == 0:
@@ -4360,6 +4696,7 @@ fn Sema.check_array_literal(self: Sema, node: i32) -> i32:
             self.check_expr_with_expected(elem, elem_type as TypeId)
         else:
             self.check_expr(elem)
+        self.check_ephemeral_task_storage(elem, "array")
         if elem_type == 0:
             elem_type = et as i32
 
@@ -4412,6 +4749,8 @@ fn Sema.check_struct_literal(self: Sema, node: i32) -> i32:
                     else:
                         field_expected = self.struct_field_type(expected_struct_ty as i32, f_name)
                 let val_ty = if field_expected != 0: self.check_expr_with_expected(f_value, field_expected as TypeId) else: self.check_expr(f_value)
+                if not self.ephemeral_types.contains(name):
+                    self.check_ephemeral_task_storage(f_value, "non-ephemeral struct")
                 val_types.push(val_ty as i32)
             // Check if struct has type params — infer GenericInst
             if self.type_decl_nodes.contains(name):
@@ -5489,7 +5828,7 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
             return 1
         if field == self.syms.get or field == self.syms.pop or field == self.syms.remove:
             return 1
-        if field == self.syms.len or field == self.syms.contains or field == self.syms.join:
+        if self.is_collection_len_method(field) or field == self.syms.contains or field == self.syms.join:
             return 1
         if field == self.syms.iter or field == self.syms.slot or field == self.syms.get_disjoint:
             return 1
@@ -5502,7 +5841,7 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
             return 1
         if field == self.syms.get or field == self.syms.contains or field == self.syms.remove:
             return 1
-        if field == self.syms.len or field == self.syms.keys or field == self.syms.entry:
+        if self.is_collection_len_method(field) or field == self.syms.keys or field == self.syms.entry:
             return 1
         if self.pool_resolve(field) == "increment":
             return 1
@@ -5514,7 +5853,7 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
     if owner_sym == self.syms.hashset:
         if field == self.syms.insert or field == self.syms.clear:
             return 1
-        if field == self.syms.contains or field == self.syms.remove or field == self.syms.len:
+        if field == self.syms.contains or field == self.syms.remove or self.is_collection_len_method(field):
             return 1
     if owner_sym == self.syms.slotmap:
         if field == self.syms.new or field == self.syms.insert or field == self.syms.get:
@@ -5523,7 +5862,7 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
             return 1
         if field == self.syms.remove or field == self.syms.replace:
             return 1
-        if field == self.syms.contains or field == self.syms.len:
+        if field == self.syms.contains or self.is_collection_len_method(field):
             return 1
     if owner_sym == self.syms.slotmapslot:
         if field == self.syms.get or self.pool_resolve(field) == "set":
@@ -5535,7 +5874,7 @@ fn Sema.pipeline_generic_builtin_method_exists(self: Sema, owner_sym: i32, field
         if field == self.syms.unwrap or field == self.syms.is_ok or field == self.syms.is_err or self.pool_resolve(field) == "unwrap_or":
             return 1
     if owner_sym == self.syms.vecslot or owner_sym == self.syms.vecrange:
-        if field == self.syms.get or self.pool_resolve(field) == "set" or self.pool_resolve(field) == "len":
+        if field == self.syms.get or self.pool_resolve(field) == "set" or self.is_collection_len_method(field):
             return 1
     if owner_sym == self.syms.veciter or owner_sym == self.syms.veciterref or owner_sym == self.syms.veciterplace:
         if field == self.syms.next:
@@ -5936,6 +6275,8 @@ fn Sema.try_unit_elide_call_arg(self: Sema, call_node: i32, arg_count: i32, expe
     1
 
 fn Sema.check_callable_value_call(self: Sema, call_name: str, fn_tid: i32, closure_node: i32, node: i32, extra_start: i32, arg_count: i32, param_offset: i32, has_resolved: i32, arg_types: Vec[i32]) -> i32:
+    if closure_node > 0:
+        self.emit_no_await_guard_may_suspend_expr(node, closure_node)
     let expected = self.get_type_d1(fn_tid)
     let actual = arg_count + param_offset
     if self.ast.has_call_named_args(node) == 0 and self.has_resolved_call_args(node) == 0:
@@ -6292,6 +6633,14 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
                 let callback_visiting: HashMap[i32, i32] = HashMap.new()
                 if self.expr_may_suspend(arg_node, callback_visiting) != 0:
                     self.emit_error("may_suspend in extern C callback", arg_node)
+                let callback_task_visiting: HashMap[i32, i32] = HashMap.new()
+                if self.callable_expr_creates_ephemeral_task(arg_node, callback_task_visiting) != 0:
+                    self.emit_error("ephemeral Task cannot be created in extern C callback", arg_node)
+        if sig_idx >= 0 and self.fn_symbol_is_std_thread_spawn_os(fn_sym) != 0 and expected_ty != 0:
+            if self.type_is_fn_value(expected_ty) != 0:
+                let worker_task_visiting: HashMap[i32, i32] = HashMap.new()
+                if self.callable_expr_creates_ephemeral_task(arg_node, worker_task_visiting) != 0:
+                    self.emit_error("ephemeral Task cannot be created on OS thread", arg_node)
         arg_types.push(arg_ty as i32)
         let iter_idx = self.maybe_register_iter_of_self_borrow(arg_node)
         if iter_idx >= 0:
@@ -6318,9 +6667,24 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
     if self.check_comptime_call_restriction(fn_sym, node) != 0:
         return 0
 
+    // std.builtins.drop is a prelude-resolved builtin: it consumes its single
+    // argument without requiring call-site `move`, then lowers to an immediate
+    // drop instead of a runtime generic function call.
+    if self.fn_symbol_is_std_builtins_drop(fn_sym) != 0:
+        if resolved_arg_count != 1:
+            self.emit_error("function 'drop' expects 1 argument(s)", node)
+        else:
+            let drop_arg_nd = if has_resolved != 0: self.get_resolved_call_arg(node, 0) else: self.ast.get_extra(resolved_extra_start)
+            if drop_arg_nd > 0:
+                self.mark_moved_if_consumed(drop_arg_nd)
+        self.comp_resolved.insert(node, fn_sym)
+        self.typed_expr_types.insert(node, self.ty_void as i32)
+        return self.ty_void as i32
+
     // Known function
     if sig_idx >= 0:
         self.comp_resolved.insert(node, fn_sym)
+        self.emit_no_await_guard_may_suspend_call(node, fn_sym)
         let ret = self.sig_return_type(sig_idx) as i32
         // Check arg count (supports default parameters via required-count
         // metadata packed into fn_meta flags by the parser).
@@ -6416,6 +6780,7 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
     // Generic function
     if self.generic_fn_nodes.contains(fn_sym):
         let fn_node = self.generic_fn_nodes.get(fn_sym).unwrap()
+        self.emit_no_await_guard_may_suspend_call(node, fn_sym)
         let ret = self.check_generic_call(fn_sym, fn_node, arg_types, resolved_arg_count, node)
         self.comp_resolved.insert(node, fn_sym)
         self.typed_expr_types.insert(node, ret)
@@ -6440,12 +6805,13 @@ fn Sema.check_call(self: Sema, node: i32) -> i32:
                 break
             let expected_ty = final_payload_tys.get(ai as i64)
             let arg_ty = arg_types.get(ai as i64)
+            let payload_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
+            self.check_ephemeral_task_storage(if payload_arg_node > 0: payload_arg_node else: node, "enum payload")
             if expected_ty != 0 and arg_ty != 0:
                 if self.types_compatible(expected_ty, arg_ty) == 0:
                     if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
-                        let err_arg_node = if has_resolved != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(resolved_extra_start + ai)
                         let variant_name2 = self.pool_resolve(fn_sym)
-                        self.emit_argument_type_mismatch(variant_name2, fn_sym, ai, ai, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                        self.emit_argument_type_mismatch(variant_name2, fn_sym, ai, ai, expected_ty, arg_ty, if payload_arg_node > 0: payload_arg_node else: node)
         let resolved_variant_sym = self.qualified_enum_variant_sym(final_variant_ty as i32, fn_sym)
         self.comp_resolved.insert(node, resolved_variant_sym)
         self.typed_expr_types.insert(node, final_variant_ty as i32)
@@ -7690,12 +8056,27 @@ fn Sema.ensure_option_type_for(self: Sema, elem_ty: i32) -> i32:
     args.push(elem_ty)
     self.ensure_generic_inst_type(self.syms.option, args, 1) as i32
 
+fn Sema.collection_len_method_return_type(self: Sema, method_name: str) -> i32:
+    if method_name == "len":
+        return self.ty_usize as i32
+    if method_name == "len32":
+        return self.ty_i32 as i32
+    if method_name == "len64":
+        return self.ty_i64 as i32
+    if method_name == "ulen32":
+        return self.ty_u32 as i32
+    0
+
+fn Sema.is_collection_len_method(self: Sema, field: i32) -> bool:
+    self.collection_len_method_return_type(self.pool_resolve(field)) != 0
+
 fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_sym: i32, field: i32) -> i32:
     if recv_type == 0:
         return 0
     let resolved = self.resolve_alias(recv_type as TypeId)
     let tk = self.get_type_kind(resolved)
     let method_name = self.pool_resolve(field)
+    let len_method_ret = self.collection_len_method_return_type(method_name)
 
     if owner_sym == self.syms.vec:
         if field == self.syms.new or method_name == "with_capacity":
@@ -7729,8 +8110,8 @@ fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_s
                 return self.ensure_option_type_for(elem_ty)
             if field == self.syms.contains:
                 return self.ty_bool as i32
-            if field == self.syms.len:
-                return self.ty_i64 as i32
+            if len_method_ret != 0:
+                return len_method_ret
     if owner_sym == self.syms.slotmapslot:
         if tk == TypeKind.TY_GENERIC_INST:
             if field == self.syms.get:
@@ -7771,8 +8152,8 @@ fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_s
             return self.ty_void as i32
 
     if tk == TypeKind.TY_STR:
-        if field == self.syms.len:
-            return self.ty_i64 as i32
+        if len_method_ret != 0:
+            return len_method_ret
         if method_name == "byte_at":
             return self.ty_i32 as i32
         if field == self.syms.contains or field == self.syms.starts_with or field == self.syms.ends_with:
@@ -7784,8 +8165,8 @@ fn Sema.builtin_intrinsic_method_return_type(self: Sema, recv_type: i32, owner_s
         if method_name == "split":
             return self.ensure_vec_str_type()
     if tk == TypeKind.TY_ARRAY:
-        if field == self.syms.len:
-            return self.ty_i32 as i32
+        if len_method_ret != 0:
+            return len_method_ret
     if tk == TypeKind.TY_INT:
         if method_name == "rotate_left" or method_name == "rotate_right" or method_name == "swap_bytes" or method_name == "bitreverse" or method_name == "min" or method_name == "max":
             return recv_type
@@ -7830,6 +8211,38 @@ fn Sema.method_expected_arg_type(self: Sema, recv_type: i32, field: i32, arg_ind
         return self.get_generic_inst_arg(resolved as i32, 0)
     if (owner_sym == self.syms.option or owner_sym == self.syms.result) and method_name == "unwrap_or" and arg_index == 0:
         return self.get_generic_inst_arg(resolved as i32, 0)
+    0
+
+fn Sema.method_arg_stores_value(self: Sema, recv_type: i32, field: i32, arg_index: i32) -> i32:
+    if recv_type == 0:
+        return 0
+    var resolved = self.resolve_alias(recv_type as TypeId)
+    resolved = self.auto_deref_ref_ptr_type(resolved) as TypeId
+    if self.get_type_kind(resolved) != TypeKind.TY_GENERIC_INST:
+        return 0
+    let owner_sym = self.get_generic_inst_base(resolved as i32)
+    let method_name = self.pool_resolve(field)
+    if owner_sym == self.syms.vec:
+        if field == self.syms.push and arg_index == 0:
+            return 1
+    if owner_sym == self.syms.hashset:
+        if field == self.syms.insert and arg_index == 0:
+            return 1
+    if owner_sym == self.syms.hashmap:
+        if field == self.syms.insert and (arg_index == 0 or arg_index == 1):
+            return 1
+    if owner_sym == self.syms.hashmapentry:
+        if field == self.syms.or_insert and arg_index == 0:
+            return 1
+        if method_name == "set" and arg_index == 0:
+            return 1
+    if owner_sym == self.syms.slotmap:
+        if field == self.syms.insert and arg_index == 0:
+            return 1
+        if field == self.syms.replace and arg_index == 1:
+            return 1
+    if owner_sym == self.syms.slotmapslot and method_name == "set" and arg_index == 0:
+        return 1
     0
 
 fn Sema.sender_send_element_type(self: Sema, recv_type: i32, field: i32, arg_index: i32) -> i32:
@@ -8179,6 +8592,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
             mc_expected = self.method_expected_arg_type(obj_type as i32, field, ai)
         let mc_arg_ty = if mc_expected != 0: self.check_expr_with_expected(mc_arg_node, mc_expected as TypeId) else: self.check_expr(mc_arg_node)
         arg_types.push(mc_arg_ty as i32)
+        if self.method_arg_stores_value(obj_type as i32, field, ai) != 0:
+            self.check_ephemeral_task_storage(mc_arg_node, "generic container")
         let mc_sender_elem_ty = self.sender_send_element_type(obj_type as i32, field, ai)
         if mc_sender_elem_ty != 0:
             if self.type_is_ephemeral_value(mc_sender_elem_ty) != 0 or self.type_is_ephemeral_value(mc_arg_ty as i32) != 0 or self.expr_is_ephemeral_value(mc_arg_node) != 0 or self.expr_is_ephemeral_task(mc_arg_node) != 0:
@@ -8232,6 +8647,15 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
         return 0
 
     let resolved = self.resolve_alias(obj_type)
+    let method_name_raw = self.pool_resolve(field)
+    if method_name_raw == "as_option":
+        if self.get_type_kind(resolved) == TypeKind.TY_PTR:
+            if mc_resolved_arg_count != 0:
+                self.emit_error("raw pointer as_option() expects no arguments", node)
+                return 0
+            let opt_ty = self.ensure_option_type_for(resolved as i32)
+            self.typed_expr_types.insert(node, opt_ty)
+            return opt_ty
     // Normalize method receivers through ref/ptr layers so builtin
     // method typing matches field access auto-deref behavior.
     var recv_type = self.auto_deref_ref_ptr_type(resolved)
@@ -8381,13 +8805,14 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 break
             let expected_ty = payload_tys.get(ai as i64)
             let arg_ty = arg_types.get(ai as i64)
+            let static_payload_arg_node = if mc_has_resolved_args != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
+            self.check_ephemeral_task_storage(if static_payload_arg_node > 0: static_payload_arg_node else: node, "enum payload")
             if expected_ty != 0 and arg_ty != 0:
                 if self.types_compatible(expected_ty, arg_ty) == 0:
-                if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
+                    if self.arithmetic_result_type(expected_ty, arg_ty) == 0:
                         let owner_name = self.type_name(obj_type)
                         let variant_name = self.pool_resolve(field)
-                        let err_arg_node = if mc_has_resolved_args != 0: self.get_resolved_call_arg(node, ai) else: self.ast.get_extra(extra_start + ai)
-                        self.emit_argument_type_mismatch(owner_name ++ "." ++ variant_name, field, ai, ai, expected_ty, arg_ty, if err_arg_node > 0: err_arg_node else: node)
+                        self.emit_argument_type_mismatch(owner_name ++ "." ++ variant_name, field, ai, ai, expected_ty, arg_ty, if static_payload_arg_node > 0: static_payload_arg_node else: node)
         return obj_type as i32
 
     if self.static_receiver_type_is_known(expr) != 0 and self.pool_resolve(field) == "from_int":
@@ -8413,6 +8838,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
     if type_name_sym != 0:
         let generic_method_fn = self.lookup_generic_method_fn(type_name_sym, field)
         if generic_method_fn != 0:
+            self.emit_no_await_guard_may_suspend_call(node, generic_method_fn)
             let generic_ret = self.check_generic_method_call(type_name_sym, recv_type as i32, generic_method_fn, is_static_receiver, arg_types, extra_start, mc_resolved_arg_count, node)
             return generic_ret
 
@@ -8424,6 +8850,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return 0
             if method_fn_sym != 0:
                 self.comp_resolved.insert(node, method_fn_sym)
+                self.emit_no_await_guard_may_suspend_call(node, method_fn_sym)
             let mc_ret = self.sig_return_type(sig_idx)
             // For TypeKind.TY_GENERIC_INST receivers, check arg types and substitute return type
             let mc_resolved_tk = self.get_type_kind(recv_type)
@@ -8564,6 +8991,7 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                     if self.builtin_arg_type_compatible(slot_elem_ty, set_arg_ty) == 0:
                         self.emit_argument_type_mismatch(mc_call_name, 0, 0, 0, slot_elem_ty, set_arg_ty, self.ast.get_extra(extra_start))
         // Return types for builtin generic methods
+        let generic_len_ret = self.collection_len_method_return_type(mc_method_name_raw)
         if type_name_sym == self.syms.vec:
             if field == self.syms.push:
                 return recv_type as i32
@@ -8571,8 +8999,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.ty_void as i32
             if field == self.syms.get or field == self.syms.pop or field == self.syms.remove:
                 return self.get_generic_inst_arg(recv_type, 0)
-            if field == self.syms.len:
-                return self.ty_i64 as i32
+            if generic_len_ret != 0:
+                return generic_len_ret
             if field == self.syms.contains:
                 return self.ty_bool as i32
             if field == self.syms.join:
@@ -8656,8 +9084,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.get_generic_inst_arg(recv_type, 0)
             if mc_method_name_raw == "set":
                 return self.ty_void as i32
-            if mc_method_name_raw == "len":
-                return self.ty_i64 as i32
+            if generic_len_ret != 0:
+                return generic_len_ret
         if type_name_sym == self.syms.veciterplace:
             if field == self.syms.next:
                 let ip_elem_ty = self.get_generic_inst_arg(recv_type, 0)
@@ -8704,8 +9132,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.ty_bool as i32
             if field == self.syms.remove:
                 return self.get_generic_inst_arg(recv_type, 1)
-            if field == self.syms.len:
-                return self.ty_i64 as i32
+            if generic_len_ret != 0:
+                return generic_len_ret
             if field == self.syms.keys:
                 let key_ty = self.get_generic_inst_arg(recv_type, 0)
                 let key_vec_tid = self.find_generic_inst(self.syms.vec, key_ty)
@@ -8733,8 +9161,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.ty_void as i32
             if field == self.syms.contains or field == self.syms.remove:
                 return self.ty_bool as i32
-            if field == self.syms.len:
-                return self.ty_i64 as i32
+            if generic_len_ret != 0:
+                return generic_len_ret
         if type_name_sym == self.syms.slotmap:
             let sm_elem_ret_ty = self.get_generic_inst_arg(recv_type, 0)
             if field == self.syms.insert:
@@ -8753,8 +9181,8 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
                 return self.ensure_option_type_for(sm_elem_ret_ty)
             if field == self.syms.contains:
                 return self.ty_bool as i32
-            if field == self.syms.len:
-                return self.ty_i64 as i32
+            if generic_len_ret != 0:
+                return generic_len_ret
         if type_name_sym == self.syms.slotmapslot:
             if field == self.syms.get:
                 return self.get_generic_inst_arg(recv_type, 0)
@@ -8783,15 +9211,16 @@ fn Sema.check_method_call_parts(self: Sema, expr: i32, field: i32, extra_start: 
 
     // Return types for primitive type methods
     let resolved_tk = self.get_type_kind(recv_type)
+    let primitive_len_ret = self.collection_len_method_return_type(self.pool_resolve(field))
     if resolved_tk == TypeKind.TY_STR:
-        if field == self.syms.len:
-            return self.ty_i64 as i32
+        if primitive_len_ret != 0:
+            return primitive_len_ret
         let str_builtin_ret = self.builtin_intrinsic_method_return_type(recv_type as i32, type_name_sym, field)
         if str_builtin_ret != 0:
             return str_builtin_ret
     if resolved_tk == TypeKind.TY_ARRAY:
-        if field == self.syms.len:
-            return self.ty_i32 as i32
+        if primitive_len_ret != 0:
+            return primitive_len_ret
 
     // Static method call on a named type expression.
     if static_type_sym != 0 and self.static_receiver_type_is_known(expr) != 0:

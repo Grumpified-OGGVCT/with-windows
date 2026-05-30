@@ -25,6 +25,11 @@ pub fn runtime_fiber_is_completed(fiber_id: i32) -> i32:
     let _ = fiber_id
     0
 
+@[c_export("with_runtime_fiber_is_live")]
+pub fn runtime_fiber_is_live(fiber_id: i32) -> i32:
+    let _ = fiber_id
+    0
+
 @[c_export("with_runtime_take_completed_fiber")]
 pub fn runtime_take_completed_fiber(fiber_id: i32, panic_msg_out: *mut *const u8, panic_msg_len_out: *mut i32, cancelled_return_out: *mut i32) -> i32:
     let _ = fiber_id
@@ -53,6 +58,12 @@ pub fn fiber_cleanup_await(fiber_id: i32):
 @[c_export("with_runtime_request_cancel")]
 pub fn runtime_request_cancel(fiber_id: i32) -> i32:
     let _ = fiber_id
+    0
+
+@[c_export("with_fiber_detach_cancel")]
+pub fn fiber_detach_cancel(fiber_id: i32, result_buf: *mut u8) -> i32:
+    let _ = fiber_id
+    let _ = result_buf
     0
 
 @[c_export("with_runtime_current_cancel_requested")]

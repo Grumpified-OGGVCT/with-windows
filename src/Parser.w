@@ -26,6 +26,7 @@ type Parser {
     pending_inline: i32,
     pending_noinline: i32,
     pending_must_use: i32,
+    pending_no_await_guard: i32,
     pending_panic_handler: i32,
     pending_entry: i32,
     pending_no_main: i32,
@@ -92,6 +93,7 @@ fn Parser.init_with_pool(tokens: TokenList, source: str, file_id: i32, intern: I
         pending_inline: 0,
         pending_noinline: 0,
         pending_must_use: 0,
+        pending_no_await_guard: 0,
         pending_panic_handler: 0,
         pending_entry: 0,
         pending_no_main: 0,
@@ -433,6 +435,7 @@ fn Parser.skip_attributes(self: Parser):
     self.pending_inline = 0
     self.pending_noinline = 0
     self.pending_must_use = 0
+    self.pending_no_await_guard = 0
     self.pending_panic_handler = 0
     self.pending_entry = 0
     self.pending_no_main = 0
@@ -469,6 +472,8 @@ fn Parser.skip_attributes(self: Parser):
             let attr_text = self.source.slice(attr_s as i64, attr_e as i64)
             if attr_text == "must_use":
                 self.pending_must_use = 1
+            if attr_text == "no_await_guard":
+                self.pending_no_await_guard = 1
             if attr_text == "flags":
                 self.pending_flags = 1
             if attr_text == "specified":
@@ -511,6 +516,9 @@ fn Parser.skip_attributes(self: Parser):
             self.pending_noinline = 1
             self.advance()
         else if self.is_ident_named("must_use"):
+            // Already handled by standalone check above
+            self.advance()
+        else if self.is_ident_named("no_await_guard"):
             // Already handled by standalone check above
             self.advance()
         else if self.is_ident_named("panic_handler"):
@@ -1457,6 +1465,9 @@ fn Parser.finish_type_decl(self: Parser, node: NodeId) -> NodeId:
     self.pending_derive_count = 0
     if self.pending_must_use != 0:
         self.pool.mark_must_use_type(node)
+    if self.pending_no_await_guard != 0:
+        self.pool.mark_no_await_guard_type(node)
+    self.pending_no_await_guard = 0
     node
 
 fn Parser.parse_struct_body(self: Parser) -> i32:
@@ -3812,8 +3823,43 @@ fn Parser.maybe_wrap_implicit_it(self: Parser, expr: i32) -> NodeId:
     self.pool.add_extra(0)
     self.pool.add_node(NodeKind.NK_CLOSURE, self.pool.get_start(expr), self.pool.get_end(expr), expr, param_start, 1)
 
+fn Parser.parse_assert_matches(self: Parser, callee: i32) -> NodeId:
+    // Already consumed `(`. Parse `value , pattern )` and desugar to
+    //   match value: pattern => () ; _ => assert_matches_failed()
+    let start = self.pool.get_start(callee)
+    let saved_sb = self.suppress_brace
+    self.suppress_brace = 0
+    self.skip_newlines()
+    let value = self.parse_expr()
+    self.skip_newlines()
+    if self.expect(TokenKind.TK_COMMA) == 0:
+        self.suppress_brace = saved_sb
+        return self.poisoned_expr()
+    self.skip_newlines()
+    let pat = self.parse_pattern()
+    self.skip_newlines()
+    self.expect(TokenKind.TK_R_PAREN)
+    self.suppress_brace = saved_sb
+    let end = self.prev_end()
+    // Matched arm: unit; wildcard arm: panic via the prelude helper.
+    let unit_body = self.pool.add_node(NodeKind.NK_TUPLE, start, end, self.pool.extra_len(), 0, 0)
+    let fail_callee = self.pool.add_node(NodeKind.NK_IDENT, start, end, self.intern.intern("assert_matches_failed"), 0, 0)
+    let fail_call = self.pool.add_node(NodeKind.NK_CALL, start, end, fail_callee, self.pool.extra_len(), 0)
+    let extra_start = self.pool.extra_len()
+    let arm1 = self.pool.add_node(NodeKind.NK_MATCH_ARM, start, end, pat, unit_body, 0)
+    self.pool.add_extra(arm1)
+    let wildcard = self.pool.add_node(NodeKind.NK_PAT_WILDCARD, start, start, 0, 0, 0)
+    let arm2 = self.pool.add_node(NodeKind.NK_MATCH_ARM, start, end, wildcard, fail_call, 0)
+    self.pool.add_extra(arm2)
+    self.pool.add_node(NodeKind.NK_MATCH, start, end, value, extra_start, 2)
+
 fn Parser.parse_call(self: Parser, callee: i32) -> NodeId:
     self.advance()  // consume (
+    // `assert_matches(value, pattern)` takes a pattern in argument position,
+    // which the normal expression parser cannot represent (e.g. `Err(_)` would
+    // be read as partial application). Desugar it at parse time into a match.
+    if self.pool.kind(callee) == NodeKind.NK_IDENT and self.intern.resolve(self.pool.get_data0(callee)) == "assert_matches":
+        return self.parse_assert_matches(callee)
     let saved_suppress_brace = self.suppress_brace
     self.suppress_brace = 0
     self.skip_newlines()

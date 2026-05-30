@@ -66,6 +66,26 @@ pub fn check(cond: bool, msg: str, loc: str = src()) -> void:
     if not cond:
         with_panic(msg, loc, 0)
 
+/// Assert that two values are equal. Panics showing both values if not.
+/// (No location parameter: generic functions cannot yet take default args.)
+pub fn assert_eq[T: Eq + Debug](left: T, right: T) -> void:
+    if left != right:
+        with_panic(f"assertion failed: {left:?} != {right:?}", "", 0)
+
+/// Assert that two values are not equal. Panics showing both values if they are.
+pub fn assert_ne[T: Eq + Debug](left: T, right: T) -> void:
+    if left == right:
+        with_panic(f"assertion failed: {left:?} == {right:?}", "", 0)
+
+/// Panic helper invoked by the `assert_matches` desugaring when the value does
+/// not match the expected pattern.
+pub fn assert_matches_failed() -> void:
+    with_panic("assertion failed: value did not match the expected pattern", "", 0)
+
+/// Explicitly drop a value at this point in the current scope.
+pub fn drop[T](val: T) -> void:
+    ()
+
 // ── ToString trait and impls ────────────────────────────────────
 
 pub trait ToString =
